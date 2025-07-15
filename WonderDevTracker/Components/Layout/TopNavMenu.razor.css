@@ -1,0 +1,18 @@
+﻿.navStyle {
+    background-color: var(--sjw-theme-850);
+    
+}
+
+.nav-item {
+    --bs-navbar-hover-color: var(--sjw-theme-400);   
+    --bs-nav-link-hover-color: var(--sjw-theme-400);
+}
+
+.dropdown-menu {
+    background-color: var(--sjw-theme-900);
+   
+}
+/** "has"checks to see if something is on a link */
+.dropdown:has(.nav-link.active) .dropdown-toggle {
+    color: var(--bs-navbar-active-color);
+}

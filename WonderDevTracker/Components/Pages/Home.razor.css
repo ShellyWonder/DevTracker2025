@@ -1,0 +1,39 @@
+﻿.pageStyle {
+    background: url(/img/LandingPageBG.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.title {
+    font-family: var(--sjw-title-font);
+    font-size: 3rem;
+    color: var(--sjw-title-color);
+    line-height: 3rem;
+}
+
+.subTitle {
+    font-size: 1rem;
+    font-family: var(--sjw-body-font);
+}
+
+.devicons {
+    font-size: 2.5rem;
+}
+
+@media (max-width: 992px) {
+    .title {
+
+        font-size: 3.5rem;
+        line-height: 4rem;
+        margin-top: 1rem;
+    }
+
+    .subTitle {
+        font-size: 1.5rem;
+    }
+
+    .devicons {
+        font-size: 2.5rem;
+    }
+}
