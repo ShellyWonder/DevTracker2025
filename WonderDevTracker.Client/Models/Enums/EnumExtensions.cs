@@ -5,7 +5,7 @@ namespace WonderDevTracker.Client.Models.Enums
 {
     public static class EnumExtensions
     {
-        public static string GetDisplayName(Enum value)
+        public static string GetDisplayName(this Enum value)
         {
             string? displayName = value.GetType()
                                        .GetMember(value.ToString())
