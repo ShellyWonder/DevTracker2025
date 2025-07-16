@@ -13,6 +13,10 @@ namespace WonderDevTracker.Models
 
         //navigation property within Db for profile picture
         public virtual FileUpload? ProfilePicture { get; set; } //navigation property for profile picture
+
+        public int CompanyId { get; set; }
+        public virtual Company? Company { get; set; } 
+        public virtual ICollection<Project>? Projects { get; set; } = [];
     }
 
 }
