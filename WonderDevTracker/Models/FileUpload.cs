@@ -2,7 +2,7 @@
 
 namespace WonderDevTracker.Models
 {
-    public class ImageUpload
+    public class FileUpload
     {
         public Guid Id { get; set; }
 
@@ -14,6 +14,6 @@ namespace WonderDevTracker.Models
 
         [Required]
         //calculated property
-        public string Url => $"/uploads/{Id}";
+        public string Url => $"/api/uploads/{Id}";
     }
 }
