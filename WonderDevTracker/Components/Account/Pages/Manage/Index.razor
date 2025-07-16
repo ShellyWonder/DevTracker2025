@@ -105,9 +105,9 @@
             _context.Add(newProfilePic);
 
             //delete previous profile image
-            FileUpload? oldProfilePic = await _context.Images.FirstOrDefaultAsync(i => i.Id == user.ProfilePictureId);
+            FileUpload? oldProfilePic = await _context.Uploads.FirstOrDefaultAsync(i => i.Id == user.ProfilePictureId);
 
-            if (oldProfilePic is not null) _context.Images.Remove(oldProfilePic);
+            if (oldProfilePic is not null) _context.Uploads.Remove(oldProfilePic);
 
             user.ProfilePictureId = newProfilePic.Id;
             _context.Users.Update(user);
