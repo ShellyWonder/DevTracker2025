@@ -13,7 +13,7 @@ namespace WonderDevTracker.Models
 
         public Guid? ImageId { get; set; }
 
-        public virtual ImageUpload? Image { get; set; }
+        public virtual FileUpload? Image { get; set; }
 
         public virtual ICollection<ApplicationUser>? Members { get; set; } = [];
         public virtual ICollection<Project>? Projects { get; set; } = [];

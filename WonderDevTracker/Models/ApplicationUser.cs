@@ -12,7 +12,7 @@ namespace WonderDevTracker.Models
         public Guid? ProfilePictureId { get; set; }
 
         //navigation property within Db for profile picture
-        public virtual ImageUpload? ProfilePicture { get; set; } //navigation property for profile picture
+        public virtual FileUpload? ProfilePicture { get; set; } //navigation property for profile picture
     }
 
 }

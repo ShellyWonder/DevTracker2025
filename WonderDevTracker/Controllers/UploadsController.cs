@@ -15,7 +15,7 @@ namespace WonderDevTracker.Controllers
         [OutputCache(VaryByRouteValueNames = ["id"], Duration = 60 * 60 * 24)]
         public async Task<IActionResult> GetImage(Guid id)
         {
-            ImageUpload? image = await _context.Images.FirstOrDefaultAsync(i => i.Id == id);
+            FileUpload? image = await _context.Images.FirstOrDefaultAsync(i => i.Id == id);
             if (image is null) return NotFound();
 
             //return byte array to the frontend for conversion into a src tag displaying on the page

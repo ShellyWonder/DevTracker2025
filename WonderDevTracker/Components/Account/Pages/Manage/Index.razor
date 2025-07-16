@@ -101,11 +101,11 @@
         try
         {
             //save the new profile picture
-            ImageUpload newProfilePic = await ImageHelper.GetImageUploadAsync(Input.ProfilePicture);
+            FileUpload newProfilePic = await ImageHelper.GetImageUploadAsync(Input.ProfilePicture);
             _context.Add(newProfilePic);
 
             //delete previous profile image
-            ImageUpload? oldProfilePic = await _context.Images.FirstOrDefaultAsync(i => i.Id == user.ProfilePictureId);
+            FileUpload? oldProfilePic = await _context.Images.FirstOrDefaultAsync(i => i.Id == user.ProfilePictureId);
 
             if (oldProfilePic is not null) _context.Images.Remove(oldProfilePic);
 

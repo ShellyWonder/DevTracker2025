@@ -39,7 +39,7 @@ namespace WonderDevTracker.Models
         public bool Archived { get; set; } = false;
 
         public Guid? ImageId { get; set; }
-        public virtual ImageUpload? Image { get; set; }
+        public virtual FileUpload? Image { get; set; }
 
         //foreign key to Company
         public int CompanyId { get; set; }

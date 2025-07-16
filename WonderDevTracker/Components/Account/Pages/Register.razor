@@ -118,7 +118,7 @@
         {
             try
             {
-                ImageUpload profilePic = await ImageHelper.GetImageUploadAsync(Input.ProfilePicture);
+                FileUpload profilePic = await ImageHelper.GetImageUploadAsync(Input.ProfilePicture);
                 user.ProfilePicture = profilePic;
                 _context.Images.Add(profilePic);
                 _context.Users.Update(user);
