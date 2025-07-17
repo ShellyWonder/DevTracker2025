@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\CombinedModelsAndEnums.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\WonderDevTracker.Client\WonderDevTracker.Client.csproj" />
     <PackageReference Include="Bogus" Version="35.6.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.16" />

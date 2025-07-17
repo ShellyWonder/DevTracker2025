@@ -4,25 +4,15 @@
     --sjw-font-size: 1.1rem;
     --sjw-title-color: var(--sjw-dark-color);
 }
-
-
-html, body {
-    font-family: var(--sjw-body-font);
-    font-size: var(--sjw-font-size);
-    /*used to push the footer to the bottom of the page;*/
+/* #region Global CSS */
+html{
+    height: 100dvh;
+}
+body {
     height: 100%;
-    min-height: 100vh;
 }
+/* #endregion Global CSS*/
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--sjw-title-font);
-    color: var(--sjw-dark-color);
-}
-
-.h1, .h2, .h3, .h4, .h5, .h6 {
-    font-family: var(--sjw-title-font);
-    color: var(--sjw-dark-color);
-}
 /* #region Blazor default CSS */
 h1:focus {
     outline: none;
