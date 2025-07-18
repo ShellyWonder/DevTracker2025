@@ -7,10 +7,10 @@ namespace WonderDevTracker.Client.Services
     public class ThemeManagerService(ILocalStorageService localStorage)
     {
         private readonly ILocalStorageService _localStorage = localStorage;
-        private const string ThemePreferenceKey = "user-theme";
+        private const string _themePreferenceKey = "user-theme";
 
-        public MudTheme CurrentTheme { get; private set; } = AppThemes.Light;
-        public bool IsDarkMode => CurrentTheme == AppThemes.Dark;
+        public MudTheme CurrentTheme { get; private set; } = AppThemes.PaletteLightTheme;
+        public bool IsDarkMode => CurrentTheme == AppThemes.PaletteDarkTheme;
 
         public event Action? OnThemeChanged;
 
@@ -18,13 +18,13 @@ namespace WonderDevTracker.Client.Services
         {
             try
             {
-                var savedTheme = await _localStorage.GetItemAsync<string>(ThemePreferenceKey);
-                CurrentTheme = savedTheme == "dark" ? AppThemes.Dark : AppThemes.Light;
+                var savedTheme = await _localStorage.GetItemAsync<string>(_themePreferenceKey);
+                CurrentTheme = savedTheme == "dark" ? AppThemes.PaletteDarkTheme : AppThemes.PaletteLightTheme;
             }
             catch
             {
                 // fallback to default
-                CurrentTheme = AppThemes.Light;
+                CurrentTheme = AppThemes.PaletteLightTheme;
             }
             NotifyThemeChanged();
         }
@@ -34,13 +34,13 @@ namespace WonderDevTracker.Client.Services
         {
             if (IsDarkMode)
             {
-                CurrentTheme = AppThemes.Light;
-                await _localStorage.SetItemAsync(ThemePreferenceKey, "light");
+                CurrentTheme = AppThemes.PaletteLightTheme;
+                await _localStorage.SetItemAsync(_themePreferenceKey, "light");
             }
             else
             {
-                CurrentTheme = AppThemes.Dark;
-                await _localStorage.SetItemAsync(ThemePreferenceKey, "dark");
+                CurrentTheme = AppThemes.PaletteDarkTheme;
+                await _localStorage.SetItemAsync(_themePreferenceKey, "dark");
             }
 
             NotifyThemeChanged();
