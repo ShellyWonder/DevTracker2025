@@ -1,7 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@inject ThemeManagerService themeService
+@inherits LayoutComponentBase
 
 @* Required *@
-<MudThemeProvider />
+<MudThemeProvider Theme="@themeService.CurrentTheme" />
 <MudPopoverProvider />
 
 @* Needed for dialogs *@
@@ -41,4 +42,18 @@
 
     void DrawerToggle() => _drawerOpen = !_drawerOpen;
     
+    private bool _initialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            //checking local storage for theme preference
+            await themeService.InitializeAsync();
+            themeService.OnThemeChanged += StateHasChanged;
+            _initialized = true;
+            StateHasChanged(); // optional: re-render with correct theme
+        }
+    }
+
 }

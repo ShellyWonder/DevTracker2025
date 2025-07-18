@@ -1,7 +1,9 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using WonderDevTracker.Client.Services;
 using WonderDevTracker.Components;
 using WonderDevTracker.Components.Account;
 using WonderDevTracker.Data;
@@ -24,6 +26,8 @@ builder.Services.AddHttpClient();
 //to cache images in the browser
 builder.Services.AddOutputCache();
 builder.Services.AddMudServices();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<ThemeManagerService>();
 
 
 
