@@ -1,0 +1,27 @@
+﻿.footerStyle {
+  /*  background: linear-gradient(to top, #4A90E2, #6BB8F6);  lightened gradient */
+    background: var(--mud-palette-primary);  /*primary color from MudBlazor theme */
+    color: #F9FCFE; /* soft off-white text */
+    padding: 2rem 1.5rem;
+    text-align: center;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    border-top: 1px solid #DDE6EC;
+}
+
+/*.footerStyle a {
+    color: var(--sjw-theme-200);
+}
+
+.footerStyle a:hover{
+    color: var(--sjw-theme-core);
+}*/
+
+.bi {
+    font-size: 2rem;
+    padding-inline-start: .5rem;
+}
+.copyright{
+    font-size: 1.25rem;
+   /* color: var(--sjw-theme-200);*/
+}

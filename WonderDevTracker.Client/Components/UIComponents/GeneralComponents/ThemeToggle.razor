@@ -1,0 +1,18 @@
+﻿@* ThemeToggle *@
+
+@inject ThemeManagerService ThemeService
+
+<MudIconButton Icon="@ToggleIcon"
+               Color="Color.Inherit"
+               OnClick="@ToggleTheme"
+               AriaLabel="Toggle theme"
+               Class="ml-auto" />
+
+@code {
+    private string ToggleIcon => ThemeService.IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode;
+
+    private async Task ToggleTheme()
+    {
+        await ThemeService.ToggleThemeAsync();
+    }
+}

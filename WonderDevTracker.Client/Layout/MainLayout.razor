@@ -13,9 +13,11 @@
 
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Dev Tracker</MudText>
-    </MudAppBar>
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => DrawerToggle())" />
+    <Logo />
+</MudAppBar>
+
+
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
        <NavMenu/>
     </MudDrawer>
@@ -24,7 +26,7 @@
         @Body
         </main>
         <footer>
-            TODO: FOOTER GOES HERE
+            <Footer />
         </footer>
 
         <div id="blazor-error-ui">

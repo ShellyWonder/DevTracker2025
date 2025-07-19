@@ -1,0 +1,86 @@
+﻿logo-container {
+    display: flex;
+    align-items: baseline;
+    animation: logo-fade-slide 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes logo-fade-slide {
+    0% {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.logo-container:hover {
+    animation: logo-hover-bounce 0.3s ease-out;
+}
+
+@keyframes logo-hover-bounce {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.logo-image {
+    height: 2.2rem;
+    transform: translateY(-0.35rem);
+    margin-right: -0.35rem;
+}
+
+.logo-text {
+    font-size: 1.75rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    line-height: 1;
+    display: inline;
+}
+
+.logo-dev {
+    color: #00C2F5;
+}
+
+.logo-tracker {
+    color: #F9FCFE;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+}
+
+@media (max-width: 900px) {
+    .logo-image {
+        height: 1.9rem;
+        transform: translateY(-0.3rem);
+        margin-right: -0.3rem;
+    }
+
+    .logo-text {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .logo-image {
+        height: 1.6rem;
+        transform: translateY(-0.2rem);
+        margin-right: 0;
+    }
+
+    .logo-text {
+        display: none; /* Hide text on small screens */
+    }
+}
+
+
