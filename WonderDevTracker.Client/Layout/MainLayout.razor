@@ -54,7 +54,7 @@
             await themeService.InitializeAsync();
             themeService.OnThemeChanged += StateHasChanged;
             _initialized = true;
-            StateHasChanged(); // optional: re-render with correct theme
+            StateHasChanged(); // re-render with correct theme
         }
     }
 
