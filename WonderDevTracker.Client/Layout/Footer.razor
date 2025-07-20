@@ -1,4 +1,4 @@
-﻿<div class="p-3 footerStyle  text-light" >
+﻿<div class="p-3 footerStyle  text-light">
     <div class="container-xxl">
         <div class="row row-cols-1 row-cols-md-3 text-center align-items-center g-3">
             <div class="col text-md-start order-last order-md-first">
@@ -8,22 +8,24 @@
                         <span><img src="\img\White_logoReflection.png" height="40" /></span>
                     </div>
                     <div class="col-12 copyright">
-
-                        &copy; @DateTime.Now.Year All rights reserved
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            &copy; @DateTime.Now.Year All rights reserved
+                        </MudText>
                     </div>
 
                 </div>
             </div>
             <div class="col text-center">
                 <div class="d-flex align-items-center justify-content-center flex-wrap gap-1">
-                    <!-- restored and verified -->
+
                     <Logo Tagline="Track Bugs and Features with Developer Precision." />
-                   
+
                 </div>
             </div>
             <div class="col-md-end">
                 <div class="row">
                     <div class="col-12 me-4">
+
                         <a href="www.linkedin.com/in/shellywonder" target="_blank" title="SJ's LinkedIn">
                             <i class="bi bi-linkedin"></i>
                         </a>
@@ -34,18 +36,13 @@
                         <i class="bi bi-instagram"></i>
                         </a> *@
                         <div class="col-12 me-2 p-2">
-                            <a href="#" target="_blank" title="SJ's Dev Blog">
-                                Wonder Dev Blog
-                            </a>
-                            &bull;
-                            <a href="#" target="_blank" title="SJ's Open AI Project">
-                                My AI Cookbook
-                            </a>
-                            &bull;
-                            <a href="www.wonderwebdev.com" target="_blank" title="SJ's Portfolio">
-                                Portfolio
-                            </a>
-
+                            <MudLink Href="#" Target="_blank" Typo="Typo.subtitle2" Color="Color.Success">API Specs</MudLink>
+                            &bull;                                                               
+                            <MudLink Href="#" Target="_blank" Typo="Typo.subtitle2" Color="Color.Success">Wonder Dev Blog</MudLink>
+                            &bull;                                                               
+                            <MudLink Href="#" Target="_blank" Typo="Typo.subtitle2" Color="Color.Success">AI Cookbook</MudLink>
+                            &bull;                                                               
+                            <MudLink Href="#" Target="_blank" Typo="Typo.subtitle2" Color="Color.Success">SJ's Portfolio</MudLink>
                         </div>
                     </div>
                 </div>
@@ -55,5 +52,6 @@
 </div>
 
 @code {
-
+    // TODO update href links
+    //TODO: revisit tagline and logo alignment in footer
 }
