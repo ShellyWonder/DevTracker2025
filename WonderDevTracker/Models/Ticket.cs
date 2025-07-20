@@ -72,9 +72,9 @@ namespace WonderDevTracker.Models
                 ProjectId = ticket.ProjectId,
                 Project = ticket.Project?.ToDTO(),
                 SubmitterUserId = ticket.SubmitterUserId,
-                //TODO:SubmitterUser = ticket.SubmitterUser?.ToDTO(),
+                SubmitterUser = ticket.SubmitterUser?.ToDTO(),
                 DeveloperUserId = ticket.DeveloperUserId,
-                //TODO:DeveloperUser = ticket.DeveloperUser?.ToDTO(),
+                DeveloperUser = ticket.DeveloperUser?.ToDTO(),
                 //TODO:Comments = ticket.Comments.Select(c => c.ToDTO()).ToList(),
                 //TODO:Attachments = ticket.Attachments.Select(a => a.ToDTO()).ToList(),
                 //TODO:History = ticket.History.Select(h => h.ToDTO()).ToList()

@@ -67,8 +67,7 @@ namespace WonderDevTracker.Models
                 EndDate = project.EndDate,
                 Priority = project.Priority,
                 Archived = project.Archived,
-                //Members = project.Members?.Select(m => m.ToDTO()).ToList() ?? [],
-                // Members mapping is commented out, as AppUserDTO and mapping logic are not defined here
+                Members = [.. project.Members!.Select(m => m.ToDTO())],
                 Tickets = [.. project.Tickets.Select(t => t.ToDTO())], 
                 // Invites mapping is commented out, as InviteDTO and mapping logic are not defined here
             };
