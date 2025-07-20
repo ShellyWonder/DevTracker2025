@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 
 namespace WonderDevTracker.Models
@@ -51,9 +52,34 @@ namespace WonderDevTracker.Models
         public virtual ICollection<TicketAttachment> Attachments { get; set; } = [];
         public virtual ICollection<TicketHistory> History { get; set; } = [];
 
-
-
-
-
+    }
+    public static class TicketExtensions
+    {
+        public static TicketDTO ToDTO(this Ticket ticket)
+        {
+            TicketDTO dto = new()
+            {
+                Id = ticket.Id,
+                Title = ticket.Title,
+                Description = ticket.Description,
+                Created = ticket.Created,
+                Updated = ticket.Updated,
+                Archived = ticket.Archived,
+                ArchivedByProject = ticket.ArchivedByProject,
+                //TODO:Priority = ticket.Priority?.ToDTO(),
+                //TODO:Status = ticket.Status?.ToDTO(),
+                //TODO:Type = ticket.Type?.ToDTO(),
+                ProjectId = ticket.ProjectId,
+                Project = ticket.Project?.ToDTO(),
+                SubmitterUserId = ticket.SubmitterUserId,
+                //TODO:SubmitterUser = ticket.SubmitterUser?.ToDTO(),
+                DeveloperUserId = ticket.DeveloperUserId,
+                //TODO:DeveloperUser = ticket.DeveloperUser?.ToDTO(),
+                //TODO:Comments = ticket.Comments.Select(c => c.ToDTO()).ToList(),
+                //TODO:Attachments = ticket.Attachments.Select(a => a.ToDTO()).ToList(),
+                //TODO:History = ticket.History.Select(h => h.ToDTO()).ToList()
+            };
+            return dto;
+        }
     }
 }

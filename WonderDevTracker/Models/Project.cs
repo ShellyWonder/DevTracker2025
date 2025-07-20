@@ -53,6 +53,10 @@ namespace WonderDevTracker.Models
     {
         public static ProjectDTO ToDTO(this Project project)
         {
+            foreach (var ticket in project.Tickets)
+            {
+                ticket.Project = null;
+            }
             ProjectDTO dto = new()
             {
                 Id = project.Id,
@@ -63,9 +67,9 @@ namespace WonderDevTracker.Models
                 EndDate = project.EndDate,
                 Priority = project.Priority,
                 Archived = project.Archived,
-                Members = project.Members?.Select(m => m.ToDTO()).ToList() ?? [],
+                //Members = project.Members?.Select(m => m.ToDTO()).ToList() ?? [],
                 // Members mapping is commented out, as AppUserDTO and mapping logic are not defined here
-                Tickets = project.Tickets?.Select(t => t.ToDTO()).ToList() ?? [],
+                Tickets = [.. project.Tickets.Select(t => t.ToDTO())], 
                 // Invites mapping is commented out, as InviteDTO and mapping logic are not defined here
             };
             return dto;
