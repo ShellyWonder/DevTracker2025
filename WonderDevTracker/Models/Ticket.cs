@@ -66,7 +66,7 @@ namespace WonderDevTracker.Models
                 Updated = ticket.Updated,
                 Archived = ticket.Archived,
                 ArchivedByProject = ticket.ArchivedByProject,
-                //TODO:Priority = ticket.Priority?.ToDTO(),
+                //TODO:Priority = ticket.Priority,
                 //TODO:Status = ticket.Status?.ToDTO(),
                 //TODO:Type = ticket.Type?.ToDTO(),
                 ProjectId = ticket.ProjectId,
@@ -77,7 +77,7 @@ namespace WonderDevTracker.Models
                 DeveloperUser = ticket.DeveloperUser?.ToDTO(),
                 Comments = [.. ticket.Comments.Select(c => c.ToDTO())],
                 Attachments = [.. ticket.Attachments.Select(a => a.ToDTO())],
-                //TODO:History = ticket.History.Select(h => h.ToDTO()).ToList()
+                History = [.. ticket.History.Select(h => h.ToDTO())]
             };
             return dto;
         }
