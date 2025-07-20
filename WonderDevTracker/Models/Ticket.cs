@@ -28,7 +28,7 @@ namespace WonderDevTracker.Models
             get => _updated;
             set => _updated = value?.ToUniversalTime();
         }
-        
+
         public bool Archived { get; set; } = false;
 
         public bool ArchivedByProject { get; set; } = false;
@@ -75,8 +75,8 @@ namespace WonderDevTracker.Models
                 SubmitterUser = ticket.SubmitterUser?.ToDTO(),
                 DeveloperUserId = ticket.DeveloperUserId,
                 DeveloperUser = ticket.DeveloperUser?.ToDTO(),
-                //TODO:Comments = ticket.Comments.Select(c => c.ToDTO()).ToList(),
-               Attachments = [.. ticket.Attachments.Select(a => a.ToDTO())],
+                Comments = [.. ticket.Comments.Select(c => c.ToDTO())],
+                Attachments = [.. ticket.Attachments.Select(a => a.ToDTO())],
                 //TODO:History = ticket.History.Select(h => h.ToDTO()).ToList()
             };
             return dto;
