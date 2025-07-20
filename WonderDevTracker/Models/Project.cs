@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 
 namespace WonderDevTracker.Models
@@ -47,5 +48,27 @@ namespace WonderDevTracker.Models
         public virtual ICollection<ApplicationUser>? Members { get; set; } = [];
 
         public virtual ICollection<Ticket> Tickets { get; set; } = [];
+    }
+    public static class ProjectExtensions
+    {
+        public static ProjectDTO ToDTO(this Project project)
+        {
+            ProjectDTO dto = new()
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                Created = project.Created,
+                StartDate = project.StartDate,
+                EndDate = project.EndDate,
+                Priority = project.Priority,
+                Archived = project.Archived,
+                Members = project.Members?.Select(m => m.ToDTO()).ToList() ?? [],
+                // Members mapping is commented out, as AppUserDTO and mapping logic are not defined here
+                Tickets = project.Tickets?.Select(t => t.ToDTO()).ToList() ?? [],
+                // Invites mapping is commented out, as InviteDTO and mapping logic are not defined here
+            };
+            return dto;
+        }
     }
 }
