@@ -76,7 +76,7 @@ namespace WonderDevTracker.Models
                 DeveloperUserId = ticket.DeveloperUserId,
                 DeveloperUser = ticket.DeveloperUser?.ToDTO(),
                 //TODO:Comments = ticket.Comments.Select(c => c.ToDTO()).ToList(),
-                //TODO:Attachments = ticket.Attachments.Select(a => a.ToDTO()).ToList(),
+               Attachments = [.. ticket.Attachments.Select(a => a.ToDTO())],
                 //TODO:History = ticket.History.Select(h => h.ToDTO()).ToList()
             };
             return dto;

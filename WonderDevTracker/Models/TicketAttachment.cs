@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WonderDevTracker.Client.Models.DTOs;
 
 namespace WonderDevTracker.Models
 {
@@ -25,5 +26,24 @@ namespace WonderDevTracker.Models
         public virtual Ticket? Ticket { get; set; }
         public string? UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }
+    }
+    public static class TicketAttachmentExtensions
+    {
+        public static TicketAttachmentDTO ToDTO(this TicketAttachment attachment)
+        {
+            TicketAttachmentDTO dto = new()
+            {
+                Id = attachment.Id,
+                FileName = attachment.FileName,
+                Description = attachment.Description,
+                Created = attachment.Created,
+                //TODO: placeholder endpoint, replace with actual file serving endpoint
+                AttachmentUrl = $"/api/attachments/{attachment.UploadId}",
+                UserId = attachment.UserId,
+                User= attachment.User?.ToDTO(),
+                TicketId = attachment.TicketId,
+            };
+            return dto;
+        }
     }
 }

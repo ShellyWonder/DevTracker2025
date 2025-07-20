@@ -69,7 +69,7 @@ namespace WonderDevTracker.Models
                 Archived = project.Archived,
                 Members = [.. project.Members!.Select(m => m.ToDTO())],
                 Tickets = [.. project.Tickets.Select(t => t.ToDTO())], 
-                // Invites mapping is commented out, as InviteDTO and mapping logic are not defined here
+                // TODO: Invites mapping is commented out, as InviteDTO and mapping logic are not defined here
             };
             return dto;
         }

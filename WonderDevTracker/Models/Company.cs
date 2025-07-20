@@ -32,7 +32,7 @@ namespace WonderDevTracker.Models
                 ImageUrl = company.ImageId.HasValue
                     ? $"/api/uploads/{company.ImageId}"
                     : $"https://api.dicebear.com/9.x/glass/svg?seed={company.Name}",
-                Members = [.. company.Members.Select(m => m.ToDTO())],
+                Members = [.. company.Members!.Select(m => m.ToDTO())],
                 Projects = [.. company.Projects!.Select(p => p.ToDTO())],
                 //TODO:Invites = company.Invites?.Select(i => i.ToDTO()).ToList() ?? []
             };
