@@ -4,10 +4,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using WonderDevTracker.Client.Services;
+using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Components;
 using WonderDevTracker.Components.Account;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
+using WonderDevTracker.Services;
+using WonderDevTracker.Services.Interfaces;
+using WonderDevTracker.Services.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +24,9 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+
+builder.Services.AddScoped<IProjectRepository , ProjectRepository>();
+builder.Services.AddScoped<IProjectDTOService, ProjectDTOService>();
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
