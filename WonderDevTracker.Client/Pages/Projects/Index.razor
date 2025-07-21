@@ -1,11 +1,29 @@
 ﻿@* Projects Index *@
 @page "/projects"
 
+@using WonderDevTracker.Client.Components.BaseComponents
 
 @attribute [Authorize]
-<MudContainer MaxWidth="MaxWidth.Large" Class="py-4">
+@inject IProjectDTOService ProjectService
 
+@inherits AuthenticatedComponentBase
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4">
+    <MudText Typo="Typo.h3">All Projects </MudText>
+    <ul>
+        @foreach (ProjectDTO project in projects)
+        {
+            <MudText Typo="Typo.body1">@project.Name</MudText>
+        }
+
+    </ul>
 </MudContainer>
+
 @code {
+    private IEnumerable<ProjectDTO> projects = [];
+    protected override async Task OnInitializedWithAuthAsync()
+    {
+        projects = await ProjectService.GetAllProjectsAsync(UserInfo!.UserId);
+    }
 
 }
