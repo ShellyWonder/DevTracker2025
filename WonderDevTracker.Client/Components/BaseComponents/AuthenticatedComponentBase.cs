@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using WonderDevTracker.Client.Helpers;
 
-namespace WonderDevTracker.Client.BaseComponents
+namespace WonderDevTracker.Client.Components.BaseComponents
 {
     public abstract class AuthenticatedComponentBase : ComponentBase
     {
