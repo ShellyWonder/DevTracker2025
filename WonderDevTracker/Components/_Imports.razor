@@ -1,5 +1,7 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
+@using System.Linq.Expressions
+@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
@@ -8,8 +10,16 @@
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.JSInterop
 @using WonderDevTracker
-@using WonderDevTracker.Client
+@using WonderDevTracker.Data
 @using WonderDevTracker.Components
 @using WonderDevTracker.Models
+@using WonderDevTracker.Services.Interfaces;
+@using WonderDevTracker.Services.Repositories
+@using WonderDevTracker.Client
+@using WonderDevTracker.Client.Services
+@using WonderDevTracker.Client.Services.Interfaces
+@using WonderDevTracker.Client.Models
+@using WonderDevTracker.Client.Models.DTOs;
+@using WonderDevTracker.Client.Models.Enums
 @using WonderDevTracker.Client.Helpers
 @using MudBlazor
