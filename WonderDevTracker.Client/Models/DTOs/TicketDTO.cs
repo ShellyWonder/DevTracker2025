@@ -32,10 +32,10 @@ namespace WonderDevTracker.Client.Models.DTOs
 
             public bool ArchivedByProject { get; set; } = false;
 
-            public TicketPriorityDTO? Priority { get; set; }
-            public TicketStatusDTO? Status { get; set; }
+            public TicketPriority? Priority { get; set; }
+            public TicketStatus? Status { get; set; }
 
-            public TicketTypeDTO? Type { get; set; }
+            public TicketType? Type { get; set; }
 
             //navigation properties
             public int ProjectId { get; set; }

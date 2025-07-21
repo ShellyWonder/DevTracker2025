@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 
 namespace WonderDevTracker.Models
@@ -38,7 +39,25 @@ namespace WonderDevTracker.Models
         public string? RecipientId { get; set; }
         public virtual ApplicationUser? Recipient { get; set; }
 
-
-
+    }
+    public static class NotificationExtensions
+    {
+        public static NotificationDTO ToDTO(this Notification notification)
+        {
+            NotificationDTO dto = new()
+            {
+                Id = notification.Id,
+                Title = notification.Title,
+                Message = notification.Message,
+                Created = notification.Created,
+                Type = notification.Type,
+                HasBeenViewed = notification.HasBeenViewed,
+                TicketId = notification.TicketId,
+                ProjectId = notification.ProjectId,
+                SenderId = notification.SenderId,
+                RecipientId = notification.RecipientId
+            };
+            return dto;
+        }
     }
 }

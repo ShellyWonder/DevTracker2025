@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WonderDevTracker.Client.Models.DTOs;
 
 namespace WonderDevTracker.Models
 {
@@ -48,6 +49,36 @@ namespace WonderDevTracker.Models
         public string? InviteeId { get; set; }
         public virtual ApplicationUser? Invitee { get; set; }
 
-
     }
+    public static class InviteExtensions
+    {
+        public static InviteDTO ToDTO(this Invite invite)
+        {
+            InviteDTO dto = new()
+            {
+                Id = invite.Id,
+                InviteDate = invite.InviteDate,
+                JoinDate = invite.JoinDate,
+                CompanyToken = invite.CompanyToken,
+                InviteeEmail = invite.InviteeEmail,
+                InviteeFirstName = invite.InviteeFirstName,
+                InviteeLastName = invite.InviteeLastName,
+                Message = invite.Message,
+                IsValid = invite.IsValid,
+                CompanyId = invite.CompanyId,
+                Company = invite.Company?.ToDTO(),
+                ProjectId = invite.ProjectId,
+                Project = invite.Project?.ToDTO(),
+                InvitorId = invite.InvitorId,
+                InviteeId = invite.InviteeId,
+                Invitor = invite.Invitor?.ToDTO(),
+                Invitee = invite.Invitee?.ToDTO()
+
+            };
+            
+            return dto;
+        }
+           
+    }
+    
 }
