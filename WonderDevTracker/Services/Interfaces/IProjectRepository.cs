@@ -9,6 +9,6 @@ namespace WonderDevTracker.Services.Interfaces
         /// </summary>
         /// <param name="companyId"></param>
         /// <returns>All company projects</returns>
-        public Task<IEnumerable<Project>> GetAllProjectsAsync(int companyId);
+        public Task<IEnumerable<Project>> GetAllProjectsAsync(string userId);
     }
 }

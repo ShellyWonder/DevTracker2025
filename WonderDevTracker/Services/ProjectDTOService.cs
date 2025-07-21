@@ -8,12 +8,15 @@ namespace WonderDevTracker.Services
 {
     public class ProjectDTOService(IProjectRepository projectRepository) : IProjectDTOService
     {
-        public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(int companyId)
+        public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(string userId)
         {
-            IEnumerable<Project> projects = await projectRepository.GetAllProjectsAsync(companyId);
+            IEnumerable<Project> projects = await projectRepository.GetAllProjectsAsync( userId);
 
             IEnumerable<ProjectDTO> dtos = projects.Select(p =>p.ToDTO());
             return dtos;
         }
+
+
+       
     }
 }

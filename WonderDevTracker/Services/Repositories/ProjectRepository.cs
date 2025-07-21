@@ -9,7 +9,7 @@ namespace WonderDevTracker.Services.Repositories
     public class ProjectRepository(IDbContextFactory<ApplicationDbContext> contextFactory) :  IProjectRepository
     {
         
-        public async Task<IEnumerable<Project>> GetAllProjectsAsync(int companyId)
+        public async Task<IEnumerable<Project>> GetAllProjectsAsync(string userId)
         {
             await using var context = contextFactory.CreateDbContext();
             IEnumerable<Project>projects = await context.Projects.ToListAsync();
