@@ -5,50 +5,72 @@ namespace WonderDevTracker.Client.Helpers
 {
     public static class UserInfoHelper
     {
-        //called server-side
-        public static UserInfo GetUserInfo(AuthenticationState authState)
-        {
-            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var email = authState.User.FindFirst(ClaimTypes.Email)?.Value;
-            var firstName = authState.User.FindFirst("FirstName")?.Value;
-            var lastName = authState.User.FindFirst("LastName")?.Value;
+        //UserInfo derive from:
+        // -> Task<AuthenticationState> 
+        //-> AuthenticationState
+        // -> ClaimsPrincipal
 
-            if (string.IsNullOrEmpty(userId) ||
-                string.IsNullOrEmpty(email) ||
-                string.IsNullOrEmpty(firstName) ||
-                string.IsNullOrEmpty(lastName))
-                return null!;
-
-            UserInfo userInfo = new()
-            {
-                UserId = userId,
-                Email = email,
-                FirstName = firstName,
-                LastName = lastName
-            };
-            return userInfo;
-        }
-
-
-        //called client-side
+        /// <summary>
+        /// Use with a cascading parameter(AuthenticatedComponentBase) 
+        /// </summary>
+        /// <param name="authStateTask"></param>
+        /// <returns></returns>
         public static async Task<UserInfo> GetUserInfoAsync(Task<AuthenticationState> authStateTask)
         {
             if (authStateTask is null) return null!;
-            var authState = await authStateTask;
-            System.Security.Claims.ClaimsPrincipal user = authState.User;
 
+            AuthenticationState authState = await authStateTask;
+            return GetUserInfo(authState.User);
+
+        }
+
+        /// <summary>
+        /// Retrieves user information based on the provided authentication state.
+        /// </summary>
+        /// <param name="authState">The authentication state containing the user's claims principal.</param>
+        /// <returns>A <see cref="UserInfo"/> object representing the user's information.</returns>
+        public static UserInfo GetUserInfo(AuthenticationState authState)
+        {
+            ClaimsPrincipal user = authState.User;
+            return GetUserInfo(user);
+        }
+
+        /// <summary>
+        /// use with API Controllers
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns>UserInfo</returns>
+        public static UserInfo GetUserInfo(ClaimsPrincipal user)
+        {
             try
             {
                 var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var email = user.FindFirst(ClaimTypes.Email)?.Value;
-                var firstName = user.FindFirst("FirstName")?.Value;
-                var lastName = user.FindFirst("LastName")?.Value;
+                var firstName = user.FindFirst(nameof(UserInfo.FirstName))?.Value;
+                var lastName = user.FindFirst(nameof(UserInfo.LastName))?.Value;
+                var companyId = user.FindFirst(nameof(UserInfo.CompanyId))?.Value;
+                var profilePictureUrl = user.FindFirst(nameof(UserInfo.ProfilePictureUrl))?.Value;
+                var roles = user.FindAll(ClaimTypes.Role).Select(c => c.Value);
+
+                if (string.IsNullOrEmpty(userId) ||
+                    string.IsNullOrEmpty(email) ||
+                    string.IsNullOrEmpty(firstName) ||
+                    string.IsNullOrEmpty(lastName) ||
+                    string.IsNullOrEmpty(companyId) ||
+                    string.IsNullOrEmpty(profilePictureUrl) 
+                    )
+                {
+                    return null!;
+                }
                 return new UserInfo
                 {
-                    UserId = userId ?? string.Empty,
-                    Email = email ?? string.Empty,
-                    FirstName = firstName ?? string.Empty,
-                    LastName = lastName ?? string.Empty
+                    UserId = userId,
+                    Email = email,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    CompanyId = int.Parse(companyId),
+                    ProfilePictureUrl = profilePictureUrl,
+                    Roles = [.. roles]
                 };
             }
             catch (Exception)
@@ -57,5 +79,6 @@ namespace WonderDevTracker.Client.Helpers
                 return null!;
             }
         }
+
     }
 }

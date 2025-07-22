@@ -14,10 +14,10 @@ namespace WonderDevTracker.Client
     // cookie that will be included on HttpClient requests to the server.
     internal class PersistentAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private static readonly Task<AuthenticationState> defaultUnauthenticatedTask =
+        private static readonly Task<AuthenticationState> _defaultUnauthenticatedTask =
             Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
 
-        private readonly Task<AuthenticationState> authenticationStateTask = defaultUnauthenticatedTask;
+        private readonly Task<AuthenticationState> _authenticationStateTask = _defaultUnauthenticatedTask;
 
         public PersistentAuthenticationStateProvider(PersistentComponentState state)
         {
@@ -30,15 +30,20 @@ namespace WonderDevTracker.Client
                 new Claim(ClaimTypes.NameIdentifier, userInfo.UserId),
                 new Claim(ClaimTypes.Name, userInfo.Email),
                 new Claim(ClaimTypes.Email, userInfo.Email),
-                new Claim("FirstName", userInfo.FirstName),
-                new Claim("LastName", userInfo.LastName)
+                new Claim(nameof(userInfo.FirstName), userInfo.FirstName),
+                new Claim(nameof(userInfo.LastName), userInfo.LastName),
+                new Claim(nameof(userInfo.CompanyId), userInfo.CompanyId.ToString()),
+                new Claim(nameof(userInfo.ProfilePictureUrl), userInfo.ProfilePictureUrl),
+                new Claim(nameof(userInfo.ProfilePictureUrl), userInfo.ProfilePictureUrl),
+                .. userInfo.Roles.Select(role => new Claim(ClaimTypes.Role, role))
+
                 ];
 
-            authenticationStateTask = Task.FromResult(
+            _authenticationStateTask = Task.FromResult(
                 new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims,
                     authenticationType: nameof(PersistentAuthenticationStateProvider)))));
         }
 
-        public override Task<AuthenticationState> GetAuthenticationStateAsync() => authenticationStateTask;
+        public override Task<AuthenticationState> GetAuthenticationStateAsync() => _authenticationStateTask;
     }
 }
