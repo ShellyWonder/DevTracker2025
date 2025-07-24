@@ -21,7 +21,8 @@ namespace WonderDevTracker.Components.Account
             var userRoles = await UserManager.GetRolesAsync(user);
             foreach (var role in userRoles)
             {
-                identity.AddClaim(new Claim(nameof(UserInfo.Roles), role));
+                identity.AddClaim(new Claim(ClaimTypes.Role, role));
+
             }
 
             // Create and add custom claims individually
