@@ -21,6 +21,8 @@
 
 @code {
     private IEnumerable<ProjectDTO> projects = [];
+
+
     protected override async Task OnInitializedWithAuthAsync()
     {
         projects = await ProjectService.GetAllProjectsAsync(UserInfo!.UserId);
