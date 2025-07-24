@@ -1,6 +1,7 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Security.Claims;
+using WonderDevTracker.Client.Helpers;
 
 namespace WonderDevTracker.Client
 {
@@ -26,18 +27,9 @@ namespace WonderDevTracker.Client
                 return;
             }
 
-            Claim[] claims = [
-                new Claim(ClaimTypes.NameIdentifier, userInfo.UserId),
-                new Claim(ClaimTypes.Name, userInfo.Email),
-                new Claim(ClaimTypes.Email, userInfo.Email),
-                new Claim(nameof(userInfo.FirstName), userInfo.FirstName),
-                new Claim(nameof(userInfo.LastName), userInfo.LastName),
-                new Claim(nameof(userInfo.CompanyId), userInfo.CompanyId.ToString()),
-                new Claim(nameof(userInfo.ProfilePictureUrl), userInfo.ProfilePictureUrl),
-                new Claim(nameof(userInfo.ProfilePictureUrl), userInfo.ProfilePictureUrl),
-                .. userInfo.Roles.Select(role => new Claim(ClaimTypes.Role, role))
+            //Use the extension method instead of manually defining claims
+            var claims = userInfo.ToClaims();
 
-                ];
 
             _authenticationStateTask = Task.FromResult(
                 new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims,

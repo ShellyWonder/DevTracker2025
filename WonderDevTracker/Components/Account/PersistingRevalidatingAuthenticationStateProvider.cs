@@ -1,12 +1,13 @@
-using System.Diagnostics;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
+using System.Security.Claims;
 using WonderDevTracker.Client;
+using WonderDevTracker.Client.Helpers;
 using WonderDevTracker.Models;
 
 namespace WonderDevTracker.Components.Account
@@ -86,30 +87,14 @@ namespace WonderDevTracker.Components.Account
 
             if (principal.Identity?.IsAuthenticated == true)
             {
-                var userId = principal.FindFirst(_options.ClaimsIdentity.UserIdClaimType)?.Value;
-                var email = principal.FindFirst(_options.ClaimsIdentity.EmailClaimType)?.Value;
-                var firstName = principal.FindFirst(nameof(UserInfo.FirstName))?.Value;
-                var lastName = principal.FindFirst(nameof(UserInfo.LastName))?.Value;
-                var companyId = principal.FindFirst(nameof(UserInfo.CompanyId))?.Value;
-                var profilePictureUrl = principal.FindFirst(nameof(UserInfo.ProfilePictureUrl))?.Value;
-                var roles = principal.FindAll(_options.ClaimsIdentity.RoleClaimType).Select(c => c.Value);
-                if (userId != null 
-                    && firstName != null
-                    && lastName != null
-                    && email != null
-                    && companyId != null
-                    && roles != null)
+                var userInfo = UserInfoFactory.FromClaims(principal);
+                if (userInfo is not null)
                 {
-                    _state.PersistAsJson(nameof(UserInfo), new UserInfo
-                    {
-                        UserId = userId,
-                        Email = email,
-                        FirstName = firstName,
-                        LastName = lastName,
-                        CompanyId = int.Parse(companyId), 
-                        ProfilePictureUrl = profilePictureUrl ?? string.Empty,
-                        Roles = [.. roles]
-                    });
+                    _state.PersistAsJson(nameof(UserInfo), userInfo);
+                }
+                else
+                {
+                    Console.WriteLine("UserInfoFactory returned null — missing or malformed claims.");
                 }
             }
         }
