@@ -4,6 +4,12 @@ namespace WonderDevTracker.Client.Helpers
 {
     public static class UserInfoFactory
     {
+        /// <summary>
+        ///  Claims-to-object mapping
+        ///  Used in UserInfoHelper.cs & PersistingRevalidatingAuthenicationStateProvider.cs
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns>UserInfo object</returns>
         public static UserInfo? FromClaims(ClaimsPrincipal user)
         {
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -25,7 +31,7 @@ namespace WonderDevTracker.Client.Helpers
 
             if (missing.Any())
             {
-                Console.WriteLine($"❌ UserInfo.FromClaims: missing values — {string.Join(", ", missing)}");
+                Console.WriteLine($" UserInfo.FromClaims: missing values — {string.Join(", ", missing)}");
                 return null;
             }
 
@@ -40,7 +46,12 @@ namespace WonderDevTracker.Client.Helpers
                 Roles = [.. roles]
             };
         }
-
+        /// <summary>
+        ///  Object-to-claims rehydration
+        ///  /// Used in PersistentAuthenicationStateProvider.cs
+        /// </summary>
+        /// <param name="userInfo"></param>
+        /// <returns>Claim</returns>
         public static IEnumerable<Claim> ToClaims(this UserInfo userInfo)
         {
             yield return new Claim(ClaimTypes.NameIdentifier, userInfo.UserId);

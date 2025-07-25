@@ -36,7 +36,7 @@ namespace WonderDevTracker.Client.Helpers
         /// <returns>A <see cref="UserInfo"/> object representing the user's information.</returns>
         public static UserInfo? GetUserInfo(AuthenticationState authState)
         {
-            ClaimsPrincipal user = authState.User;
+            _ = authState.User;
             return UserInfoFactory.FromClaims(authState.User);
         }
 
