@@ -1,0 +1,65 @@
+﻿@using WonderDevTracker.Client.Models.Enums
+@* ProjectCard.razor *@
+@if (Project is not null)
+{
+    <MudCard Elevation="5">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudLink Typo="Typo.h5" Href="#" Class="d-block">
+                    @Project.Name
+                </MudLink>
+                <MudText Typo="Typo.caption" Class="text-secondary">
+                    @Project.StartDate.ToString("d") -  @Project.EndDate.ToString("d")
+                    </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>Content</MudCardContent>
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <MudText Typo="Typo.button" Color="Color.Secondary">
+           No Project Members
+            </MudText>
+        </div>
+        <MudCardActions>
+            <MudChip T="string"
+                     Color="@priorityColor"
+                     Label="true"
+                     Variant="Variant.Text">
+                Priority: @Project.Priority?.GetDisplayName()
+            </MudChip>
+            <MudButton Class="ms-auto"
+                       Color="Color.Tertiary"
+                       Href="#"
+                       EndIcon="@Icons.Material.Filled.ArrowForward">
+                Details
+            </MudButton>
+        </MudCardActions>
+
+    </MudCard>
+}
+
+
+
+
+
+
+@code {
+
+    [Parameter, EditorRequired]
+    public ProjectDTO? Project { get; set; }
+
+    private Color priorityColor = Color.Default;
+
+    protected override void OnParametersSet()
+    {
+        //switch expression
+        priorityColor = Project?.Priority switch
+        {
+            ProjectPriority.Low => Color.Success,
+            ProjectPriority.Medium => Color.Secondary,
+            ProjectPriority.High => Color.Error,
+            ProjectPriority.Urgent => Color.Dark,
+            _ => Color.Default,
+        };
+    }
+
+}
