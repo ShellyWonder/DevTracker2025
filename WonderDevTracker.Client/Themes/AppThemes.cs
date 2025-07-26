@@ -32,7 +32,9 @@ namespace WonderDevTracker.Client.Themes
             LayoutProperties = new LayoutProperties
             {
                 DefaultBorderRadius = "6px"
-            }
+            },
+
+            Typography = GetDefaultTypography()
         };
         public static readonly MudTheme PaletteDarkTheme = new()
         {
@@ -59,7 +61,46 @@ namespace WonderDevTracker.Client.Themes
             LayoutProperties = new LayoutProperties
             {
                 DefaultBorderRadius = "6px"
-            }
+            },
+            
+            Typography = GetDefaultTypography()
         };
+
+        private static Typography GetDefaultTypography()
+        {
+            return new Typography
+            {
+                Default = new DefaultTypography
+                {
+                    FontFamily = ["Inter", "sans-serif"],
+                    FontSize = "1rem",
+                    LineHeight = "1.5"
+                },
+                H1 = new H1Typography { FontSize = "2.25rem", FontWeight = "600", FontFamily = ["Poppins", "sans-serif"] },
+                H2 = new H2Typography { FontSize = "2rem", FontWeight = "500", FontFamily = ["Poppins", "sans-serif"] },
+                H3 = new H3Typography { FontSize = "1.75rem", FontWeight = "500", FontFamily = ["Poppins", "sans-serif"] },
+                H4 = new H4Typography { FontSize = "1.5rem", FontWeight = "500", FontFamily = ["Poppins", "sans-serif"] },
+                H5 = new H5Typography { FontSize = "1.25rem", FontWeight = "500", FontFamily = ["Poppins", "sans-serif"] },
+                H6 = new H6Typography { FontSize = "1.1rem", FontWeight = "500", FontFamily = ["Poppins", "sans-serif"] },
+                Subtitle1 = new Subtitle1Typography { FontSize = "1rem", FontWeight = "500", FontFamily = ["Inter", "sans-serif"] },
+                Subtitle2 = new Subtitle2Typography { FontSize = "0.875rem", FontWeight = "500", FontFamily = ["Inter", "sans-serif"] },
+                Body1 = new Body1Typography { FontSize = "1rem", FontWeight = "400", FontFamily = ["Inter", "sans-serif"] },
+                Body2 = new Body2Typography { FontSize = "0.9rem", FontWeight = "400", FontFamily = ["Inter", "sans-serif"] },
+                Button = new ButtonTypography { FontSize = "0.95rem", FontWeight = "500", FontFamily = ["Inter", "sans-serif"] },
+                Caption = new CaptionTypography
+                {
+                    FontSize = "0.8rem",
+                    FontWeight = "400",
+                    FontFamily = ["JetBrains Mono", "monospace"]
+                },
+                Overline = new OverlineTypography
+                {
+                    FontSize = "0.75rem",
+                    FontWeight = "400",
+                    FontFamily = ["JetBrains Mono", "monospace"],
+                    TextTransform = "uppercase"
+                }
+            };
+        }
     }
 }
