@@ -2,7 +2,7 @@
 @* ProjectCard.razor *@
 @if (Project is not null)
 {
-    <MudCard Elevation="5">
+    <MudCard Elevation="5" Class="h-100">
         <MudCardHeader>
             <CardHeaderContent>
                 <MudLink Typo="Typo.h5" Href="#" Class="d-block">
@@ -10,20 +10,23 @@
                 </MudLink>
                 <MudText Typo="Typo.caption" Class="text-secondary">
                     @Project.StartDate.ToString("d") -  @Project.EndDate.ToString("d")
-                    </MudText>
+                </MudText>
             </CardHeaderContent>
         </MudCardHeader>
-        <MudCardContent>Content</MudCardContent>
-        <div class="h-100 d-flex align-items-center justify-content-center">
-            <MudText Typo="Typo.button" Color="Color.Secondary">
-           No Project Members
-            </MudText>
-        </div>
+        <MudCardContent>
+
+            <div class="h-100 d-flex align-items-center justify-content-center">
+                <MudText Typo="Typo.button" Color="Color.Secondary">
+                    No Project Members
+                </MudText>
+            </div>
+        </MudCardContent>
         <MudCardActions>
             <MudChip T="string"
                      Color="@priorityColor"
                      Label="true"
-                     Variant="Variant.Text">
+                     Variant="Variant.Text"
+                     Class="priority-label" >
                 Priority: @Project.Priority?.GetDisplayName()
             </MudChip>
             <MudButton Class="ms-auto"

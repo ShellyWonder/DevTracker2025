@@ -10,15 +10,24 @@
     height: 100%;
     position: relative
 }
-
-.create-btn {
+ .create-btn {
     position: absolute;
     bottom: 24px;
     right: 24px;
 }
     /* #endregion Fabbutton */
+
+    /* #region ProjectCard.razor MudChip */
+.priority-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 400;
+    text-transform: uppercase;
+}
+/* #endregion ProjectCard.razor MudChip */
+
     /* #region Global CSS */
-html{
+html {
     height:100dvh;
 }
 
