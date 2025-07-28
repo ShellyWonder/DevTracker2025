@@ -4,10 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace WonderDevTracker.Data.Migrations
+namespace WonderDevTracker.Migrations
 {
     /// <inheritdoc />
-    public partial class _001_initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

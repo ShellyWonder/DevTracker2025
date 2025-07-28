@@ -638,7 +638,7 @@ namespace WonderDevTracker.Data
          new Project()
          {
              CompanyId = _company1Id,
-             Name = "Build a Personal Porfolio",
+             Name = "Build a Personal Portfolio",
              Description="Single page HTML, CSS & JavaScript page. Serves as a landing page for candidates and contains a bio and links to all applications and challenges.",
              Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 10),
              StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 9),
@@ -693,7 +693,8 @@ namespace WonderDevTracker.Data
 
 
                 //Get project Ids
-                _portfolioId = context.Projects.FirstOrDefault(p => p.Name == "Build a Personal Porfolio")!.Id;
+                _portfolioId = context.Projects.FirstOrDefault(p => p.Name == "Build a Personal Portfolio")!.Id;
+
                 _blogId = context.Projects.FirstOrDefault(p => p.Name == "Build Personal Blogging Platform")!.Id;
                 _bugtrackerId = context.Projects.FirstOrDefault(p => p.Name == "Build an Issue Tracking Web Application")!.Id;
                 _movieId = context.Projects.FirstOrDefault(p => p.Name == "Build a Movie Information Web Application")!.Id;
