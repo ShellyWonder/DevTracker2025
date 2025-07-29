@@ -6,29 +6,87 @@
 
 
 /* #region Fabbutton */
- .page-container {
+.page-container {
     height: 100%;
     position: relative
 }
- .create-btn {
+
+.create-btn {
     position: absolute;
     bottom: 24px;
     right: 24px;
 }
-    /* #endregion Fabbutton */
+/* #endregion Fabbutton */
 
-    /* #region ProjectCard.razor MudChip */
+/* #region ProjectCard.razor  */
+/*animation*/
+.fade-in {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInUp 0.4s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* end animation*/
+
+.elevated-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background-color: #ffffff;
+    will-change: transform;
+}
+    .elevated-hover:hover {
+        cursor: pointer;
+        transform: scale(1.025);
+        background-color: #f9fcfe;
+        border-color: #dde6ec;
+    }
+
+/**Details link*/
+.project-details-link {
+    font-weight: 500;
+    letter-spacing: 0.25px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+    .project-details-link:hover {
+        transform: translateX(2px);
+        color: #0077b6; /* Primary or Info shade */
+    }
+/**End Details link*/
+
+/**MudChip**/
 .priority-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.8rem;
     font-weight: 400;
     text-transform: uppercase;
 }
-/* #endregion ProjectCard.razor MudChip */
+/**End MudChip**/
 
-    /* #region Global CSS */
+/* #endregion ProjectCard.razor  */
+
+/* #region ProjectIndex.razor */
+.breadcrumbs1 {
+    font-size: 0.9rem;
+    font-weight: 400;
+    font-family: var(--font-sans);
+}
+
+
+/* #endregion ProjectIndex.razor */
+
+
+/* #region Global CSS */
 html {
-    height:100dvh;
+    height: 100dvh;
 }
 
 
@@ -40,7 +98,7 @@ body {
     font-size: 1rem;
 }
 /* Default body text and headings */
- h1, h2, h3, h4, h5, h6, button, nav {
+h1, h2, h3, h4, h5, h6, button, nav {
     font-family: var(--font-heading);
     font-weight: 500;
     line-height: 1.5;

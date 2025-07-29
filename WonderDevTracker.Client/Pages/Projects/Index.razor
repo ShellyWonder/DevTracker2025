@@ -3,25 +3,25 @@
 
 @using WonderDevTracker.Client.Components.BaseComponents
 @using WonderDevTracker.Client.Components.UIComponents.ProjectComponents
-@attribute [Authorize]
+@using WonderDevTracker.Client.Helpers
+@using WonderDevTracker.Client.Helpers.Animation
 @inject IProjectDTOService ProjectService
 
 @inherits AuthenticatedComponentBase
 
 <PageTitle>Active Projects | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
-    <MudBreadcrumbs  Items="breadcrumbs"/>
+    <MudBreadcrumbs  Items="breadcrumbs" Class="breadcrumbs1"/>
     <MudText Typo="Typo.h3">All Projects </MudText>
     <div class=" row row-cols-1  row-cols-md-2 row-cols-xl-3 g-3">
 
-    @foreach (ProjectDTO project in projects)
-    {
-        <div class="col mb-2">
+        @foreach (var item in GetProjectsWithIndex())
+        {
+            <div class="col mb-2">
 
-            <ProjectCard Project="project" />
-
-        </div>
-    }
+                <ProjectCard Project="@item.Project" Index="@item.Index" />
+            </div>
+        }
 
     </div>
     @*Floating Action Button*@
@@ -47,12 +47,27 @@
        new BreadcrumbItem("Active", href:null, disabled: true ),
        
     };
-
-    
+   
 
     protected override async Task OnInitializedWithAuthAsync()
     {
         projects = await ProjectService.GetAllProjectsAsync(UserInfo!);
+    }
+
+
+    private class ProjectWithIndex
+    {
+        public ProjectDTO Project { get; set; } = default!;
+        public int Index { get; set; }
+    }
+
+    private List<ProjectWithIndex> GetProjectsWithIndex()
+    {
+        return projects.Select((p, i) => new ProjectWithIndex
+        {
+            Project = p,
+            Index = i
+        }).ToList();
     }
 
 }
