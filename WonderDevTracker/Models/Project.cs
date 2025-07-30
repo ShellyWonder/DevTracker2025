@@ -35,7 +35,7 @@ namespace WonderDevTracker.Models
             get => _endDate; 
             set => _endDate = value.ToUniversalTime();
         }
-        public ProjectPriority? Priority { get; set; }
+        public ProjectPriority Priority { get; set; }
 
         public bool Archived { get; set; } = false;
 
