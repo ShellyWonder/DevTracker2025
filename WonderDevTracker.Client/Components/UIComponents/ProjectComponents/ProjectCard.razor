@@ -14,7 +14,7 @@
                     @Project.Name
                 </MudLink>
                 <MudText Typo="Typo.caption" Class="text-secondary">
-                    @Project.StartDate.ToString("d") -  @Project.EndDate.ToString("d")
+                    @Project.StartDate?.ToString("d") -  @Project.EndDate?.ToString("d")
                 </MudText>
             </CardHeaderContent>
         </MudCardHeader>

@@ -8,7 +8,7 @@
 <PageTitle>Create Project | Dev Tracker</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large">
-    <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" /> 
+    <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
 
     <MudPaper Class="p-3">
         <MudText Typo="Typo.h3" GutterBottom>
@@ -27,31 +27,37 @@
                           Required="true" />
 
             <div class="hstack gap-3 align-items-start flex-wrap">
-                <MudDatePicker Label="Planned Start Date" Variant="Variant.Outlined" />
-                <MudDatePicker Label="Planned End Date" Variant="Variant.Outlined" />
+                <MudDatePicker @bind-Date="project.StartDateTime"
+                               Label="Planned Start Date"
+                               Variant="Variant.Outlined" />
 
-            <MudField Label="Project Priority" Variant="Variant.Outlined">
+                <MudDatePicker @bind-Date="project.EndDateTime"
+                               Label="Planned End Date"
+                               Variant="Variant.Outlined" />
+            </div>
+
+            <MudField Label="Project Priority"
+                      Variant="Variant.Outlined">
 
                 <MudChipSet @bind-SelectedValue="project.Priority"
                             CheckMark
-                            SelectionMode="SelectionMode.SingleSelection">
+                            SelectionMode="SelectionMode.SingleSelection"
+                            Class="d-flex align-items-center">
                     @foreach (ProjectPriority priority in Enum.GetValues<ProjectPriority>())
                     {
                         <MudChip Value="priority"
                                  Text="@priority.GetDisplayName()" />
-
                     }
-
                 </MudChipSet>
             </MudField>
-            </div>
+
             <div class="d-flex">
                 <MudButton Variant="Variant.Text"
                            Class="project-details-link"
                            Color="Color.Tertiary"
                            Href="/projects"
                            StartIcon="@Icons.Material.Filled.ArrowBack">
-                           Back to Projects
+                    Back to Projects
                 </MudButton>
                 <MudButton Color="Color.Primary"
                            Class="ms-auto mt-2"
