@@ -1,0 +1,89 @@
+﻿@* Project Create *@
+@page "/projects/create"
+
+
+@attribute [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+@inherits AuthenticatedComponentBase
+
+<PageTitle>Create Project | Dev Tracker</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" /> 
+
+    <MudPaper Class="p-3">
+        <MudText Typo="Typo.h3" GutterBottom>
+            Create a New Project
+        </MudText>
+        <EditForm Model="project" class="vstack gap-3">
+            <DataAnnotationsValidator />
+            <MudTextField @bind-Value="project.Name" Label="Name" Variant="Variant.Outlined" Required="true" />
+
+            <MudTextField @bind-Value="project.Description"
+                          Label="Description"
+                          Variant="Variant.Outlined"
+                          Lines="5"
+                          MaxLines="15"
+                          AutoGrow="true"
+                          Required="true" />
+
+            <div class="hstack gap-3 align-items-start flex-wrap">
+                <MudDatePicker Label="Planned Start Date" Variant="Variant.Outlined" />
+                <MudDatePicker Label="Planned End Date" Variant="Variant.Outlined" />
+
+            <MudField Label="Project Priority" Variant="Variant.Outlined">
+
+                <MudChipSet @bind-SelectedValue="project.Priority"
+                            CheckMark
+                            SelectionMode="SelectionMode.SingleSelection">
+                    @foreach (ProjectPriority priority in Enum.GetValues<ProjectPriority>())
+                    {
+                        <MudChip Value="priority"
+                                 Text="@priority.GetDisplayName()" />
+
+                    }
+
+                </MudChipSet>
+            </MudField>
+            </div>
+            <div class="d-flex">
+                <MudButton Variant="Variant.Text"
+                           Class="project-details-link"
+                           Color="Color.Tertiary"
+                           Href="/projects"
+                           StartIcon="@Icons.Material.Filled.ArrowBack">
+                           Back to Projects
+                </MudButton>
+                <MudButton Color="Color.Primary"
+                           Class="ms-auto mt-2"
+                           Variant="Variant.Filled"
+                           ButtonType="ButtonType.Submit"
+                           StartIcon="@Icons.Material.Filled.Save">
+                    Submit
+                </MudButton>
+            </div>
+        </EditForm>
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+    private ProjectDTO project = new() { Created = DateTimeOffset.UtcNow };
+
+    // //switch expression
+    // priorityColor = Project?.Priority switch
+    //     {
+    //         ProjectPriority.Low => Color.Success,
+    //         ProjectPriority.Medium => Color.Secondary,
+    //         ProjectPriority.High => Color.Error,
+    //         ProjectPriority.Urgent => Color.Dark,
+    //         _ => Color.Default,
+    //     };
+
+    private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    {
+       new BreadcrumbItem("Home", href:"/" ),
+       new BreadcrumbItem("Projects", href:"/projects" ),
+       new BreadcrumbItem("Create a New Project", href:null, disabled: true ),
+
+    };
+}
