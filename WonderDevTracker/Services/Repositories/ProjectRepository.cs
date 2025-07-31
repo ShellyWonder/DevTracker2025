@@ -26,8 +26,8 @@ namespace WonderDevTracker.Services.Repositories
                 //if the user is a PM, add them as a member of the project
                ApplicationUser projectManager = await context.Users.FirstAsync(u => u.Id == user.UserId);
                project.Members?.Add(projectManager);
-                context.Add(project);
             }
+                context.Add(project);
                 await context.SaveChangesAsync();
                 return project;
 

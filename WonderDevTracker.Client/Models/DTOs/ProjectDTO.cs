@@ -15,6 +15,8 @@ namespace WonderDevTracker.Client.Models.DTOs
         [StringLength(100, ErrorMessage = "The name cannot exceed 100 characters.")]
         [Required]
         public string? Name { get; set; }
+
+        [Required]
         public string? Description { get; set; }
 
        
@@ -37,6 +39,7 @@ namespace WonderDevTracker.Client.Models.DTOs
             get => _endDate;
             set => _endDate = value?.ToUniversalTime();
         }
+        [Required]
         public ProjectPriority Priority { get; set; }
 
         public bool Archived { get; set; } = false;
@@ -51,12 +54,15 @@ namespace WonderDevTracker.Client.Models.DTOs
         /// Helpers to convert DateTimeOffset to DateTime in UTC
         /// Necessary for MudBlazor DatePicker to work correctly
         /// </summary>
+        /// 
+        [Required]
         public DateTime? StartDateTime
         {
             get => StartDate?.DateTime;
             set => StartDate = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : null;
         }
 
+        [Required]
         public DateTime? EndDateTime
         {
             get => EndDate?.DateTime;

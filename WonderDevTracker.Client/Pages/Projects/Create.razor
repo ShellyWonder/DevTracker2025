@@ -1,8 +1,10 @@
 ﻿@* Project Create *@
 @page "/projects/create"
 
-
 @attribute [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+@inject IProjectDTOService ProjectService
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
 @inherits AuthenticatedComponentBase
 
 <PageTitle>Create Project | Dev Tracker</PageTitle>
@@ -14,11 +16,19 @@
         <MudText Typo="Typo.h3" GutterBottom>
             Create a New Project
         </MudText>
-        <EditForm Model="project" class="vstack gap-3">
+        <EditForm Model="project" 
+                  Class="vstack gap-3"
+                  OnValidSubmit="HandleValidSubmit" >
             <DataAnnotationsValidator />
-            <MudTextField @bind-Value="project.Name" Label="Name" Variant="Variant.Outlined" Required="true" />
+
+            <MudTextField @bind-Value="project.Name" 
+                          For="() => project.Name"
+                          Label="Name" 
+                          Variant="Variant.Outlined" 
+                          Required="true" />
 
             <MudTextField @bind-Value="project.Description"
+                          For="() => project.Description"
                           Label="Description"
                           Variant="Variant.Outlined"
                           Lines="5"
@@ -28,12 +38,16 @@
 
             <div class="hstack gap-3 align-items-start flex-wrap">
                 <MudDatePicker @bind-Date="project.StartDateTime"
+                               For="() => project.StartDateTime"
                                Label="Planned Start Date"
-                               Variant="Variant.Outlined" />
+                               Variant="Variant.Outlined" 
+                               ErrorText="Please select a valid start date." />
 
                 <MudDatePicker @bind-Date="project.EndDateTime"
+                               For="() => project.EndDateTime"
                                Label="Planned End Date"
-                               Variant="Variant.Outlined" />
+                               Variant="Variant.Outlined"
+                               ErrorText="Please select a valid end date."/>
             </div>
 
             <MudField Label="Project Priority"
@@ -50,6 +64,8 @@
                     }
                 </MudChipSet>
             </MudField>
+
+            <ValidationMessage For="()=> project.Priority" />
 
             <div class="d-flex">
                 <MudButton Variant="Variant.Text"
@@ -92,4 +108,20 @@
        new BreadcrumbItem("Create a New Project", href:null, disabled: true ),
 
     };
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            project = await ProjectService.CreateProjectAsync(project, UserInfo!);
+            Snackbar.Add($"{project.Name} created successfully!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            // Handle error, e.g., show a message to the user
+            Console.Error.WriteLine($"Error creating project: {ex.Message}");
+            Snackbar.Add("Unable to create project. Please try again.", Severity.Error);
+            return;
+        }
+            NavManager.NavigateTo("/projects");
+    }
 }
