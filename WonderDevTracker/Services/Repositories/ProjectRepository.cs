@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
@@ -9,7 +10,29 @@ namespace WonderDevTracker.Services.Repositories
 {
     public class ProjectRepository(IDbContextFactory<ApplicationDbContext> contextFactory) :  IProjectRepository
     {
-        
+        public async Task<Project?> CreateProjectAsync(Project project, UserInfo user)
+        {
+            bool isAdmin = user.Roles.Any(r => r == nameof(Role.Admin));
+            bool isPM = user.Roles.Any(r => r == nameof(Role.ProjectManager));
+
+            if (!isAdmin && !isPM) throw new UnauthorizedAccessException($"User {user.Email} does not have permission to create a project.");
+
+            await using var context = contextFactory.CreateDbContext();
+            project.Created = DateTimeOffset.UtcNow;
+            project.CompanyId = user.CompanyId;
+
+            if(isPM == true) 
+            {
+                //if the user is a PM, add them as a member of the project
+               ApplicationUser projectManager = await context.Users.FirstAsync(u => u.Id == user.UserId);
+               project.Members?.Add(projectManager);
+                context.Add(project);
+            }
+                await context.SaveChangesAsync();
+                return project;
+
+        }
+
         public async Task<IEnumerable<Project>> GetAllProjectsAsync(UserInfo user)
         {
             await using var context = contextFactory.CreateDbContext();
