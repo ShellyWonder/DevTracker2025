@@ -1,11 +1,6 @@
 ﻿@* Projects Index *@
 @page "/projects"
-
-@using WonderDevTracker.Client.Components.BaseComponents
-@using WonderDevTracker.Client.Components.UIComponents.ProjectComponents
-@using WonderDevTracker.Client.Helpers
-@using WonderDevTracker.Client.Helpers.Animation
-@using WonderDevTracker.Client.Models.Enums
+@attribute [Authorize]
 @inject IProjectDTOService ProjectService
 
 @inherits AuthenticatedComponentBase
