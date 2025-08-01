@@ -30,7 +30,6 @@ namespace WonderDevTracker.Services.Repositories
                 context.Add(project);
                 await context.SaveChangesAsync();
                 return project;
-
         }
 
         public async Task<IEnumerable<Project>> GetAllProjectsAsync(UserInfo user)
@@ -43,6 +42,20 @@ namespace WonderDevTracker.Services.Repositories
                 .ToListAsync();
             return projects;
 
+        }
+
+        public async Task<Project?> GetProjectByIdAsync(int projectId, UserInfo user)
+        {
+            await using var context = contextFactory.CreateDbContext();
+            Project? project = await context.Projects
+                .Include(p => p.Tickets)
+                          .ThenInclude(t => t.SubmitterUser)
+                 .Include(p => p.Tickets)
+                   .ThenInclude(t => t.DeveloperUser)
+                .Include(p => p.Members)
+                .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId && p.Archived == false);
+
+            return project;
         }
     }
 }

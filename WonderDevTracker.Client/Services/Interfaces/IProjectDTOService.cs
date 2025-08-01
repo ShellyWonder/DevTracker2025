@@ -22,5 +22,13 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>New project after being saved in Db</returns>
         public Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user);
+
+        /// <summary>
+        /// Retrieves a specific company project by its ID asynchronously from the database.
+        /// </summary>
+        /// <param name="projectId">Specific company project's id</param>
+        /// <param name="user">Current user claims</param>
+        /// <returns>Requested Project or Null</returns>
+        public Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user);
     }
 }

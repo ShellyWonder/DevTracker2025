@@ -14,6 +14,14 @@ namespace WonderDevTracker.Services.Interfaces
         public Task<IEnumerable<Project>> GetAllProjectsAsync(UserInfo user);
 
         /// <summary>
+        /// Retrieves a specific company project by its ID asynchronously from the database.
+        /// </summary>
+        /// <param name="projectId">Specific company project's id</param>
+        /// <param name="user">Current user claims</param>
+        /// <returns>Requested Project or Null</returns>
+        public Task<Project?> GetProjectByIdAsync(int projectId, UserInfo user);
+
+        /// <summary>
         /// Creates a new company project in the database asynchronously.
         /// </summary>
         /// <remarks>
