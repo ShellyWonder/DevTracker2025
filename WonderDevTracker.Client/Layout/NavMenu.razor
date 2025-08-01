@@ -13,7 +13,7 @@
             </MudNavLink>
         </MudNavGroup>
         <MudNavGroup Title="Projects" Expanded>
-            <MudNavLink Href="/projects" Icon="@Icons.Material.Filled.FolderCopy">
+            <MudNavLink Href="/projects" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FolderCopy">
                 All Projects
             </MudNavLink>
             <MudNavLink Href="/projects/assigned" Icon="@Icons.Material.Filled.FolderShared">
@@ -22,9 +22,13 @@
             <MudNavLink Href="/projects/archived" Icon="@Icons.Material.Filled.Archive">
                 Archived Projects
             </MudNavLink>
-            <MudNavLink Href="/projects/create" Icon="@Icons.Material.Filled.CreateNewFolder">
-                Create Projects
-            </MudNavLink>
+            @if (context.User.IsInRole(nameof(Role.Admin)) || context.User.IsInRole(nameof(Role.ProjectManager)))
+            {
+                <MudNavLink Href="/projects/create" Icon="@Icons.Material.Filled.CreateNewFolder">
+                    Create Projects
+                </MudNavLink>
+
+            }
         </MudNavGroup>
         <MudNavGroup Title="Tickets" Expanded>
             <MudNavLink Href="/tickets" Icon="@Icons.Material.Filled.Assessment">
