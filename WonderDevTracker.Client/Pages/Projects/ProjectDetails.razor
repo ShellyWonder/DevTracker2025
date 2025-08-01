@@ -1,0 +1,37 @@
+﻿@* ProjectDetails *@
+@page "/projects/{ProjectId:int}"
+@inject IProjectDTOService ProjectService
+
+@inherits AuthenticatedComponentBase
+
+<PageTitle>Project Details | Dev Tracker</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
+    <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+    @if (project is not null)
+    {
+        
+    }
+    else
+    {
+        <MudText Typo="Typo.h5" Class="text-secondary">
+            Project not found
+        </MudText>
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+    private ProjectDTO? project;
+
+    private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    {
+        new BreadcrumbItem("Home", href: "/"),
+        new BreadcrumbItem("Projects", href: "/projects"),
+        new BreadcrumbItem("Project Details", href: null, disabled: true)
+    };
+    protected override async Task OnInitializedWithAuthAsync()
+    {
+        project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+    }
+}
