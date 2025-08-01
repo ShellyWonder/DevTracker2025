@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 using MudBlazor.Services;
 using WonderDevTracker.Client.Services;
 using WonderDevTracker.Client.Services.Interfaces;
@@ -32,7 +33,12 @@ builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 //to cache images in the browser
 builder.Services.AddOutputCache();
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+}
+    
+    );
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<ThemeManagerService>();
 
