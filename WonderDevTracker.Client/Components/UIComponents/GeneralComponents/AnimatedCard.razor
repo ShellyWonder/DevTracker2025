@@ -1,0 +1,26 @@
+﻿@* AnimatedCard *@
+@* card component wrapper with animation delay based on index. *@
+<MudCard Elevation="5"
+         HoverElevation="7"
+         Class="h-100 project-card elevated-hover fade-in"
+         style="@GetCardAnimationStyle()"
+         @onclick="@OnClick">
+    @ChildContent
+</MudCard>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public int Index { get; set; } = 0;
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private string GetCardAnimationStyle()
+    {
+        var delay = Index * 100;
+        return $"animation-delay: {delay}ms;";
+    }
+}

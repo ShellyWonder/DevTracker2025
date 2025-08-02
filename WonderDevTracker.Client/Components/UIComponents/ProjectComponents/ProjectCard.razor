@@ -4,10 +4,7 @@
 
 @if (Project is not null)
 {
-    <MudCard Elevation="5" HoverElevation="7"
-             Class="h-100 project-card elevated-hover fade-in"
-             style="@GetCardAnimationStyle()"
-             @onclick="NavigateToDetails">
+    <AnimatedCard Index="Index" OnClick="NavigateToDetails">
         <MudCardHeader>
             <CardHeaderContent>
                 <MudLink Typo="Typo.h5" Href="#" Class="d-block">
@@ -32,7 +29,7 @@
 
         </MudCardActions>
 
-    </MudCard>
+    </AnimatedCard>
 }
 
 
@@ -44,15 +41,10 @@
     [Parameter]
     public int Index { get; set; }//passed from parent to control Animation delay
 
-   
+
     private void NavigateToDetails()
     {
         NavManager.NavigateTo($"/projects/{Project?.Id}");
     }
 
-    private string GetCardAnimationStyle()
-    {
-        var delay = Index * 100;
-        return $"animation-delay: {delay}ms;";
-    }
 }
