@@ -1,0 +1,14 @@
+﻿@* ProjectDates *@
+@* Displays the project's start and end date range. Accepts two parameters, StartDate and EndDate. *@
+
+<MudText Typo="Typo.caption" Class="text-secondary">
+    @StartDate?.ToString("d") - @EndDate?.ToString("d")
+</MudText>
+
+@code {
+    [Parameter, EditorRequired]
+    public DateTimeOffset? StartDate { get; set; }
+
+    [Parameter, EditorRequired]
+    public DateTimeOffset? EndDate { get; set; }
+}

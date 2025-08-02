@@ -13,9 +13,7 @@
                 <MudLink Typo="Typo.h5" Href="#" Class="d-block">
                     @Project.Name
                 </MudLink>
-                <MudText Typo="Typo.caption" Class="text-secondary">
-                    @Project.StartDate?.ToString("d") -  @Project.EndDate?.ToString("d")
-                </MudText>
+                <ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
             </CardHeaderContent>
         </MudCardHeader>
         <MudCardContent>
@@ -27,15 +25,11 @@
             </div>
         </MudCardContent>
         <MudCardActions>
+
             <PriorityChip Priority="Project.Priority" />
 
-            <MudButton Class="project-details-link ms-auto"
-                       Variant="Variant.Text"
-                       Color="Color.Tertiary"
-                       Href="#"
-                       EndIcon="@Icons.Material.Filled.ArrowForward">
-                Details
-            </MudButton>
+            <LinksBtn Text="Details" Href="@($"/projects/{Project.Id}")" />
+
         </MudCardActions>
 
     </MudCard>
