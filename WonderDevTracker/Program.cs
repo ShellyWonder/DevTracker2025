@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using MudBlazor.Services;
+using WonderDevTracker.Client.Helpers.Animation;
 using WonderDevTracker.Client.Services;
 using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Components;
@@ -41,7 +42,7 @@ builder.Services.AddMudServices(config =>
     );
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<ThemeManagerService>();
-
+builder.Services.AddScoped<IndexTrackerHelper>();
 
 
 builder.Services.AddAuthentication(options =>
