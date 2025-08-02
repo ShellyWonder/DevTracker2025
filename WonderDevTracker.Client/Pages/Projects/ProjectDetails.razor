@@ -1,24 +1,35 @@
 ﻿@* ProjectDetails *@
 @page "/projects/{ProjectId:int}"
 @attribute [Authorize]
+
+
 @inject IProjectDTOService ProjectService
+@inject IndexTrackerHelper IndexTracker
 
 @inherits AuthenticatedComponentBase
 
-<PageTitle>Project Details | Dev Tracker</PageTitle>
+<PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
     <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
-    <MudPaper Class="p-3" >
-    @if (project is not null)
-    {
-        
-    }
-    else
-    {
-        <MudText Typo="Typo.h5" Class="text-secondary">
-            Project not found
-        </MudText>
-    }
+    <MudPaper Class="p-3">
+        @if (project is not null)
+        {
+            @* Reset at start of render *@
+                ResetIndex(); 
+            
+            <div class="v-stack g-3">
+                <ProjectGeneralInfo Project="project" Index="@IndexTracker.Next()" />
+                <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
+                <ProjectMembers Project="project" Index="@IndexTracker.Next()" />
+
+            </div>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5" Class="text-secondary">
+                Project not found
+            </MudText>
+        }
 
     </MudPaper>
 </MudContainer>
@@ -28,14 +39,23 @@
     public int ProjectId { get; set; }
     private ProjectDTO? project;
 
-    private static readonly List<BreadcrumbItem> breadcrumbs = new()
-    {
-        new BreadcrumbItem("Home", href: "/"),
-        new BreadcrumbItem("Projects", href: "/projects"),
-        new BreadcrumbItem("Project Details", href: null, disabled: true)
-    };
+    private List<BreadcrumbItem> breadcrumbs = [];
+
+    private void ResetIndex() => IndexTracker.Reset();
+
     protected override async Task OnInitializedWithAuthAsync()
     {
         project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+        if (project is not null)
+        {
+            breadcrumbs = new()
+            {
+                new BreadcrumbItem("Home", href: "/"),
+                new BreadcrumbItem("Projects", href: "/projects"),
+                new BreadcrumbItem(project.Name ?? "Unnamed Project", href: null, disabled: true)
+
+            };
+        }
     }
 }
