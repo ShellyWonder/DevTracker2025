@@ -1,10 +1,11 @@
 ﻿@* Project Create *@
 @page "/projects/create"
-
 @attribute [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+
 @inject IProjectDTOService ProjectService
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
+
 @inherits AuthenticatedComponentBase
 
 <PageTitle>Create Project | Dev Tracker</PageTitle>
@@ -16,15 +17,15 @@
         <MudText Typo="Typo.h3" GutterBottom>
             Create a New Project
         </MudText>
-        <EditForm Model="project" 
+        <EditForm Model="project"
                   Class="vstack gap-3"
-                  OnValidSubmit="HandleValidSubmit" >
+                  OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
 
-            <MudTextField @bind-Value="project.Name" 
+            <MudTextField @bind-Value="project.Name"
                           For="() => project.Name"
-                          Label="Name" 
-                          Variant="Variant.Outlined" 
+                          Label="Name"
+                          Variant="Variant.Outlined"
                           Required="true" />
 
             <MudTextField @bind-Value="project.Description"
@@ -38,16 +39,19 @@
 
             <div class="hstack gap-3 align-items-start flex-wrap">
                 <MudDatePicker @bind-Date="project.StartDateTime"
-                               For="() => project.StartDateTime"
+                               For="@(() => project.StartDateTime)"
+                               Required="true"
                                Label="Planned Start Date"
-                               Variant="Variant.Outlined" 
-                               ErrorText="Please select a valid start date." />
+                               Variant="Variant.Outlined" />
+                <ValidationMessage For="@(() => project.StartDateTime)" />
+
 
                 <MudDatePicker @bind-Date="project.EndDateTime"
-                               For="() => project.EndDateTime"
+                               For="@(() => project.EndDateTime)"
+                               Required="true"
                                Label="Planned End Date"
-                               Variant="Variant.Outlined"
-                               ErrorText="Please select a valid end date."/>
+                               Variant="Variant.Outlined" />
+                <ValidationMessage For="@(() => project.EndDateTime)" />
             </div>
 
             <MudField Label="Project Priority"
@@ -59,22 +63,20 @@
                             Class="d-flex align-items-center">
                     @foreach (ProjectPriority priority in Enum.GetValues<ProjectPriority>())
                     {
-                        <MudChip Value="priority"
-                                 Text="@priority.GetDisplayName()" />
+                        <MudChip Value="priority">
+                            <MudText Typo="Typo.caption">
+                                @priority.GetDisplayName()
+                            </MudText>
+                        </MudChip>
                     }
                 </MudChipSet>
             </MudField>
 
-            <ValidationMessage For="()=> project.Priority" />
-
+            <ValidationMessage For="() => project.Priority" />
+            <ValidationSummary />
             <div class="d-flex">
-                <MudButton Variant="Variant.Text"
-                           Class="project-details-link"
-                           Color="Color.Tertiary"
-                           Href="/projects"
-                           StartIcon="@Icons.Material.Filled.ArrowBack">
-                    Back to Projects
-                </MudButton>
+               <BackToBtn Href="/projects" Text="Back to Projects"/>
+
                 <MudButton Color="Color.Primary"
                            Class="ms-auto mt-2"
                            Variant="Variant.Filled"
@@ -122,6 +124,6 @@
             Snackbar.Add("Unable to create project. Please try again.", Severity.Error);
             return;
         }
-            NavManager.NavigateTo("/projects");
+        NavManager.NavigateTo("/projects");
     }
 }
