@@ -1,7 +1,7 @@
-﻿@using WonderDevTracker.Client.Models.Enums
+﻿@* ProjectCard.razor *@
+
 @inject NavigationManager NavManager
 
-@* ProjectCard.razor *@
 @if (Project is not null)
 {
     <MudCard Elevation="5" HoverElevation="7"
@@ -27,13 +27,8 @@
             </div>
         </MudCardContent>
         <MudCardActions>
-            <MudChip T="string"
-                     Color="@priorityColor"
-                     Label="true"
-                     Variant="Variant.Text"
-                     Class="priority-label" >
-                Priority: @Project.Priority.GetDisplayName()
-            </MudChip>
+            <PriorityChip Priority="Project.Priority" />
+
             <MudButton Class="project-details-link ms-auto"
                        Variant="Variant.Text"
                        Color="Color.Tertiary"
@@ -55,20 +50,7 @@
     [Parameter]
     public int Index { get; set; }//passed from parent to control Animation delay
 
-    private Color priorityColor = Color.Default;
-
-    protected override void OnParametersSet()
-    {
-        //switch expression
-        priorityColor = Project?.Priority switch
-        {
-            ProjectPriority.Low => Color.Success,
-            ProjectPriority.Medium => Color.Secondary,
-            ProjectPriority.High => Color.Error,
-            ProjectPriority.Urgent => Color.Dark,
-            _ => Color.Default,
-        };
-    }
+   
     private void NavigateToDetails()
     {
         NavManager.NavigateTo($"/projects/{Project?.Id}");

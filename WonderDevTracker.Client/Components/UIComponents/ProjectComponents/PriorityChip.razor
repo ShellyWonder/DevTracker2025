@@ -1,0 +1,26 @@
+﻿@* PriorityChip *@
+@*Displays the project priority in a chip. Accepts a nullable enum and auto-calculates the color.*@
+
+<MudChip T="string"
+         Color="@priorityColor"
+         Label="true"
+         Variant="Variant.Text"
+         Class="priority-label">
+    Priority: @Priority?.GetDisplayName()
+</MudChip>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProjectPriority? Priority { get; set; }
+
+    
+    //switch expression to determine the color based on the priority
+    private Color priorityColor => Priority switch
+    {
+        ProjectPriority.Low => Color.Tertiary,
+        ProjectPriority.Medium => Color.Info,
+        ProjectPriority.High => Color.Warning,
+        ProjectPriority.Urgent => Color.Error,
+        _ => Color.Default
+    };
+}

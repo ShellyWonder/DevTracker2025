@@ -1,0 +1,19 @@
+﻿@* LinksBtn *@
+@* Displays a text button with a right arrow. Accepts Text and Href. *@
+
+<MudButton Class="project-details-link ms-auto"
+           Variant="Variant.Text"
+           Color="Color.Tertiary"
+           Href="@Href"
+           EndIcon="@Icons.Material.Filled.ArrowForward">
+    @Text
+</MudButton>
+
+@code {
+    [Parameter, EditorRequired]
+    public string? Text { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? Href { get; set; }
+}
+
