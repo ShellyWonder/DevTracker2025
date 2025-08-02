@@ -1,0 +1,20 @@
+﻿@*ProjectDescription *@
+
+<AnimatedCard Index="Index">
+    <MudCardHeader>
+        <MudText Typo="Typo.h6">Description</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudText Typo="Typo.body1">
+            @Project.Description
+        </MudText>
+    </MudCardContent>
+</AnimatedCard>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProjectDTO Project { get; set; } = default!;
+
+    [Parameter]
+    public int Index { get; set; }
+}
