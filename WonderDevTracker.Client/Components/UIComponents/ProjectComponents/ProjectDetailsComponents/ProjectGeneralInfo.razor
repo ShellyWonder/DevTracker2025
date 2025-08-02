@@ -1,0 +1,22 @@
+﻿@* ProjectGeneralInfo *@
+
+<AnimatedCard Index="Index">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h3">@Project.Name</MudText>
+            <ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardActions>
+        <PriorityChip Priority="Project.Priority" />
+    </MudCardActions>
+</AnimatedCard>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProjectDTO Project { get; set; } = default!;
+
+    [Parameter]
+    public int Index { get; set; }
+}
+

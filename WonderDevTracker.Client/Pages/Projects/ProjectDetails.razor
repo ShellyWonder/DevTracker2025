@@ -1,5 +1,6 @@
 ﻿@* ProjectDetails *@
 @page "/projects/{ProjectId:int}"
+@attribute [Authorize]
 @inject IProjectDTOService ProjectService
 
 @inherits AuthenticatedComponentBase
@@ -7,6 +8,7 @@
 <PageTitle>Project Details | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
     <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+    <MudPaper Class="p-3" >
     @if (project is not null)
     {
         
@@ -17,6 +19,8 @@
             Project not found
         </MudText>
     }
+
+    </MudPaper>
 </MudContainer>
 
 @code {
