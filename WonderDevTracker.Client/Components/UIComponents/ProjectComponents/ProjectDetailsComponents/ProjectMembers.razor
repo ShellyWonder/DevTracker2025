@@ -1,13 +1,13 @@
 ﻿@*ProjectMembers *@
-@inject AppUserDTO AppUser
+@* @inject AppUserDTO AppUser *@
 <AnimatedCard Index="Index">
     <MudCardHeader>
-        <MudText Typo="Typo.h6">Project Members</MudText>
+        <MudText Typo="Typo.h5" Color="Color.Primary">Project Members</MudText>
     </MudCardHeader>
     <MudCardContent>
-        @if (Project.Members is not null && Project.Members.Any())
+        @* @if (Project.Members is not null && Project.Members.Any())
         {
-            @* <MudList Dense="true" T="ApplicationUserDTO">
+            <MudList Dense="true" T="ApplicationUserDTO">
                 @foreach (var member in Project.Members)
                 {
                     <MudListItem>
@@ -15,16 +15,16 @@
                         <MudText Typo="Typo.body2" Class="ms-2">@member.FullName (@member.Role)</MudText>
                     </MudListItem>
                 }
-            </MudList> *@
-        }
-        else
-        {
+            </MudList>
+        } *@
+        @* else
+        { *@
             <div class="h-100 d-flex align-items-center justify-content-center">
                 <MudText Typo="Typo.button" Color="Color.Secondary">
                     No Project Members
                 </MudText>
             </div>
-        }
+       @*  } *@
     </MudCardContent>
 </AnimatedCard>
 

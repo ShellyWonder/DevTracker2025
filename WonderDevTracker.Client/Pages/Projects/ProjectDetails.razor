@@ -17,7 +17,7 @@
             @* Reset at start of render *@
                 ResetIndex(); 
             
-            <div class="v-stack g-3">
+            <div class="vstack gap-3">
                 <ProjectGeneralInfo Project="project" Index="@IndexTracker.Next()" />
                 <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
                 <ProjectMembers Project="project" Index="@IndexTracker.Next()" />
@@ -32,6 +32,7 @@
         }
 
     </MudPaper>
+    <BackToBtn Href="/projects" Text="Back to Projects" />
 </MudContainer>
 
 @code {
