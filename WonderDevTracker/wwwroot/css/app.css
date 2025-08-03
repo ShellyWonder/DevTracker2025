@@ -60,6 +60,11 @@
         transform: translateX(2px);
         color: #0077b6; /* Primary or Info shade */
     }
+    .project-details-link:disabled {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
 /**End Details link*/
 
 /**MudChip**/
