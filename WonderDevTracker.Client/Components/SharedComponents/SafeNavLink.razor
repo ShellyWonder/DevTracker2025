@@ -1,0 +1,42 @@
+﻿@* SafeNavLink.razor *@
+@* Note: This component is used to safely render a link or fallback text based on the validity of the Href parameter.
+    Renders a MudLink if Valid is true; otherwise, shows fallback text 
+    Protects against a runtime exception during server pre-render *@
+
+    @*IMPLEMENTATION EXAMPLE
+        <SafeNavLink Href="@($"/projects/{Project?.Id}")"
+             Valid="@(Project?.Id is not null)"
+             Typo="Typo.h5"
+             Color="Color.Primary"
+             Class="d-block">
+    @Project?.Name
+</SafeNavLink>
+    *@
+
+@if (Valid && !string.IsNullOrWhiteSpace(Href))
+{
+    <MudLink Href="@Href"
+             Class="@Class"
+             Typo="@Typo"
+             Color="@Color">
+        @ChildContent
+    </MudLink>
+}
+else
+{
+    <MudText Typo="@Typo" Class="@($"text-muted {Class}")">
+        @FallbackText
+    </MudText>
+}
+
+@code {
+    [Parameter] public string? Href { get; set; }
+    [Parameter] public bool Valid { get; set; } = true;
+
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public Typo Typo { get; set; } = Typo.body1;
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+
+    [Parameter] public string FallbackText { get; set; } = "Loading...";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}
