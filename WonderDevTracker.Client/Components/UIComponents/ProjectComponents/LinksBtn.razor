@@ -1,10 +1,11 @@
 ﻿@* LinksBtn *@
-@* Displays a text button with a right arrow. Accepts Text and Href. *@
+@* Displays a text button with a right arrow. Accepts Text, Href, and Disabled. *@
 
 <MudButton Class="project-details-link ms-auto"
            Variant="Variant.Text"
            Color="Color.Tertiary"
-           Href="@Href"
+           Href="@(Disabled || string.IsNullOrWhiteSpace(Href) ? null : Href)"
+           Disabled="Disabled"
            EndIcon="@Icons.Material.Filled.ArrowForward">
     @Text
 </MudButton>
@@ -15,5 +16,7 @@
 
     [Parameter, EditorRequired]
     public string? Href { get; set; }
-}
 
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+}

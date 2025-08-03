@@ -7,7 +7,7 @@
     <AnimatedCard Index="Index" OnClick="NavigateToDetails">
         <MudCardHeader>
             <CardHeaderContent>
-                <MudLink Typo="Typo.h5" Href="#" Class="d-block">
+                <MudLink Typo="Typo.h5" Href="@($"projects/{Project.Id}")" Class="d-block">
                     @Project.Name
                 </MudLink>
                 <ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
@@ -25,7 +25,9 @@
 
             <PriorityChip Priority="Project.Priority" />
 
-            <LinksBtn Text="Details" Href="@($"/projects/{Project.Id}")" />
+            <LinksBtn Text="Details" 
+                      Href="@($"/projects/{Project.Id}")" 
+                      Disabled="@(Project is null)" />
 
         </MudCardActions>
 

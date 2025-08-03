@@ -4,7 +4,7 @@
 <MudButton Variant="Variant.Text"
            Class="project-details-link"
            Color="Color.Secondary"
-           Href="@Href"
+           Href="@(Disabled || string.IsNullOrWhiteSpace(Href) ? null : Href)"
            StartIcon="@Icons.Material.Filled.ArrowBack">
     @Text
 </MudButton>
@@ -15,4 +15,7 @@
 
     [Parameter, EditorRequired]
     public string? Href { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
 }
