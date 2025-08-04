@@ -7,10 +7,13 @@
     <AnimatedCard Index="Index" OnClick="NavigateToDetails">
         <MudCardHeader>
             <CardHeaderContent>
-                <MudLink Typo="Typo.h5" Href="@($"projects/{Project.Id}")" Class="d-block">
-                    @Project.Name
-                </MudLink>
-                <ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
+                <SafeNavLink Typo="Typo.h5"
+                             Href="@($"projects/{Project.Id}")" 
+                             Valid="@(Project?.Id is not null)" 
+                             Class="d-block">
+                    @Project?.Name
+                </SafeNavLink>
+                <ProjectDates StartDate="Project?.StartDate" EndDate="Project?.EndDate" />
             </CardHeaderContent>
         </MudCardHeader>
         <MudCardContent>
@@ -46,6 +49,10 @@
 
     private void NavigateToDetails()
     {
+        @if (Project is null)
+        {
+            return;
+        }
         NavManager.NavigateTo($"/projects/{Project?.Id}");
     }
 

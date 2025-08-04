@@ -5,6 +5,7 @@
 
 @inject IProjectDTOService ProjectService
 @inject IndexTrackerHelper IndexTracker
+@inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
 
@@ -15,24 +16,33 @@
         @if (project is not null)
         {
             @* Reset at start of render *@
-                ResetIndex(); 
-            
+            ResetIndex();
+
             <div class="vstack gap-3">
+               @*  <MudText Typo="Typo.caption">Rendering with Index = @IndexTracker.Peek()</MudText> *@
+
                 <ProjectGeneralInfo Project="project" Index="@IndexTracker.Next()" />
                 <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
                 <ProjectMembers Project="project" Index="@IndexTracker.Next()" />
 
             </div>
         }
+        else if (!_loadingComplete)
+        {
+            <MudProgressCircular Color="Color.Secondary" Size="Size.Medium" Indeterminate />
+        }
         else
         {
-            <MudText Typo="Typo.h5" Class="text-secondary">
-                Project not found
-            </MudText>
+            <div class="h-100 d-flex align-items-center justify-content-center">
+                <MudText Typo="Typo.button" Color=Color.Secondary">
+                    Project not found
+                </MudText>
+
+            </div>
         }
 
     </MudPaper>
-    <BackToBtn Href="/projects" Text="Back to Projects" />
+    <BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
 </MudContainer>
 
 @code {
@@ -41,22 +51,33 @@
     private ProjectDTO? project;
 
     private List<BreadcrumbItem> breadcrumbs = [];
+    private bool _loadingComplete = false;
 
     private void ResetIndex() => IndexTracker.Reset();
 
     protected override async Task OnInitializedWithAuthAsync()
     {
-        project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
-        if (project is not null)
+        try
         {
+            project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+            _loadingComplete = true;
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+            Snackbar.Add("Error loading project details.", Severity.Error);
+        }
+
+        
             breadcrumbs = new()
             {
                 new BreadcrumbItem("Home", href: "/"),
                 new BreadcrumbItem("Projects", href: "/projects"),
-                new BreadcrumbItem(project.Name ?? "Unnamed Project", href: null, disabled: true)
+                new BreadcrumbItem(project?.Name ?? "Project Not Found", href: null, disabled: true)
 
             };
-        }
+        
     }
 }

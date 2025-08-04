@@ -30,13 +30,20 @@ else
 }
 
 @code {
-    [Parameter] public string? Href { get; set; }
-    [Parameter] public bool Valid { get; set; } = true;
+    [Parameter, EditorRequired]
+    public string? Href { get; set; }
+    [Parameter, EditorRequired]
+    public bool Valid { get; set; } = true;
 
-    [Parameter] public string? Class { get; set; }
-    [Parameter] public Typo Typo { get; set; } = Typo.body1;
-    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] 
+    public string? Class { get; set; }
+    [Parameter]
+    public Typo Typo { get; set; } = Typo.body1;
+    [Parameter]
+    public Color Color { get; set; } = Color.Primary;
 
-    [Parameter] public string FallbackText { get; set; } = "Loading...";
-    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] 
+    public string FallbackText { get; set; } = "Loading...";
+    [Parameter] 
+    public RenderFragment? ChildContent { get; set; }
 }

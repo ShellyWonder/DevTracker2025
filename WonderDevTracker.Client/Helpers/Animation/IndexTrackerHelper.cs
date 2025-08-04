@@ -7,5 +7,6 @@
         public int Next() => _index++;
 
         public void Reset() => _index = 0;
+        public int Peek() => _index;
     }
 }
