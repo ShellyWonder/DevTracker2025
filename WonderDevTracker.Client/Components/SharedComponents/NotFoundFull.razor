@@ -1,0 +1,46 @@
+﻿@* NotFoundFull *@
+@*Used when "Not Found" requires a CTA on a full height view*@
+
+@*EXAMPLE USAGE
+    <NotFoundFull 
+    Message="Project not found"
+    ReturnUrl="/projects"
+    ReturnLabel="Back to Projects"
+    ForwardUrl="/projects/create"
+    ForwardLabel="Create New Project" />
+*@
+    <MudText>
+        @Message
+    </MudText>
+<div class="d-flex flex-column flex-sm-row gap-3 mt-3 h-100 justify-content-center align-items-center">
+    @if (!string.IsNullOrWhiteSpace(ReturnUrl))
+    {
+        <SafeNavLink Href="@ReturnUrl" Valid="true" Color="Color.Secondary"
+                     StartIcon="@Icons.Material.Filled.ArrowBack">
+            @ReturnLabel
+        </SafeNavLink>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(ForwardUrl))
+    {
+        <SafeNavLink Href="@ForwardUrl" Valid="true" Color="Color.Primary"
+                     EndIcon="@Icons.Material.Filled.ArrowForward">
+            @ForwardLabel
+        </SafeNavLink>
+    }
+</div>
+
+@code {
+    [Parameter,EditorRequired]
+    public string Message { get; set; } = "Page not found";
+    [Parameter, EditorRequired]
+    public string? ReturnUrl { get; set; }
+    [Parameter, EditorRequired]
+    public string ReturnLabel { get; set; } = "Go back";
+
+    [Parameter]
+    public string? ForwardUrl { get; set; }
+
+    [Parameter]
+    public string ForwardLabel { get; set; } = "Create New";
+}

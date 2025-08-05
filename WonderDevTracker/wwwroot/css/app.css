@@ -48,6 +48,11 @@
         background-color: #f9fcfe;
         border-color: #dde6ec;
     }
+.not-found-container {
+    height: 100vh;
+    padding: 2rem;
+    background-color: var(--mud-palette-background); /* optional */
+}
 
 /**Details link*/
 .project-details-link {
@@ -78,7 +83,7 @@
 
 /* #endregion ProjectCard.razor  */
 
-/* #region ProjectIndex.razor */
+/* #region breadcrumbs */
 .breadcrumbs1 {
     font-size: 0.9rem;
     font-weight: 400;
@@ -86,7 +91,7 @@
 }
 
 
-/* #endregion ProjectIndex.razor */
+/* #endregion breadcrumbs */
 
 
 /* #region Global CSS */

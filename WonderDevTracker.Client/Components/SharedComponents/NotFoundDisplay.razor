@@ -1,0 +1,12 @@
+﻿@* NotFoundDisplay.razor *@
+@*Used as child to a card component*@
+<div class="h-100 d-flex align-items-center justify-content-center text-center">
+    <MudText Typo="Typo.button" Color="Color.Secondary">
+        @Message
+    </MudText>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Message { get; set; } 
+}

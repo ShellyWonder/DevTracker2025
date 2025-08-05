@@ -19,7 +19,15 @@
              Class="@Class"
              Typo="@Typo"
              Color="@Color">
+        @if (!string.IsNullOrWhiteSpace(StartIcon))
+        {
+            <MudIcon Icon="@StartIcon" Size="Size.Medium" />
+        }
         @ChildContent
+        @if (!string.IsNullOrWhiteSpace(EndIcon))
+        {
+            <MudIcon Icon="@EndIcon" Size="Size.Medium" />
+        }
     </MudLink>
 }
 else
@@ -41,6 +49,13 @@ else
     public Typo Typo { get; set; } = Typo.body1;
     [Parameter]
     public Color Color { get; set; } = Color.Primary;
+
+    [Parameter]
+    public string? StartIcon { get; set; } 
+    [Parameter] 
+    public string? EndIcon { get; set; } 
+    [Parameter] 
+    public string? Icon { get; set; } 
 
     [Parameter] 
     public string FallbackText { get; set; } = "Loading...";
