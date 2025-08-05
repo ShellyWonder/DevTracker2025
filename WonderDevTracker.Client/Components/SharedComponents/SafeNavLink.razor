@@ -18,7 +18,8 @@
     <MudLink Href="@Href"
              Class="@Class"
              Typo="@Typo"
-             Color="@Color">
+             Color="@Color"
+             >
         @if (!string.IsNullOrWhiteSpace(StartIcon))
         {
             <MudIcon Icon="@StartIcon" Size="Size.Medium" />
@@ -49,7 +50,7 @@ else
     public Typo Typo { get; set; } = Typo.body1;
     [Parameter]
     public Color Color { get; set; } = Color.Primary;
-
+    
     [Parameter]
     public string? StartIcon { get; set; } 
     [Parameter] 

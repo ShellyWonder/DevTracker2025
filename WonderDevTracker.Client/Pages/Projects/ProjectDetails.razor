@@ -2,47 +2,50 @@
 @page "/projects/{ProjectId:int}"
 @attribute [Authorize]
 
-
 @inject IProjectDTOService ProjectService
 @inject IndexTrackerHelper IndexTracker
 @inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
 
-<PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
     <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
-    <MudPaper Class="p-3">
-        @if (project is not null)
-        {
+    @if (!_loadingComplete)
+    {
+        <MudProgressCircular Color="Color.Secondary" Size="Size.Medium" Indeterminate />
+    }
+    else if (project is not null)
+    {
             @* Reset at start of render *@
             ResetIndex();
+            <PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 
+        <MudPaper Class="p-3">
             <div class="vstack gap-3">
-               @*  <MudText Typo="Typo.caption">Rendering with Index = @IndexTracker.Peek()</MudText> *@
+                @* Test:
+
+                <MudText Typo="Typo.caption">Rendering with Index = @IndexTracker.Peek()</MudText> *@
 
                 <ProjectGeneralInfo Project="project" Index="@IndexTracker.Next()" />
                 <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
                 <ProjectMembers Project="project" Index="@IndexTracker.Next()" />
 
             </div>
-        }
-        else if (!_loadingComplete)
-        {
-            <MudProgressCircular Color="Color.Secondary" Size="Size.Medium" Indeterminate />
-        }
-        else
-        {
-            <div class="h-100 d-flex align-items-center justify-content-center">
-                <MudText Typo="Typo.button" Color=Color.Secondary">
-                    Project not found
-                </MudText>
+        </MudPaper>
+        <BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
+    }
+    else
+    {
+        <PageTitle>Project Not Found | Dev Tracker</PageTitle>
 
-            </div>
-        }
+        <NotFoundFull Message="Project not found"
+                      ReturnUrl="/projects"
+                      ReturnLabel="Back to Projects"
+                      ForwardUrl="/projects/create"
+                      ForwardLabel="Create New Project" />
 
-    </MudPaper>
-    <BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
+    }
+
 </MudContainer>
 
 @code {
@@ -60,7 +63,6 @@
         try
         {
             project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-            _loadingComplete = true;
 
         }
         catch (Exception ex)
@@ -69,15 +71,16 @@
             Console.WriteLine(ex);
             Snackbar.Add("Error loading project details.", Severity.Error);
         }
+        _loadingComplete = true;
 
-        
-            breadcrumbs = new()
+
+        breadcrumbs = new()
             {
                 new BreadcrumbItem("Home", href: "/"),
                 new BreadcrumbItem("Projects", href: "/projects"),
                 new BreadcrumbItem(project?.Name ?? "Project Not Found", href: null, disabled: true)
 
             };
-        
+
     }
 }
