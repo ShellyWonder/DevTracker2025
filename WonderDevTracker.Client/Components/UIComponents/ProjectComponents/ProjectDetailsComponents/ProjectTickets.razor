@@ -9,13 +9,14 @@
 
         <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
             <MudTabPanel Text="Open Tickets">
-        <ProjectTicketTable Tickets="Project.Tickets" />
+                <ProjectTicketTable Tickets="@OpenTickets" />
             </MudTabPanel>
             <MudTabPanel Text="Resolved Tickets">
-                <MudText>Content Two</MudText>
+                <ProjectTicketTable Tickets="@ResolvedTickets" />
             </MudTabPanel>
             <MudTabPanel Text="Archived Tickets">
-                <MudText>Content Three</MudText>
+                <ProjectTicketTable Tickets="@ArchivedTickets" />
+
             </MudTabPanel>
             <MudTabPanel Text="Tab Disabled" Disabled="true">
                 <MudText>Content Disabled</MudText>
@@ -36,4 +37,8 @@
 
     [Parameter, EditorRequired]
     public int Index { get; set; }
+
+    private IEnumerable<TicketDTO> OpenTickets => Project.Tickets.Where(t => !t.Archived && t.Status != TicketStatus.Resolved);
+    private IEnumerable<TicketDTO> ResolvedTickets => Project.Tickets.Where(t => !t.Archived && t.Status == TicketStatus.Resolved);
+    private IEnumerable<TicketDTO> ArchivedTickets => Project.Tickets.Where(t => t.Archived);
 }
