@@ -1,0 +1,50 @@
+﻿@* ProjectTicketTable *@
+
+<MudDataGrid Items="Tickets">
+    <Columns>
+        <PropertyColumn Property="t=> t.Title" />
+        <PropertyColumn Property="t=> t.Priority" />
+        <PropertyColumn Property="t=> t.Status" />
+            <TemplateColumn Title="Submitter" 
+                            Sortable="true" 
+                            SortBy="c => c.SubmitterUser?.FullName"
+                            ShowColumnOptions="true">
+                <CellTemplate>
+                    @if(context.Item.SubmitterUser is not null)
+                    {
+                        <MudText Typo="Typo.body2">@context.Item.SubmitterUser.FullName</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Error">Unknown</MudText>
+                }
+
+                </CellTemplate>
+            </TemplateColumn>
+        
+            <TemplateColumn Title="Developer" 
+                            Sortable="true" 
+                            SortBy="c => c.DeveloperUser?.FullName">
+                <CellTemplate>
+                    @if(context.Item.DeveloperUser is not null)
+                    {
+                        <MudText Typo="Typo.body2">@context.Item.DeveloperUser.FullName</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Error">Unknown</MudText>
+                }
+
+                </CellTemplate>
+            </TemplateColumn>
+        
+       
+        <PropertyColumn Property="t=> t.Created" Format="g"/>
+        @* <PropertyColumn Property="t=> t.Created" Format="g"/>
+       *@
+    </Columns>
+</MudDataGrid>
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<TicketDTO> Tickets { get; set; } = [];
+}
