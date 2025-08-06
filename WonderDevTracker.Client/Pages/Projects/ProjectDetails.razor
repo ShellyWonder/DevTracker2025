@@ -12,13 +12,14 @@
     <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
     @if (!_loadingComplete)
     {
-        <MudProgressCircular Color="Color.Secondary" Size="Size.Medium" Indeterminate />
+        <LoadingSpinner Message="Loading project details..." Color="Color.Primary" Size="Size.Large" />
     }
     else if (project is not null)
     {
-            @* Reset at start of render *@
-            ResetIndex();
-            <PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
+        @* Reset Index at start of render;
+            controls the index for components that use IndexTracker.*@
+        ResetIndex();
+        <PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 
         <MudPaper Class="p-3">
             <div class="vstack gap-3">
