@@ -19,12 +19,15 @@
         } *@
         @* else
         { *@
-            <div class="h-100 d-flex align-items-center justify-content-center">
-                <MudText Typo="Typo.button" Color="Color.Secondary">
-                    No Project Members
-                </MudText>
-            </div>
-       @*  } *@
+        <NotFoundDisplay Message="No assigned project members" />
+        @*  } *@
+        <SafeNavButton Href="#" Valid="true"
+                       Color="Color.Tertiary"
+                       Variant="Variant.Text"
+                       Class="project-details-link ms-auto"
+                       StartIcon="@Icons.Material.Filled.Group">
+            Manage Team
+        </SafeNavButton>
     </MudCardContent>
 </AnimatedCard>
 
