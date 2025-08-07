@@ -21,7 +21,7 @@
         ResetIndex();
         <PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 
-        <MudPaper Class="p-3">
+        @* <MudPaper Class="p-3"> *@
             <div class="vstack gap-3">
                 @* Test:
 
@@ -33,7 +33,7 @@
                 <ProjectTickets Project="project" Index="@IndexTracker.Next()" />
 
             </div>
-        </MudPaper>
+        @* </MudPaper> *@
         <BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
     }
     else
