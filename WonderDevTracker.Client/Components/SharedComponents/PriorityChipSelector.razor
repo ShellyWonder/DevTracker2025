@@ -1,0 +1,39 @@
+﻿@* PriorityChipSelector *@
+
+@typeparam TEnum where TEnum : struct, Enum
+@using WonderDevTracker.Client.Models.Enums
+
+<MudChipSet T="TEnum"
+            SelectedValue="Selected"
+            SelectedValueChanged="OnSelectedValueChanged"
+            CheckMark
+            SelectionMode="SelectionMode.SingleSelection"
+            Class="d-flex align-items-center flex-wrap">
+    @foreach (TEnum priority in Enum.GetValues<TEnum>())
+    {
+        <MudChip T="TEnum"
+                 Value="@priority"
+                 Variant="Variant.Text"
+                 Color="EnumExtensions.GetColor<TEnum>(priority)"
+                 SelectedColor="EnumExtensions.GetColor<TEnum>(priority)">
+            <MudText Typo="Typo.caption">@priority.GetDisplayName()</MudText>
+        </MudChip>
+    }
+</MudChipSet>
+
+@code {
+    // public API: non-nullable
+    [Parameter] public TEnum Selected { get; set; }
+    [Parameter] public EventCallback<TEnum> SelectedChanged { get; set; }
+
+    private Task OnSelectedValueChanged(TEnum value)
+    {
+        if (!EqualityComparer<TEnum>.Default.Equals(Selected, value))
+        {
+            Selected = value;
+            return SelectedChanged.InvokeAsync(value);
+        }
+        return Task.CompletedTask;
+
+    }
+}

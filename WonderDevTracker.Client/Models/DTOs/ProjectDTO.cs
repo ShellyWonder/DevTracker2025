@@ -16,7 +16,7 @@ namespace WonderDevTracker.Client.Models.DTOs
         [Required]
         public string? Name { get; set; }
 
-        [Required]
+        [Required (ErrorMessage = "A description is required.")]
         public string? Description { get; set; }
 
        
@@ -26,7 +26,6 @@ namespace WonderDevTracker.Client.Models.DTOs
             set => _created = value.ToUniversalTime();
         }
 
-        [Required]
         public DateTimeOffset? StartDate
         {
             get => _startDate;
@@ -39,8 +38,9 @@ namespace WonderDevTracker.Client.Models.DTOs
             get => _endDate;
             set => _endDate = value?.ToUniversalTime();
         }
+
         [Required]
-        public ProjectPriority Priority { get; set; }
+        public ProjectPriority Priority { get; set; } = ProjectPriority.Low;
 
         public bool Archived { get; set; } = false;
 
@@ -55,14 +55,14 @@ namespace WonderDevTracker.Client.Models.DTOs
         /// Necessary for MudBlazor DatePicker to work correctly
         /// </summary>
         /// 
-        [Required]
+        [Required(ErrorMessage = "Start Date is required and must preceed the end date")]
         public DateTime? StartDateTime
         {
             get => StartDate?.DateTime;
             set => StartDate = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : null;
         }
 
-        [Required]
+        [Required(ErrorMessage = "End Date is required and must follow the start date by at least one day.")]
         public DateTime? EndDateTime
         {
             get => EndDate?.DateTime;

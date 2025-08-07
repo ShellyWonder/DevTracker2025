@@ -57,19 +57,9 @@
             <MudField Label="Project Priority"
                       Variant="Variant.Outlined">
 
-                <MudChipSet @bind-SelectedValue="project.Priority"
-                            CheckMark
-                            SelectionMode="SelectionMode.SingleSelection"
-                            Class="d-flex align-items-center">
-                    @foreach (ProjectPriority priority in Enum.GetValues<ProjectPriority>())
-                    {
-                        <MudChip Value="priority">
-                            <MudText Typo="Typo.caption">
-                                @priority.GetDisplayName()
-                            </MudText>
-                        </MudChip>
-                    }
-                </MudChipSet>
+                <PriorityChipSelector TEnum="ProjectPriority"
+                                      @bind-Selected="project.Priority" />
+                
             </MudField>
 
             <ValidationMessage For="() => project.Priority" />
@@ -93,16 +83,7 @@
 @code {
     private ProjectDTO project = new() { Created = DateTimeOffset.UtcNow };
 
-    // //switch expression
-    // priorityColor = Project?.Priority switch
-    //     {
-    //         ProjectPriority.Low => Color.Success,
-    //         ProjectPriority.Medium => Color.Secondary,
-    //         ProjectPriority.High => Color.Error,
-    //         ProjectPriority.Urgent => Color.Dark,
-    //         _ => Color.Default,
-    //     };
-
+   
     private static readonly List<BreadcrumbItem> breadcrumbs = new()
     {
        new BreadcrumbItem("Home", href:"/" ),
