@@ -30,5 +30,13 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="user">Current user claims</param>
         /// <returns>Requested Project or Null</returns>
         public Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Updates an existing project; Roles: User must be assigned ProjectManager or Admin.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="user"></param>
+        public Task UpdateProjectAsync(ProjectDTO project, UserInfo user);
+
     }
 }

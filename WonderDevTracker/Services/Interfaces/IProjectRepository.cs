@@ -31,5 +31,14 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>New project after being saved in Db</returns>
         public Task<Project?> CreateProjectAsync(Project project, UserInfo user);
+
+        /// <summary>
+        /// Updates an existing project's details; Roles: User must be assigned ProjectManager or Admin.
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="user"></param>
+        
+        public Task UpdateProjectAsync(Project project, UserInfo user);
+       
     }
 }

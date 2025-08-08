@@ -36,7 +36,27 @@ namespace WonderDevTracker.Services
             return dtos;
         }
 
+        public async Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user)
+        {
+          Project? project = await projectRepository.GetProjectByIdAsync(projectId, user);
+            return project?.ToDTO();
+        }
 
-       
+        public async Task UpdateProjectAsync(ProjectDTO project, UserInfo user)
+        {
+            Project dbProject = await projectRepository.GetProjectByIdAsync(project.Id, user)
+                ?? throw new InvalidOperationException($"Project with ID {project.Id} not found.");
+            {
+
+                dbProject.Name = project.Name;
+                dbProject.Description = project.Description;
+                dbProject.StartDate = project.StartDate ?? dbProject.StartDate;
+                dbProject.EndDate = project.EndDate ?? dbProject.EndDate;
+                dbProject.Priority = project.Priority;
+
+                await projectRepository.UpdateProjectAsync(dbProject, user);
+            }
+           
+        }
     }
 }
