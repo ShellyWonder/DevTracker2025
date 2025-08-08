@@ -9,72 +9,82 @@
 @inherits AuthenticatedComponentBase
 
 <PageTitle>Create Project | Dev Tracker</PageTitle>
-
+<AnimatedBlock Index="@Index.Next()"></AnimatedBlock>
 <MudContainer MaxWidth="MaxWidth.Large">
     <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
 
     <MudPaper Class="p-3">
-        <MudText Typo="Typo.h3" GutterBottom>
-            Create a New Project
-        </MudText>
+        <AnimatedBlock Index="@Index.Next()">
+            <MudText Typo="Typo.h3" GutterBottom>
+                Create a New Project
+            </MudText>
+        </AnimatedBlock>
         <EditForm Model="project"
                   Class="vstack gap-3"
                   OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
+            <AnimatedBlock Index="@Index.Next()">
+                <MudTextField @bind-Value="project.Name"
+                              For="() => project.Name"
+                              Label="Name"
+                              Variant="Variant.Outlined"
+                              Required="true" />
+            </AnimatedBlock>
 
-            <MudTextField @bind-Value="project.Name"
-                          For="() => project.Name"
-                          Label="Name"
-                          Variant="Variant.Outlined"
-                          Required="true" />
-
-            <MudTextField @bind-Value="project.Description"
-                          For="() => project.Description"
-                          Label="Description"
-                          Variant="Variant.Outlined"
-                          Lines="5"
-                          MaxLines="15"
-                          AutoGrow="true"
-                          Required="true" />
-
-            <div class="hstack gap-3 align-items-start flex-wrap">
-                <MudDatePicker @bind-Date="project.StartDateTime"
-                               For="@(() => project.StartDateTime)"
-                               Required="true"
-                               Label="Planned Start Date"
-                               Variant="Variant.Outlined" />
-                <ValidationMessage For="@(() => project.StartDateTime)" />
+            <AnimatedBlock Index="@Index.Next()">
+                <MudTextField @bind-Value="project.Description"
+                              For="() => project.Description"
+                              Label="Description"
+                              Variant="Variant.Outlined"
+                              Lines="5"
+                              MaxLines="15"
+                              AutoGrow="true"
+                              Required="true" />
+            </AnimatedBlock>
+            <AnimatedBlock Index="@Index.Next()">
+                <div class="hstack gap-3 align-items-start flex-wrap">
+                    <MudDatePicker @bind-Date="project.StartDateTime"
+                                   For="@(() => project.StartDateTime)"
+                                   Required="true"
+                                   Label="Planned Start Date"
+                                   Variant="Variant.Outlined" />
+                    <ValidationMessage For="@(() => project.StartDateTime)" />
 
 
-                <MudDatePicker @bind-Date="project.EndDateTime"
-                               For="@(() => project.EndDateTime)"
-                               Required="true"
-                               Label="Planned End Date"
-                               Variant="Variant.Outlined" />
-                <ValidationMessage For="@(() => project.EndDateTime)" />
-            </div>
+                    <MudDatePicker @bind-Date="project.EndDateTime"
+                                   For="@(() => project.EndDateTime)"
+                                   Required="true"
+                                   Label="Planned End Date"
+                                   Variant="Variant.Outlined" />
+                    <ValidationMessage For="@(() => project.EndDateTime)" />
+                </div>
+            </AnimatedBlock>
 
-            <MudField Label="Project Priority"
-                      Variant="Variant.Outlined">
+            <AnimatedBlock Index="@Index.Next()">
+                <MudField Label="Project Priority"
+                          Variant="Variant.Outlined">
 
-                <PriorityChipSelector TEnum="ProjectPriority"
-                                      @bind-Selected="project.Priority" />
-                
-            </MudField>
+                    <PriorityChipSelector TEnum="ProjectPriority"
+                                          @bind-Selected="project.Priority" />
 
-            <ValidationMessage For="() => project.Priority" />
-            <ValidationSummary />
-            <div class="d-flex">
-               <BackToBtn Href="/projects" Text="Back to Projects"/>
+                </MudField>
+                <ValidationMessage For="() => project.Priority" />
+            </AnimatedBlock>
 
-                <MudButton Color="Color.Primary"
-                           Class="ms-auto mt-2"
-                           Variant="Variant.Filled"
-                           ButtonType="ButtonType.Submit"
-                           StartIcon="@Icons.Material.Filled.Save">
-                    Submit
-                </MudButton>
-            </div>
+            <AnimatedBlock Index="@Index.Next()">
+                <ValidationSummary />
+                <div class="d-flex">
+                    <BackToBtn Href="/projects" Text="Back to Projects" />
+
+                    <MudButton Color="Color.Primary"
+                               Class="ms-auto mt-2"
+                               Variant="Variant.Filled"
+                               ButtonType="ButtonType.Submit"
+                               StartIcon="@Icons.Material.Filled.Save">
+                        Submit
+                    </MudButton>
+                </div>
+            </AnimatedBlock>
         </EditForm>
     </MudPaper>
 
@@ -82,8 +92,11 @@
 
 @code {
     private ProjectDTO project = new() { Created = DateTimeOffset.UtcNow };
+    private readonly IndexTrackerHelper Index = new();
 
-   
+    protected override void OnParametersSet() => Index.Reset();
+
+
     private static readonly List<BreadcrumbItem> breadcrumbs = new()
     {
        new BreadcrumbItem("Home", href:"/" ),

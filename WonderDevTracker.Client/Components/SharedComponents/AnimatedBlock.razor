@@ -1,0 +1,15 @@
+﻿@* AnimatedBlock *@
+
+<div class="@CssClass" style="--i:@Index">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] 
+    public int Index { get; set; }
+    [Parameter] 
+    public string CssClass { get; set; } = "form-fade-in";
+    [Parameter] 
+    public RenderFragment? ChildContent { get; set; }
+}
+

@@ -92,7 +92,53 @@
 
 /* #endregion breadcrumbs */
 
+/* #region form section animation */
+/* Form sections: lighter lift, quicker reveal, separate from .fade-in */
+/* Form section base class  */
+.form-fade-in {
+    /* Tunable tokens (override per page if needed) */
+    --form-duration: 320ms;
+    --form-ease: cubic-bezier(.2,.6,.2,1);
+    --form-delay-step: 90ms;
+    opacity: 0;
+    animation: formFadeInUp var(--form-duration) var(--form-ease) both;
+    /* stagger via CSS variable --i (0,1,2,...) set inline or by wrapper) */
+    animation-delay: calc(var(--i, 0) * var(--form-delay-step));
+    will-change: transform, opacity;
+}
 
+    /* Optional modifiers if you want easy global tweaks */
+    .form-fade-in.is-fast {
+        --form-duration: 240ms;
+        --form-delay-step: 70ms;
+    }
+
+    .form-fade-in.is-slow {
+        --form-duration: 420ms;
+        --form-delay-step: 110ms;
+    }
+@keyframes formFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Accessibility: respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .form-fade-in {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* #endregion form section animation */
 /* #region Global CSS */
 html {
     height: 100dvh;
@@ -146,7 +192,6 @@ h1, h2, h3, h4, h5, h6, button, nav {
         transform: translateY(0);
     }
 }
-
 /* #endregion LoadingSpinner.razor  */
 /* #endregion Global CSS*/
 
