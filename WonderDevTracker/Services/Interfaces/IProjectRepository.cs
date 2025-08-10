@@ -5,6 +5,7 @@ namespace WonderDevTracker.Services.Interfaces
 {
     public interface IProjectRepository
     {
+        #region Get Methods
         /// <summary>
         /// retrieves all active projects for a specific company asynchronously from the database.
         /// </summary>
@@ -20,7 +21,20 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user claims</param>
         /// <returns>Requested Project or Null</returns>
         public Task<Project?> GetProjectByIdAsync(int projectId, UserInfo user);
+        
+        public Task<Project?> GetProjectsByPriorityAsync(Project priority, UserInfo user);
+        public Task<IEnumerable<Project>>GetUnassignedProjectsAsync(UserInfo user);
+        public Task<ApplicationUser?> GetProjectManagerAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<ApplicationUser>> GetProjectDevelopersAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<ApplicationUser>> GetProjectSubmittersAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<ApplicationUser>> GetProjectMembersByRoleAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<ApplicationUser>> GetProjectMembersExceptPMAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<ApplicationUser>>GetUserProjectsAsync(UserInfo user);
+        public Task<IEnumerable<ApplicationUser>> GetUsersNotOnProjectAsync(UserInfo user);
+        public Task<IEnumerable<Project>> GetAllArchivedProjectsAsync(UserInfo user);
+        #endregion
 
+        #region Create Methods
         /// <summary>
         /// Creates a new company project in the database asynchronously.
         /// </summary>
@@ -31,14 +45,26 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>New project after being saved in Db</returns>
         public Task<Project?> CreateProjectAsync(Project project, UserInfo user);
+        #endregion
 
+        #region Update (& Add/Remove) Methods
         /// <summary>
         /// Updates an existing project's details; Roles: User must be assigned ProjectManager or Admin.
         /// </summary>
         /// <param name="project"></param>
         /// <param name="user"></param>
-        
+
         public Task UpdateProjectAsync(Project project, UserInfo user);
-       
+        public Task<bool> AddProjectManagerAsync(int projectId, UserInfo user);
+        public Task<bool> RemoveProjectManagerAsync(int projectId, UserInfo user);
+        public Task<bool> AddProjectMembersAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<ApplicationUser>> RemoveProjectMemberAsync(int projectId, UserInfo user);
+
+        #endregion
+
+        #region Archive (Delete) Methods
+        public Task ArchiveProjectAsync(int projectId, UserInfo user);
+        public Task RestoreProjectAsync(int projectId, UserInfo user);
+        #endregion
     }
 }

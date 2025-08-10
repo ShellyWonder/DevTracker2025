@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using WonderDevTracker.Client.Components.UIComponents.GeneralComponents;
-using static MudBlazor.Colors;
 
 namespace WonderDevTracker.Client.Helpers
 {

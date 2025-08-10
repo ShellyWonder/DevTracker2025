@@ -4,6 +4,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
 {
     public interface IProjectDTOService
     {
+        #region GET METHODS
         /// <summary>
         /// Gets all active projects for a specific company asynchronously from db.
         /// </summary>
@@ -11,7 +12,19 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// /// <param name="user">The current users claims</param>
         /// <returns>An enumerable of projects</returns>
         public Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(UserInfo user);
+        public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user);
+        public Task<IEnumerable<ProjectDTO>> GetUnassignedProjectsAsync(UserInfo user);
+        public Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<AppUserDTO>> GetProjectSubmittersAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<AppUserDTO>> GetProjectMembersExceptPMAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<AppUserDTO>> GetUserProjectsAsync(UserInfo user);
+        public Task<IEnumerable<AppUserDTO>> GetUsersNotOnProjectAsync(UserInfo user);
+        public Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user);
+        #endregion
 
+        #region CREATE METHODS
         /// <summary>
         /// Creates a new company project in the database asynchronously from a ProjectDTO.
         /// </summary>
@@ -22,14 +35,14 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>New project after being saved in Db</returns>
         public Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user);
-
+        #endregion
+        #region UPDATE METHODS
         /// <summary>
         /// Retrieves a specific company project by its ID asynchronously from the database.
         /// </summary>
         /// <param name="projectId">Specific company project's id</param>
         /// <param name="user">Current user claims</param>
         /// <returns>Requested Project or Null</returns>
-        public Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user);
 
         /// <summary>
         /// Updates an existing project; Roles: User must be assigned ProjectManager or Admin.
@@ -37,6 +50,22 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="project"></param>
         /// <param name="user"></param>
         public Task UpdateProjectAsync(ProjectDTO project, UserInfo user);
+        #endregion
 
+        #region ADD/REMOVE METHODS
+
+        #endregion
+
+        #region ARCHIVE METHODS
+        public Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user);
+
+        /// <summary>
+        /// Archives a project by its ID asynchronously from the database.
+        /// </summary>
+        /// <param name="projectId">Specific company project's id</param>
+        /// <param name="user">Current user claims</param>
+        /// <returns>True if the project was archived, otherwise false</returns>
+        public Task<bool> ArchiveProjectAsync(int projectId, UserInfo user);
+        #endregion
     }
 }

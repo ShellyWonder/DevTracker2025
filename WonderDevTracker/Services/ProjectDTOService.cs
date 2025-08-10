@@ -8,6 +8,11 @@ namespace WonderDevTracker.Services
 {
     public class ProjectDTOService(IProjectRepository projectRepository) : IProjectDTOService
     {
+        public Task<bool> ArchiveProjectAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user)
         {
             Project dbProject = new()
@@ -28,6 +33,11 @@ namespace WonderDevTracker.Services
             return dbProject.ToDTO();
         }
 
+        public Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(UserInfo user)
         {
             IEnumerable<Project> projects = await projectRepository.GetAllProjectsAsync(user);
@@ -42,16 +52,68 @@ namespace WonderDevTracker.Services
             return project?.ToDTO();
         }
 
+        public Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<AppUserDTO>> GetProjectMembersExceptPMAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<AppUserDTO>> GetProjectSubmittersAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ProjectDTO>> GetUnassignedProjectsAsync(UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<AppUserDTO>> GetUserProjectsAsync(UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<AppUserDTO>> GetUsersNotOnProjectAsync(UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task UpdateProjectAsync(ProjectDTO project, UserInfo user)
         {
             Project dbProject = await projectRepository.GetProjectByIdAsync(project.Id, user)
                 ?? throw new InvalidOperationException($"Project with ID {project.Id} not found.");
             {
 
-                dbProject.Name = project.Name;
-                dbProject.Description = project.Description;
-                dbProject.StartDate = project.StartDate ?? dbProject.StartDate;
-                dbProject.EndDate = project.EndDate ?? dbProject.EndDate;
+                if(!string.IsNullOrWhiteSpace(project.Name)) dbProject.Name = project.Name;
+                if(project.Description is not null) dbProject.Description = project.Description;
+
+                // Dates (treat as a unit if both are supplied; otherwise coalesce individually)
+                var newStart = project.StartDate ?? dbProject.StartDate;
+                var newEnd = project.EndDate ?? dbProject.EndDate;
+                if (newEnd < newStart)
+                    throw new InvalidOperationException("End date must be on or after start date.");
+
+                dbProject.StartDate = newStart;
+                dbProject.EndDate = newEnd;
                 dbProject.Priority = project.Priority;
 
                 await projectRepository.UpdateProjectAsync(dbProject, user);
