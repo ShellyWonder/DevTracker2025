@@ -55,18 +55,28 @@ namespace WonderDevTracker.Client.Models.DTOs
         /// Necessary for MudBlazor DatePicker to work correctly
         /// </summary>
         /// 
-        [Required(ErrorMessage = "Start Date is required and must preceed the end date")]
+        [Required(ErrorMessage = "Start Date is required and must precede the end date")]
         public DateTime? StartDateTime
         {
-            get => StartDate?.DateTime;
-            set => StartDate = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : null;
+            // Present local date (no time) to the UI
+            get => StartDate?.ToLocalTime().DateTime.Date;
+
+            // Convert a local date picked in the UI to UTC midnight safely
+            set => StartDate = value.HasValue
+                ? new DateTimeOffset(DateTime.SpecifyKind(value.Value.Date, DateTimeKind.Local))
+                    .ToUniversalTime()
+                : null;
         }
 
-        [Required(ErrorMessage = "End Date is required and must follow the start date by at least one day.")]
+        [Required(ErrorMessage = "End Date is required and must follow the start date")]
         public DateTime? EndDateTime
         {
-            get => EndDate?.DateTime;
-            set => EndDate = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : null;
+            get => EndDate?.ToLocalTime().DateTime.Date;
+
+            set => EndDate = value.HasValue
+                ? new DateTimeOffset(DateTime.SpecifyKind(value.Value.Date, DateTimeKind.Local))
+                    .ToUniversalTime()
+                : null;
         }
         #endregion
     }
