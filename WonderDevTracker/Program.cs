@@ -43,7 +43,7 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<ThemeManagerService>();
 builder.Services.AddScoped<IndexTrackerHelper>();
-
+builder.Services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();
 
 builder.Services.AddAuthentication(options =>
     {

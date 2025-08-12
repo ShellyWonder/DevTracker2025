@@ -6,6 +6,7 @@ using MudBlazor.Services;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Helpers.Animation;
 using WonderDevTracker.Client.Services;
+using WonderDevTracker.Client.Services.Interfaces;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -22,6 +23,7 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<ThemeManagerService>();
 builder.Services.AddScoped<IndexTrackerHelper>();
+builder.Services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();
 
 
 
