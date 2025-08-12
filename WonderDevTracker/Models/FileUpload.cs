@@ -12,7 +12,6 @@ namespace WonderDevTracker.Models
         [Required]
         public string? Type { get; set; }
 
-        [Required]
         //calculated property
         public string Url => $"/api/uploads/{Id}";
     }

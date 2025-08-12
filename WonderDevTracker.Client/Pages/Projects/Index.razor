@@ -2,12 +2,18 @@
 @page "/projects"
 @attribute [Authorize]
 @inject IProjectDTOService ProjectService
+@inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
 
 <PageTitle>Active Projects | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
     <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+    @if (!_loadingComplete)
+    {
+        <LoadingSpinner Message="Loading project details..." Color="Color.Primary" Size="Size.Large" />
+    }
+
     <MudText Typo="Typo.h3" GutterBottom>All Projects </MudText>
 
     @if (projects.Count() > 0)
@@ -23,41 +29,56 @@
             }
 
         </div>
+        @*Floating Action Button*@
+        <MudTooltip Text="Create New Project">
+            <AuthorizeView Roles="@($"{nameof(Role.Admin)},{nameof(Role.ProjectManager)}")">
+                <MudFab Color="Color.Primary"
+                        StartIcon="@Icons.Material.Filled.Add"
+                        Href="/projects/create"
+                        Class="create-btn"
+                        AriaLabel="Create New Project" />
+            </AuthorizeView>
+        </MudTooltip>
     }
     else
     {
-        <div class="h-100 d-flex align-items-center justify-content-center">
-            <MudText Typo="Typo.button" Color="Color.Secondary">
-                No active projects found.
-            </MudText>
-        </div>
+        <NotFoundFull Message="No active projects found."
+                      ReturnUrl="/"
+                      ReturnLabel="Home"
+                      ForwardUrl="/projects/create"
+                      ForwardLabel="Create New Project" />
     }
 
-    @*Floating Action Button*@
-    <MudTooltip Text="Create New Project">
-        <AuthorizeView Roles="@($"{nameof(Role.Admin)},{nameof(Role.ProjectManager)}")">
-            <MudFab Color="Color.Primary"
-                    StartIcon="@Icons.Material.Filled.Add"
-                    Href="/projects/create"
-                    Class="create-btn"
-                    AriaLabel="Create New Project" />
-        </AuthorizeView>
-    </MudTooltip>
 </MudContainer>
 
 @code {
-        private IEnumerable<ProjectDTO> projects = [];
-        private CardAnimationHelper animationHelper => new(projects);
+    private IEnumerable<ProjectDTO> projects = [];
+    private CardAnimationHelper animationHelper => new(projects);
+    private bool _loadingComplete = false;
 
-        private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    protected override async Task OnInitializedWithAuthAsync()
+    {
+        try
+        {
+            projects = await ProjectService.GetAllProjectsAsync(UserInfo!);
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine($"Error loading projects: {ex.Message}");
+            Snackbar.Add("Error loading projects.", Severity.Error);
+        }
+        _loadingComplete = true;
+
+    }
+
+
+    private static readonly List<BreadcrumbItem> breadcrumbs = new()
         {
            new BreadcrumbItem("Home", href:"/" ),
-           new BreadcrumbItem("Projects", href:null, disabled: true ),
+           new BreadcrumbItem("All Projects", href:null, disabled: true ),
 
         };
 
-        protected override async Task OnInitializedWithAuthAsync()
-        {
-            projects = await ProjectService.GetAllProjectsAsync(UserInfo!);
-        }
 }
