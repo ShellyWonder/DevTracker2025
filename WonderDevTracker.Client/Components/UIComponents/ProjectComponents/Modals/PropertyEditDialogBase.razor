@@ -1,0 +1,37 @@
+﻿@* PropertyEditDialogBase.razor *@
+@typeparam TModel
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@inherits AuthenticatedComponentBase
+
+<MudDialog Class="mt-4">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Edit</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        @* Uses code-behind-owned _editContext so we can validate from buttons outside <EditForm> *@
+        <EditForm EditContext="@_editContext">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <CascadingValue Value="this">
+                @if (Body is not null && Model is not null)
+                {
+                    @Body(Model) @* RenderFragment<TModel> *@
+                }
+
+            </CascadingValue>
+        </EditForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="@Close" Variant="Variant.Text" Disabled="@_submitting">
+            Cancel
+        </MudButton>
+        @* Save button is OUTSIDE the <EditForm>, so we call SubmitAsync  *@
+        <MudButton OnClick="@SubmitAsync" Color="Color.Primary" Disabled="@_submitting">
+            @(_submitting ? "Saving..." : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
