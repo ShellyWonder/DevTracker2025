@@ -4,24 +4,27 @@
         <MudText Typo="Typo.h5" Color="Color.Primary">Project Tickets</MudText>
     </MudCardHeader>
     <MudCardContent>
-        @* Placeholder for project tickets content *@
-        <NotFoundDisplay Message="No tickets assigned to this project." />
+        @if (Project.Tickets is null)
+        {
+            <NotFoundDisplay Message="No tickets assigned to this project." />
 
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-            <MudTabPanel Text="Open Tickets">
-                <ProjectTicketTable Tickets="@OpenTickets" />
-            </MudTabPanel>
-            <MudTabPanel Text="Resolved Tickets">
-                <ProjectTicketTable Tickets="@ResolvedTickets" />
-            </MudTabPanel>
-            <MudTabPanel Text="Archived Tickets">
-                <ProjectTicketTable Tickets="@ArchivedTickets" />
+        }
+        else
+        {
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                <MudTabPanel Text="Open Tickets">
+                    <ProjectTicketTable Tickets="@OpenTickets" />
+                </MudTabPanel>
+                <MudTabPanel Text="Resolved Tickets">
+                    <ProjectTicketTable Tickets="@ResolvedTickets" />
+                </MudTabPanel>
+                <MudTabPanel Text="Archived Tickets">
+                    <ProjectTicketTable Tickets="@ArchivedTickets" />
 
-            </MudTabPanel>
-            <MudTabPanel Text="Tab Disabled" Disabled="true">
-                <MudText>Content Disabled</MudText>
-            </MudTabPanel>
-        </MudTabs>
+                </MudTabPanel>
+            </MudTabs>
+        }
+
         <SafeNavButton Href="#" Valid="true"
                        Color="Color.Tertiary"
                        Variant="Variant.Text"
@@ -30,7 +33,7 @@
             Add Tickets
         </SafeNavButton>
     </MudCardContent>
-    </AnimatedCard>
+</AnimatedCard>
 @code {
     [Parameter, EditorRequired]
     public ProjectDTO Project { get; set; } = default!;

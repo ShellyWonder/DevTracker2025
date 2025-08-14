@@ -120,24 +120,40 @@ namespace WonderDevTracker.Services.Repositories
 
 
             if (!string.Equals(project.Name, current.Name, StringComparison.Ordinal))
+            {
                 context.Entry(current).Property(p => p.Name).CurrentValue = project.Name;
                 context.Entry(current).Property(p => p.Name).IsModified = true;
 
+            }
+
             if (project.Description != current.Description)
+
+            {
+
                 context.Entry(current).Property(p => p.Description).CurrentValue = project.Description;
                 context.Entry(current).Property(p => p.Description).IsModified = true;
+            }
 
             if (project.StartDate != current.StartDate)
+            {
+
                 context.Entry(current).Property(p => p.StartDate).CurrentValue = project.StartDate;
                 context.Entry(current).Property(p => p.StartDate).IsModified = true;
 
+            }
             if (project.EndDate != current.EndDate)
+            {
                 context.Entry(current).Property(p => p.EndDate).CurrentValue = project.EndDate;
                 context.Entry(current).Property(p => p.EndDate).IsModified = true;
 
+            }
+
             if (project.Priority != current.Priority)
+            {
                 context.Entry(current).Property(p => p.Priority).CurrentValue = project.Priority;
                 context.Entry(current).Property(p => p.Priority).IsModified = true;
+
+            }
 
             await context.SaveChangesAsync();
         }

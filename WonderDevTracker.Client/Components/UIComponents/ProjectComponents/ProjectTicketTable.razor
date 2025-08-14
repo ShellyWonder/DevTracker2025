@@ -75,13 +75,13 @@
         <MudDataGridPager />
         </PagerContent>
     <NoRecordsContent>
-        <NotFoundDisplay Message="No tickets available for this project." />
+        <NotFoundDisplay Message="No tickets available" />
     </NoRecordsContent>
     </MudDataGrid>
 @code {
     [Parameter, EditorRequired]
     public IEnumerable<TicketDTO> Tickets { get; set; } = [];
 
-    private string? priority;
+    // private string? priority;
 
 }
