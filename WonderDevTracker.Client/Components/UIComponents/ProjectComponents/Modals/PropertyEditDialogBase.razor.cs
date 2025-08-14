@@ -29,8 +29,8 @@ namespace WonderDevTracker.Client.Components.UIComponents.ProjectComponents.Moda
         [CascadingParameter]
         private IMudDialogInstance? MudDialog { get; set; }
 
-        [Parameter]
-        public RenderFragment<TModel>? Body { get; set; }
+       
+         protected abstract RenderFragment<TModel>? Body { get; }
 
         [Parameter]
         public required int ProjectId { get; set; }

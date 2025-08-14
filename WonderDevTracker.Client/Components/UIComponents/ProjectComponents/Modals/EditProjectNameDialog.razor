@@ -1,0 +1,28 @@
+﻿@* EditProjectNameDialog.razor *@
+@using WonderDevTracker.Client.Models.Forms
+@inherits PropertyEditDialogBase<ProjectNameFormModel>
+
+@code {
+    
+    // Instance of the patch builder
+    private readonly ProjectPatchBuilder _patchBuilder = new();
+
+    protected override Task<ProjectDTO> BuildPatchAsync()
+
+    {
+        // Use the patch builder to create the DTO
+        var patch = _patchBuilder.BuildNamePatch(Model!.Name!);
+        return Task.FromResult(patch);
+    }
+
+    // Override the Body render fragment to define the form fields
+    protected override RenderFragment<ProjectNameFormModel> Body => model => @<div class="vstack gap-3">
+        <MudTextField T="string"
+                      Label="Project Name"
+                      @bind-Value="model.Name"
+                      For="@(() => Model!.Name)"
+                      Required="true"
+                      Immediate="true" />
+    </div>;
+}
+
