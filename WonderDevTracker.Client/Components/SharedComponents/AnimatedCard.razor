@@ -1,8 +1,7 @@
 ﻿@* AnimatedCard *@
 @* card component wrapper with animation delay based on index. *@
 <MudCard Elevation="5"
-         HoverElevation="7"
-         Class="h-100 project-card elevated-hover fade-in"
+         Class="@($"h-100 project-card elevated-hover fade-in {Class}")"
          style="@GetCardAnimationStyle()"
          @onclick="@OnClick">
     @ChildContent
@@ -17,6 +16,12 @@
 
     [Parameter]
     public EventCallback OnClick { get; set; }
+
+    [Parameter] 
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object>? AdditionalAttributes { get; set; }
 
     private string GetCardAnimationStyle()
     {
