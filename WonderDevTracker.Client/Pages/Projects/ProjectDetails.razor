@@ -27,7 +27,9 @@
 
                 <MudText Typo="Typo.caption">Rendering with Index = @IndexTracker.Peek()</MudText> *@
 
-                <ProjectGeneralInfo Project="project" Index="@IndexTracker.Next()" />
+                <ProjectGeneralInfo Project="project" 
+                                    Index="@IndexTracker.Next()"
+                                OnEditResult="HandleEditResult" />
                 <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
                 <ProjectMembers Project="project" Index="@IndexTracker.Next()" />
                 <ProjectTickets Project="project" Index="@IndexTracker.Next()" />
@@ -84,5 +86,9 @@
 
             };
 
+    }
+    private void HandleEditResult((string Message, Severity Severity) result)
+    {
+        Snackbar.Add(result.Message, result.Severity);
     }
 }

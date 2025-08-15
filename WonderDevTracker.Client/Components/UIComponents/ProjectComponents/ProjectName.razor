@@ -1,0 +1,9 @@
+﻿@*ProjectName *@
+@* Displays the project's name. Accepts a single parameter, Project. *@
+
+<MudText Typo="Typo.h4" Color="Color.Primary">@Project.Name</MudText>
+
+@code {
+    [Parameter, EditorRequired]
+    public ProjectDTO Project { get; set; } = default!;
+}

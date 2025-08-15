@@ -1,14 +1,39 @@
 ﻿@* ProjectGeneralInfo *@
+@using WonderDevTracker.Client.Components.UIComponents.ProjectComponents.Dialogs
+@using MudBlazor
+@implements IDisposable
+@inject IDialogService DialogService
 
 <AnimatedCard Index="Index">
     <MudCardHeader>
         <CardHeaderContent>
-            <MudText Typo="Typo.h4" Color="Color.Primary">@Project.Name</MudText>
-            <ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
+            <div class="hstack">
+                <ProjectName Project="Project" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Color="Color.Tertiary"
+                               OnClick="OpenEditProjectNameDialog"
+                               aria-label="Edit Project Name" />
+            </div>
+
+            <div class="hstack">
+                <ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Color="Color.Secondary"
+                               aria-label="Edit Project Dates (Coming Soon)" />
+            </div>
+
         </CardHeaderContent>
     </MudCardHeader>
     <MudCardActions>
-        <PriorityChip Priority="Project.Priority" />
+        <div class="hstack">
+            <PriorityChip Priority="Project.Priority" />
+            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                           Size="Size.Small"
+                           Color="Color.Info"
+                           aria-label="Edit Project Priority (Coming Soon)" />
+        </div>
     </MudCardActions>
 </AnimatedCard>
 
@@ -18,5 +43,72 @@
 
     [Parameter, EditorRequired]
     public int Index { get; set; }
+
+    // Parent wires this to show a snackbar at page level
+    [Parameter]
+    public EventCallback<(string Message, Severity Severity)> OnEditResult { get; set; }
+
+    private bool _disposed;
+
+    public void Dispose() => _disposed = true;
+
+    private async Task OpenEditProjectNameDialog()
+    {
+        try
+        {
+
+            var parameters = new DialogParameters
+        {
+            { "Project", Project }
+        };
+
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialogRef = await DialogService.ShowAsync<EditProjectNameDialog>("Edit Project Name", parameters, options);
+            var result = await dialogRef.Result;
+
+            if (result is null) return;
+
+            if (result.Canceled)
+            {
+                await OnEditResult.InvokeAsync(("Project name update was canceled.", Severity.Info));
+                return;
+            }
+
+            // Check if the dialog returned data
+            if (result.Data is ProjectDTO updatedProject)
+            {
+                // 🔑 Marshal state updates to the renderer & guard for disposal
+                await InvokeAsync(async () =>
+                {
+                    if (_disposed) return;
+
+                    Project.Name = updatedProject.Name;
+
+                    // Tell parent to show snackbar
+                    await OnEditResult.InvokeAsync(("Project name updated successfully!", Severity.Success));
+
+                    StateHasChanged();
+                });
+
+            }
+            else
+            {
+                await OnEditResult.InvokeAsync(("No data was returned from the dialog.", Severity.Info));
+            }
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+            await OnEditResult.InvokeAsync(("An error occurred while updating the project name.", Severity.Error));
+        }
+    }
 }
 
+}
