@@ -1,8 +1,9 @@
 ﻿@inject ThemeManagerService themeService
+@implements IDisposable
 @inherits LayoutComponentBase
 <!-- restored and verified -->
 @* Required *@
-<MudThemeProvider Theme="@themeService.CurrentTheme" />
+<MudThemeProvider Theme="@themeService.CurrentTheme">
 <MudPopoverProvider />
 
 @* Needed for dialogs *@
@@ -37,14 +38,21 @@
    
     </MudMainContent>
 </MudLayout>
+</MudThemeProvider>
 
 
 @code {
     bool _drawerOpen = true;
 
     void DrawerToggle() => _drawerOpen = !_drawerOpen;
-    
+
     private bool _initialized = false;
+
+    public void Dispose()
+    {
+        // CRITICAL: unsubscribe to avoid StateHasChanged on a disposed layout
+        themeService.OnThemeChanged -= StateHasChanged;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
