@@ -15,7 +15,7 @@ using WonderDevTracker.Client.Services.Interfaces;
 //  4. Clean parent interaction via OnSaved and dialog Ok(...) payload.
 /// param name="TModel">The type of the model being edited.</param>
 /// </summary>
-namespace WonderDevTracker.Client.Components.UIComponents.ProjectComponents.Modals
+namespace WonderDevTracker.Client.Components.UIComponents.ProjectComponents.Dialogs
 
 {
     public abstract partial class PropertyEditDialogBase<TModel> : AuthenticatedComponentBase
