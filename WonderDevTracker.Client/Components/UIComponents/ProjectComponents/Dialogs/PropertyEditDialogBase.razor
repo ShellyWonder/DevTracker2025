@@ -1,7 +1,10 @@
-﻿@* PropertyEditDialogBase.razor *@
+﻿
+
+@* PropertyEditDialogBase.razor *@
 @typeparam TModel
 @using MudBlazor
 @using System.ComponentModel.DataAnnotations
+
 @inherits AuthenticatedComponentBase
 
 <MudDialog Class="mt-4">
@@ -10,7 +13,7 @@
     </TitleContent>
 
     <DialogContent>
-        @* Uses code-behind-owned _editContext so we can validate from buttons outside <EditForm> *@
+        @* Uses code-behind-owned _editContext so buttons can be validated from buttons outside <EditForm> *@
         <EditForm EditContext="@_editContext">
             <DataAnnotationsValidator />
             <ValidationSummary />
