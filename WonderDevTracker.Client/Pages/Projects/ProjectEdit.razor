@@ -1,0 +1,198 @@
+﻿@* ProjectEdit *@
+@page "/projects/{ProjectId:int}/edit"
+@attribute [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+
+
+@inject IProjectDTOService ProjectService
+@inject NavigationManager NavManager
+@inject IndexTrackerHelper IndexTracker
+@inject ISnackbar Snackbar
+
+@inherits AuthenticatedComponentBase
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
+    @if (!_loadingComplete)
+    {
+        <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+        <LoadingSpinner Message="Loading project details..." Color="Color.Primary" Size="Size.Large" />
+    }
+    else if (project is not null)
+    {
+        @* Reset Index at start of render;
+            controls the index for components that use IndexTracker.*@
+        ResetIndex();
+        <PageTitle>Edit @project.Name | Dev Tracker</PageTitle>
+
+        <AnimatedBlock Index="@Index.Next()"></AnimatedBlock>
+
+        <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+
+
+        <MudPaper Class="p-3">
+            <AnimatedBlock Index="@Index.Next()">
+                <MudText Typo="Typo.h3" GutterBottom>
+                    Edit @project?.Name
+                </MudText>
+            </AnimatedBlock>
+            <EditForm Model="project"
+                      Class="vstack gap-3"
+                      OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <AnimatedBlock Index="@Index.Next()">
+                    <MudTextField @bind-Value="project.Name"
+                                  For="() => project.Name"
+                                  Label="Name"
+                                  Variant="Variant.Outlined"
+                                  Required="true" />
+                </AnimatedBlock>
+
+                <AnimatedBlock Index="@Index.Next()">
+                    <MudTextField @bind-Value="project.Description"
+                                  For="() => project.Description"
+                                  Label="Description"
+                                  Variant="Variant.Outlined"
+                                  Lines="5"
+                                  MaxLines="15"
+                                  AutoGrow="true"
+                                  Required="true" />
+                </AnimatedBlock>
+                <AnimatedBlock Index="@Index.Next()">
+                    <div class="hstack gap-3 align-items-start flex-wrap">
+                        <MudDatePicker @bind-Date="project.StartDateTime"
+                                       For="@(() => project.StartDateTime)"
+                                       Required="true"
+                                       Label="Planned Start Date"
+                                       Variant="Variant.Outlined" />
+                        <ValidationMessage For="@(() => project.StartDateTime)" />
+
+
+                        <MudDatePicker @bind-Date="project.EndDateTime"
+                                       For="@(() => project.EndDateTime)"
+                                       Required="true"
+                                       Label="Planned End Date"
+                                       Variant="Variant.Outlined" />
+                        <ValidationMessage For="@(() => project.EndDateTime)" />
+                    </div>
+                </AnimatedBlock>
+
+                <AnimatedBlock Index="@Index.Next()">
+                    <MudField Label="Project Priority"
+                              Variant="Variant.Outlined">
+
+                        <PriorityChipSelector TEnum="ProjectPriority"
+                                              @bind-Selected="project.Priority" />
+
+                    </MudField>
+                    <ValidationMessage For="() => project.Priority" />
+                </AnimatedBlock>
+
+                <AnimatedBlock Index="@Index.Next()">
+                    <ValidationSummary />
+                    <div class="d-flex">
+                        <BackToBtn Href="@($"projects/{ProjectId}")" Text="@($"Back to {project.Name}")" />
+
+                        <MudButton Color="Color.Primary"
+                                   Class="ms-auto mt-2"
+                                   Variant="Variant.Filled"
+                                   ButtonType="ButtonType.Submit"
+                                   StartIcon="@Icons.Material.Filled.Save">
+                            Submit
+                        </MudButton>
+                    </div>
+                </AnimatedBlock>
+            </EditForm>
+        </MudPaper>
+    }
+    else
+    {
+        <PageTitle>Project Not Found | Dev Tracker</PageTitle>
+
+        <NotFoundFull Message="Project not found"
+                      ReturnUrl="/projects"
+                      ReturnLabel="Back to Projects"
+                      ForwardUrl="/projects/create"
+                      ForwardLabel="Create New Project" />
+
+    }
+
+</MudContainer>
+
+
+
+@code {
+
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    private ProjectDTO? project;
+    private bool _loadingComplete = false;
+    private readonly IndexTrackerHelper Index = new();
+    private void ResetIndex() => IndexTracker.Reset();
+
+
+
+    private List<BreadcrumbItem> breadcrumbs = new()
+    {
+       new BreadcrumbItem("Home", href:"/" ),
+       new BreadcrumbItem("Projects", href:"/projects" ),
+
+       new BreadcrumbItem("Edit Project", href:null, disabled: true ),
+
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        project = null; // Reset project to show loading state if Id changes
+
+        try
+        {
+            project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+            if (project is null) Snackbar.Add("The selected project cannot be found.");
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine($"Error fetching project with ID {ProjectId}: {ex.Message}");
+            Snackbar.Add($"Error fetching project: {ex.Message}", Severity.Error);
+        }
+        _loadingComplete = true;
+
+        breadcrumbs = new()
+            {
+                new BreadcrumbItem("Home", href: "/"),
+                new BreadcrumbItem("Projects", href: "/projects"),
+                new BreadcrumbItem(project?.Name!, href: $"/projects/{ProjectId}" ?? "Project Not Found"),
+                new BreadcrumbItem("Edit", href: null, disabled: true)
+
+            };
+
+        if (project is null) NavManager.NavigateTo("/projects");
+
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (project is null)
+        {
+            Snackbar.Add("Project data is not available.", Severity.Error);
+            return;
+        }
+        // Ensure the project has a valid ID before updating
+        try
+        {
+            await ProjectService.UpdateProjectAsync(project!, UserInfo!);
+            Snackbar.Add($"{project!.Name} updated successfully!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            // Handle error, e.g., show a message to the user
+            Console.Error.WriteLine($"Error creating project: {ex.Message}");
+            Snackbar.Add("Unable to update project. Please try again.", Severity.Error);
+            return;
+        }
+        NavManager.NavigateTo($"/projects/{project!.Id}");
+    }
+}
+

@@ -3,7 +3,8 @@
 @inherits LayoutComponentBase
 <!-- restored and verified -->
 @* Required *@
-<MudThemeProvider Theme="@themeService.CurrentTheme">
+<!-- v8: self-closing -->
+<MudThemeProvider Theme="@themeService.CurrentTheme" />
 <MudPopoverProvider />
 
 @* Needed for dialogs *@
@@ -14,17 +15,17 @@
 
 <MudLayout>
     <MudAppBar Elevation="1">
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => DrawerToggle())" />
-    <Logo />
-</MudAppBar>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => DrawerToggle())" />
+        <Logo />
+    </MudAppBar>
 
 
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-       <NavMenu/>
+        <NavMenu />
     </MudDrawer>
     <MudMainContent Class="h-100 d-flex flex-column">
         <main class="flex-grow-1 pb-3">
-        @Body
+            @Body
         </main>
         <footer>
             <Footer />
@@ -35,10 +36,10 @@
             <a href="" class="reload">Reload</a>
             <a class="dismiss">🗙</a>
         </div>
-   
+
     </MudMainContent>
 </MudLayout>
-</MudThemeProvider>
+
 
 
 @code {

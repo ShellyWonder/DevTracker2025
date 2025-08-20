@@ -22,21 +22,58 @@
         <PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 
         @* <MudPaper Class="p-3"> *@
-            <div class="vstack gap-3">
-                @* Test:
+        <div class="vstack gap-3">
+            @* Test:
 
                 <MudText Typo="Typo.caption">Rendering with Index = @IndexTracker.Peek()</MudText> *@
 
-                <ProjectGeneralInfo Project="project" 
-                                    Index="@IndexTracker.Next()"
+            <ProjectGeneralInfo Project="project"
+                                Index="@IndexTracker.Next()"
                                 OnEditResult="HandleEditResult" />
-                <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
-                <ProjectMembers Project="project" Index="@IndexTracker.Next()" />
-                <ProjectTickets Project="project" Index="@IndexTracker.Next()" />
 
-            </div>
+            <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
+            <ProjectMembers Project="project" Index="@IndexTracker.Next()" />
+            <ProjectTickets Project="project" Index="@IndexTracker.Next()" />
+
+        </div>
         @* </MudPaper> *@
-        <BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
+        <div class="d-flex">
+            <BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
+            <div class="ms-auto">
+                <MudButton Variant="Variant.Text"
+                           StartIcon="@Icons.Material.Filled.Edit"
+                           Href="@($"projects/{ProjectId}/edit")"
+                           Disabled="@(project is null)"
+                           Color="Color.Tertiary">
+                    Edit
+                </MudButton>
+
+                <MudButton Variant="Variant.Text"
+                           StartIcon="@Icons.Material.Filled.Delete"
+                           Disabled="@(project is null)"
+                           Color="Color.Error"
+                           Onclick="ConfirmArchiveAsync">
+                    Archive
+                </MudButton>
+            </div>
+
+        </div>
+        <MudMessageBox @ref="_archiveMessageBox"
+                       Title="Archive Project"
+                       CancelText="Cancel">
+            <MessageContent>
+                Are you sure you want to archive this project?
+            </MessageContent>
+            <YesButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Error" 
+                           Class="ms-2"
+                           StartIcon="@Icons.Material.Filled.Delete"
+                           OnClick="HandleArchiveAsync">
+                    Yes, Archive
+                </MudButton>
+            </YesButton>
+        </MudMessageBox>
     }
     else
     {
@@ -61,6 +98,7 @@
     private bool _loadingComplete = false;
 
     private void ResetIndex() => IndexTracker.Reset();
+    private MudMessageBox? _archiveMessageBox;
 
     protected override async Task OnInitializedWithAuthAsync()
     {
@@ -90,5 +128,35 @@
     private void HandleEditResult((string Message, Severity Severity) result)
     {
         Snackbar.Add(result.Message, result.Severity);
+    }
+
+    private async Task ConfirmArchiveAsync()
+    {
+        if (_archiveMessageBox is not null)
+        {
+            await _archiveMessageBox.ShowAsync();
+        }
+
+    }
+
+    private async Task HandleArchiveAsync()
+    {
+        if (project is null) return;
+        try
+        {
+            //archive project
+            await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
+
+            //refresh project details to show archived status
+            project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+            Snackbar.Add($"The Project, {project.Name}, has been archived", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+            Snackbar.Add($"The Project, {project.Name}, is not available to be archived");
+        }
     }
 }
