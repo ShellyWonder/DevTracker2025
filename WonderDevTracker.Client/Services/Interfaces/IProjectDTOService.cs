@@ -60,12 +60,15 @@ namespace WonderDevTracker.Client.Services.Interfaces
         public Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user);
 
         /// <summary>
-        /// Archives a project by its ID asynchronously from the database.
+        /// Archives a project (and  all  related tickets) by its ID asynchronously 
         /// </summary>
+        /// <remarks>
+        /// Only user with 'Admin' or "ProjectManager" roles can archive a project.
+        /// </remarks>
         /// <param name="projectId">Specific company project's id</param>
         /// <param name="user">Current user claims</param>
         /// <returns>True if the project was archived, otherwise false</returns>
-        public Task<bool> ArchiveProjectAsync(int projectId, UserInfo user);
+        public Task ArchiveProjectAsync(int projectId, UserInfo user);
         #endregion
     }
 }

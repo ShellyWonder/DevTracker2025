@@ -63,7 +63,16 @@ namespace WonderDevTracker.Services.Interfaces
         #endregion
 
         #region Archive (Delete) Methods
-        public Task ArchiveProjectAsync(int projectId, UserInfo user);
+        /// <summary>
+        /// Archives a project (and  all  related tickets) by its ID asynchronously 
+        /// </summary>
+        /// <remarks>
+        /// Only user with 'Admin' or "ProjectManager" roles can archive a project.
+        /// </remarks>
+        /// <param name="projectId">Specific company project's id</param>
+        /// <param name="user">Current user claims</param>
+        /// <returns>True if the project was archived, otherwise false</returns>
+        public Task ArchiveProjectAsync(int projectId, UserInfo user);  
         public Task RestoreProjectAsync(int projectId, UserInfo user);
         #endregion
     }

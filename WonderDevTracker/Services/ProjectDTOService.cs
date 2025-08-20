@@ -8,11 +8,11 @@ namespace WonderDevTracker.Services
 {
     public class ProjectDTOService(IProjectRepository projectRepository) : IProjectDTOService
     {
-        public Task<bool> ArchiveProjectAsync(int projectId, UserInfo user)
+        public async Task ArchiveProjectAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
-        }
+            await projectRepository.ArchiveProjectAsync(projectId, user);
 
+        }
         public async Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user)
         {
             Project dbProject = new()

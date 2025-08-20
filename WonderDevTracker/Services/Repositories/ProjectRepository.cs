@@ -165,11 +165,26 @@ namespace WonderDevTracker.Services.Repositories
             throw new NotImplementedException();
         }
 
-        public Task ArchiveProjectAsync(int projectId, UserInfo user)
+        public async Task ArchiveProjectAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
-        }
+            bool IsRoleAuthorized = await IsUserAuthorizedToUpdateProject(projectId, user);
+            if (!IsRoleAuthorized) return;
+            await using var context = contextFactory.CreateDbContext();
 
+            Project project = await context.Projects
+                                            .Include(p => p.Tickets)
+                                            .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+            project.Archived = true;
+            foreach (var ticket in project.Tickets)
+            {
+                // Set ArchivedByProject to true for each ticket in the project being archived; batch archive
+                ticket.ArchivedByProject = !ticket.Archived;
+                // If ticket.Archived == True, ticket was archived by user
+                ticket.Archived = true;
+
+            }
+            await context.SaveChangesAsync();
+        }
         public Task RestoreProjectAsync(int projectId, UserInfo user)
         {
             throw new NotImplementedException();
