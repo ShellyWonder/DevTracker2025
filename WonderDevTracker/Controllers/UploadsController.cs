@@ -6,8 +6,8 @@ using WonderDevTracker.Models;
 
 namespace WonderDevTracker.Controllers
 {
-    [Route("api/uploads")]
     [ApiController]
+    [Route("api/uploads")]
     public class UploadsController(ApplicationDbContext _context) : ControllerBase
     {
         [HttpGet("{id:guid}")]
