@@ -5,5 +5,8 @@
 
 @code {
     [Parameter, EditorRequired]
-    public ProjectDTO Project { get; set; } = default!;
+    public ProjectDTO Project { get; set; } 
+
+    [Parameter]
+    public string? Class { get; set; }
 }
