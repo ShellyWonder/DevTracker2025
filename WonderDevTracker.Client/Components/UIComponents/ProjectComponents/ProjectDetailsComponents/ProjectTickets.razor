@@ -13,7 +13,16 @@
         {
             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
                 <MudTabPanel Text="Open Tickets">
-                    <ProjectTicketTable Tickets="@OpenTickets" />
+                    @if (Project.Archived)
+                    {
+
+                        <ProjectTicketTable Tickets="@OpenWhenArchivedTickets" />
+                    }
+                    else
+                    {
+                        <ProjectTicketTable Tickets="@OpenTickets" />
+
+                    }
                 </MudTabPanel>
                 <MudTabPanel Text="Resolved Tickets">
                     <ProjectTicketTable Tickets="@ResolvedTickets" />
@@ -41,7 +50,11 @@
     [Parameter, EditorRequired]
     public int Index { get; set; }
 
+    //Active open tickets associated with the project
     private IEnumerable<TicketDTO> OpenTickets => Project.Tickets.Where(t => !t.Archived && t.Status != TicketStatus.Resolved);
-    private IEnumerable<TicketDTO> ResolvedTickets => Project.Tickets.Where(t => !t.Archived && t.Status == TicketStatus.Resolved);
-    private IEnumerable<TicketDTO> ArchivedTickets => Project.Tickets.Where(t => t.Archived);
+    // These are open tickets that were not resolved at the time its associated project was archived(AKA ArchivedByProject = true)
+    private IEnumerable<TicketDTO> OpenWhenArchivedTickets => Project.Tickets.Where(t => t.ArchivedByProject && t.Status != TicketStatus.Resolved);
+
+    private IEnumerable<TicketDTO> ResolvedTickets => Project.Tickets.Where(t => (Project.Archived ? t.ArchivedByProject : !t.Archived) && t.Status == TicketStatus.Resolved);
+    private IEnumerable<TicketDTO> ArchivedTickets => Project.Tickets.Where(t => Project.Archived ? !t.ArchivedByProject : t.Archived);
 }

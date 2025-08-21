@@ -4,6 +4,7 @@
 
 @inject IProjectDTOService ProjectService
 @inject IndexTrackerHelper IndexTracker
+@inject NavigationManager NavManager
 @inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
@@ -48,13 +49,28 @@
                     Edit
                 </MudButton>
 
-                <MudButton Variant="Variant.Text"
-                           StartIcon="@Icons.Material.Filled.Delete"
-                           Disabled="@(project is null)"
-                           Color="Color.Error"
-                           Onclick="ConfirmArchiveAsync">
-                    Archive
-                </MudButton>
+                @if (project!.Archived)
+                {
+                    <MudButton Variant="Variant.Text"
+                               StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+                               Disabled="@(project is null)"
+                               Color="Color.Success"
+                               Onclick="ConfirmRestoreAsync">
+                        Restore
+                    </MudButton>
+
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Text"
+                               StartIcon="@Icons.Material.Filled.Delete"
+                               Disabled="@(project is null)"
+                               Color="Color.Error"
+                               Onclick="ConfirmArchiveAsync">
+                        Archive
+                    </MudButton>
+
+                }
             </div>
 
         </div>
@@ -66,10 +82,27 @@
             </MessageContent>
             <YesButton>
                 <MudButton Variant="Variant.Filled"
-                           Color="Color.Error" 
+                           Color="Color.Error"
                            Class="ms-2"
                            StartIcon="@Icons.Material.Filled.Delete"
                            OnClick="HandleArchiveAsync">
+                    Yes, Archive
+                </MudButton>
+            </YesButton>
+        </MudMessageBox>
+
+        <MudMessageBox @ref="_restoreMessageBox"
+                       Title="Restore Project"
+                       CancelText="Cancel">
+            <MessageContent>
+                Are you sure you want to restore this project to active status?
+            </MessageContent>
+            <YesButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Secondary"
+                           Class="ms-2"
+                           StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+                           OnClick="HandleRestoreAsync">
                     Yes, Archive
                 </MudButton>
             </YesButton>
@@ -99,6 +132,7 @@
 
     private void ResetIndex() => IndexTracker.Reset();
     private MudMessageBox? _archiveMessageBox;
+    private MudMessageBox? _restoreMessageBox;
 
     protected override async Task OnInitializedWithAuthAsync()
     {
@@ -138,25 +172,81 @@
         }
 
     }
+    private async Task ConfirmRestoreAsync()
+    {
+        if (_restoreMessageBox is not null)
+        {
+            await _restoreMessageBox.ShowAsync();
+        }
+
+    }
 
     private async Task HandleArchiveAsync()
     {
+
         if (project is null) return;
         try
         {
-            //archive project
+            var projectName = project.Name; // Cache the name
+                                            //archive project
             await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
 
-            //refresh project details to show archived status
+            // //refresh project details to show archived status
             project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
 
-            Snackbar.Add($"The Project, {project.Name}, has been archived", Severity.Success);
+            if (project != null) project.Archived = true;
+
+
+            Snackbar.Add($"The Project '{projectName}' has been archived", Severity.Success);
+
+            // Navigate back to projects list
+            NavManager.NavigateTo("/projects");
+
+            if (project == null)
+            {
+                Snackbar.Add("The project could not be found after archiving.", Severity.Error);
+                return;
+            }
+
+            Snackbar.Add($"The Project has been archived", Severity.Success);
         }
         catch (Exception ex)
         {
 
             Console.WriteLine(ex);
-            Snackbar.Add($"The Project, {project.Name}, is not available to be archived");
+            Snackbar.Add($"The Project is not available to be archived");
+        }
+    }
+
+    private async Task HandleRestoreAsync()
+    {
+        if (project is null) return;
+        try
+        {
+            var projectName = project.Name; // Cache the name
+             //restore project
+            await ProjectService.RestoreProjectByIdAsync(project.Id, UserInfo!);
+
+            //refresh project details to show restored status
+            project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+            if (project != null) project.Archived = false;
+
+            Snackbar.Add($"The Project '{projectName}' has been restored", Severity.Success);
+            // Navigate back to projects list
+            NavManager.NavigateTo("/projects");
+
+            if (project == null)
+            {
+                Snackbar.Add("The project could not be found after restoring.", Severity.Error);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add($"The Project is not available to be restored");
         }
     }
 }
+

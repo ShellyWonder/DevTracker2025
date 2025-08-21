@@ -7,13 +7,26 @@
 <AnimatedCard Index="Index">
     <MudCardHeader>
         <CardHeaderContent>
-            <div class="hstack">
-                <ProjectName Project="Project" />
+            <div class="d-flex">
+                <ProjectName Project="Project" Class="me-auto" />
+                @if (Project.Archived)
+                {
+                    <MudChip T="string"
+                             Color="Color.Error"
+                             Size="Size.Small"
+                             aria-label="Archived Project">
+                        Archived
+                    </MudChip>
+                }
+                else
+                {
                 <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                Size="Size.Small"
                                Color="Color.Tertiary"
                                OnClick="OpenEditProjectNameDialog"
                                aria-label="Edit Project Name" />
+                    
+                }
             </div>
 
             <div class="hstack">
@@ -56,6 +69,7 @@
     {
         try
         {
+            Console.WriteLine($"Project is null: {Project == null}"); // Check if project is null
 
             var parameters = new DialogParameters
         {
@@ -83,19 +97,17 @@
             // Check if the dialog returned data
             if (result.Data is ProjectDTO updatedProject)
             {
-                // 🔑 Marshal state updates to the renderer & guard for disposal
-                await InvokeAsync(async () =>
-                {
+                // Marshal state updates to the renderer & guard for disposal
+                
                     if (_disposed) return;
 
                     Project.Name = updatedProject.Name;
 
-                    // Tell parent to show snackbar
+                    // Trigger parent to show snackbar
                     await OnEditResult.InvokeAsync(("Project name updated successfully!", Severity.Success));
 
-                    StateHasChanged();
-                });
-
+                // Queue state update on the render thread (safely)
+                await InvokeAsync(StateHasChanged);
             }
             else
             {
@@ -111,4 +123,3 @@
     }
 }
 
-}
