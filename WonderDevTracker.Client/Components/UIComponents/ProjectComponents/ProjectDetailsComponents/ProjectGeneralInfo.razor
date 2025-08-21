@@ -7,25 +7,29 @@
 <AnimatedCard Index="Index">
     <MudCardHeader>
         <CardHeaderContent>
-            <div class="d-flex">
-                <ProjectName Project="Project" Class="me-auto" />
+            <div class="d-flex justify-content-between">
+                <ProjectName Project="Project"  />
                 @if (Project.Archived)
                 {
-                    <MudChip T="string"
-                             Color="Color.Error"
-                             Size="Size.Small"
-                             aria-label="Archived Project">
-                        Archived
-                    </MudChip>
+                    <MudText Typo="Typo.caption">
+                             
+                        <MudChip T="string"
+                                 Color="Color.Error"
+                                 
+                                 Size="Size.Medium"
+                                 aria-label="Archived Project">
+                            Archived
+                        </MudChip>
+                    </MudText>
                 }
                 else
                 {
-                <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                               Size="Size.Small"
-                               Color="Color.Tertiary"
-                               OnClick="OpenEditProjectNameDialog"
-                               aria-label="Edit Project Name" />
-                    
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   Color="Color.Tertiary"
+                                   OnClick="OpenEditProjectNameDialog"
+                                   aria-label="Edit Project Name" />
+
                 }
             </div>
 
@@ -98,13 +102,13 @@
             if (result.Data is ProjectDTO updatedProject)
             {
                 // Marshal state updates to the renderer & guard for disposal
-                
-                    if (_disposed) return;
 
-                    Project.Name = updatedProject.Name;
+                if (_disposed) return;
 
-                    // Trigger parent to show snackbar
-                    await OnEditResult.InvokeAsync(("Project name updated successfully!", Severity.Success));
+                Project.Name = updatedProject.Name;
+
+                // Trigger parent to show snackbar
+                await OnEditResult.InvokeAsync(("Project name updated successfully!", Severity.Success));
 
                 // Queue state update on the render thread (safely)
                 await InvokeAsync(StateHasChanged);

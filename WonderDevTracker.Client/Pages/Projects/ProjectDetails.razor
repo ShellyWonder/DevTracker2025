@@ -22,7 +22,6 @@
         ResetIndex();
         <PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 
-        @* <MudPaper Class="p-3"> *@
         <div class="vstack gap-3">
             @* Test:
 
@@ -37,7 +36,7 @@
             <ProjectTickets Project="project" Index="@IndexTracker.Next()" />
 
         </div>
-        @* </MudPaper> *@
+       
         <div class="d-flex">
             <BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
             <div class="ms-auto">
@@ -103,7 +102,7 @@
                            Class="ms-2"
                            StartIcon="@Icons.Material.Filled.RestoreFromTrash"
                            OnClick="HandleRestoreAsync">
-                    Yes, Archive
+                    Yes, Restore
                 </MudButton>
             </YesButton>
         </MudMessageBox>
@@ -224,7 +223,7 @@
         try
         {
             var projectName = project.Name; // Cache the name
-             //restore project
+                                            //restore project
             await ProjectService.RestoreProjectByIdAsync(project.Id, UserInfo!);
 
             //refresh project details to show restored status
