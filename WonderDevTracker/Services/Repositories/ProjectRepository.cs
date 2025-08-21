@@ -57,7 +57,7 @@ namespace WonderDevTracker.Services.Repositories
                  .Include(p => p.Tickets)
                    .ThenInclude(t => t.DeveloperUser)
                 .Include(p => p.Members)
-                .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId && p.Archived == false);
+                .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
 
             return project;
         }
@@ -177,7 +177,7 @@ namespace WonderDevTracker.Services.Repositories
             project.Archived = true;
             foreach (var ticket in project.Tickets)
             {
-                // Set ArchivedByProject to true for each ticket in the project being archived; batch archive
+                // Set ArchivedByProject to true for each open (active)ticket in the project being archived; batch archive
                 ticket.ArchivedByProject = !ticket.Archived;
                 // If ticket.Archived == True, ticket was archived by user
                 ticket.Archived = true;
@@ -185,9 +185,24 @@ namespace WonderDevTracker.Services.Repositories
             }
             await context.SaveChangesAsync();
         }
-        public Task RestoreProjectAsync(int projectId, UserInfo user)
+        public  async Task RestoreProjectAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
+            bool IsRoleAuthorized = await IsUserAuthorizedToUpdateProject(projectId, user);
+            if (!IsRoleAuthorized) return;
+            await using var  context = contextFactory.CreateDbContext();
+            Project project = await context.Projects
+                                            .Include(p => p.Tickets)
+                                            .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+            project.Archived = false;
+
+            foreach (Ticket ticket in project.Tickets)
+            {
+                // IF ArchivedByProject = true, for each ticket in the project previously batch archived, restore ticket to active status
+                ticket.Archived = !ticket.ArchivedByProject;
+                // If ticket.Archived == false, ticket was archived before project was archived; Therefore, ticket remains archived
+                ticket.ArchivedByProject = false;
+            }
+            await context.SaveChangesAsync();
         }
         #endregion
 
