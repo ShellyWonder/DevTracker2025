@@ -13,8 +13,7 @@ namespace WonderDevTracker.Infrastructure
         {
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IProjectDTOService, ProjectDTOService>();
-            services.AddScoped<ThemeManagerService>();
-            services.AddScoped<IndexTrackerHelper>();
+            
             services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();
             return services;
         }

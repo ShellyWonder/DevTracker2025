@@ -1,9 +1,5 @@
-using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MudBlazor;
-using MudBlazor.Services;
 using Scalar.AspNetCore;
 using WonderDevTracker.Components;
 using WonderDevTracker.Components.Account;
@@ -14,36 +10,10 @@ using WonderDevTracker.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents();
+builder.Services.AddUiAndUtilities();
 
 builder.Services.AddApiDocumentation(); // SwaggerGen + Scalar configuration for API documentation and authentication
 builder.Services.AddRepositoriesAndDomain(); // Register repositories and domain services
-
-
-
-
-
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<IdentityUserAccessor>();
-builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
-
-
-
-builder.Services.AddControllers();
-builder.Services.AddHttpClient();
-//to cache images in the browser
-builder.Services.AddOutputCache();
-builder.Services.AddMudServices(config =>
-{
-    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
-}
-    
-    );
-builder.Services.AddBlazoredLocalStorage();
-
 
 
 builder.Services.AddAuthentication(options =>
