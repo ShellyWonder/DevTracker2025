@@ -9,7 +9,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// <summary>
         /// retrieves all active projects for a specific company asynchronously from the database.
         /// </summary>
-        /// <param name="companyId"></param>
+       
         /// <param name="user">The current users claims</param>
         /// <returns>All company projects</returns>
         public Task<IEnumerable<Project>> GetAllProjectsAsync(UserInfo user);
@@ -74,11 +74,11 @@ namespace WonderDevTracker.Services.Interfaces
         /// <returns>True if the project was archived, otherwise false</returns>
         public Task ArchiveProjectAsync(int projectId, UserInfo user);
 
-        // <summary>
-        /// Restores an archived project (and  all  related{previously unarchived} tickets) by its ID asynchronously  to active status
+        /// <summary>
+        /// Restores an archived project (and all related {previously unarchived} tickets) by its ID asynchronously to active status.
         /// </summary>
         /// <remarks>
-        /// Only user with 'Admin' or "ProjectManager" roles can archive a project.
+        /// Only user with 'Admin' or "ProjectManager" roles can restore a project.
         /// </remarks>
         /// <param name="projectId">Specific company project's id</param>
         /// <param name="user">Current user claims</param>

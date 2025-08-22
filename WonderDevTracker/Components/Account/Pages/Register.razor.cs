@@ -1,8 +1,6 @@
 ﻿namespace WonderDevTracker.Components.Account.Pages
 {
-    public partial class RegisterInstruction
-    {
-        // <summary>
+        /// <summary>
         /// <para><b>Checklist – adding a new Identity field</b></para>
         /// <list type="number">
         /// <item>Add the property to <c>ApplicationUser</c>.</item>
@@ -22,5 +20,7 @@
         ///   <i>or</i>  <c>UserInfoHelpers</c>.</item>
         /// </list>
         /// </summary>
+    public partial class RegisterInstruction
+    {
     }
 }

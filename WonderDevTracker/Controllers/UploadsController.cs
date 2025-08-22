@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
 
@@ -10,6 +11,7 @@ namespace WonderDevTracker.Controllers
     [Route("api/uploads")]
     public class UploadsController(ApplicationDbContext _context) : ControllerBase
     {
+        [SwaggerIgnore]
         [HttpGet("{id:guid}")]
         [OutputCache(VaryByRouteValueNames = ["id"], Duration = 60 * 60 * 24)]
         public async Task<IActionResult> GetImage(Guid id)

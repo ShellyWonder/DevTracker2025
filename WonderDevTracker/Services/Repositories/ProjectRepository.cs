@@ -234,16 +234,16 @@ namespace WonderDevTracker.Services.Repositories
         /// <summary>
         ///  Checks:
         ///  1. if project exists in the database
-        ///  2.if the user is authorized to update the project
+        ///  2. if the user is authorized to update the project
         /// Update Requirements:
-        //1. User must belong to the same company as the project.
-        //2. User role: Admin or ProjectManager.
-        //3. If PM, User must be the existing assigned ProjectManager .
+        /// 1. User must belong to the same company as the project.
+        /// 2. User role: Admin or ProjectManager.
+        /// 3. If PM, User must be the existing assigned ProjectManager.
         /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="user"></param>
-        /// <returns>bool</returns>
-        /// 
+        /// <param name="projectId">The ID of the project to check.</param>
+        /// <param name="user">The user attempting to update the project.</param>
+        /// <returns>True if the user is authorized to update the project, otherwise false.</returns>
+
         private async Task<bool> IsUserAuthorizedToUpdateProject(int projectId, UserInfo user)
         {
 
