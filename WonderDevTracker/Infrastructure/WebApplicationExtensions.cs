@@ -26,12 +26,12 @@ namespace WonderDevTracker.Infrastructure
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
-            app.UseAntiforgery();
             app.UseOutputCache();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseAntiforgery();
             return app;
         }
         public static WebApplication MapDevTrackerEndpoints(this WebApplication app)
@@ -50,6 +50,13 @@ namespace WonderDevTracker.Infrastructure
             app.MapAdditionalIdentityEndpoints();
             app.MapControllers();
 
+            // Scalar UI (now mapped here, not in UseApiDocumentation)
+            app.MapScalarApiReference(options =>
+            {
+                options.WithFavicon("/favicon.ico")
+                       .WithTitle("API Specifications | Dev Tracker")
+                       .WithTheme(ScalarTheme.BluePlanet);
+            });
             return app;
         }
     }
