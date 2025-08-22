@@ -1,30 +1,15 @@
-using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using MudBlazor;
-using MudBlazor.Services;
-using WonderDevTracker.Client;
-using WonderDevTracker.Client.Helpers.Animation;
-using WonderDevTracker.Client.Services;
-using WonderDevTracker.Client.Services.Interfaces;
+using WonderDevTracker.Client.Infrastructure;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-builder.Services.AddAuthorizationCore();
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+//Register repositories and domain services
+builder.Services.AddRepositoriesAndDomain();
 
-builder.Services.AddMudServices(config =>
-{
-    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
-});
+//Register UI components and utilities including HTTP client and mudblazor
+builder.Services.AddUiAndUtilities();
 
-builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddScoped<ThemeManagerService>();
-builder.Services.AddScoped<IndexTrackerHelper>();
-builder.Services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();
-
-
+//Register identity services
+builder.Services.AddIdentityServices();
 
 await builder.Build().RunAsync();
