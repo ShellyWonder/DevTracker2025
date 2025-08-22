@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-WonderDevTracker-e3817bba-1e75-4d2b-b5ff-4f569d12651b</UserSecretsId>
 	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
-	  <NoWarn>1591</NoWarn>
+	  <NoWarn>1591,1574</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
