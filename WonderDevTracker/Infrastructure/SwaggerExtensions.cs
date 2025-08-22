@@ -70,15 +70,24 @@ namespace WonderDevTracker.Infrastructure
             return services;
         }
 
-
-        //public static IApplicationBuilder UseApiDocumentation(this IApplicationBuilder app)
-        //{
-        //    app.UseSwagger(options => options.RouteTemplate = "/openapi/{documentName}.json");
-        //    //Create documentation page at URL: /scalar/v1
-           
-        //    return app;
-
-        //}
+       
+        public static IApplicationBuilder UseApiDocumentation(this IApplicationBuilder app)
+        {
+            app.UseSwagger(options => options.RouteTemplate = "/openapi/{documentName}.json");
+            // Create documentation page at URL: /scalar/v1
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapScalarApiReference(options =>
+                {
+                    // Set the favicon for the API documentation
+                    options.WithFavicon("/favicon.ico")
+                            .WithTitle("API Specifications | Dev Tracker")
+                            // Set the theme for the API documentation
+                            .WithTheme(ScalarTheme.BluePlanet);
+                });
+            });
+            return app;
+        }
     }
 
 }
