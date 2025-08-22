@@ -1,23 +1,15 @@
-using System.Reflection;
-using MudBlazor;
-using MudBlazor.Services;
-using Scalar.AspNetCore;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using WonderDevTracker.Client.Helpers.Animation;
-using WonderDevTracker.Client.Services;
-using WonderDevTracker.Client.Services.Interfaces;
+using MudBlazor;
+using MudBlazor.Services;
+using Scalar.AspNetCore;
 using WonderDevTracker.Components;
 using WonderDevTracker.Components.Account;
 using WonderDevTracker.Data;
+using WonderDevTracker.Infrastructure;
 using WonderDevTracker.Models;
-using WonderDevTracker.Services;
-using WonderDevTracker.Services.Interfaces;
-using WonderDevTracker.Services.Repositories;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,48 +18,19 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-builder.Services.AddSwaggerGen(options =>
-{
-    // authentication scheme = cookies
-    options.AddSecurityDefinition("cookie", new OpenApiSecurityScheme
-    {
-        Name = "AspNetCore.Identity.Application",
-        Description = "Cookie used for authentication",
-        In = ParameterLocation.Cookie,
-        Type = SecuritySchemeType.Http,
-        Scheme = "cookie",
-    });
-    //display which endpoints require authentication
-    options.OperationFilter<SecurityRequirementsOperationFilter>();
-    // Include XML comments for Swagger documentation
-    var XMLFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, XMLFileName));
-
-    options.SwaggerDoc("v1", new() { Title = "Wonder Dev Tracker API", Version = "v1" });
-
-    //exclude docs for built-in Identity Razor components
-    options.DocInclusionPredicate((docName, apiDesc) =>
-    {
-        // Exclude Identity Razor components from Swagger documentation
-        if (apiDesc.ActionDescriptor.RouteValues.TryGetValue("area", out var area) && area == "Identity")
-        {
-            return false;
-        }
-        return true;
-    });
+builder.Services.AddApiDocumentation(); // SwaggerGen + Scalar configuration for API documentation and authentication
+builder.Services.AddRepositoriesAndDomain(); // Register repositories and domain services
 
 
-    //Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey, saving for when I configure JWT
-    //options.CustomSchemaIds(type => type.FullName);
-});
+
+
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
-builder.Services.AddScoped<IProjectRepository , ProjectRepository>();
-builder.Services.AddScoped<IProjectDTOService, ProjectDTOService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
@@ -80,9 +43,8 @@ builder.Services.AddMudServices(config =>
     
     );
 builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddScoped<ThemeManagerService>();
-builder.Services.AddScoped<IndexTrackerHelper>();
-builder.Services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();
+
+
 
 builder.Services.AddAuthentication(options =>
     {
