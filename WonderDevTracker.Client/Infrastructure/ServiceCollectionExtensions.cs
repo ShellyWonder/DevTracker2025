@@ -11,6 +11,7 @@ namespace WonderDevTracker.Client.Infrastructure
         {
             
             services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();
+            services.AddScoped<IProjectDTOService, WASMProjectDTOService>();
 
             return services;
         }
