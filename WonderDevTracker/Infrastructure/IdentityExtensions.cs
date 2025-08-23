@@ -13,7 +13,33 @@ namespace WonderDevTracker.Infrastructure
                 options.DefaultScheme = IdentityConstants.ApplicationScheme;
                 options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             })
-            .AddIdentityCookies();
+            .AddIdentityCookies(cookieBuilder =>
+            {
+                cookieBuilder.ApplicationCookie!.Configure(config =>
+                {
+                    config.Events.OnRedirectToLogin += (context) =>
+                    {
+                        if (context.Request.Path.StartsWithSegments("/api") || context.Request.HasJsonContentType())
+                        {
+                            context.Response.StatusCode = 401; // Unauthorized(user not authenticated)
+                        }
+                        return Task.CompletedTask;
+                    };
+
+                    config.Events.OnRedirectToAccessDenied += (context) =>
+                    {
+                        if (context.Request.Path.StartsWithSegments("/api") || context.Request.HasJsonContentType())
+                        {
+                            context.Response.StatusCode = 403; // Forbidden (credentials not authorized)
+                        }
+                        return Task.CompletedTask;
+                    };
+
+
+                });
+            });
+            
+           
 
             services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
