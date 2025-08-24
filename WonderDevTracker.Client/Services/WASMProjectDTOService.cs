@@ -62,9 +62,12 @@ namespace WonderDevTracker.Client.Services
         #endregion
 
         #region ARCHIVE/RESTORE PROJECT
-        public Task ArchiveProjectAsync(int projectId, UserInfo user)
+        
+        public  async Task ArchiveProjectAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response =  await http.PatchAsync($"api/Projects/{projectId}/archive", null);
+            response.EnsureSuccessStatusCode();
+
         }
 
 
@@ -73,9 +76,10 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task RestoreProjectByIdAsync(int projectId, UserInfo user)
+        public async Task RestoreProjectByIdAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.PatchAsync($"api/Projects/{projectId}/restore", null);
+            response.EnsureSuccessStatusCode();
         }
 
         #endregion

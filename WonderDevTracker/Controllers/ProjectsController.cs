@@ -101,15 +101,41 @@ namespace WonderDevTracker.Controllers
             return NoContent();
         }
 
-
         #endregion
 
         #region ARCHIVE PROJECT
+        /// <summary>
+        /// Archive Project
+        /// </summary>
+        /// <remarks>Archives the specified project, including all project tickets, marking it as no longer active.
+        /// Only users with the roles <see cref="Role.Admin"/> or <see
+        /// cref="Role.ProjectManager"/> are authorized to perform this action.</remarks>
+        /// <param name="projectId">The id of the project to archive.</param>
 
+        [HttpPatch("{projectId:int}/archive")]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> ArchiveProject([FromRoute]int projectId)
+        {
+           
+            await projectService.ArchiveProjectAsync(projectId, UserInfo);
+            return NoContent();
+        }
         #endregion
 
         #region RESTORE PROJECT
-
+        /// <summary>
+        /// Restore Archived Project
+        /// </summary>
+        /// <remarks>Restore an archived project to active status. Its tickets revert to their individual status before the project was archived.</remarks>
+        /// <param name="projectId">Id of the project to archive</param>
+        [HttpPatch("{projectId:int}/restore")]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> RestoreProject([FromRoute] int projectId)
+        {
+           
+            await projectService.RestoreProjectByIdAsync(projectId, UserInfo);
+            return NoContent();
+        }
         #endregion
     }
 }
