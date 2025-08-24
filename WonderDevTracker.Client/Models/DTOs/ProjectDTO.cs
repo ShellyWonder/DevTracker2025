@@ -50,7 +50,7 @@ namespace WonderDevTracker.Client.Models.DTOs
         [Required]
         public ProjectPriority Priority { get; set; } = ProjectPriority.Low;
 
-        [Description("A flag indicating project status as active or archived")]
+        [Description("A flag indicating project status as active or archived(archived as a soft delete - project may be restored to active status by authorized user)")]
         public bool Archived { get; set; } = false;
 
         [Description("Company members (users) assigned to this project")]

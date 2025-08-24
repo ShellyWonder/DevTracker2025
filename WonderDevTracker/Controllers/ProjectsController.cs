@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Helpers;
 using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 
 namespace WonderDevTracker.Controllers
@@ -12,8 +13,8 @@ namespace WonderDevTracker.Controllers
     [Authorize]
     public class ProjectsController(IProjectDTOService projectService) : ControllerBase
     {
-            // Check if the user is authenticated
-            UserInfo UserInfo => UserInfoHelper.GetUserInfo(User)!;
+        // Check if the user is authenticated
+        UserInfo UserInfo => UserInfoHelper.GetUserInfo(User)!;
 
         #region GET ALL ACTIVE PROJECTS
         /// <summary>
@@ -25,11 +26,11 @@ namespace WonderDevTracker.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetProjects()
         {
-            
+
             var projects = await projectService.GetAllProjectsAsync(UserInfo);
-            
-            if(projects == null || !projects.Any()) return NotFound();
-           
+
+            if (projects == null || !projects.Any()) return NotFound();
+
             return Ok(projects);
         }
         #endregion
@@ -42,18 +43,73 @@ namespace WonderDevTracker.Controllers
         /// <remarks>Returns detailed information about a specific project. Ensure the user is
         /// authenticated and authorized to access project data before calling this method. Returns a 404
         /// status code if no projects are found.</remarks>
-        
+
         //Route parameter must match blazor parameter 
         [HttpGet("{projectId:int}")]
-        public async Task<ActionResult<ProjectDTO>> GetProjectById([FromRoute]int projectId)
+        public async Task<ActionResult<ProjectDTO>> GetProjectById([FromRoute] int projectId)
         {
-           
+
             var project = await projectService.GetProjectByIdAsync(projectId, UserInfo);
-            
+
             if (project == null) return NotFound();
-            
+
             return Ok(project);
         }
+        #endregion
+
+        #region CREATE PROJECT
+        /// <summary>
+        /// Create Project
+        /// </summary>
+        /// <remarks>Creates a new company project in the database. 
+        /// Only users with 'Admin' or 'ProjectManager' roles in their respective companies can create(submit) a new project.
+        /// If the user is a project manager, the project will be automatically assigned to them as the project lead.
+        /// </remarks>
+        /// <param name="project">Details of the project to be created.</param>
+
+        [HttpPost]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<ActionResult<ProjectDTO>> CreateProject([FromBody] ProjectDTO project)
+        {
+            ProjectDTO createdProject = await projectService.CreateProjectAsync(project, UserInfo);
+
+            //create project with a 201 status code and a Location header pointing to its route
+            return CreatedAtAction(
+                actionName: nameof(GetProjectById),
+                routeValues: new { projectId = createdProject.Id },
+                value: createdProject
+                );
+        }
+        #endregion
+
+        #region UPDATE PROJECT
+        /// <summary>
+        /// Update Project
+        /// </summary>
+        /// <remarks>Update details of an existing project.User must be company admin or assigned PM of project</remarks>
+        /// <param name="project">Updated project details.</param>
+        /// <param name="projectId">The ID of the project to update.</param>
+        
+        [HttpPut("{projectId:int}")]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> UpdateProject([FromRoute] int projectId, [FromBody] ProjectDTO project)
+        {
+            
+            if (projectId != project.Id) return BadRequest("Project ID mismatch.");
+            
+            await projectService.UpdateProjectAsync(project, UserInfo);
+            return NoContent();
+        }
+
+
+        #endregion
+
+        #region ARCHIVE PROJECT
+
+        #endregion
+
+        #region RESTORE PROJECT
+
         #endregion
     }
 }

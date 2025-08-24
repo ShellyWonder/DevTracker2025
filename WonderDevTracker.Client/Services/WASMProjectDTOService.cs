@@ -6,6 +6,7 @@ namespace WonderDevTracker.Client.Services
 {
     public class WASMProjectDTOService(HttpClient http) : IProjectDTOService
     {
+        #region GET PROJECTS
         public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(UserInfo user)
         {
 
@@ -37,23 +38,47 @@ namespace WonderDevTracker.Client.Services
                 return null;
             }
         }
+        #endregion
 
+        #region CREATE PROJECT
+        public async Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user)
+        {
+           var response = await http.PostAsJsonAsync("api/Projects", project);
+            response.EnsureSuccessStatusCode();
+            
+                var createdProject = await response.Content.ReadFromJsonAsync<ProjectDTO>() ?? throw new HttpIOException(HttpRequestError.InvalidResponse);
+
+                return createdProject;
+         
+        }
+        #endregion
+
+        #region UPDATE PROJECT
+        public async Task UpdateProjectAsync(ProjectDTO project, UserInfo user)
+        {
+            var response = await http.PutAsJsonAsync($"api/Projects/{project.Id}", project);
+            response.EnsureSuccessStatusCode();
+        }
+        #endregion
+
+        #region ARCHIVE/RESTORE PROJECT
         public Task ArchiveProjectAsync(int projectId, UserInfo user)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user)
         {
             throw new NotImplementedException();
         }
 
-        
+        public Task RestoreProjectByIdAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
 
         public Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user)
         {
@@ -100,14 +125,7 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task RestoreProjectByIdAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
+        
 
-        public Task UpdateProjectAsync(ProjectDTO project, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
