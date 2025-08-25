@@ -24,7 +24,7 @@ namespace WonderDevTracker.Client.Services
           
         }
 
-        public  async Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user)
+        public async Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user)
         {
             try
             {

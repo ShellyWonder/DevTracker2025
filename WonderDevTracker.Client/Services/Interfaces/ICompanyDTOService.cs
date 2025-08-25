@@ -1,26 +1,21 @@
-﻿using WonderDevTracker.Client;
+﻿using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
-using WonderDevTracker.Models;
 
-namespace WonderDevTracker.Services.Interfaces
+namespace WonderDevTracker.Client.Services.Interfaces
 {
-    public interface ICompanyRepository
+    public interface ICompanyDTOService
     {
         /// <summary>
         /// Gets all users in a company based on the provided UserInfo.
         /// </summary>
         /// <param name="userInfo">Curent user's claims</param>
-        public Task<IEnumerable<ApplicationUser>> GetUsersAsync(UserInfo userInfo);
+        public Task<IEnumerable<AppUserDTO>> GetUsersAsync(UserInfo userInfo);
 
         /// <summary>
         /// Gets all users in a company based on the provided UserInfo.
         /// </summary>
         /// <param name="role">Role assigned to the user</param>
         /// <param name="userInfo">Current user's claims</param>
-        public Task<IEnumerable<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo);
-
-
+        public Task<IEnumerable<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo);
     }
-
 }
-

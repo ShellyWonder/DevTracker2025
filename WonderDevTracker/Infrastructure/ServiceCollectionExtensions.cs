@@ -14,8 +14,11 @@ namespace WonderDevTracker.Infrastructure
         public static IServiceCollection AddRepositoriesAndDomain(this IServiceCollection services)
         {
             services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<IProjectDTOService, ProjectDTOService>();
-            services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();// No-op email sender for development purposes, replace with a real implementation in production
+            services.AddScoped<ICompanyDTOService, CompanyDTOService>();
+            // No-op email sender for development purposes, replace with a real implementation in production
+            services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
             services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();
             return services;
         }
