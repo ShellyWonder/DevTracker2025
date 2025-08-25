@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 
 namespace WonderDevTracker.Models
 {
@@ -35,6 +36,16 @@ namespace WonderDevTracker.Models
             };
             return dto;
         }
+        public static async Task<AppUserDTO> ToDTOWithRole(this ApplicationUser user, UserManager<ApplicationUser> userManager)
+        {
+            AppUserDTO dto = user.ToDTO();
+            var roleNames = await userManager.GetRolesAsync(user);
+            string? roleName = roleNames
+                              .Where(rn => rn !=nameof(Role.DemoUser))
+                              .FirstOrDefault();
+            bool success = Enum.TryParse<Role>(roleName, out var role);
+             if(success) dto.Role = role;
+             return dto;
+        }
     }
-}
-        
+}      

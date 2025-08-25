@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.Enums;
@@ -8,7 +9,8 @@ using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services.Repositories
 {
-    public class CompanyRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : ICompanyRepository
+    public class CompanyRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
+                                   UserManager<ApplicationUser> userManager ) : ICompanyRepository
     {
         #region GET ALL USERS BY COMPANY ID
         public async Task<IEnumerable<ApplicationUser>> GetUsersAsync(UserInfo userInfo)
@@ -24,9 +26,14 @@ namespace WonderDevTracker.Services.Repositories
         #endregion
 
         #region GET USERS IN ROLE 
-        public Task<IEnumerable<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
+        public async Task<IEnumerable<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            // Get all users in the specified role regardless of company
+            IEnumerable<ApplicationUser> usersInRole = await userManager.GetUsersInRoleAsync(Enum.GetName(role)!);
+            // Filter users by CompanyId
+            usersInRole = usersInRole.Where(u => u.CompanyId == userInfo.CompanyId);
+
+            return usersInRole;
         }
         #endregion
     }

@@ -16,6 +16,7 @@ namespace WonderDevTracker.Controllers
     {
         //Check if user is authenticated
         UserInfo UserInfo => UserInfoHelper.GetUserInfo(User)!;
+
         #region GET USERS IN COMPANY
 
         /// <summary>
@@ -23,7 +24,7 @@ namespace WonderDevTracker.Controllers
         /// </summary>
         /// <remarks>This method returns all users associated with the current user's company. Ensure the user is
         /// authenticated and authorized to access user data before calling this method.</remarks>
-        [HttpGet]
+        [HttpGet("users")]
         public async Task<ActionResult<IEnumerable<AppUserDTO>>> GetUsersInCompany()
         {
             var users = await CompanyService.GetUsersAsync(UserInfo);

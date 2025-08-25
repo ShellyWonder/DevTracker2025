@@ -21,9 +21,19 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
+        public async Task<IEnumerable<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
-            throw new NotImplementedException();
+
+            try
+            {
+                List<AppUserDTO> users = await http.GetFromJsonAsync<List<AppUserDTO>>($"api/companies/users/{role}") ?? [];
+                return users;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return [];
+            }
         }
     }
 }

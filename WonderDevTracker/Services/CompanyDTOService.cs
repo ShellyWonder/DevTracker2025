@@ -1,4 +1,5 @@
-﻿using WonderDevTracker.Client;
+﻿using Microsoft.AspNetCore.Identity;
+using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
@@ -7,17 +8,34 @@ using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services
 {
-    public class CompanyDTOService(ICompanyRepository repository) : ICompanyDTOService
+    public class CompanyDTOService(ICompanyRepository repository, 
+                                   UserManager<ApplicationUser> userManager) : ICompanyDTOService
     {
         public async Task<IEnumerable<AppUserDTO>> GetUsersAsync(UserInfo userInfo)
         {
             IEnumerable<ApplicationUser> users = await repository.GetUsersAsync(userInfo);
-            var dtos = users.Select(u => u.ToDTO());
+            List<AppUserDTO> dtos = [];
+
+            foreach (ApplicationUser user in users)
+            {
+                AppUserDTO dto = await user.ToDTOWithRole(userManager);
+                dtos.Add(dto);
+            }
+
             return dtos;
         }
-        public Task<IEnumerable<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
+        public async Task<IEnumerable<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            var usersInRole =  await repository.GetUsersInRoleAsync(role, userInfo);
+            List<AppUserDTO> dtos = [];
+
+            foreach (ApplicationUser user in usersInRole)
+            {
+                AppUserDTO dto = user.ToDTO();
+                dto.Role = role;
+                dtos.Add(dto);
+            }
+            return dtos;
         }
     }
 }
