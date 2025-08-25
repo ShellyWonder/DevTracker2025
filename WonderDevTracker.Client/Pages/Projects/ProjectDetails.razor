@@ -23,10 +23,7 @@
         <PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 
         <div class="vstack gap-3">
-            @* Test:
-
-                <MudText Typo="Typo.caption">Rendering with Index = @IndexTracker.Peek()</MudText> *@
-
+           
             <ProjectGeneralInfo Project="project"
                                 Index="@IndexTracker.Next()"
                                 OnEditResult="HandleEditResult" />

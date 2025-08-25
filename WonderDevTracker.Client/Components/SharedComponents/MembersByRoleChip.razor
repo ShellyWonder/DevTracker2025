@@ -1,0 +1,59 @@
+﻿@*MembersByRoleChip *@
+@using WonderDevTracker.Client.Models.DTOs
+@using MudBlazor
+
+<MudChip T="string"
+         Variant="@Variant"
+         Color="@Color"
+         Dense="@Dense"
+         Class="@Class">
+    <AvatarContent>
+        <MudAvatar>
+            <MudImage Src="@User.ImageUrl" alt="User Avatar" aria-label="@User.FullName" />
+        </MudAvatar>
+    </AvatarContent>
+    <ChildContent>
+        @DisplayText
+    </ChildContent>
+</MudChip>
+
+@code {
+    [Parameter, EditorRequired]
+    public AppUserDTO User { get; set; }
+
+    //Text to display on the chip, defaults to User.FullName
+    [Parameter, EditorRequired]
+    public string DisplayText { get; set; }
+
+    //Optional parameter to set the size of the avatar
+    [Parameter]
+    public Size AvatarSize { get; set; } = Size.Medium;
+
+    [Parameter] public EventCallback<AppUserDTO> OnClickUser { get; set; }
+
+    // Common MudChip pass-throughs
+    [Parameter]
+    public Color Color { get; set; } = Color.Default;
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Filled;
+    [Parameter]
+    public bool Dense { get; set; } = true;
+
+    // When ready to wire up click event
+    // [Parameter]
+    // public bool Disabled { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    // When ready to wire up click event
+    //Uncomment the following: 
+    // private Task HandleClick()
+    //     => OnClickUser.HasDelegate ? OnClickUser.InvokeAsync(User) : Task.CompletedTask;
+    //and add OnClick="HandleClick" to the MudChip above
+
+    protected override void OnParametersSet()
+    {
+        DisplayText ??= User.FullName ?? "Unknown User";
+    }
+}

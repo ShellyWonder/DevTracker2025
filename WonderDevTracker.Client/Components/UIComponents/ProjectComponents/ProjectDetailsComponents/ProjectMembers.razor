@@ -1,41 +1,91 @@
 ﻿@*ProjectMembers *@
-@* @inject AppUserDTO AppUser *@
-<AnimatedCard Index="Index">
-    <MudCardHeader>
-        <MudText Typo="Typo.h5" Color="Color.Primary">Project Members</MudText>
-    </MudCardHeader>
-    <MudCardContent>
-        @* @if (Project.Members is not null && Project.Members.Any())
-        {
-            <MudList Dense="true" T="ApplicationUserDTO">
-                @foreach (var member in Project.Members)
-                {
-                    <MudListItem>
-                        <MudAvatar Size="Size.Medium" Icon="@Icons.Material.Filled.Person" />
-                        <MudText Typo="Typo.body2" Class="ms-2">@member.FullName (@member.Role)</MudText>
-                    </MudListItem>
-                }
-            </MudList>
-        } *@
-        @* else
-        { *@
-        <NotFoundDisplay Message="No assigned project members" />
-        @*  } *@
-        <SafeNavButton Href="#" Valid="true"
-                       Color="Color.Tertiary"
-                       Variant="Variant.Text"
-                       Class="project-details-link ms-auto"
-                       StartIcon="@Icons.Material.Filled.Group">
-            Manage Team
-        </SafeNavButton>
-    </MudCardContent>
-</AnimatedCard>
+@inject ICompanyDTOService CompanyService
+@inject ISnackbar Snackbar
+
+@inherits AuthenticatedComponentBase
+
+<AuthorizeView Roles="@($"{Role.Admin}, {Role.ProjectManager}")">
+
+    <AnimatedCard Index="Index">
+        <MudCardHeader>
+            <MudText Typo="Typo.h5" Color="Color.Primary">Project Members</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <div class="vstack gap-3">
+                <div>
+                    <MudText Typo="Typo.h6">Project Manager</MudText>
+                </div>
+                <div>
+                    <MudText Typo="Typo.h6">Project Developers</MudText>
+                    @foreach (AppUserDTO developer in _developers)
+                    {
+                        <MembersByRoleChip User="developer"
+                                           DisplayText="@developer.FullName"
+                                           Color="Color.Tertiary"
+                                           Variant="Variant.Outlined"
+                                           Class="me-2 mb-2" />
+                    }
+                </div>
+
+                <div>
+                    <MudText Typo="Typo.h6">Project Submitters</MudText>
+                    @foreach (AppUserDTO submitter in _submitters)
+                    {
+                        <MembersByRoleChip User="submitter"
+                                           DisplayText="@submitter.FullName"
+                                           Color="Color.Tertiary"
+                                           Variant="Variant.Outlined"
+                                           Class="me-2 mb-2" />
+                    }
+                </div>
+            </div>
+            @* else
+            {
+            <NotFoundDisplay Message="No assigned project members" />
+            } *@
+            <SafeNavButton Href="#" Valid="true"
+                           Color="Color.Tertiary"
+                           Variant="Variant.Text"
+                           Class="project-details-link ms-auto"
+                           StartIcon="@Icons.Material.Filled.Group">
+                Manage Team
+            </SafeNavButton>
+        </MudCardContent>
+    </AnimatedCard>
+
+</AuthorizeView>
 
 @code {
     [Parameter, EditorRequired]
-    public ProjectDTO Project { get; set; } = default!;
+    public ProjectDTO? Project { get; set; }
 
     [Parameter, EditorRequired]
     public int Index { get; set; }
+
+    //state holders
+    private IEnumerable<AppUserDTO> _developers = [];
+    private IEnumerable<AppUserDTO> _submitters = [];
+    private AppUserDTO? _projectManager;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            //load project members
+
+            // _projectManager = await CompanyService.GetProjectManagerAsync(Project.Id);
+            _developers = await CompanyService.GetUsersInRoleAsync(Role.Developer, UserInfo!);
+            _submitters = await CompanyService.GetUsersInRoleAsync(Role.Submitter, UserInfo!);
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+            Snackbar.Add("Error loading project members.", Severity.Error);
+        }
+
+    }
 }
+
 
