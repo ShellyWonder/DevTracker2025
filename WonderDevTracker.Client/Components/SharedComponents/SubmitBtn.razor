@@ -1,0 +1,32 @@
+﻿@* SubmitBtn *@
+
+<MudButton Color="@Color"
+           Class="@Class"
+           Variant="@Variant"
+           ButtonType="@ButtonType"
+           aria-label="Save Button"
+           title="@DisplayText"
+           StartIcon="@Icons.Material.Filled.Save">
+    @DisplayText
+</MudButton>
+@code {
+    //Text to display on the chip, defaults to Submit
+    [Parameter, EditorRequired]
+    public string DisplayText { get; set; }
+    [Parameter]
+    public Color Color { get; set; } = Color.Primary;
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Filled;
+    [Parameter]
+    public string? Class { get; set; } = "ms-auto mt-2";
+    [Parameter]
+    public ButtonType ButtonType { get; set; } = ButtonType.Submit;
+    [Parameter]
+    public string? Title { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        DisplayText ??= "Submit" ?? "Save";
+    }
+
+}

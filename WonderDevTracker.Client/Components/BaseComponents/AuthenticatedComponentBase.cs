@@ -13,7 +13,7 @@ namespace WonderDevTracker.Client.Components.BaseComponents
 
         protected override async Task OnInitializedAsync()
         {
-            UserInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+            UserInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
             await OnInitializedWithAuthAsync();
         }
 

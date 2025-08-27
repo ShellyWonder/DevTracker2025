@@ -76,13 +76,9 @@
                 <div class="d-flex">
                     <BackToBtn Href="/projects" Text="Back to Projects" />
 
-                    <MudButton Color="Color.Primary"
-                               Class="ms-auto mt-2"
-                               Variant="Variant.Filled"
-                               ButtonType="ButtonType.Submit"
-                               StartIcon="@Icons.Material.Filled.Save">
-                        Submit
-                    </MudButton>
+                    <SubmitBtn DisplayText="Submit"
+                               ButtonType="ButtonType.Submit" />
+                    
                 </div>
             </AnimatedBlock>
         </EditForm>
@@ -118,6 +114,6 @@
             Snackbar.Add("Unable to create project. Please try again.", Severity.Error);
             return;
         }
-        NavManager.NavigateTo("/projects/{ProjectId}");
+        NavManager.NavigateTo($"/projects/{project.Id}");
     }
 }
