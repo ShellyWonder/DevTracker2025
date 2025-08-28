@@ -11,48 +11,73 @@
             <MudText Typo="Typo.h5" Color="Color.Primary">Project Members</MudText>
         </MudCardHeader>
         <MudCardContent>
+            @if (Project.Members?.Count == 0)
+            {
+                <NotFoundDisplay Message="No assigned project members" />
+            }
+            else
+            {
+               <div>Members go here</div>
+            }
+
+            <SafeNavButton Valid="true"
+                           Color="Color.Tertiary"
+                           Variant="Variant.Text"
+                           Class="project-details-link ms-auto"
+                           StartIcon="@Icons.Material.Filled.Group" 
+                           OnClick="()=>IsMemberDialogOpen = true"
+                           TypeText="Manage Team"   />
+                
+        </MudCardContent>
+    </AnimatedCard>
+    <MudDialog @bind-Visible="IsMemberDialogOpen">
+        <TitleContent>
+            <MudText Typo="Typo.h5">Manage Project Team</MudText>
+        </TitleContent>
+            <DialogContent>
             <div class="vstack gap-3">
                 <div>
                     <MudText Typo="Typo.h6">Project Manager</MudText>
                 </div>
                 <div>
-                    <MudText Typo="Typo.h6">Project Developers</MudText>
-                    @foreach (AppUserDTO developer in _developers)
-                    {
-                        <MembersByRoleChip User="developer"
-                                           DisplayText="@developer.FullName"
-                                           Color="Color.Tertiary"
-                                           Variant="Variant.Outlined"
-                                           Class="me-2 mb-2" />
-                    }
+                    <MudText Typo="Typo.h6" GutterBottom>Project Developers</MudText>
+                    <MudChipSet @bind-SelectedValues="selectedDeveloperIds"
+                                SelectionMode="SelectionMode.MultiSelection">
+                        @foreach (AppUserDTO developer in _developers)
+                        {
+                            <MembersByRoleChip User="developer"
+                                               Value="@developer.Id"
+                                               SelectedColor="Color.Primary"
+                                               DisplayText="@developer.FullName" />
+                        }
+                    </MudChipSet>
                 </div>
 
                 <div>
                     <MudText Typo="Typo.h6">Project Submitters</MudText>
-                    @foreach (AppUserDTO submitter in _submitters)
-                    {
-                        <MembersByRoleChip User="submitter"
-                                           DisplayText="@submitter.FullName"
-                                           Color="Color.Tertiary"
-                                           Variant="Variant.Outlined"
-                                           Class="me-2 mb-2" />
-                    }
+                    <MudChipSet @bind-SelectedValues="selectedSubmitterIds"
+                                SelectionMode="SelectionMode.MultiSelection">
+                        @foreach (AppUserDTO submitter in _submitters)
+                        {
+                            <MembersByRoleChip User="submitter"
+                                               Value="@submitter.Id"
+                                               SelectedColor="Color.Primary"
+                                               DisplayText="@submitter.FullName"
+                                               Color="@Color.Secondary" />
+                        }
+                    </MudChipSet>
+                </div>
+                <div class="text-end">
+                    <CancelBtn ButtonType="ButtonType.Button"
+                               DisplayText="Cancel"
+                               OnClick="HandleCancel" />
+
+                    <SubmitBtn ButtonType="ButtonType.Submit"
+                               DisplayText="Submit" />
                 </div>
             </div>
-            @* else
-            {
-            <NotFoundDisplay Message="No assigned project members" />
-            } *@
-            <SafeNavButton Href="#" Valid="true"
-                           Color="Color.Tertiary"
-                           Variant="Variant.Text"
-                           Class="project-details-link ms-auto"
-                           StartIcon="@Icons.Material.Filled.Group">
-                Manage Team
-            </SafeNavButton>
-        </MudCardContent>
-    </AnimatedCard>
-
+            </DialogContent>
+    </MudDialog>
 </AuthorizeView>
 
 @code {
@@ -66,6 +91,11 @@
     private IEnumerable<AppUserDTO> _developers = [];
     private IEnumerable<AppUserDTO> _submitters = [];
     private AppUserDTO? _projectManager;
+    private bool IsMemberDialogOpen = false;
+
+    //selected members -- bind to chip sets(IReadOnlyCollection is only option for chip sets))
+    private IReadOnlyCollection<string> selectedDeveloperIds = [];
+    private IReadOnlyCollection<string> selectedSubmitterIds = [];
 
     protected override async Task OnParametersSetAsync()
     {
@@ -86,6 +116,13 @@
         }
 
     }
+
+    private void HandleCancel()
+    {
+        selectedDeveloperIds = [];
+        selectedSubmitterIds = [];
+    }
+
 }
 
 

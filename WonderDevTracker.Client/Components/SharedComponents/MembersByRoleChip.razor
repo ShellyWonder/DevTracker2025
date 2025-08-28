@@ -2,20 +2,27 @@
 @using WonderDevTracker.Client.Models.DTOs
 @using MudBlazor
 
-<MudChip T="string"
-         Variant="@Variant"
-         Color="@Color"
-         Dense="@Dense"
-         Class="@Class">
-    <AvatarContent>
-        <MudAvatar>
-            <MudImage Src="@User.ImageUrl" alt="User Avatar" aria-label="@User.FullName" />
-        </MudAvatar>
-    </AvatarContent>
-    <ChildContent>
-        @DisplayText
-    </ChildContent>
-</MudChip>
+@if (User is not null)
+{
+    <MudChip T="string"
+             Value="@Value"
+             Variant="@Variant"
+             Color="@Color"
+             SelectedColor="@SelectedColor"
+             Class="@Class">
+
+        <AvatarContent>
+            <MudAvatar>
+                <MudImage Src="@User.ImageUrl" alt="User Avatar" aria-label="@User.FullName" title="@User.FullName" />
+            </MudAvatar>
+        </AvatarContent>
+
+        <ChildContent>
+            @DisplayText
+        </ChildContent>
+
+    </MudChip>
+}
 
 @code {
     [Parameter, EditorRequired]
@@ -25,29 +32,36 @@
     [Parameter, EditorRequired]
     public string DisplayText { get; set; }
 
+    [Parameter, EditorRequired]
+    //user.id to use as the value of the chip
+    public string Value { get; set; }
+
     //Optional parameter to set the size of the avatar
     [Parameter]
     public Size AvatarSize { get; set; } = Size.Medium;
 
-    [Parameter] public EventCallback<AppUserDTO> OnClickUser { get; set; }
+    [Parameter] 
+    public EventCallback<AppUserDTO> OnClickUser { get; set; }
 
     // Common MudChip pass-throughs
     [Parameter]
-    public Color Color { get; set; } = Color.Default;
+    public Color Color { get; set; } = Color.Info;
+
+    [Parameter]
+    public Color SelectedColor { get; set; } = Color.Success;
+
     [Parameter]
     public Variant Variant { get; set; } = Variant.Filled;
-    [Parameter]
-    public bool Dense { get; set; } = true;
 
     // When ready to wire up click event
     // [Parameter]
     // public bool Disabled { get; set; }
 
     [Parameter]
-    public string? Class { get; set; }
+    public string? Class { get; set; } = "me-2 mb-2";
 
     // When ready to wire up click event
-    //Uncomment the following: 
+    //Uncomment the following:
     // private Task HandleClick()
     //     => OnClickUser.HasDelegate ? OnClickUser.InvokeAsync(User) : Task.CompletedTask;
     //and add OnClick="HandleClick" to the MudChip above
