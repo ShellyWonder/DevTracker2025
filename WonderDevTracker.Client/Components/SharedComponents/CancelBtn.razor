@@ -1,0 +1,43 @@
+﻿@* CancelBtn *@
+
+<MudButton Href="@Href"
+           Color="@Color"
+           Class="@Class"
+           Variant="@Variant"
+           ButtonType="@ButtonType"
+           aria-label="@AriaLabel"
+           title="@Title"
+           StartIcon="@Icons.Material.Filled.Cancel"
+           OnClick="@OnClick">
+    @DisplayText
+</MudButton>
+
+@code {
+    [Parameter]
+     public string? DisplayText { get; set; }
+
+    [Parameter]
+    public ButtonType ButtonType { get; set; } = ButtonType.Button;
+
+    [Parameter]
+    public Color Color { get; set; } = Color.Error;
+
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Text;
+
+    [Parameter]
+    public string? Class { get; set; } = "me-2 mt-2";
+
+    [Parameter]
+    public string? Title { get; set; } = "Cancel changes";
+
+    [Parameter]
+    public string? Href { get; set; }
+
+    [Parameter] 
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter] public string? AriaLabel { get; set; } = "Cancel";
+
+
+}
