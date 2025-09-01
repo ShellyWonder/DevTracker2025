@@ -57,8 +57,28 @@ namespace WonderDevTracker.Services.Interfaces
         public Task UpdateProjectAsync(Project project, UserInfo user);
         public Task<bool> AddProjectManagerAsync(int projectId, UserInfo user);
         public Task<bool> RemoveProjectManagerAsync(int projectId, UserInfo user);
-        public Task<bool> AddProjectMembersAsync(int projectId, UserInfo user);
-        public Task<IEnumerable<ApplicationUser>> RemoveProjectMemberAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Add Project Member 
+        /// /// </summary>
+        /// <remarks>
+        /// Assigns a company user to a specific project
+        /// </remarks>
+        /// <param name="projectId">Project Id</param>
+        /// <param name="userId">User id</param>
+        /// <param name="user">Current users claims</param>
+        public Task AddProjectMemberAsync(int projectId, string userId, UserInfo user);
+
+        /// <summary>
+        /// Remove Project Member 
+        /// /// </summary>
+        /// <remarks>
+        /// Removes a member from a specific project
+        /// </remarks>
+        /// <param name="projectId">Project Id</param>
+        /// <param name="userId">User id</param>
+        /// <param name="user">Current users claims</param>
+        public Task<IEnumerable<ApplicationUser>> RemoveProjectMemberAsync(int projectId, string userId, UserInfo user);
 
         #endregion
 

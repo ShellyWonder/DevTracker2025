@@ -129,7 +129,14 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        
+        public Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
 
+        public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

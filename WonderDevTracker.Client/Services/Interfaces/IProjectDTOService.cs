@@ -36,6 +36,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <returns>New project after being saved in Db</returns>
         public Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user);
         #endregion
+
         #region UPDATE METHODS
         /// <summary>
         /// Retrieves a specific company project by its ID asynchronously from the database.
@@ -53,7 +54,27 @@ namespace WonderDevTracker.Client.Services.Interfaces
         #endregion
 
         #region ADD/REMOVE METHODS
+        /// <summary>
+        /// Add Project Member 
+        /// /// </summary>
+        /// <remarks>
+        /// Assigns a company user to a specific project
+        /// </remarks>
+        /// <param name="projectId">Project Id</param>
+        /// <param name="userId">User id</param>
+        /// <param name="user">Current users claims</param>
+        public Task AddProjectMemberAsync(int projectId, string userId, UserInfo user);
 
+        /// <summary>
+        /// Remove Project Member 
+        /// /// </summary>
+        /// <remarks>
+        /// Removes a member from a specific project
+        /// </remarks>
+        /// <param name="projectId">Project Id</param>
+        /// <param name="userId">User id</param>
+        /// <param name="user">Current users claims</param>
+        public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user);
         #endregion
 
         #region ARCHIVE METHODS

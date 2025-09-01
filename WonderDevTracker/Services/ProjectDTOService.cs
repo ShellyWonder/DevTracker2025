@@ -129,6 +129,16 @@ namespace WonderDevTracker.Services
             }
            
         }
+
+        public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            await projectRepository.AddProjectMemberAsync(projectId, userId, user);
+        }
+
+        public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            await projectRepository.RemoveProjectMemberAsync(projectId, userId, user);
+        }
         #endregion
     }
 }

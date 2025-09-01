@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
@@ -8,7 +9,8 @@ using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services.Repositories
 {
-    public class ProjectRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : IProjectRepository
+    public class ProjectRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
+                                    UserManager<ApplicationUser> userManager) : IProjectRepository
     {
 
         #region CREATE METHODS
@@ -185,11 +187,11 @@ namespace WonderDevTracker.Services.Repositories
             }
             await context.SaveChangesAsync();
         }
-        public  async Task RestoreProjectAsync(int projectId, UserInfo user)
+        public async Task RestoreProjectAsync(int projectId, UserInfo user)
         {
             bool IsRoleAuthorized = await IsUserAuthorizedToUpdateProject(projectId, user);
             if (!IsRoleAuthorized) return;
-            await using var  context = contextFactory.CreateDbContext();
+            await using var context = contextFactory.CreateDbContext();
             Project project = await context.Projects
                                             .Include(p => p.Tickets)
                                             .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
@@ -213,17 +215,43 @@ namespace WonderDevTracker.Services.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<bool> AddProjectMembersAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<bool> RemoveProjectManagerAsync(int projectId, UserInfo user)
         {
             throw new NotImplementedException();
         }
+        public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            bool IsRoleAuthorized = await IsUserAuthorizedToUpdateProject(projectId, user);
+            if (!IsRoleAuthorized) return;
+            //open db connection
+            await using var context = contextFactory.CreateDbContext();
 
-        public Task<IEnumerable<ApplicationUser>> RemoveProjectMemberAsync(int projectId, UserInfo user)
+            //Look up project ~ already confirmed project is not null by IsUserAuthorizedToUpdateProject() 
+            Project project = await context.Projects
+                .Include(p => p.Members)
+                .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+
+            //is member already assigned to project
+            if (project.Members!.Any(m => m.Id == userId)) return;
+
+            //does member belong to the project's company
+            ApplicationUser? newMember = await context.Users
+                                        .FirstOrDefaultAsync(u => u.Id == userId && u.CompanyId == user.CompanyId);
+            //Is member null, a project manager or admin? Cannot be added to the project; PM assignment handled by different means
+            if (newMember == null
+                || await userManager.IsInRoleAsync(newMember, nameof(Role.ProjectManager))
+                || await userManager.IsInRoleAsync(newMember, nameof(Role.Admin)))
+                return;
+
+
+            //assign member to project and save to db
+            project.Members!.Add(newMember);
+            await context.SaveChangesAsync();
+
+        }
+
+
+        public Task<IEnumerable<ApplicationUser>> RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
             throw new NotImplementedException();
         }
