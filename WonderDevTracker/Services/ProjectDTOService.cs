@@ -8,7 +8,7 @@ namespace WonderDevTracker.Services
 {
     public class ProjectDTOService(IProjectRepository projectRepository) : IProjectDTOService
     {
-        
+        #region CREATE METHODS
         public async Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user)
         {
             Project dbProject = new()
@@ -28,11 +28,8 @@ namespace WonderDevTracker.Services
             
             return dbProject.ToDTO();
         }
-
-        public Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
+        
 
         public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(UserInfo user)
         {
@@ -99,6 +96,11 @@ namespace WonderDevTracker.Services
 
         }
 
+        public Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task RestoreProjectByIdAsync(int projectId, UserInfo user)
         {
             await projectRepository.RestoreProjectAsync(projectId, user);
@@ -129,6 +131,9 @@ namespace WonderDevTracker.Services
             }
            
         }
+        #endregion
+
+        #region ADD/REMOVE METHODS
 
         public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
