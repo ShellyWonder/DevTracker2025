@@ -10,59 +10,61 @@ using WonderDevTracker.Services.Interfaces;
 namespace WonderDevTracker.Services.Repositories
 {
     public class ProjectRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
-                                    UserManager<ApplicationUser> userManager) : IProjectRepository
+                                    UserManager<ApplicationUser> userManager)
+                                             : RepositoryBase(contextFactory), IProjectRepository
     {
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
 
         #region CREATE METHODS
-        public async Task<Project?> CreateProjectAsync(Project project, UserInfo user)
-        {
-            bool isAdmin = user.Roles.Any(r => r == nameof(Role.Admin));
-            bool isPM = user.Roles.Any(r => r == nameof(Role.ProjectManager));
-
-            if (!isAdmin && !isPM) throw new UnauthorizedAccessException($"User {user.Email} does not have permission to create a project.");
-
-            await using var context = contextFactory.CreateDbContext();
-            project.Created = DateTimeOffset.UtcNow;
-            project.CompanyId = user.CompanyId;
-
-            if (isPM == true)
+        public Task<Project?> CreateProjectAsync(Project project, UserInfo user) =>
+            WithContextAsync<Project?>(async db =>
             {
-                //if the user is a PM, add them as a member of the project
-                ApplicationUser projectManager = await context.Users.FirstAsync(u => u.Id == user.UserId);
-                project.Members?.Add(projectManager);
-            }
-            context.Add(project);
-            await context.SaveChangesAsync();
-            return project;
-        }
+                bool isAdmin = user.Roles.Any(r => r == nameof(Role.Admin));
+                bool isPM = user.Roles.Any(r => r == nameof(Role.ProjectManager));
+
+                if (!isAdmin && !isPM) throw new UnauthorizedAccessException($"User {user.Email} does not have permission to create a project.");
+
+
+                project.Created = DateTimeOffset.UtcNow;
+                project.CompanyId = user.CompanyId;
+
+                if (isPM == true)
+                {
+                    //if the user is a PM, add them as a member of the project
+                    ApplicationUser projectManager = await db.Users.FirstAsync(u => u.Id == user.UserId);
+                    project.Members?.Add(projectManager);
+                }
+                db.Add(project);
+                await db.SaveChangesAsync();
+                return project;
+            });
         #endregion
 
         #region GET METHODS
-        public async Task<IEnumerable<Project>> GetAllProjectsAsync(UserInfo user)
-        {
-            await using var context = contextFactory.CreateDbContext();
+        public Task<IEnumerable<Project>> GetAllProjectsAsync(UserInfo user) =>
+            WithReadOnlyContextAsync(async db =>
+            {
+               IEnumerable<Project> projects = await db.Projects
+                    //match the company id of the user & also ensure the project is not archived
+                    .Where(p => p.CompanyId == user.CompanyId && p.Archived == false)
+                    .ToListAsync();
+                return projects;
 
-            IEnumerable<Project> projects = await context.Projects
-                //match the company id of the user & also ensure the project is not archived
-                .Where(p => p.CompanyId == user.CompanyId && p.Archived == false)
-                .ToListAsync();
-            return projects;
+            });
 
-        }
+        public Task<Project?> GetProjectByIdAsync(int projectId, UserInfo user) =>
+            WithReadOnlyContextAsync(async db =>
+            {
+                        Project? project = await db.Projects
+                    .Include(p => p.Tickets)
+                                .ThenInclude(t => t.SubmitterUser)
+                        .Include(p => p.Tickets)
+                        .ThenInclude(t => t.DeveloperUser)
+                    .Include(p => p.Members)
+                    .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
 
-        public async Task<Project?> GetProjectByIdAsync(int projectId, UserInfo user)
-        {
-            await using var context = contextFactory.CreateDbContext();
-            Project? project = await context.Projects
-                .Include(p => p.Tickets)
-                          .ThenInclude(t => t.SubmitterUser)
-                 .Include(p => p.Tickets)
-                   .ThenInclude(t => t.DeveloperUser)
-                .Include(p => p.Members)
-                .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
-
-            return project;
-        }
+                        return project;
+                });
 
         public Task<IEnumerable<ApplicationUser>> GetProjectDevelopersAsync(int projectId, UserInfo user)
         {
@@ -111,54 +113,54 @@ namespace WonderDevTracker.Services.Repositories
         #endregion
 
         #region UPDATE METHODS
-        public async Task UpdateProjectAsync(Project project, UserInfo user)
-        {
-
-            bool IsRoleAuthorized = await IsUserAuthorizedToUpdateProject(project.Id, user);
-            if (!IsRoleAuthorized) throw new UnauthorizedAccessException($"User {user.Email} does not have permission to update project {project.Id}.");
-
-            await using var context = contextFactory.CreateDbContext();
-            var current = await context.Projects.FirstAsync(p => p.Id == project.Id);
-
-
-            if (!string.Equals(project.Name, current.Name, StringComparison.Ordinal))
-            {
-                context.Entry(current).Property(p => p.Name).CurrentValue = project.Name;
-                context.Entry(current).Property(p => p.Name).IsModified = true;
-
-            }
-
-            if (project.Description != current.Description)
-
+        public Task UpdateProjectAsync(Project project, UserInfo user) =>
+            WithContextAsync(async db =>
             {
 
-                context.Entry(current).Property(p => p.Description).CurrentValue = project.Description;
-                context.Entry(current).Property(p => p.Description).IsModified = true;
-            }
+                bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(project.Id, user);
+                if (!IsRoleAuthorized) throw new UnauthorizedAccessException($"User {user.Email} does not have permission to update project {project.Id}.");
 
-            if (project.StartDate != current.StartDate)
-            {
+                var current = await db.Projects.FirstAsync(p => p.Id == project.Id);
 
-                context.Entry(current).Property(p => p.StartDate).CurrentValue = project.StartDate;
-                context.Entry(current).Property(p => p.StartDate).IsModified = true;
 
-            }
-            if (project.EndDate != current.EndDate)
-            {
-                context.Entry(current).Property(p => p.EndDate).CurrentValue = project.EndDate;
-                context.Entry(current).Property(p => p.EndDate).IsModified = true;
+                if (!string.Equals(project.Name, current.Name, StringComparison.Ordinal))
+                {
+                    db.Entry(current).Property(p => p.Name).CurrentValue = project.Name;
+                    db.Entry(current).Property(p => p.Name).IsModified = true;
 
-            }
+                }
 
-            if (project.Priority != current.Priority)
-            {
-                context.Entry(current).Property(p => p.Priority).CurrentValue = project.Priority;
-                context.Entry(current).Property(p => p.Priority).IsModified = true;
+                if (project.Description != current.Description)
 
-            }
+                {
 
-            await context.SaveChangesAsync();
-        }
+                    db.Entry(current).Property(p => p.Description).CurrentValue = project.Description;
+                    db.Entry(current).Property(p => p.Description).IsModified = true;
+                }
+
+                if (project.StartDate != current.StartDate)
+                {
+
+                    db.Entry(current).Property(p => p.StartDate).CurrentValue = project.StartDate;
+                    db.Entry(current).Property(p => p.StartDate).IsModified = true;
+
+                }
+                if (project.EndDate != current.EndDate)
+                {
+                    db.Entry(current).Property(p => p.EndDate).CurrentValue = project.EndDate;
+                    db.Entry(current).Property(p => p.EndDate).IsModified = true;
+
+                }
+
+                if (project.Priority != current.Priority)
+                {
+                    db.Entry(current).Property(p => p.Priority).CurrentValue = project.Priority;
+                    db.Entry(current).Property(p => p.Priority).IsModified = true;
+
+                }
+
+                await db.SaveChangesAsync();
+            });
         #endregion
 
         #region ARCHIVE/RESTORE METHODS
@@ -167,45 +169,47 @@ namespace WonderDevTracker.Services.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task ArchiveProjectAsync(int projectId, UserInfo user)
-        {
-            bool IsRoleAuthorized = await IsUserAuthorizedToUpdateProject(projectId, user);
-            if (!IsRoleAuthorized) return;
-            await using var context = contextFactory.CreateDbContext();
-
-            Project project = await context.Projects
-                                            .Include(p => p.Tickets)
-                                            .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
-            project.Archived = true;
-            foreach (var ticket in project.Tickets)
+        public Task ArchiveProjectAsync(int projectId, UserInfo user) =>
+            WithContextAsync(async db =>
             {
-                // Set ArchivedByProject to true for each open (active)ticket in the project being archived; batch archive
-                ticket.ArchivedByProject = !ticket.Archived;
-                // If ticket.Archived == True, ticket was archived by user
-                ticket.Archived = true;
+                bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
+                if (!IsRoleAuthorized) return;
+      
 
-            }
-            await context.SaveChangesAsync();
-        }
-        public async Task RestoreProjectAsync(int projectId, UserInfo user)
-        {
-            bool IsRoleAuthorized = await IsUserAuthorizedToUpdateProject(projectId, user);
-            if (!IsRoleAuthorized) return;
-            await using var context = contextFactory.CreateDbContext();
-            Project project = await context.Projects
-                                            .Include(p => p.Tickets)
-                                            .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
-            project.Archived = false;
+                Project project = await db.Projects
+                                                .Include(p => p.Tickets)
+                                                .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+                project.Archived = true;
+                foreach (var ticket in project.Tickets)
+                {
+                    // Set ArchivedByProject to true for each open (active)ticket in the project being archived; batch archive
+                    ticket.ArchivedByProject = !ticket.Archived;
+                    // If ticket.Archived == True, ticket was archived by user
+                    ticket.Archived = true;
 
-            foreach (Ticket ticket in project.Tickets)
+                }
+                await db.SaveChangesAsync();
+            });
+        public Task RestoreProjectAsync(int projectId, UserInfo user) =>
+            WithContextAsync(async db =>
             {
-                // IF ArchivedByProject = true, for each ticket in the project previously batch archived, restore ticket to active status
-                ticket.Archived = !ticket.ArchivedByProject;
-                // If ticket.Archived == false, ticket was archived before project was archived; Therefore, ticket remains archived
-                ticket.ArchivedByProject = false;
-            }
-            await context.SaveChangesAsync();
-        }
+                bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
+                if (!IsRoleAuthorized) return;
+             
+                Project project = await db.Projects
+                                                .Include(p => p.Tickets)
+                                                .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+                project.Archived = false;
+
+                foreach (Ticket ticket in project.Tickets)
+                {
+                    // IF ArchivedByProject = true, for each ticket in the project previously batch archived, restore ticket to active status
+                    ticket.Archived = !ticket.ArchivedByProject;
+                    // If ticket.Archived == false, ticket was archived before project was archived; Therefore, ticket remains archived
+                    ticket.ArchivedByProject = false;
+                }
+                await db.SaveChangesAsync();
+            });
         #endregion
 
         #region ADD/REMOVE METHODS
@@ -219,42 +223,55 @@ namespace WonderDevTracker.Services.Repositories
         {
             throw new NotImplementedException();
         }
-        public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
-        {
-            bool IsRoleAuthorized = await IsUserAuthorizedToUpdateProject(projectId, user);
-            if (!IsRoleAuthorized) return;
-            //open db connection
-            await using var context = contextFactory.CreateDbContext();
+        public Task AddProjectMemberAsync(int projectId, string userId, UserInfo user) =>
+            WithContextAsync(async db =>
+            {
+                bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
+                if (!IsRoleAuthorized) return;
+            
+                //Look up project ~ already confirmed project is not null by IsUserAuthorizedToUpdateProject() 
+                Project project = await db.Projects
+                    .Include(p => p.Members)
+                    .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
 
-            //Look up project ~ already confirmed project is not null by IsUserAuthorizedToUpdateProject() 
-            Project project = await context.Projects
-                .Include(p => p.Members)
-                .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+                //is member already assigned to project
+                if (project.Members!.Any(m => m.Id == userId)) return;
 
-            //is member already assigned to project
-            if (project.Members!.Any(m => m.Id == userId)) return;
-
-            //does member belong to the project's company
-            ApplicationUser? newMember = await context.Users
-                                        .FirstOrDefaultAsync(u => u.Id == userId && u.CompanyId == user.CompanyId);
-            //Is member null, a project manager or admin? Cannot be added to the project; PM assignment handled by different means
-            if (newMember == null
-                || await userManager.IsInRoleAsync(newMember, nameof(Role.ProjectManager))
-                || await userManager.IsInRoleAsync(newMember, nameof(Role.Admin)))
-                return;
-
-
-            //assign member to project and save to db
-            project.Members!.Add(newMember);
-            await context.SaveChangesAsync();
-
-        }
+                //does member belong to the project's company
+                ApplicationUser? newMember = await db.Users
+                                            .FirstOrDefaultAsync(u => u.Id == userId && u.CompanyId == user.CompanyId);
+                //Is member null, a project manager or admin? Cannot be added to the project; PM assignment handled by different means
+                if (newMember == null
+                    || await userManager.IsInRoleAsync(newMember, nameof(Role.ProjectManager))
+                    || await userManager.IsInRoleAsync(newMember, nameof(Role.Admin)))
+                    return;
 
 
-        public Task<IEnumerable<ApplicationUser>> RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
+                //assign member to project and save to db
+                project.Members!.Add(newMember);
+                await db.SaveChangesAsync();
+
+            });
+
+        public  Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user) =>
+            WithContextAsync(async db =>
+            {
+                bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
+                if (!IsRoleAuthorized) return;
+            
+                //Look up project ~ already confirmed project is not null by IsUserAuthorizedToEditProject() 
+                Project project = await db.Projects
+                    .Include(p => p.Members)
+                    .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+                //is member assigned to project
+                ApplicationUser? member = project.Members!.FirstOrDefault(m => m.Id == userId);
+
+                if (member == null || await userManager.IsInRoleAsync(member, nameof(Role.ProjectManager))) return;
+                //remove member from project and save to db
+                project.Members!.Remove(member);
+                await db.SaveChangesAsync();
+
+            });
 
         #endregion
 
@@ -272,22 +289,28 @@ namespace WonderDevTracker.Services.Repositories
         /// <param name="user">The user attempting to update the project.</param>
         /// <returns>True if the user is authorized to update the project, otherwise false.</returns>
 
-        private async Task<bool> IsUserAuthorizedToUpdateProject(int projectId, UserInfo user)
+        private Task<bool> IsUserAuthorizedToEditProject(int projectId, UserInfo user) =>
+            WithReadOnlyContextAsync<bool>(async db =>
+            {
+                // Check if the user is an Admin or ProjectManager
+                bool isAdmin = user.Roles.Any(r => r == nameof(Role.Admin));
+                bool isPM = user.Roles.Any(r => r == nameof(Role.ProjectManager));
+                if (!isAdmin && !isPM) return false;
+
+                bool IsRoleAuthorized = await db.Projects
+                    // Check if the project exists and belongs to the user's company
+                    .Where(p => p.Id == projectId && p.CompanyId == user.CompanyId)
+                    .AnyAsync(p => isAdmin || p.Members!.Any(m => m.Id == user.UserId));
+                return IsRoleAuthorized;
+            });
+
+        private async Task IfAuthorizedAsync(int projectId, UserInfo user, Func<Task> action)
         {
+            bool authorized = await IsUserAuthorizedToEditProject(projectId, user);
+            if (!authorized) return;
 
-            // Check if the user is an Admin or ProjectManager
-            bool isAdmin = user.Roles.Any(r => r == nameof(Role.Admin));
-            bool isPM = user.Roles.Any(r => r == nameof(Role.ProjectManager));
-            if (!isAdmin && !isPM) return false;
-
-            await using var context = contextFactory.CreateDbContext();
-            bool IsRoleAuthorized = await context.Projects
-                // Check if the project exists and belongs to the user's company
-                .Where(p => p.Id == projectId && p.CompanyId == user.CompanyId)
-                .AnyAsync(p => isAdmin || p.Members!.Any(m => m.Id == user.UserId));
-            return IsRoleAuthorized;
+            await action();
         }
-
 
         #endregion
     }

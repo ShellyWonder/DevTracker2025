@@ -78,7 +78,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="projectId">Project Id</param>
         /// <param name="userId">User id</param>
         /// <param name="user">Current users claims</param>
-        public Task<IEnumerable<ApplicationUser>> RemoveProjectMemberAsync(int projectId, string userId, UserInfo user);
+        public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user);
 
         #endregion
 
