@@ -78,6 +78,14 @@
         <NotFoundDisplay Message="No tickets available" />
     </NoRecordsContent>
     </MudDataGrid>
+
+<SafeNavButton Href="#" Valid="true"
+               Color="Color.Tertiary"
+               Variant="Variant.Text"
+               Class="project-details-link ms-auto"
+               StartIcon="@Icons.Material.Filled.List"
+               TypeText="Add Tickets" />
+
 @code {
     [Parameter, EditorRequired]
     public IEnumerable<TicketDTO> Tickets { get; set; } = [];
