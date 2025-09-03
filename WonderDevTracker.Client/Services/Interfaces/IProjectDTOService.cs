@@ -18,7 +18,14 @@ namespace WonderDevTracker.Client.Services.Interfaces
         public Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user);
         public Task<IEnumerable<AppUserDTO>> GetProjectSubmittersAsync(int projectId, UserInfo user);
         public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user);
-        public Task<IEnumerable<AppUserDTO>> GetProjectMembersExceptPMAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Retrieves all project members (except the Project Manager) assigned to project.
+        /// </summary>
+        /// <param name="projectId">Project Id</param>
+        /// <param name="user">Current user's claims</param>
+        /// <returns>A collection of users</returns>
+        public Task<IEnumerable<AppUserDTO>> GetProjectMembersAsync(int projectId, UserInfo user);
         public Task<IEnumerable<AppUserDTO>> GetUserProjectsAsync(UserInfo user);
         public Task<IEnumerable<AppUserDTO>> GetUsersNotOnProjectAsync(UserInfo user);
         public Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user);

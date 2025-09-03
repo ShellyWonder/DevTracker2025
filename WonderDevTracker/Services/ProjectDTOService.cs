@@ -1,4 +1,5 @@
-﻿using WonderDevTracker.Client;
+﻿using Microsoft.AspNetCore.Identity;
+using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Models;
@@ -6,7 +7,8 @@ using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services
 {
-    public class ProjectDTOService(IProjectRepository projectRepository) : IProjectDTOService
+    public class ProjectDTOService(IProjectRepository projectRepository,
+                                    UserManager<ApplicationUser> userManager) : IProjectDTOService
     {
         #region CREATE METHODS
         public async Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user)
@@ -29,8 +31,8 @@ namespace WonderDevTracker.Services
             return dbProject.ToDTO();
         }
         #endregion
-        
 
+        #region GET METHODS
         public async Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(UserInfo user)
         {
             IEnumerable<Project> projects = await projectRepository.GetAllProjectsAsync(user);
@@ -42,7 +44,22 @@ namespace WonderDevTracker.Services
         public async Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user)
         {
           Project? project = await projectRepository.GetProjectByIdAsync(projectId, user);
-            return project?.ToDTO();
+           
+            if (project is null) return null;
+
+            //Get project members and convert to DTOs
+            List<AppUserDTO> members = [];
+
+            foreach (var member in project.Members ?? Enumerable.Empty<ApplicationUser>())
+            {
+                AppUserDTO dto = await member.ToDTOWithRole(userManager);
+                members.Add(dto);
+            }
+
+            ProjectDTO projectDTO = project.ToDTO();
+
+            projectDTO.Members = members;
+            return projectDTO;
         }
 
         public Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user)
@@ -60,11 +77,19 @@ namespace WonderDevTracker.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetProjectMembersExceptPMAsync(int projectId, UserInfo user)
+        public async Task<IEnumerable<AppUserDTO>> GetProjectMembersAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
-        }
+            IEnumerable<ApplicationUser> members = await projectRepository.GetProjectMembersAsync(projectId, user);
 
+            List<AppUserDTO> dtos = [];
+
+            foreach (var member in members)
+            {
+                AppUserDTO dto = await member.ToDTOWithRole(userManager);
+                dtos.Add(dto);
+            }
+            return dtos;
+        }
         public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user)
         {
             throw new NotImplementedException();
@@ -89,6 +114,8 @@ namespace WonderDevTracker.Services
         {
             throw new NotImplementedException();
         }
+        #endregion
+
         #region ARCHIVE METHODS
         public async Task ArchiveProjectAsync(int projectId, UserInfo user)
         {

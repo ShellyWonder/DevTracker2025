@@ -44,10 +44,10 @@ namespace WonderDevTracker.Services.Repositories
         public Task<IEnumerable<Project>> GetAllProjectsAsync(UserInfo user) =>
             WithReadOnlyContextAsync(async db =>
             {
-               IEnumerable<Project> projects = await db.Projects
-                    //match the company id of the user & also ensure the project is not archived
-                    .Where(p => p.CompanyId == user.CompanyId && p.Archived == false)
-                    .ToListAsync();
+                IEnumerable<Project> projects = await db.Projects
+                     //match the company id of the user & also ensure the project is not archived
+                     .Where(p => p.CompanyId == user.CompanyId && p.Archived == false)
+                     .ToListAsync();
                 return projects;
 
             });
@@ -55,16 +55,16 @@ namespace WonderDevTracker.Services.Repositories
         public Task<Project?> GetProjectByIdAsync(int projectId, UserInfo user) =>
             WithReadOnlyContextAsync(async db =>
             {
-                        Project? project = await db.Projects
-                    .Include(p => p.Tickets)
-                                .ThenInclude(t => t.SubmitterUser)
-                        .Include(p => p.Tickets)
-                        .ThenInclude(t => t.DeveloperUser)
-                    .Include(p => p.Members)
-                    .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+                Project? project = await db.Projects
+            .Include(p => p.Tickets)
+                        .ThenInclude(t => t.SubmitterUser)
+                .Include(p => p.Tickets)
+                .ThenInclude(t => t.DeveloperUser)
+            .Include(p => p.Members)
+            .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
 
-                        return project;
-                });
+                return project;
+            });
 
         public Task<IEnumerable<ApplicationUser>> GetProjectDevelopersAsync(int projectId, UserInfo user)
         {
@@ -81,11 +81,16 @@ namespace WonderDevTracker.Services.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<ApplicationUser>> GetProjectMembersExceptPMAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
+        public Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, UserInfo user) =>
+            WithReadOnlyContextAsync(async db =>
+            {
+                List<ApplicationUser> members = await db.Projects
+                     .Where(p => p.Id == projectId && p.CompanyId == user.CompanyId)
+                    .SelectMany(p => p.Members!)
+                                        .ToListAsync();
+                return members.AsEnumerable();
+            });
+         
         public Task<Project?> GetProjectsByPriorityAsync(Project priority, UserInfo user)
         {
             throw new NotImplementedException();
@@ -174,7 +179,7 @@ namespace WonderDevTracker.Services.Repositories
             {
                 bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
                 if (!IsRoleAuthorized) return;
-      
+
 
                 Project project = await db.Projects
                                                 .Include(p => p.Tickets)
@@ -195,7 +200,7 @@ namespace WonderDevTracker.Services.Repositories
             {
                 bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
                 if (!IsRoleAuthorized) return;
-             
+
                 Project project = await db.Projects
                                                 .Include(p => p.Tickets)
                                                 .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
@@ -228,7 +233,7 @@ namespace WonderDevTracker.Services.Repositories
             {
                 bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
                 if (!IsRoleAuthorized) return;
-            
+
                 //Look up project ~ already confirmed project is not null by IsUserAuthorizedToUpdateProject() 
                 Project project = await db.Projects
                     .Include(p => p.Members)
@@ -253,12 +258,12 @@ namespace WonderDevTracker.Services.Repositories
 
             });
 
-        public  Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user) =>
+        public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user) =>
             WithContextAsync(async db =>
             {
                 bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
                 if (!IsRoleAuthorized) return;
-            
+
                 //Look up project ~ already confirmed project is not null by IsUserAuthorizedToEditProject() 
                 Project project = await db.Projects
                     .Include(p => p.Members)
