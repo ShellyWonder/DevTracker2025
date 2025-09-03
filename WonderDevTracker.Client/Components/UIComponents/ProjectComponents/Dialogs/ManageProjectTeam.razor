@@ -47,7 +47,7 @@
     <div class="text-end">
         <CancelBtn ButtonType="ButtonType.Button"
                    DisplayText="Cancel"
-                   OnClick="HandleCancel" />
+                   OnClick="HandleCancelAsync" />
 
         <SubmitBtn ButtonType="ButtonType.Submit"
                    DisplayText="Submit" 
@@ -67,11 +67,13 @@
     [Parameter]
     public EventCallback OnClose { get; set; }
 
+    [Parameter] 
+    public EventCallback<ProjectDTO> OnSaved { get; set; }
 
     //team members state holders
     private IEnumerable<AppUserDTO> _developers = [];
     private IEnumerable<AppUserDTO> _submitters = [];
-    private IEnumerable<string> ExistingMemberIds = [];
+    private IEnumerable<string> existingMemberIds = [];
     // private AppUserDTO? _projectManager;
 
     //selected members -- bind to chip sets (IReadOnlyCollection is only option for chip sets)
@@ -83,7 +85,7 @@
         if (Project is null) return;
 
         //Get existing project members
-        ExistingMemberIds = Project.Members?.Select(m => m.Id) ?? [];
+        existingMemberIds = Project.Members?.Select(m => m.Id) ?? [];
         try
         {
             //Get all available users in roles
@@ -91,9 +93,9 @@
             _developers = await CompanyService.GetUsersInRoleAsync(Role.Developer, UserInfo!);
             _submitters = await CompanyService.GetUsersInRoleAsync(Role.Submitter, UserInfo!);
 
-            //Pre-select existing members in the chip sets
-            selectedDeveloperIds = [.. _developers.Select(d => d.Id).Where(id => ExistingMemberIds.Contains(id))];
-            selectedSubmitterIds = [.. _submitters.Select(s => s.Id).Where(id => ExistingMemberIds.Contains(id))];
+            //Pre-select existing members in the chip sets (utilize spread operator to convert IEnumerable to array)
+            selectedDeveloperIds = [.. _developers.Select(d => d.Id).Where(id => existingMemberIds.Contains(id))];
+            selectedSubmitterIds = [.. _submitters.Select(s => s.Id).Where(id => existingMemberIds.Contains(id))];
         }
         catch (Exception ex)
         {
@@ -109,11 +111,33 @@
         try
         {
             IEnumerable<string> selectedUserIds = [.. selectedDeveloperIds, .. selectedSubmitterIds];
-            foreach (var userId in selectedUserIds)
+            
+            //new members -> selected members NOT in original MemberIds
+            IEnumerable<string> addedUserIds = selectedUserIds.Except(existingMemberIds);
+            foreach (var userId in addedUserIds)
             {
                 await ProjectService.AddProjectMemberAsync(Project.Id, userId, UserInfo);
             }
+
+            //removed members -> original MemberIds NOT in selected members
+            IEnumerable<string> removedUserIds = existingMemberIds.Except(selectedUserIds);
+
+            foreach (var userId in removedUserIds)
+            {
+                await ProjectService.RemoveProjectMemberAsync(Project.Id, userId, UserInfo);
+            }
+
+            // Update Project.Members
+            Project.Members = [.. await ProjectService.GetProjectMembersAsync(Project.Id, UserInfo)];
+
+            //Update existingMemberIds after save
+            existingMemberIds =  Project.Members.Select(m => m.Id);
+
             Snackbar.Add("Project team updated successfully", Severity.Success);
+
+            // Notify parent it should refresh its own view
+            await OnSaved.InvokeAsync(Project);
+            //close dialog
             await OnClose.InvokeAsync();
         }
         catch (Exception ex)
@@ -125,11 +149,11 @@
     }
 
 
-    private async Task HandleCancel()
+    private async Task HandleCancelAsync()
     {
         //reset to initial state
-        selectedDeveloperIds = [.. _developers.Select(d => d.Id).Where(id => ExistingMemberIds.Contains(id))];
-        selectedSubmitterIds = [.. _submitters.Select(s => s.Id).Where(id => ExistingMemberIds.Contains(id))];
+        selectedDeveloperIds = [.. _developers.Select(d => d.Id).Where(id => existingMemberIds.Contains(id))];
+        selectedSubmitterIds = [.. _submitters.Select(s => s.Id).Where(id => existingMemberIds.Contains(id))];
         await OnClose.InvokeAsync();
     }
 

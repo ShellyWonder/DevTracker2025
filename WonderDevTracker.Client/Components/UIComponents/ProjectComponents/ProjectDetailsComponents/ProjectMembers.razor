@@ -32,7 +32,8 @@
                             <MembersByRoleChip User="developer"
                                                Value="@developer.Id"
                                                SelectedColor="Color.Primary"
-                                               DisplayText="@developer.FullName" />
+                                               DisplayText="@developer.FullName" 
+                                                @key="developer.Id"  />
                         }
                     </MudChipSet>
 
@@ -47,7 +48,8 @@
                                                Value="@submitter.Id"
                                                SelectedColor="Color.Primary"
                                                DisplayText="@submitter.FullName"
-                                               Color="@Color.Secondary" />
+                                               Color="@Color.Secondary"
+                                               @key="submitter.Id" />
                         }
                     </MudChipSet>
 
@@ -71,7 +73,9 @@
             <MudText Typo="Typo.h3" Color="Color.Primary">Manage Project Team</MudText>
         </TitleContent>
         <DialogContent>
-            <ManageProjectTeam Project="Project" OnClose="() => IsMemberDialogOpen = false" />
+            <ManageProjectTeam Project="Project"
+                               OnSaved="HandleTeamSaved"
+                               OnClose="HandleDialogClosed" />
         </DialogContent>
     </MudDialog>
 }
@@ -103,6 +107,11 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        await RebuildRoleBuckets();
+    }
+
+    private async Task RebuildRoleBuckets()
+    {
         if (Project is null) return;
 
         //Get existing project members
@@ -125,7 +134,26 @@
         }
     }
 
+    private async Task HandleTeamSaved(ProjectDTO updatedProject)
+    {
+        await InvokeAsync(async () =>
+        {
+            // Replace the old Project with the updated one from the dialog
+            Project = updatedProject;
 
+            // Refresh your tracking list
+            await RebuildRoleBuckets();
+
+            StateHasChanged(); // force re-render
+
+        });
+    }
+
+    private Task HandleDialogClosed()
+    {
+        IsMemberDialogOpen = false;
+        return Task.CompletedTask;
+    }
 
 }
 
