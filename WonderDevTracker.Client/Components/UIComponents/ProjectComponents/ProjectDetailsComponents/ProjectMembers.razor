@@ -9,7 +9,6 @@
 
 @if (Project is not null)
 {
-
     <div class="vstack gap-3">
         <AnimatedCard Index="Index">
             <MudCardHeader>
@@ -22,44 +21,22 @@
                 }
                 else
                 {
+                    <div class="row  g-3 py-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
 
-                    <MudText Typo="Typo.h5" GutterBottom>Project Developers</MudText>
-                    <MudChipSet @bind-SelectedValues="selectedDeveloperIds"
-                                SelectionMode="SelectionMode.MultiSelection">
-                        @foreach (AppUserDTO developer in _developers)
+                        @foreach (AppUserDTO member in Project.Members!)
                         {
-
-                            <MembersByRoleChip User="developer"
-                                               Value="@developer.Id"
-                                               SelectedColor="Color.Primary"
-                                               DisplayText="@developer.FullName" 
-                                                @key="developer.Id"  />
+                            <div class="col">
+                                <ProjectTeamCard User="member" />
+                            </div>
                         }
-                    </MudChipSet>
-
-                    <MudText Typo="Typo.h5" GutterBottom>Project Submitters</MudText>
-
-                    <MudChipSet @bind-SelectedValues="selectedSubmitterIds"
-                                SelectionMode="SelectionMode.MultiSelection">
-                        @foreach (AppUserDTO submitter in _submitters)
-                        {
-
-                            <MembersByRoleChip User="submitter"
-                                               Value="@submitter.Id"
-                                               SelectedColor="Color.Primary"
-                                               DisplayText="@submitter.FullName"
-                                               Color="@Color.Secondary"
-                                               @key="submitter.Id" />
-                        }
-                    </MudChipSet>
-
+                    </div>
                 }
 
                 <AuthorizeView Roles="@($"{Role.Admin}, {Role.ProjectManager}")">
                     <SafeNavButton Valid="true"
                                    Color="Color.Tertiary"
                                    Variant="Variant.Text"
-                                   Class="project-details-link"
+                                   Class="project-details-link ms-auto"
                                    StartIcon="@Icons.Material.Filled.Group"
                                    OnClick="()=>IsMemberDialogOpen = true"
                                    TypeText="Manage Team" />
@@ -67,7 +44,7 @@
             </MudCardContent>
         </AnimatedCard>
     </div>
-
+    @* Manage Team(submitters and devs) Dialog*@
     <MudDialog @bind-Visible="IsMemberDialogOpen">
         <TitleContent>
             <MudText Typo="Typo.h3" Color="Color.Primary">Manage Project Team</MudText>
@@ -78,9 +55,8 @@
                                OnClose="HandleDialogClosed" />
         </DialogContent>
     </MudDialog>
+
 }
-
-
 
 @code {
     [Parameter, EditorRequired]
@@ -95,9 +71,10 @@
     //state holders
     private IEnumerable<AppUserDTO> _developers = [];
     private IEnumerable<AppUserDTO> _submitters = [];
-    // private AppUserDTO? _projectManager;
+   
     private bool IsMemberDialogOpen = false;
-
+    private string? member;
+    
     //selected members -- bind to chip sets(IReadOnlyCollection is only option for chip sets))
     private IReadOnlyCollection<string> selectedDeveloperIds = [];
     private IReadOnlyCollection<string> selectedSubmitterIds = [];

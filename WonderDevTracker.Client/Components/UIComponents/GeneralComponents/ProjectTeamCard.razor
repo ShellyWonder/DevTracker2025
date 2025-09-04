@@ -1,0 +1,40 @@
+﻿@* ProjectTeamCard *@
+
+@inject ICompanyDTOService CompanyService
+
+
+    <div class="d-flex align-items-center gap-2">
+        <div>
+            <MudAvatar>
+            @if (User is null)
+            {
+                <text>?</text>
+            }
+            else
+            {
+            <MudImage Src="@User.ImageUrl" Alt="@User.FullName" />
+            }
+            </MudAvatar>
+        </div>
+
+        <div>
+            <MudText Typo="Typo.body1" Color="Color.Primary">@(User?.FullName ?? PlaceholderName)</MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@(User?.Role?.GetDisplayName() ?? PlaceholderRole)</MudText>
+        </div>
+
+    </div>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public AppUserDTO User { get; set; }
+
+    [Parameter]
+    public string PlaceholderName { get; set; } = "Unassigned";
+
+    [Parameter]
+    public string PlaceholderRole { get; set; } = "Unknown Role";
+
+    private IEnumerable<AppUserDTO> projectManagers = [];
+    private bool pmDialogVisible = false;
+}

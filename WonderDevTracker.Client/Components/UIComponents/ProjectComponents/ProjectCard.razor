@@ -8,8 +8,8 @@
         <MudCardHeader>
             <CardHeaderContent>
                 <SafeNavLink Typo="Typo.h5"
-                             Href="@($"projects/{Project.Id}")" 
-                             Valid="@(Project?.Id is not null)" 
+                             Href="@($"projects/{Project.Id}")"
+                             Valid="@(Project?.Id is not null)"
                              Class="d-block">
                     @Project?.Name
                 </SafeNavLink>
@@ -17,15 +17,36 @@
             </CardHeaderContent>
         </MudCardHeader>
         <MudCardContent>
+            @if (Project.Members is null )
+            {
+                <LoadingSpinner />
+            }
+            else if (Project.Members?.Count == 0)
+            {
+                <NotFoundDisplay Message="No project members assigned" />
 
-            <NotFoundDisplay Message="No project members assigned." />
+
+            }
+            else
+            {
+                <div class="row  g-3 py-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+
+                    @foreach (AppUserDTO member in Project.Members!)
+                    {
+                        <div class="col" @key="member.Id">
+                            <ProjectTeamCard User="member" />
+                        </div>
+                    }
+                </div>
+            }
+
         </MudCardContent>
         <MudCardActions>
 
             <PriorityChip Priority="Project.Priority" />
 
-            <LinksBtn Text="Details" 
-                      Href="@($"/projects/{Project.Id}")" 
+            <LinksBtn Text="Details"
+                      Href="@($"/projects/{Project.Id}")"
                       Disabled="@(Project is null)" />
 
         </MudCardActions>
@@ -45,10 +66,8 @@
 
     private void NavigateToDetails()
     {
-        @if (Project is null)
-        {
-            return;
-        }
+        if (Project is null) return;
+
         NavManager.NavigateTo($"/projects/{Project?.Id}");
     }
 
