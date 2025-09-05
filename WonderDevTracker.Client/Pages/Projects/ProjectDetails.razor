@@ -3,6 +3,7 @@
 @attribute [Authorize]
 
 @inject IProjectDTOService ProjectService
+@inject ICompanyDTOService CompanyService
 @inject IndexTrackerHelper IndexTracker
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
@@ -23,9 +24,11 @@
         <PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 
         <div class="vstack gap-3">
-           
+
             <ProjectGeneralInfo Project="project"
                                 Index="@IndexTracker.Next()"
+                                ProjectManagers="projectManagers"
+                                @bind-ProjectManagerId="projectManagerId"
                                 OnEditResult="HandleEditResult" />
 
             <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
@@ -130,12 +133,23 @@
     private MudMessageBox? _archiveMessageBox;
     private MudMessageBox? _restoreMessageBox;
 
+    //NOTE: Binding to ProjectManagerId (string) instead of ProjectManager 
+    // (AppUserDTO) to avoid issues with MudSelect and complex objects
+    private string? projectManagerId;
+    private IEnumerable<AppUserDTO> projectManagers = [];
+   
+
     protected override async Task OnInitializedWithAuthAsync()
     {
         try
         {
             project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
+            if (project is not null)
+            {
+                projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
+                projectManagerId = project.Members?.FirstOrDefault(m => m.Role == Role.ProjectManager)?.Id;
+                
+            }
         }
         catch (Exception ex)
         {
@@ -147,12 +161,12 @@
 
 
         breadcrumbs = new()
-            {
+        {
                 new BreadcrumbItem("Home", href: "/"),
                 new BreadcrumbItem("Projects", href: "/projects"),
                 new BreadcrumbItem(project?.Name ?? "Project Not Found", href: null, disabled: true)
 
-            };
+        };
 
     }
     private void HandleEditResult((string Message, Severity Severity) result)

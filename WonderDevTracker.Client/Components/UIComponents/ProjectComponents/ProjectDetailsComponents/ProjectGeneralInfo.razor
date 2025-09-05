@@ -1,7 +1,7 @@
 ﻿@* ProjectGeneralInfo *@
 @using WonderDevTracker.Client.Components.UIComponents.ProjectComponents.Dialogs
 @using MudBlazor
-@implements IDisposable
+
 @inject IDialogService DialogService
 
 <AnimatedCard Index="Index">
@@ -34,15 +34,15 @@
             <ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
 
             <div class="mt-3">
-            <ProjectTeamCard User="null"
-                             PlaceholderName="Unassigned"
-                             PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
+                <ProjectTeamCard User="null"
+                                 PlaceholderName="Unassigned"
+                                 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
 
                 <AuthorizeView Roles="@($"{Role.Admin}")">
                     <SafeNavButton Valid="true"
                                    Color="Color.Tertiary"
                                    Variant="Variant.Text"
-                                   Size=""
+                                   Size="Size.Small"
                                    Class="project-details-link"
                                    StartIcon="@Icons.Material.Filled.Group"
                                    OnClick="()=>isPMDialogVisible = true"
@@ -52,7 +52,7 @@
         </CardHeaderContent>
     </MudCardHeader>
     <MudCardActions>
-            <PriorityChip Priority="Project.Priority" />
+        <PriorityChip Priority="Project.Priority" />
     </MudCardActions>
 </AnimatedCard>
 
@@ -62,21 +62,35 @@
         <MudText Typo="Typo.h3" Color="Color.Primary">Assign Project Manager</MudText>
     </TitleContent>
     <DialogContent>
-        <ProjectTeamCard User="projectManager"
+        
+        <ProjectTeamCard User="ProjectManagers.FirstOrDefault(pm => pm.Id == ProjectManagerId)"
                          PlaceholderName="Unassigned"
                          PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
         <MudSelect Label="Project Manager"
-                   @bind-Value="projectManager"
-                   Variant="Variant.Filled">
-            @foreach (AppUserDTO pm in projectManagers)
+                   @bind-Value="ProjectManagerId"
+                   Variant="Variant.Filled"
+                   Class="mt-3"
+                   Clearable>
+            @foreach (AppUserDTO user in ProjectManagers)
             {
-                <MudSelectItem Value="pm">
-                    @pm.FullName
+                <MudSelectItem Value="user.Id">
+                    @user.FullName
                 </MudSelectItem>
             }
 
         </MudSelect>
     </DialogContent>
+    <DialogActions>
+        <div class="text-end">
+            <CancelBtn ButtonType="ButtonType.Button"
+                       DisplayText="Cancel"
+                       />
+
+            <SubmitBtn ButtonType="ButtonType.Submit"
+                       DisplayText="Submit"
+                        />
+        </div>
+    </DialogActions>
 </MudDialog>
 
 @code {
@@ -90,16 +104,23 @@
     [Parameter]
     public EventCallback<(string Message, Severity Severity)> OnEditResult { get; set; }
 
-    private bool _disposed;
+    [Parameter, EditorRequired]
+    public IEnumerable<AppUserDTO> ProjectManagers { get; set; } = [];
 
-    public void Dispose() => _disposed = true;
+    [Parameter]
+    public string? ProjectManagerId { get; set; }
 
-    private AppUserDTO? projectManager;
-    private IEnumerable<AppUserDTO> projectManagers = [];
+    [Parameter]
+    public EventCallback<string?> ProjectManagerIdChanged { get; set; }
+
     private bool isPMDialogVisible = false;
+   
 
-    
-
-
+    //reacts locally when the selection changes:
+    private async Task OnPmChanged(string? id)
+    {
+        ProjectManagerId = id;
+        await ProjectManagerIdChanged.InvokeAsync(id);
+    }
 }
 
