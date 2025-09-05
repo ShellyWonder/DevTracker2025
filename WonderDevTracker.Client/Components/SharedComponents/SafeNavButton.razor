@@ -19,6 +19,7 @@ Explicitly disabled (e.g. based on user role):
 <MudButton Variant="@Variant"
            Color="@Color"
            Class="@Class"
+           Size="@Size"
            Disabled="@(!Valid)"
            StartIcon="@StartIcon"
            EndIcon="@EndIcon"
@@ -48,7 +49,10 @@ Explicitly disabled (e.g. based on user role):
     [Parameter] 
     public Color Color { get; set; } = Color.Primary;
 
-    [Parameter] public string? Class { get; set; }
+    [Parameter] 
+    public string? Class { get; set; }
+    [Parameter] 
+    public Size Size { get; set; }
 
     [Parameter] 
     public string? StartIcon { get; set; }
