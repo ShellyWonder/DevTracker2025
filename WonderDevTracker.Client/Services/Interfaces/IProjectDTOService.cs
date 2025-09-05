@@ -14,6 +14,14 @@ namespace WonderDevTracker.Client.Services.Interfaces
         public Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(UserInfo user);
         public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user);
         public Task<IEnumerable<ProjectDTO>> GetUnassignedProjectsAsync(UserInfo user);
+
+        /// <summary>
+        /// Get Project Manager(PM) 
+        /// </summary>
+        /// <remarks>Retrieves PM  assigned to a specific project</remarks>
+        /// <param name="projectId">Project's id</param>
+        /// <param name="user">User's claims</param>
+        /// <returns>Assigned PM or Null if one is not assigned</returns>
         public Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user);
         public Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user);
         public Task<IEnumerable<AppUserDTO>> GetProjectSubmittersAsync(int projectId, UserInfo user);
@@ -61,6 +69,24 @@ namespace WonderDevTracker.Client.Services.Interfaces
         #endregion
 
         #region ADD/REMOVE METHODS
+        /// <summary>
+        /// Assign Project Manager(PM)
+        /// </summary>
+        /// <remarks>Assigns a PM to a specific project ; If there is an existing PM on the project, than the existing PM is replaced by the new PM</remarks>
+        /// <param name="projectId">Project's Id</param>
+        /// <param name="managerId"> Id of PM being assigned to a project</param>
+        /// <param name="user">Current user's claims</param>
+        /// 
+        public Task AssignProjectManagerAsync(int projectId, string managerId, UserInfo user);
+        /// <summary>
+        /// Remove Project Manager(PM)
+        /// </summary>
+        /// <remarks>Removes the PM from a specific project</remarks>
+        /// <param name="projectId">Project Id</param>
+        /// <param name="user">Current user's claims</param>
+        /// <returns></returns>
+        public Task RemoveProjectManagerAsync(int projectId, UserInfo user);
+
         /// <summary>
         /// Add Project Member 
         /// /// </summary>

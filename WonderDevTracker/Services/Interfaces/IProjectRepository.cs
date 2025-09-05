@@ -1,4 +1,5 @@
 ﻿using WonderDevTracker.Client;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Models;
 
 namespace WonderDevTracker.Services.Interfaces
@@ -9,7 +10,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// <summary>
         /// retrieves all active projects for a specific company asynchronously from the database.
         /// </summary>
-       
+
         /// <param name="user">The current users claims</param>
         /// <returns>All company projects</returns>
         public Task<IEnumerable<Project>> GetAllProjectsAsync(UserInfo user);
@@ -21,9 +22,17 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user claims</param>
         /// <returns>Requested Project or Null</returns>
         public Task<Project?> GetProjectByIdAsync(int projectId, UserInfo user);
-        
+
         public Task<Project?> GetProjectsByPriorityAsync(Project priority, UserInfo user);
-        public Task<IEnumerable<Project>>GetUnassignedProjectsAsync(UserInfo user);
+        public Task<IEnumerable<Project>> GetUnassignedProjectsAsync(UserInfo user);
+
+        /// <summary>
+        /// Get Project Manager(PM) 
+        /// </summary>
+        /// <remarks>Retrieves PM  assigned to a specific project</remarks>
+        /// <param name="projectId">Project's id</param>
+        /// <param name="user">Current user's claims</param>
+        /// <returns>Assigned PM or Null if one is not assigned</returns>
         public Task<ApplicationUser?> GetProjectManagerAsync(int projectId, UserInfo user);
         public Task<IEnumerable<ApplicationUser>> GetProjectDevelopersAsync(int projectId, UserInfo user);
         public Task<IEnumerable<ApplicationUser>> GetProjectSubmittersAsync(int projectId, UserInfo user);
@@ -36,7 +45,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>A collection of users</returns>
         public Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, UserInfo user);
-        public Task<IEnumerable<ApplicationUser>>GetUserProjectsAsync(UserInfo user);
+        public Task<IEnumerable<ApplicationUser>> GetUserProjectsAsync(UserInfo user);
         public Task<IEnumerable<ApplicationUser>> GetUsersNotOnProjectAsync(UserInfo user);
         public Task<IEnumerable<Project>> GetAllArchivedProjectsAsync(UserInfo user);
         #endregion
@@ -62,8 +71,25 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user"></param>
 
         public Task UpdateProjectAsync(Project project, UserInfo user);
-        public Task<bool> AddProjectManagerAsync(int projectId, UserInfo user);
-        public Task<bool> RemoveProjectManagerAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Assign Project Manager(PM)
+        /// </summary>
+        /// <remarks>Assigns a PM to a specific project ; If there is an existing PM on the project, than the existing PM is replaced by the new PM</remarks>
+        /// <param name="projectId">Project's Id</param>
+        /// <param name="managerId"> Id of PM being assigned to a project</param>
+        /// <param name="user">Current user's claims</param>
+        public Task AssignProjectManagerAsync(int projectId, string managerId, UserInfo user);
+
+        /// <summary>
+        /// Remove Project Member 
+        /// /// </summary>
+        /// <remarks>
+        /// Removes a member from a specific project
+        /// </remarks>
+        /// <param name="projectId">Project Id</param>
+        /// <param name="user">Current users claims</param>
+        public Task RemoveProjectManagerAsync(int projectId, UserInfo user);
 
         /// <summary>
         /// Add Project Member 
@@ -83,7 +109,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// Removes a member from a specific project
         /// </remarks>
         /// <param name="projectId">Project Id</param>
-        /// <param name="userId">User id</param>
+        /// <param name="userId">Id of the member to remove from the project</param>
         /// <param name="user">Current users claims</param>
         public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user);
 

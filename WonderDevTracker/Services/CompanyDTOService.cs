@@ -24,7 +24,7 @@ namespace WonderDevTracker.Services
 
             return dtos;
         }
-        public async Task<IEnumerable<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
+        public async Task<IReadOnlyList<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
             var usersInRole =  await repository.GetUsersInRoleAsync(role, userInfo);
             List<AppUserDTO> dtos = [];

@@ -25,15 +25,13 @@ namespace WonderDevTracker.Services.Repositories
         #endregion
 
         #region GET USERS IN ROLE 
-        public async Task<IEnumerable<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
+        public async Task<IReadOnlyList<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
-            // Get all users in the specified role regardless of company
-            IEnumerable<ApplicationUser> usersInRole = await userManager.GetUsersInRoleAsync(Enum.GetName(role)!);
-            // Filter users by CompanyId
-            usersInRole = usersInRole.Where(u => u.CompanyId == userInfo.CompanyId);
-
-            return usersInRole;
+            await using var context = contextFactory.CreateDbContext();
+            var usersInRole = await userManager.GetUsersInRoleAsync(role.ToString());
+            return [.. usersInRole.Where(u => u.CompanyId == userInfo.CompanyId)];
         }
+
         #endregion
     }
 }

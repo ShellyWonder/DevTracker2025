@@ -17,7 +17,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// </summary>
         /// <param name="role">Role assigned to the user</param>
         /// <param name="userInfo">Current user's claims</param>
-        public Task<IEnumerable<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo);
+        public Task<IReadOnlyList<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo);
 
 
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
@@ -24,10 +25,10 @@ namespace WonderDevTracker.Services
                 Priority = project.Priority,
                 CompanyId = user.CompanyId,
             };
-            
+
             dbProject = await projectRepository.CreateProjectAsync(dbProject, user)
                          ?? throw new InvalidOperationException("Project creation failed.");
-            
+
             return dbProject.ToDTO();
         }
         #endregion
@@ -37,14 +38,14 @@ namespace WonderDevTracker.Services
         {
             IEnumerable<Project> projects = await projectRepository.GetAllProjectsAsync(user);
 
-            IEnumerable<ProjectDTO> dtos = projects.Select(p =>p.ToDTO());
+            IEnumerable<ProjectDTO> dtos = projects.Select(p => p.ToDTO());
             return dtos;
         }
 
         public async Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user)
         {
-          Project? project = await projectRepository.GetProjectByIdAsync(projectId, user);
-           
+            Project? project = await projectRepository.GetProjectByIdAsync(projectId, user);
+
             if (project is null) return null;
 
             //Get project members and convert to DTOs
@@ -67,9 +68,13 @@ namespace WonderDevTracker.Services
             throw new NotImplementedException();
         }
 
-        public Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user)
+        public async Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
+            ApplicationUser? projectManager = await projectRepository.GetProjectManagerAsync(projectId, user)
+                ?? throw new InvalidOperationException($"Project with ID {projectId} does not have a project manager assigned.");
+            AppUserDTO dto = projectManager.ToDTO();
+            dto.Role = Role.ProjectManager;
+            return dto;
         }
 
         public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user)
@@ -141,8 +146,8 @@ namespace WonderDevTracker.Services
                 ?? throw new InvalidOperationException($"Project with ID {project.Id} not found.");
             {
 
-                if(!string.IsNullOrWhiteSpace(project.Name)) dbProject.Name = project.Name;
-                if(project.Description is not null) dbProject.Description = project.Description;
+                if (!string.IsNullOrWhiteSpace(project.Name)) dbProject.Name = project.Name;
+                if (project.Description is not null) dbProject.Description = project.Description;
 
                 // Dates (treat as a unit if both are supplied; otherwise coalesce individually)
                 var newStart = project.StartDate ?? dbProject.StartDate;
@@ -156,7 +161,7 @@ namespace WonderDevTracker.Services
 
                 await projectRepository.UpdateProjectAsync(dbProject, user);
             }
-           
+
         }
         #endregion
 
@@ -165,6 +170,16 @@ namespace WonderDevTracker.Services
         public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
             await projectRepository.AddProjectMemberAsync(projectId, userId, user);
+        }
+
+        public async Task AssignProjectManagerAsync(int projectId, string managerId, UserInfo user)
+        {
+            await projectRepository.AssignProjectManagerAsync(projectId, managerId, user);
+        }
+
+        public async Task RemoveProjectManagerAsync(int projectId, UserInfo user)
+        {
+            await projectRepository.RemoveProjectManagerAsync(projectId, user);
         }
 
         public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
