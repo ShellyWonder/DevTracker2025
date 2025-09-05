@@ -25,7 +25,7 @@
 
                         @foreach (AppUserDTO member in Project.Members!)
                         {
-                            <div class="col">
+                            <div class="col" @key=member.Id>
                                 <ProjectTeamCard User="member" />
                             </div>
                         }
@@ -71,10 +71,10 @@
     //state holders
     private IEnumerable<AppUserDTO> _developers = [];
     private IEnumerable<AppUserDTO> _submitters = [];
-   
+
     private bool IsMemberDialogOpen = false;
-    private string? member;
-    
+
+
     //selected members -- bind to chip sets(IReadOnlyCollection is only option for chip sets))
     private IReadOnlyCollection<string> selectedDeveloperIds = [];
     private IReadOnlyCollection<string> selectedSubmitterIds = [];
@@ -92,7 +92,9 @@
         if (Project is null) return;
 
         //Get existing project members
-        ExistingMemberIds = Project.Members?.Select(m => m.Id) ?? [];
+        ExistingMemberIds = Project.Members is not null
+                            ? [.. Project.Members.Select(m => m.Id)]
+                            : [];
         try
         {
             //Get all available users in roles
