@@ -9,16 +9,20 @@ using WonderDevTracker.Services.Interfaces;
 namespace WonderDevTracker.Services
 {
     public class CompanyDTOService(ICompanyRepository repository, 
-                                   UserManager<ApplicationUser> userManager) : ICompanyDTOService
+                                   IServiceScopeFactory scopeFactory) : ICompanyDTOService
     {
         public async Task<IEnumerable<AppUserDTO>> GetUsersAsync(UserInfo userInfo)
         {
             IEnumerable<ApplicationUser> users = await repository.GetUsersAsync(userInfo);
+
+            await using var scope = scopeFactory.CreateAsyncScope();
+            var scopedUserManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
             List<AppUserDTO> dtos = [];
 
             foreach (ApplicationUser user in users)
             {
-                AppUserDTO dto = await user.ToDTOWithRole(userManager);
+                AppUserDTO dto = await user.ToDTOWithRole(scopedUserManager);
                 dtos.Add(dto);
             }
 
