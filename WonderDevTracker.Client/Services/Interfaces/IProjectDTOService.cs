@@ -70,23 +70,18 @@ namespace WonderDevTracker.Client.Services.Interfaces
 
         #region ADD/REMOVE METHODS
         /// <summary>
-        /// Assign Project Manager(PM)
+        /// Set Project Manager(PM)
         /// </summary>
-        /// <remarks>Assigns a PM to a specific project ; If there is an existing PM on the project, than the existing PM is replaced by the new PM</remarks>
+        /// <remarks>Assigns a PM to a specific project ; If there is an existing PM on the project, 
+        /// then the existing PM is replaced by the new PM. 
+        /// If there is no PM selected, return null 
+        /// & pm is unassigned</remarks>
         /// <param name="projectId">Project's Id</param>
         /// <param name="managerId"> Id of PM being assigned to a project</param>
         /// <param name="user">Current user's claims</param>
         /// 
-        public Task AssignProjectManagerAsync(int projectId, string managerId, UserInfo user);
-        /// <summary>
-        /// Remove Project Manager(PM)
-        /// </summary>
-        /// <remarks>Removes the PM from a specific project</remarks>
-        /// <param name="projectId">Project Id</param>
-        /// <param name="user">Current user's claims</param>
-        /// <returns></returns>
-        public Task RemoveProjectManagerAsync(int projectId, UserInfo user);
-
+        public Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user);
+       
         /// <summary>
         /// Add Project Member 
         /// /// </summary>

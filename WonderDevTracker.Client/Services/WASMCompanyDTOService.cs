@@ -21,7 +21,7 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public async Task<IEnumerable<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
+        public async Task<IReadOnlyList<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
 
             try

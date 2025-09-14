@@ -69,6 +69,22 @@ namespace WonderDevTracker.Services.Repositories
         {
             throw new NotImplementedException();
         }
+        public async Task<string?> GetProjectManagerIdAsync(int projectId, UserInfo user)
+        {
+            IEnumerable<ApplicationUser> members = await GetProjectMembersAsync(projectId, user);
+
+            foreach (var member in members)
+            {
+                if (await userManager.IsInRoleAsync(member, nameof(Role.ProjectManager)))
+                {
+                    return member.Id; // <-- only return the userId, not the full ApplicationUser
+                }
+            }
+
+            return null;
+          
+        }
+
 
         public async Task<ApplicationUser?> GetProjectManagerAsync(int projectId, UserInfo user)
         {
@@ -228,46 +244,44 @@ namespace WonderDevTracker.Services.Repositories
         #endregion
 
         #region ADD/REMOVE METHODS
-
-        public async Task AssignProjectManagerAsync(int projectId, string managerId, UserInfo user)
+        //Remove any existing PM and assign the new PM (if any)
+        public async Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user)
         {
-            bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
-            if (!IsRoleAuthorized) return;
+            if (!await IsUserAuthorizedToEditProject(projectId, user)) return;
 
-            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
-            //Look up project ~ already confirmed project is not null by IsUserAuthorizedToUpdateProject()
-            ApplicationUser? newPM = await db.Users
-                                        .FirstOrDefaultAsync(u => u.Id == managerId && u.CompanyId == user.CompanyId);
-            //Is PM null or not a project manager? Cannot be assigned to the project
-            if (newPM is null || await userManager.IsInRoleAsync(newPM, nameof(Role.ProjectManager)) == false) return;
+            await using var db = await contextFactory.CreateDbContextAsync();
 
-            Project project = await db.Projects
-                    .Include(p => p.Members)
-                    .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+            var project = await db.Projects
+                .Include(p => p.Members)
+                .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
 
-            ApplicationUser? previousPM = await GetProjectManagerAsync(projectId, user);
-            if (previousPM?.Id == newPM.Id)
+            // remove any current PMs
+            var toRemove = new List<ApplicationUser>();
+            foreach (var m in project.Members!)
+                if (await userManager.IsInRoleAsync(m, nameof(Role.ProjectManager)))
+                    toRemove.Add(m);
+
+            foreach (var pm in toRemove)
+                project.Members!.Remove(pm);
+
+            // if managerId is null/empty → it's just a removal
+            if (string.IsNullOrWhiteSpace(managerId))
             {
+                await db.SaveChangesAsync();
                 return;
-
             }
-            else if (previousPM is not null)
-            {
-                ApplicationUser userToRemove = project.Members!.First(m => m.Id == previousPM.Id);
-                //remove previous PM from project
-                project.Members!.Remove(userToRemove);
+            // validate new PM
+            var newPm = await db.Users
+                .FirstOrDefaultAsync(u => u.Id == managerId && u.CompanyId == user.CompanyId);
+            if (newPm is null) return;
+            if (!await userManager.IsInRoleAsync(newPm, nameof(Role.ProjectManager))) return;
 
-            }
+            if (!project.Members!.Any(m => m.Id == newPm.Id))
+                project.Members!.Add(newPm);
 
-            project.Members!.Add(newPM);
             await db.SaveChangesAsync();
         }
 
-
-        public Task RemoveProjectManagerAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
         public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
             bool IsRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
@@ -348,6 +362,8 @@ namespace WonderDevTracker.Services.Repositories
                 .AnyAsync(p => isAdmin || p.Members!.Any(m => m.Id == user.UserId));
             return IsRoleAuthorized;
         }
+
+
         #endregion
     }
 }

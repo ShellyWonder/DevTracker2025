@@ -80,6 +80,8 @@ namespace WonderDevTracker.Client.Models.DTOs
                 : null;
         }
 
+        [Description("Id of the assigned Project Manager (null if none)")]
+        public string? ProjectManagerId { get; set; }
 
         [JsonIgnore]
         [Required(ErrorMessage = "End Date is required and must follow the start date")]

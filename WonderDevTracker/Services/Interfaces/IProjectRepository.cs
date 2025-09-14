@@ -34,6 +34,20 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>Assigned PM or Null if one is not assigned</returns>
         public Task<ApplicationUser?> GetProjectManagerAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Get Project Manager Id
+        /// </summary>
+        /// <remarks>
+        /// This DTO-oriented method exists to provide a lightweight, authoritative way of identifying the
+        /// Project Manager without materializing an entire <see cref="ApplicationUser"/> entity.
+        /// This method should always be used in conjunction 
+        /// with <see cref="SetProjectManagerAsync"/>
+        /// to guarantee that reads and writes of PM assignments remain consistent.</remarks>
+        /// <param name="projectId">queried project's id</param>
+        /// <param name="user">Current user's claims</param>
+        /// <returns>ProjectManager id to the client</returns>
+        Task<string?> GetProjectManagerIdAsync(int projectId, UserInfo user);
         public Task<IEnumerable<ApplicationUser>> GetProjectDevelopersAsync(int projectId, UserInfo user);
         public Task<IEnumerable<ApplicationUser>> GetProjectSubmittersAsync(int projectId, UserInfo user);
         public Task<IEnumerable<ApplicationUser>> GetProjectMembersByRoleAsync(int projectId, UserInfo user);
@@ -72,24 +86,20 @@ namespace WonderDevTracker.Services.Interfaces
 
         public Task UpdateProjectAsync(Project project, UserInfo user);
 
+        #region Project Manager(PM) & Project Members
         /// <summary>
-        /// Assign Project Manager(PM)
+        /// Set Project Manager 
         /// </summary>
-        /// <remarks>Assigns a PM to a specific project ; If there is an existing PM on the project, than the existing PM is replaced by the new PM</remarks>
-        /// <param name="projectId">Project's Id</param>
-        /// <param name="managerId"> Id of PM being assigned to a project</param>
-        /// <param name="user">Current user's claims</param>
-        public Task AssignProjectManagerAsync(int projectId, string managerId, UserInfo user);
-
-        /// <summary>
-        /// Remove Project Member 
-        /// /// </summary>
-        /// <remarks>
-        /// Removes a member from a specific project
+        /// <remarks>Sets or clears the PM for a specific project ; 
+        /// If there is an existing PM on the project, than the existing PM is replaced by the new PM ; 
+        /// Pass null to clear the PM assignment.
+        /// Existing SetProjectManagerAsync and AssignProjectManagerAsync methods
+        /// are retained for backward compatibility.
         /// </remarks>
         /// <param name="projectId">Project Id</param>
-        /// <param name="user">Current users claims</param>
-        public Task RemoveProjectManagerAsync(int projectId, UserInfo user);
+        /// <param name="managerId">PM user Id (or null to remove)</param>
+        /// <param name="user">Current user's claims</param>
+        public Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user);
 
         /// <summary>
         /// Add Project Member 
@@ -112,7 +122,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="userId">Id of the member to remove from the project</param>
         /// <param name="user">Current users claims</param>
         public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user);
-
+        #endregion
         #endregion
 
         #region Archive (Delete) Methods

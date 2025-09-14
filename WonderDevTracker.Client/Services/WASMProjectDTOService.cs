@@ -99,7 +99,7 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetProjectMembersExceptPMAsync(int projectId, UserInfo user)
+        public Task<IEnumerable<AppUserDTO>> GetProjectMembersAsync(int projectId, UserInfo user)
         {
             throw new NotImplementedException();
         }
@@ -135,6 +135,26 @@ namespace WonderDevTracker.Client.Services
         }
 
         public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AssignProjectManagerAsync(int projectId, string managerId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveProjectManagerAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveProjectMemberAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user)
         {
             throw new NotImplementedException();
         }
