@@ -1,126 +1,147 @@
 ﻿@* ProjectGeneralInfo *@
 @using WonderDevTracker.Client.Components.UIComponents.ProjectComponents.Dialogs
-@using MudBlazor
 
 @inject IDialogService DialogService
 
 <AnimatedCard Index="Index">
-    <MudCardHeader>
-        <CardHeaderContent>
-            <div class="d-flex justify-content-between">
-                <ProjectName Project="Project" />
-                @if (Project.Archived)
-                {
-                    <MudText Typo="Typo.caption">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<div class="d-flex justify-content-between">
+				<ProjectName Project="Project" />
+				@if (Project.Archived)
+				{
+					<MudText Typo="Typo.caption">
 
-                        <MudChip T="string"
-                                 Color="Color.Error"
-                                 Size="Size.Medium"
-                                 aria-label="Archived Project">
-                            Archived
-                        </MudChip>
-                    </MudText>
-                }
-                else
-                {
-                    @*  <MudIconButton Icon="@Icons.Material.Filled.Edit"
+						<MudChip T="string"
+								 Color="Color.Error"
+								 Size="Size.Medium"
+								 aria-label="Archived Project">
+							Archived
+						</MudChip>
+					</MudText>
+				}
+				else
+				{
+					@*  <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                    Size="Size.Small"
                                    Color="Color.Tertiary"
                                    OnClick=""
                                    aria-label="Edit Project Name" /> *@
 
-                }
-            </div>
-            <ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
+				}
+			</div>
+			<ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
 
-            <div class="mt-3">
-                <ProjectTeamCard User="null"
-                                 PlaceholderName="Unassigned"
-                                 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
+			<div class="mt-3">
+				<ProjectTeamCard User="SelectedPM"
+								 PlaceholderName="Unassigned"
+								 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
 
-                <AuthorizeView Roles="@($"{Role.Admin}")">
-                    <SafeNavButton Valid="true"
-                                   Color="Color.Tertiary"
-                                   Variant="Variant.Text"
-                                   Size="Size.Small"
-                                   Class="project-details-link"
-                                   StartIcon="@Icons.Material.Filled.Group"
-                                   OnClick="()=>isPMDialogVisible = true"
-                                   TypeText="Assign New Project Manager" />
-                </AuthorizeView>
-            </div>
-        </CardHeaderContent>
-    </MudCardHeader>
-    <MudCardActions>
-        <PriorityChip Priority="Project.Priority" />
-    </MudCardActions>
+				<AuthorizeView Roles="@($"{Role.Admin}")">
+					<SafeNavButton Valid="true"
+								   Color="Color.Tertiary"
+								   Variant="Variant.Text"
+								   Size="Size.Small"
+								   Class="project-details-link"
+								   StartIcon="@Icons.Material.Filled.Group"
+								   OnClick="OpenPmDialog"
+								   TypeText="Assign New Project Manager" />
+				</AuthorizeView>
+			</div>
+		</CardHeaderContent>
+	</MudCardHeader>
+	<MudCardActions>
+		<PriorityChip Priority="Project.Priority" />
+	</MudCardActions>
 </AnimatedCard>
 
 @* ProjectManagerDialog (select Dropdown) *@
 <MudDialog @bind-Visible="isPMDialogVisible">
-    <TitleContent>
-        <MudText Typo="Typo.h3" Color="Color.Primary">Assign Project Manager</MudText>
-    </TitleContent>
-    <DialogContent>
-        
-        <ProjectTeamCard User="ProjectManagers.FirstOrDefault(pm => pm.Id == ProjectManagerId)"
-                         PlaceholderName="Unassigned"
-                         PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
-        <MudSelect Label="Project Manager"
-                   @bind-Value="ProjectManagerId"
-                   Variant="Variant.Filled"
-                   Class="mt-3"
-                   Clearable>
-            @foreach (AppUserDTO user in ProjectManagers)
-            {
-                <MudSelectItem Value="user.Id">
-                    @user.FullName
-                </MudSelectItem>
-            }
+	<TitleContent>
+		<MudText Typo="Typo.h3" Color="Color.Primary">Assign Project Manager</MudText>
+	</TitleContent>
+	<DialogContent>
 
-        </MudSelect>
-    </DialogContent>
-    <DialogActions>
-        <div class="text-end">
-            <CancelBtn ButtonType="ButtonType.Button"
-                       DisplayText="Cancel"
-                       />
+		<ProjectTeamCard User="SelectedPM"
+						 PlaceholderName="Unassigned"
+						 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
 
-            <SubmitBtn ButtonType="ButtonType.Submit"
-                       DisplayText="Submit"
-                        />
-        </div>
-    </DialogActions>
+		<MudSelect T="string"
+				   Label="Project Manager"
+				   @bind-Value="ProjectManagerId"
+				   Variant="Variant.Filled"
+				   Class="mt-3"
+				   Immediate="true"
+				   Clearable>
+			@foreach (AppUserDTO user in ProjectManagers)
+			{
+				<MudSelectItem T="string" Value="@user.Id">
+					@user.FullName
+				</MudSelectItem>
+			}
+
+		</MudSelect>
+	</DialogContent>
+	<DialogActions>
+		<div class="text-end">
+			<CancelBtn ButtonType="ButtonType.Button"
+					   DisplayText="Cancel"
+					   OnClick="HandleCancelAsync" />
+
+			<SubmitBtn ButtonType="ButtonType.Button"
+					   DisplayText="Save"
+					   OnClick="HandleSubmitAsync" />
+		</div>
+	</DialogActions>
 </MudDialog>
 
 @code {
-    [Parameter, EditorRequired]
-    public ProjectDTO Project { get; set; } = default!;
+	[Parameter, EditorRequired]
+	public ProjectDTO Project { get; set; } = default!;
 
-    [Parameter, EditorRequired]
-    public int Index { get; set; }
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
 
-    // Parent wires this to show a snackbar at page level
-    [Parameter]
-    public EventCallback<(string Message, Severity Severity)> OnEditResult { get; set; }
 
-    [Parameter, EditorRequired]
-    public IEnumerable<AppUserDTO> ProjectManagers { get; set; } = [];
+	[Parameter, EditorRequired]
+	public IReadOnlyList<AppUserDTO> ProjectManagers { get; set; } = Array.Empty<AppUserDTO>();
 
-    [Parameter]
-    public string? ProjectManagerId { get; set; }
+	[Parameter]
+	public string? ProjectManagerId { get; set; }
 
-    [Parameter]
-    public EventCallback<string?> ProjectManagerIdChanged { get; set; }
+	[Parameter]
+	public EventCallback<string?> ProjectManagerIdChanged { get; set; }
 
-    private bool isPMDialogVisible = false;
-   
+	// parent persistence hook
+	[Parameter]
+	public EventCallback<string?> OnSaveProjectManagerRequested { get; set; }
 
-    //reacts locally when the selection changes:
-    private async Task OnPmChanged(string? id)
-    {
-        ProjectManagerId = id;
-        await ProjectManagerIdChanged.InvokeAsync(id);
-    }
+	private AppUserDTO? SelectedPM => ProjectManagers.FirstOrDefault(pm => pm.Id == ProjectManagerId);
+
+	private bool isPMDialogVisible = false;
+	private string? _originalPmId;
+
+
+	private void OpenPmDialog()
+	{
+		_originalPmId = ProjectManagerId;    // snapshot current selection
+		isPMDialogVisible = true;
+	}
+
+	private async Task HandleCancelAsync()
+	{
+		// restore original selection and notify parent (because it's bound)
+		ProjectManagerId = _originalPmId;
+		await ProjectManagerIdChanged.InvokeAsync(_originalPmId);
+
+		isPMDialogVisible = false;
+	}
+
+	private async Task HandleSubmitAsync()
+	{
+		await OnSaveProjectManagerRequested.InvokeAsync(ProjectManagerId);
+		isPMDialogVisible = false;
+	}
+
 }
 

@@ -60,6 +60,9 @@ namespace WonderDevTracker.Services
             ProjectDTO projectDTO = project.ToDTO();
 
             projectDTO.Members = members;
+            //map projectManagerId so it is explicitly available to client;
+            //Blazor can now easily highlight the PM by comparing member.id with projectManagerId.
+            projectDTO.ProjectManagerId = await projectRepository.GetProjectManagerIdAsync(projectId, user);
             return projectDTO;
         }
 
@@ -172,15 +175,12 @@ namespace WonderDevTracker.Services
             await projectRepository.AddProjectMemberAsync(projectId, userId, user);
         }
 
-        public async Task AssignProjectManagerAsync(int projectId, string managerId, UserInfo user)
+        public async Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user)
         {
-            await projectRepository.AssignProjectManagerAsync(projectId, managerId, user);
+            // Use the unified setter to avoid legacy paths
+            await projectRepository.SetProjectManagerAsync(projectId, managerId, user);
         }
-
-        public async Task RemoveProjectManagerAsync(int projectId, UserInfo user)
-        {
-            await projectRepository.RemoveProjectManagerAsync(projectId, user);
-        }
+       
 
         public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
         {

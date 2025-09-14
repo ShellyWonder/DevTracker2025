@@ -25,8 +25,9 @@
 
                         @foreach (AppUserDTO member in Project.Members!)
                         {
+                            bool isPm = member.Id == Project.ProjectManagerId;
                             <div class="col" @key=member.Id>
-                                <ProjectTeamCard User="member" />
+                                <ProjectTeamCard User="member" IsPM="isPm" />
                             </div>
                         }
                     </div>
@@ -65,6 +66,12 @@
     [Parameter, EditorRequired]
     public int Index { get; set; }
 
+    //from parent ProjectDetails -- triggers an update to the members list
+    [Parameter]
+    public Guid RefreshToken { get; set; }
+
+    private Guid _membersRefreshToken;
+
     [Parameter]
     public EventCallback OnClose { get; set; }
 
@@ -73,9 +80,9 @@
     private IEnumerable<AppUserDTO> _submitters = [];
 
     private bool IsMemberDialogOpen = false;
+ 
 
-
-    //selected members -- bind to chip sets(IReadOnlyCollection is only option for chip sets))
+    //selected members -- bind to chip sets(IReadOnlyCollection is only option for chip sets)
     private IReadOnlyCollection<string> selectedDeveloperIds = [];
     private IReadOnlyCollection<string> selectedSubmitterIds = [];
 
@@ -84,7 +91,15 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await RebuildRoleBuckets();
+        // Always handle the first render
+        bool firstRender = _membersRefreshToken == Guid.Empty;
+
+        // Rebuild if the parent signaled a change
+        if (firstRender || RefreshToken != _membersRefreshToken)
+        {
+            _membersRefreshToken = RefreshToken;
+            await RebuildRoleBuckets();
+        }
     }
 
     private async Task RebuildRoleBuckets()
@@ -123,7 +138,7 @@
             // Refresh your tracking list
             await RebuildRoleBuckets();
 
-            StateHasChanged(); // force re-render
+            await InvokeAsync(StateHasChanged); // force re-render
 
         });
     }

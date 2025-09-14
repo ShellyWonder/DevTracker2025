@@ -25,14 +25,20 @@
 
         <div class="vstack gap-3">
 
+            <!-- Sibling A: General Info (bind PM) -->
             <ProjectGeneralInfo Project="project"
                                 Index="@IndexTracker.Next()"
                                 ProjectManagers="projectManagers"
-                                @bind-ProjectManagerId="projectManagerId"
-                                OnEditResult="HandleEditResult" />
+                                @bind-ProjectManagerId="project.ProjectManagerId"
+                                OnSaveProjectManagerRequested="HandleSavePMAsync" />
 
             <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
-            <ProjectMembers Project="project" Index="@IndexTracker.Next()" />
+            
+            <!-- Sibling B: receive the same 'project' plus a refresh token -->
+            <ProjectMembers Project="project"
+                            RefreshToken="_membersRefreshToken"
+                            Index="@IndexTracker.Next()" />
+
             <ProjectTickets Project="project" Index="@IndexTracker.Next()" />
 
         </div>
@@ -124,6 +130,7 @@
 @code {
     [Parameter]
     public int ProjectId { get; set; }
+
     private ProjectDTO? project;
 
     private List<BreadcrumbItem> breadcrumbs = [];
@@ -133,27 +140,28 @@
     private MudMessageBox? _archiveMessageBox;
     private MudMessageBox? _restoreMessageBox;
 
-    //NOTE: Binding to ProjectManagerId (string) instead of ProjectManager 
+    //NOTE: Binding to projectManagerId (string) instead of ProjectManager
     // (AppUserDTO) to avoid issues with MudSelect and complex objects
     private string? projectManagerId;
-    private IEnumerable<AppUserDTO> projectManagers = [];
-   
+
+    // Refresh ProjectMembers component when there is a change to project Manager assignment.
+    private Guid _membersRefreshToken = Guid.NewGuid();
+
+    private IReadOnlyList<AppUserDTO> projectManagers = Array.Empty<AppUserDTO>();
 
     protected override async Task OnInitializedWithAuthAsync()
     {
         try
         {
             project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
             if (project is not null)
             {
                 projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
-                projectManagerId = project.Members?.FirstOrDefault(m => m.Role == Role.ProjectManager)?.Id;
-                
             }
         }
         catch (Exception ex)
         {
-
             Console.WriteLine(ex);
             Snackbar.Add("Error loading project details.", Severity.Error);
         }
@@ -169,10 +177,6 @@
         };
 
     }
-    private void HandleEditResult((string Message, Severity Severity) result)
-    {
-        Snackbar.Add(result.Message, result.Severity);
-    }
 
     private async Task ConfirmArchiveAsync()
     {
@@ -182,6 +186,7 @@
         }
 
     }
+
     private async Task ConfirmRestoreAsync()
     {
         if (_restoreMessageBox is not null)
@@ -195,10 +200,11 @@
     {
 
         if (project is null) return;
+
+        var projectName = project.Name; // Cache the name
         try
         {
-            var projectName = project.Name; // Cache the name
-                                            //archive project
+            //archive project
             await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
 
             // //refresh project details to show archived status
@@ -207,24 +213,18 @@
             if (project != null) project.Archived = true;
 
 
-            Snackbar.Add($"The Project '{projectName}' has been archived", Severity.Success);
+            await InvokeAsync(() => Snackbar.Add($"The Project '{projectName}' has been archived", Severity.Success));
 
             // Navigate back to projects list
             NavManager.NavigateTo("/projects");
+            return;
 
-            if (project == null)
-            {
-                Snackbar.Add("The project could not be found after archiving.", Severity.Error);
-                return;
-            }
-
-            Snackbar.Add($"The Project has been archived", Severity.Success);
         }
         catch (Exception ex)
         {
 
             Console.WriteLine(ex);
-            Snackbar.Add($"The Project is not available to be archived");
+            Snackbar.Add($"{projectName} is not available to be archived");
         }
     }
 
@@ -234,7 +234,7 @@
         try
         {
             var projectName = project.Name; // Cache the name
-                                            //restore project
+            //restore project
             await ProjectService.RestoreProjectByIdAsync(project.Id, UserInfo!);
 
             //refresh project details to show restored status
@@ -258,5 +258,34 @@
             Snackbar.Add($"The Project is not available to be restored");
         }
     }
+
+    private async Task HandleSavePMAsync(string? newPMId)
+    {
+        if (project is null) return;
+
+        try
+        {
+			// single unified call handles add/remove/replace of PM
+            await ProjectService.SetProjectManagerAsync(project.Id, newPMId, UserInfo!);
+
+            // Refetch authoritative DTO (ProjectManagerId already populated)
+            project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+            _membersRefreshToken = Guid.NewGuid();
+
+            Snackbar.Add("Project Manager updated.", Severity.Success);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+            
+                await InvokeAsync(() => Snackbar.Add("Unable to update Project Manager.", Severity.Error));
+        }
+
+
+    }
+
 }
 
