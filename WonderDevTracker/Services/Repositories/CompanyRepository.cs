@@ -9,7 +9,7 @@ using WonderDevTracker.Services.Interfaces;
 namespace WonderDevTracker.Services.Repositories
 {
     public class CompanyRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
-                                   UserManager<ApplicationUser> userManager ) : ICompanyRepository
+                                   IServiceScopeFactory scopeFactory) : ICompanyRepository
     {
         #region GET ALL USERS BY COMPANY ID
         public async Task<IEnumerable<ApplicationUser>> GetUsersAsync(UserInfo userInfo)
@@ -27,7 +27,8 @@ namespace WonderDevTracker.Services.Repositories
         #region GET USERS IN ROLE 
         public async Task<IReadOnlyList<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
-            await using var context = contextFactory.CreateDbContext();
+            await using var scope = scopeFactory.CreateAsyncScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var usersInRole = await userManager.GetUsersInRoleAsync(role.ToString());
             return [.. usersInRole.Where(u => u.CompanyId == userInfo.CompanyId)];
         }
