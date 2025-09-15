@@ -12,7 +12,7 @@ namespace WonderDevTracker.Client.Services
             try
             {
                 List<AppUserDTO> users = await http.GetFromJsonAsync<List<AppUserDTO>>("api/company/users") ?? [];
-                return users;
+                return users ?? [];
             }
             catch (Exception ex)
             {
@@ -26,7 +26,7 @@ namespace WonderDevTracker.Client.Services
 
             try
             {
-                List<AppUserDTO> users = await http.GetFromJsonAsync<List<AppUserDTO>>($"api/companies/users?role={role}") ?? [];
+                List<AppUserDTO> users = await http.GetFromJsonAsync<List<AppUserDTO>>($"api/company/users?role={role}") ?? [];
                 return users;
             }
             catch (Exception ex)
