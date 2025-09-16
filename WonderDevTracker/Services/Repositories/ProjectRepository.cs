@@ -46,6 +46,7 @@ namespace WonderDevTracker.Services.Repositories
             IEnumerable<Project> projects = await db.Projects
                      //match the company id of the user & also ensure the project is not archived
                      .Where(p => p.CompanyId == user.CompanyId && p.Archived == false)
+                     .Include(p => p.Members)
                      .ToListAsync();
             return projects;
 

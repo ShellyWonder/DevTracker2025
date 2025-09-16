@@ -21,7 +21,7 @@ namespace WonderDevTracker.Client.Services
                 Console.WriteLine(ex);
                 return [];
             }
-          
+
         }
 
         public async Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user)
@@ -43,13 +43,13 @@ namespace WonderDevTracker.Client.Services
         #region CREATE PROJECT
         public async Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user)
         {
-           var response = await http.PostAsJsonAsync("api/Projects", project);
+            var response = await http.PostAsJsonAsync("api/Projects", project);
             response.EnsureSuccessStatusCode();
-            
-                var createdProject = await response.Content.ReadFromJsonAsync<ProjectDTO>() ?? throw new HttpIOException(HttpRequestError.InvalidResponse);
 
-                return createdProject;
-         
+            var createdProject = await response.Content.ReadFromJsonAsync<ProjectDTO>() ?? throw new HttpIOException(HttpRequestError.InvalidResponse);
+
+            return createdProject;
+
         }
         #endregion
 
@@ -62,10 +62,10 @@ namespace WonderDevTracker.Client.Services
         #endregion
 
         #region ARCHIVE/RESTORE PROJECT
-        
-        public  async Task ArchiveProjectAsync(int projectId, UserInfo user)
+
+        public async Task ArchiveProjectAsync(int projectId, UserInfo user)
         {
-            var response =  await http.PatchAsync($"api/Projects/{projectId}/archive", null);
+            var response = await http.PatchAsync($"api/Projects/{projectId}/archive", null);
             response.EnsureSuccessStatusCode();
 
         }
@@ -89,9 +89,24 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user)
+        public async Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.GetFromJsonAsync<AppUserDTO?>($"api/Projects/{projectId}/pm");
+            return response;
+
+        }
+
+        public async Task AssignProjectManagerAsync(int projectId, string userId, UserInfo user)
+        {
+            // No body needed; route carries userId
+            var response = await http.PutAsync($"api/Projects/{projectId}/pm/{userId}", content: null);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task RemoveProjectManagerAsync(int projectId, UserInfo user)
+        {
+            var response = await http.DeleteAsync($"api/Projects/{projectId}/pm");
+            response.EnsureSuccessStatusCode();
         }
 
         public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user)
@@ -99,9 +114,18 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetProjectMembersAsync(int projectId, UserInfo user)
+        public async Task<IEnumerable<AppUserDTO>> GetProjectMembersAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<AppUserDTO> users = await http.GetFromJsonAsync<List<AppUserDTO>>($"api/Projects/{projectId}/members") ?? [];
+                return (users);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return [];
+            }
         }
 
         public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user)
@@ -129,34 +153,29 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
+        public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.PutAsync($"api/Projects/{projectId}/members/{userId}", null);  //null because no body needed
+            response.EnsureSuccessStatusCode();
         }
 
-        public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
+        public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.DeleteAsync($"api/Projects/{projectId}/members/{userId}");
+            response.EnsureSuccessStatusCode();
         }
 
-        public Task AssignProjectManagerAsync(int projectId, string managerId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RemoveProjectManagerAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public Task RemoveProjectMemberAsync(int projectId, UserInfo user)
         {
             throw new NotImplementedException();
         }
 
-        public Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user)
+        public async Task SetProjectManagerAsync(int projectId, string? userId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.PutAsJsonAsync($"api/Projects/{projectId}/pm", new { UserId = userId });
+            response.EnsureSuccessStatusCode();
         }
     }
+    
 }

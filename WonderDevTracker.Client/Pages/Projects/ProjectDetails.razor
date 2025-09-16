@@ -265,8 +265,14 @@
 
         try
         {
-			// single unified call handles add/remove/replace of PM
-            await ProjectService.SetProjectManagerAsync(project.Id, newPMId, UserInfo!);
+            if (string.IsNullOrWhiteSpace(newPMId))
+            {
+                await ProjectService.RemoveProjectManagerAsync(ProjectId, UserInfo!);
+            }
+            else
+            {
+                await ProjectService.AssignProjectManagerAsync(ProjectId, newPMId, UserInfo!);
+            }
 
             // Refetch authoritative DTO (ProjectManagerId already populated)
             project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);

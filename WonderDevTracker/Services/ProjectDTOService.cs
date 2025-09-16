@@ -175,17 +175,26 @@ namespace WonderDevTracker.Services
             await projectRepository.AddProjectMemberAsync(projectId, userId, user);
         }
 
+        public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            await projectRepository.RemoveProjectMemberAsync(projectId, userId, user);
+        }
+
+        public async Task AssignProjectManagerAsync(int projectId, string userId, UserInfo user)
+        {
+            await projectRepository.SetProjectManagerAsync(projectId, userId, user);
+        }
+        public async Task RemoveProjectManagerAsync(int projectId, UserInfo user)
+        {
+            await projectRepository.SetProjectManagerAsync(projectId, null, user);
+        }
+
         public async Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user)
         {
             // Use the unified setter to avoid legacy paths
             await projectRepository.SetProjectManagerAsync(projectId, managerId, user);
         }
-       
 
-        public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
-        {
-            await projectRepository.RemoveProjectMemberAsync(projectId, userId, user);
-        }
         #endregion
     }
 }

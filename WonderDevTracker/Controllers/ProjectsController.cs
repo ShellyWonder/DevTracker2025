@@ -89,14 +89,14 @@ namespace WonderDevTracker.Controllers
         /// <remarks>Update details of an existing project.User must be company admin or assigned PM of project</remarks>
         /// <param name="project">Updated project details.</param>
         /// <param name="projectId">The ID of the project to update.</param>
-        
+
         [HttpPut("{projectId:int}")]
         [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
         public async Task<IActionResult> UpdateProject([FromRoute] int projectId, [FromBody] ProjectDTO project)
         {
-            
+
             if (projectId != project.Id) return BadRequest("Project ID mismatch.");
-            
+
             await projectService.UpdateProjectAsync(project, UserInfo);
             return NoContent();
         }
@@ -114,9 +114,9 @@ namespace WonderDevTracker.Controllers
 
         [HttpPatch("{projectId:int}/archive")]
         [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
-        public async Task<IActionResult> ArchiveProject([FromRoute]int projectId)
+        public async Task<IActionResult> ArchiveProject([FromRoute] int projectId)
         {
-           
+
             await projectService.ArchiveProjectAsync(projectId, UserInfo);
             return NoContent();
         }
@@ -132,10 +132,135 @@ namespace WonderDevTracker.Controllers
         [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
         public async Task<IActionResult> RestoreProject([FromRoute] int projectId)
         {
-           
+
             await projectService.RestoreProjectByIdAsync(projectId, UserInfo);
             return NoContent();
         }
         #endregion
+
+        #region UPDATE PROJECT MEMBERS
+        /// <summary>
+        /// Add Project Member
+        /// </summary>
+        /// <param name="projectId">project id</param>
+        /// <param name="userId">Company member(user) id</param>
+        /// <remarks>Adds a company member(user) to a specific project. 
+        /// User making the change must be an Admin
+        /// or the assigned Project Manager to add members to the project.
+        /// 
+        /// *NOTE:Project Manager must be assigned or removed through SetProjectManager enpoint.
+        /// Admins cannot be assigned to projects.*
+        /// </remarks>
+
+        [HttpPut("{projectId:int}/members/{userId}")] //api/ projects/1/members/123
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> AddProjectMember([FromRoute] int projectId, [FromRoute] string userId)
+        {
+            await projectService.AddProjectMemberAsync(projectId, userId, UserInfo);
+            return NoContent();
+        }
+        #endregion
+
+        #region GET PROJECT MEMBERS
+        /// <summary>
+        /// Get Project Members
+        /// </summary>
+        /// <param name="projectId">Project Id</param>
+        /// <remarks>Retrieves all members assigned to a specific project.
+        /// 
+        /// *NOTE: Only Admin or assigned Project Manager may add a member.*
+        /// Admins cannot belong to projects.
+        /// Project Managers can only be assigned to a project
+        /// via the *SetProjectManager* endpoint.
+        /// </remarks>
+        [HttpGet("{projectId:int}/members")]
+        public async Task<ActionResult<IEnumerable<AppUserDTO>>> GetProjectMembers([FromRoute] int projectId)
+        {
+            var members = await projectService.GetProjectMembersAsync(projectId, UserInfo);
+
+            return Ok(members);
+        }
+
+        #endregion
+
+        #region REMOVE PROJECT MEMBER
+
+        /// <summary>
+        /// Remove Project Member
+        /// </summary>
+        /// <param name="projectId">Project Id</param>
+        /// <param name="userId">Id of member(user) being removed from the project.</param>
+        /// <remarks>Remove an assigned member for a project.
+        /// 
+        /// *NOTE: Only Admin or assigned Project Manager may remove a member.*
+        /// Admins cannot belong to projects.
+        /// Project Managers can only be removed from a project
+        /// via the *SetProjectManager* endpoint.
+        /// </remarks>
+        [HttpDelete("{projectId:int}/members/{userId}")] //api/projects/1/members/123
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> RemoveProjectMember([FromRoute] int projectId, [FromRoute] string userId)
+        {
+            await projectService.RemoveProjectMemberAsync(projectId, userId, UserInfo);
+            return NoContent();
+        }
+        #endregion
+
+        #region GET PROJECT MANAGER
+        /// <summary>
+        /// Get Project Manager
+        /// </summary>
+        /// <param name="projectId">Project Id</param>
+        /// <remarks>Get the manager assigned to the project if one exists</remarks>
+
+        [HttpGet("{projectId:int}/pm")]
+        public async Task<ActionResult<AppUserDTO?>> GetProjectManager([FromRoute] int projectId)
+        {
+            var pm = await projectService.GetProjectManagerAsync(projectId, UserInfo);
+
+            if (pm is null) return NotFound();
+
+            return Ok(pm);
+        }
+        #endregion
+
+        #region SET PROJECT MANAGER
+        /// <summary>
+        /// Assign Project Manager
+        /// </summary>
+        /// <param name="projectId">Project Id</param>
+        /// <param name="userId"> Id of the member in the project manager role </param>
+        /// <remarks>Assign a Project Manager to this project.
+        /// *NOTE: Only Admin or assigned Project Manager may remove a project manager.*
+        /// Admins cannot belong to projects.</remarks>
+
+        //api/Projects/{projectId}/pm/{userId}
+        [HttpPut("{projectId:int}/pm/{userId}")]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> AssignProjectManager([FromRoute] int projectId, [FromRoute] string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return BadRequest("UserId is required.");
+            await projectService.SetProjectManagerAsync(projectId, userId, UserInfo);
+            return NoContent();
+        }
+        #endregion
+
+        #region CLEAR PROJECT MANAGER
+        /// <summary>
+        /// Clear Project Manager
+        /// </summary>
+        /// <param name="projectId">Project Id</param>
+        /// <remarks>Remove a Project Manager from this project.
+        /// *NOTE: Only Admin or assigned Project Manager may remove a project manager.*
+        /// Admins cannot belong to projects.</remarks>
+        [HttpDelete("{projectId:int}/pm")]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> ClearProjectManager([FromRoute] int projectId)
+        {
+            await projectService.SetProjectManagerAsync(projectId, null, UserInfo);
+            return NoContent();
+        }
+        #endregion
     }
+    
 }

@@ -76,21 +76,21 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// then the existing PM is replaced by the new PM. 
         /// If there is no PM selected, return null 
         /// & pm is unassigned</remarks>
-        /// <param name="projectId">Project's Id</param>
+        /// <param name="projectId">The unique identifier of the project to which the manager will be assigned.</param>
         /// <param name="managerId"> Id of PM being assigned to a project</param>
         /// <param name="user">Current user's claims</param>
         /// 
         public Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user);
-       
+
         /// <summary>
         /// Add Project Member 
         /// /// </summary>
         /// <remarks>
         /// Assigns a company user to a specific project
         /// </remarks>
-        /// <param name="projectId">Project Id</param>
+        /// <param name="projectId">The unique project identifier to which the member will be assigned.</param>
         /// <param name="userId">User id</param>
-        /// <param name="user">Current users claims</param>
+        /// <param name="user">Current user's claims</param>
         public Task AddProjectMemberAsync(int projectId, string userId, UserInfo user);
 
         /// <summary>
@@ -100,9 +100,30 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// Removes a member from a specific project
         /// </remarks>
         /// <param name="projectId">Project Id</param>
-        /// <param name="userId">User id</param>
-        /// <param name="user">Current users claims</param>
+        /// <param name="userId">User id of member to be removed</param>
+        /// <param name="user">Current user's claims</param>
         public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user);
+
+        /// <summary>
+        ///Assign Project Manager
+        /// </summary>
+        /// <remarks>This method assigns the specified user as the project manager for the given project. 
+        /// The caller must ensure that the user has the necessary permissions to perform this operation.</remarks>
+        /// <param name="projectId">The unique identifier of the existing project.</param>
+        /// <param name="userId">The unique identifier of the user to be assigned as the project manager.</param>
+        /// <param name="user">The current user's claims</param>
+        
+        Task AssignProjectManagerAsync(int projectId, string userId, UserInfo user);
+
+        /// <summary>
+        ///Remove Project Manager
+        /// </summary>
+        /// <remarks>This method removes the specified user as the project manager for the given project. 
+        /// The caller must ensure that the user has the necessary permissions to perform this operation.</remarks>
+        /// <param name="projectId">The unique identifier of the existing project.</param>
+        /// <param name="user">The current user's claims</param>    
+        Task RemoveProjectManagerAsync(int projectId, UserInfo user);
+
         #endregion
 
         #region ARCHIVE METHODS
