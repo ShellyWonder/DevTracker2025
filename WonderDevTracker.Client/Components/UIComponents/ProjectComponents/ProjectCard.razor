@@ -17,7 +17,7 @@
             </CardHeaderContent>
         </MudCardHeader>
         <MudCardContent>
-            @if (Project.Members is null )
+            @if (Project.Members is null)
             {
                 <LoadingSpinner />
             }
@@ -25,18 +25,27 @@
             {
                 <NotFoundDisplay Message="No project members assigned" />
 
-
             }
             else
             {
-                <div class="row  g-3 py-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                <div class="h-100 d-flex align-items-center justify-content-center">
 
-                    @foreach (AppUserDTO member in Project.Members!)
-                    {
-                        <div class="col" @key="member.Id">
-                            <ProjectTeamCard User="member" />
-                        </div>
-                    }
+                    <MudAvatarGroup Max="5"
+                                    MaxColor="Color.Secondary">
+                        @foreach (AppUserDTO member in Project.Members!)
+                        {
+                            <MudAvatar>
+                                <MudTooltip Text="@member.FullName" Arrow>
+                                    <MudImage Src="@member.ImageUrl"
+                                              Alt="@member.FullName"
+                                              Height="40" />
+                                </MudTooltip>
+                            </MudAvatar>
+                        }
+
+                    </MudAvatarGroup>
+
+
                 </div>
             }
 
