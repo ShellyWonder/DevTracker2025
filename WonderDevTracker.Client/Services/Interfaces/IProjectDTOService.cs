@@ -8,8 +8,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <summary>
         /// Gets all active projects for a specific company asynchronously from db.
         /// </summary>
-        /// <param name="companyId"></param>
-        /// /// <param name="user">The current users claims</param>
+        /// <param name="user">The current users claims</param>
         /// <returns>An enumerable of projects</returns>
         public Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(UserInfo user);
         public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user);
@@ -127,6 +126,11 @@ namespace WonderDevTracker.Client.Services.Interfaces
         #endregion
 
         #region ARCHIVE METHODS
+        /// <summary>
+        /// Gets all archived projects for a specific company asynchronously from db.
+        /// </summary>
+        /// <param name="user">The current users claims</param>
+        /// <returns>An enumerable of archived projects</returns>
         public Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user);
 
         /// <summary>

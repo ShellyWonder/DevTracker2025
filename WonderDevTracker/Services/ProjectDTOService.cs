@@ -131,9 +131,12 @@ namespace WonderDevTracker.Services
 
         }
 
-        public Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user)
+        public async Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user)
         {
-            throw new NotImplementedException();
+            
+            IEnumerable<Project> projects = await projectRepository.GetAllArchivedProjectsAsync(user);
+            IEnumerable<ProjectDTO> dtos = projects.Select(p => p.ToDTO());
+            return dtos;
         }
 
         public async Task RestoreProjectByIdAsync(int projectId, UserInfo user)

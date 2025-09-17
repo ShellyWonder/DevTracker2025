@@ -196,9 +196,16 @@ namespace WonderDevTracker.Services.Repositories
         #endregion
 
         #region ARCHIVE/RESTORE METHODS
-        public Task<IEnumerable<Project>> GetAllArchivedProjectsAsync(UserInfo user)
+        public async Task<IEnumerable<Project>> GetAllArchivedProjectsAsync(UserInfo user)
         {
-            throw new NotImplementedException();
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            IEnumerable<Project> projects = await db.Projects
+                     //match the company id of the user & also ensure the project IS archived
+                     .Where(p => p.CompanyId == user.CompanyId && p.Archived == true)
+                     .Include(p => p.Members)
+                     .ToListAsync();
+            return projects;
+
         }
 
         public async Task ArchiveProjectAsync(int projectId, UserInfo user)
