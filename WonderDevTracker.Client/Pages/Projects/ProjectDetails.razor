@@ -11,287 +11,280 @@
 @inherits AuthenticatedComponentBase
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
-    <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
-    @if (!_loadingComplete)
-    {
-        <LoadingSpinner Message="Loading project details..." Color="Color.Primary" Size="Size.Large" />
-    }
-    else if (project is not null)
-    {
-        @* Reset Index at start of render;
+	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+	@if (!_loadingComplete)
+	{
+		<LoadingSpinner Message="Loading project details..." Color="Color.Primary" Size="Size.Large" />
+	}
+	else if (project is not null)
+	{
+		@* Reset Index at start of render;
             controls the index for components that use IndexTracker.*@
-        ResetIndex();
-        <PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
+		ResetIndex();
+		<PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 
-        <div class="vstack gap-3">
+		<div class="vstack gap-3">
 
-            <!-- Sibling A: General Info (bind PM) -->
-            <ProjectGeneralInfo Project="project"
-                                Index="@IndexTracker.Next()"
-                                ProjectManagers="projectManagers"
-                                @bind-ProjectManagerId="project.ProjectManagerId"
-                                OnSaveProjectManagerRequested="HandleSavePMAsync" />
+			<!-- Sibling A: General Info (bind PM) -->
+			<ProjectGeneralInfo Project="project"
+								Index="@IndexTracker.Next()"
+								ProjectManagers="projectManagers"
+								@bind-ProjectManagerId="project.ProjectManagerId"
+								OnSaveProjectManagerRequested="HandleSavePMAsync" />
 
-            <ProjectDescription Project="project" Index="@IndexTracker.Next()" />
-            
-            <!-- Sibling B: receive the same 'project' plus a refresh token -->
-            <ProjectMembers Project="project"
-                            RefreshToken="_membersRefreshToken"
-                            Index="@IndexTracker.Next()" />
+			<ProjectDescription Project="project" Index="@IndexTracker.Next()" />
 
-            <ProjectTickets Project="project" Index="@IndexTracker.Next()" />
+			<!-- Sibling B: receive the same 'project' plus a refresh token -->
+			<ProjectMembers Project="project"
+							RefreshToken="_membersRefreshToken"
+							Index="@IndexTracker.Next()" />
 
-        </div>
+			<ProjectTickets Project="project" Index="@IndexTracker.Next()" />
 
-        <div class="d-flex mt-2">
-            <BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
-            <div class="ms-auto">
-                <MudButton Variant="Variant.Text"
-                           StartIcon="@Icons.Material.Filled.Edit"
-                           Href="@($"projects/{ProjectId}/edit")"
-                           Disabled="@(project is null)"
-                           Color="Color.Tertiary">
-                    Edit
-                </MudButton>
+		</div>
 
-                @if (project!.Archived)
-                {
-                    <MudButton Variant="Variant.Text"
-                               StartIcon="@Icons.Material.Filled.RestoreFromTrash"
-                               Disabled="@(project is null)"
-                               Color="Color.Success"
-                               Onclick="ConfirmRestoreAsync">
-                        Restore
-                    </MudButton>
+		<div class="d-flex mt-2">
+			<BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
+			<div class="ms-auto">
+				<MudButton Variant="Variant.Text"
+						   StartIcon="@Icons.Material.Filled.Edit"
+						   Href="@($"projects/{ProjectId}/edit")"
+						   Disabled="@(project is null)"
+						   Color="Color.Tertiary">
+					Edit
+				</MudButton>
 
-                }
-                else
-                {
-                    <MudButton Variant="Variant.Text"
-                               StartIcon="@Icons.Material.Filled.Delete"
-                               Disabled="@(project is null)"
-                               Color="Color.Error"
-                               Onclick="ConfirmArchiveAsync">
-                        Archive
-                    </MudButton>
+				@if (project!.Archived)
+				{
+					<MudButton Variant="Variant.Text"
+							   StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+							   Disabled="@(project is null)"
+							   Color="Color.Success"
+							   Onclick="ConfirmRestoreAsync">
+						Restore
+					</MudButton>
 
-                }
-            </div>
+				}
+				else
+				{
+					<MudButton Variant="Variant.Text"
+							   StartIcon="@Icons.Material.Filled.Delete"
+							   Disabled="@(project is null)"
+							   Color="Color.Error"
+							   Onclick="ConfirmArchiveAsync">
+						Archive
+					</MudButton>
 
-        </div>
-        <MudMessageBox @ref="_archiveMessageBox"
-                       Title="Archive Project"
-                       CancelText="Cancel">
-            <MessageContent>
-                Are you sure you want to archive this project?
-            </MessageContent>
-            <YesButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Error"
-                           Class="ms-2"
-                           StartIcon="@Icons.Material.Filled.Delete"
-                           OnClick="HandleArchiveAsync">
-                    Yes, Archive
-                </MudButton>
-            </YesButton>
-        </MudMessageBox>
+				}
+			</div>
 
-        <MudMessageBox @ref="_restoreMessageBox"
-                       Title="Restore Project"
-                       CancelText="Cancel">
-            <MessageContent>
-                Are you sure you want to restore this project to active status?
-            </MessageContent>
-            <YesButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Secondary"
-                           Class="ms-2"
-                           StartIcon="@Icons.Material.Filled.RestoreFromTrash"
-                           OnClick="HandleRestoreAsync">
-                    Yes, Restore
-                </MudButton>
-            </YesButton>
-        </MudMessageBox>
-    }
-    else
-    {
-        <PageTitle>Project Not Found | Dev Tracker</PageTitle>
+		</div>
+		<MudMessageBox @ref="_archiveMessageBox"
+					   Title="Archive Project"
+					   CancelText="Cancel">
+			<MessageContent>
+				Are you sure you want to archive this project?
+			</MessageContent>
+			<YesButton>
+				<MudButton Variant="Variant.Filled"
+						   Color="Color.Error"
+						   Class="ms-2"
+						   StartIcon="@Icons.Material.Filled.Delete"
+						   OnClick="HandleArchiveAsync">
+					Yes, Archive
+				</MudButton>
+			</YesButton>
+		</MudMessageBox>
 
-        <NotFoundFull Message="Project not found"
-                      ReturnUrl="/projects"
-                      ReturnLabel="Back to Projects"
-                      ForwardUrl="/projects/create"
-                      ForwardLabel="Create New Project" />
+		<MudMessageBox @ref="_restoreMessageBox"
+					   Title="Restore Project"
+					   CancelText="Cancel">
+			<MessageContent>
+				Are you sure you want to restore this project to active status?
+			</MessageContent>
+			<YesButton>
+				<MudButton Variant="Variant.Filled"
+						   Color="Color.Secondary"
+						   Class="ms-2"
+						   StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+						   OnClick="HandleRestoreAsync">
+					Yes, Restore
+				</MudButton>
+			</YesButton>
+		</MudMessageBox>
+	}
+	else
+	{
+		<PageTitle>Project Not Found | Dev Tracker</PageTitle>
 
-    }
+		<NotFoundFull Message="Project not found"
+					  ReturnUrl="/projects"
+					  ReturnLabel="Back to Projects"
+					  ForwardUrl="/projects/create"
+					  ForwardLabel="Create New Project" />
+
+	}
 
 </MudContainer>
 
 @code {
-    [Parameter]
-    public int ProjectId { get; set; }
+	[Parameter]
+	public int ProjectId { get; set; }
 
-    private ProjectDTO? project;
+	private ProjectDTO? project;
 
-    private List<BreadcrumbItem> breadcrumbs = [];
-    private bool _loadingComplete = false;
+	private List<BreadcrumbItem> breadcrumbs = [];
+	private bool _loadingComplete = false;
 
-    private void ResetIndex() => IndexTracker.Reset();
-    private MudMessageBox? _archiveMessageBox;
-    private MudMessageBox? _restoreMessageBox;
+	private void ResetIndex() => IndexTracker.Reset();
+	private MudMessageBox? _archiveMessageBox;
+	private MudMessageBox? _restoreMessageBox;
 
-    //NOTE: Binding to projectManagerId (string) instead of ProjectManager
-    // (AppUserDTO) to avoid issues with MudSelect and complex objects
-    private string? projectManagerId;
+	//NOTE: Binding to projectManagerId (string) instead of ProjectManager
+	// (AppUserDTO) to avoid issues with MudSelect and complex objects
+	private string? projectManagerId;
 
-    // Refresh ProjectMembers component when there is a change to project Manager assignment.
-    private Guid _membersRefreshToken = Guid.NewGuid();
+	// Refresh ProjectMembers component when there is a change to project Manager assignment.
+	private Guid _membersRefreshToken = Guid.NewGuid();
 
-    private IReadOnlyList<AppUserDTO> projectManagers = Array.Empty<AppUserDTO>();
+	private IReadOnlyList<AppUserDTO> projectManagers = Array.Empty<AppUserDTO>();
 
-    protected override async Task OnInitializedWithAuthAsync()
-    {
-        try
-        {
-            project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+		try
+		{
+			project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
 
-            if (project is not null)
-            {
-                projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            Snackbar.Add("Error loading project details.", Severity.Error);
-        }
-        _loadingComplete = true;
-
-
-        breadcrumbs = new()
-        {
-                new BreadcrumbItem("Home", href: "/"),
-                new BreadcrumbItem("Projects", href: "/projects"),
-                new BreadcrumbItem(project?.Name ?? "Project Not Found", href: null, disabled: true)
-
-        };
-
-    }
-
-    private async Task ConfirmArchiveAsync()
-    {
-        if (_archiveMessageBox is not null)
-        {
-            await _archiveMessageBox.ShowAsync();
-        }
-
-    }
-
-    private async Task ConfirmRestoreAsync()
-    {
-        if (_restoreMessageBox is not null)
-        {
-            await _restoreMessageBox.ShowAsync();
-        }
-
-    }
-
-    private async Task HandleArchiveAsync()
-    {
-
-        if (project is null) return;
-
-        var projectName = project.Name; // Cache the name
-        try
-        {
-            //archive project
-            await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
-
-            // //refresh project details to show archived status
-            project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
-            if (project != null) project.Archived = true;
+			if (project is not null)
+			{
+				projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Error loading project details.", Severity.Error);
+		}
+		_loadingComplete = true;
 
 
-            await InvokeAsync(() => Snackbar.Add($"The Project '{projectName}' has been archived", Severity.Success));
+		breadcrumbs = new()
+		{
+				new BreadcrumbItem("Home", href: "/"),
+				new BreadcrumbItem("Projects", href: "/projects"),
+		};
+		if (project?.Archived == true) breadcrumbs.Add(new BreadcrumbItem("Archived Projects", href: "/projects/archived"));
 
-            // Navigate back to projects list
-            NavManager.NavigateTo("/projects");
-            return;
+		breadcrumbs.Add(new BreadcrumbItem(project?.Name ?? "Project Not Found", href: null, disabled: true));
 
-        }
-        catch (Exception ex)
-        {
+	}
 
-            Console.WriteLine(ex);
-            Snackbar.Add($"{projectName} is not available to be archived");
-        }
-    }
+	private async Task ConfirmArchiveAsync()
+	{
+		if (_archiveMessageBox is not null) await _archiveMessageBox.ShowAsync();
+	}
 
-    private async Task HandleRestoreAsync()
-    {
-        if (project is null) return;
-        try
-        {
-            var projectName = project.Name; // Cache the name
-            //restore project
-            await ProjectService.RestoreProjectByIdAsync(project.Id, UserInfo!);
+	private async Task ConfirmRestoreAsync()
+	{
+		if (_restoreMessageBox is not null) await _restoreMessageBox.ShowAsync();
+	}
 
-            //refresh project details to show restored status
-            project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+	private async Task HandleArchiveAsync()
+	{
 
-            if (project != null) project.Archived = false;
+		if (project is null) return;
 
-            Snackbar.Add($"The Project '{projectName}' has been restored", Severity.Success);
-            // Navigate back to projects list
-            NavManager.NavigateTo("/projects");
+		var projectName = project.Name; // Cache the name
+		try
+		{
+			//archive project
+			await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
 
-            if (project == null)
-            {
-                Snackbar.Add("The project could not be found after restoring.", Severity.Error);
-                return;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            Snackbar.Add($"The Project is not available to be restored");
-        }
-    }
+			// //refresh project details to show archived status
+			project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
 
-    private async Task HandleSavePMAsync(string? newPMId)
-    {
-        if (project is null) return;
-
-        try
-        {
-            if (string.IsNullOrWhiteSpace(newPMId))
-            {
-                await ProjectService.RemoveProjectManagerAsync(ProjectId, UserInfo!);
-            }
-            else
-            {
-                await ProjectService.AssignProjectManagerAsync(ProjectId, newPMId, UserInfo!);
-            }
-
-            // Refetch authoritative DTO (ProjectManagerId already populated)
-            project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
-            _membersRefreshToken = Guid.NewGuid();
-
-            Snackbar.Add("Project Manager updated.", Severity.Success);
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-
-            Console.WriteLine(ex);
-            
-                await InvokeAsync(() => Snackbar.Add("Unable to update Project Manager.", Severity.Error));
-        }
+			if (project != null) project.Archived = true;
 
 
-    }
+			await InvokeAsync(() => Snackbar.Add($"The Project '{projectName}' has been archived", Severity.Success));
+
+			// Navigate back to projects list
+			NavManager.NavigateTo("/projects");
+			return;
+
+		}
+		catch (Exception ex)
+		{
+
+			Console.WriteLine(ex);
+			Snackbar.Add($"{projectName} is not available to be archived");
+		}
+	}
+
+	private async Task HandleRestoreAsync()
+	{
+		if (project is null) return;
+		try
+		{
+			var projectName = project.Name; // Cache the name
+											//restore project
+			await ProjectService.RestoreProjectByIdAsync(project.Id, UserInfo!);
+
+			//refresh project details to show restored status
+			project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+			if (project != null) project.Archived = false;
+
+			Snackbar.Add($"The Project '{projectName}' has been restored", Severity.Success);
+			// Navigate back to projects list
+			NavManager.NavigateTo("/projects");
+
+			if (project == null)
+			{
+				Snackbar.Add("The project could not be found after restoring.", Severity.Error);
+				return;
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add($"The Project is not available to be restored");
+		}
+	}
+
+	private async Task HandleSavePMAsync(string? newPMId)
+	{
+		if (project is null) return;
+
+		try
+		{
+			if (string.IsNullOrWhiteSpace(newPMId))
+			{
+				await ProjectService.RemoveProjectManagerAsync(ProjectId, UserInfo!);
+			}
+			else
+			{
+				await ProjectService.AssignProjectManagerAsync(ProjectId, newPMId, UserInfo!);
+			}
+
+			// Refetch authoritative DTO (ProjectManagerId already populated)
+			project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+			_membersRefreshToken = Guid.NewGuid();
+
+			Snackbar.Add("Project Manager updated.", Severity.Success);
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+
+			Console.WriteLine(ex);
+
+			await InvokeAsync(() => Snackbar.Add("Unable to update Project Manager.", Severity.Error));
+		}
+
+
+	}
 
 }
 
