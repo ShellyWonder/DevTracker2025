@@ -1,3 +1,5 @@
+using WonderDevTracker.Client.Models.Enums;
+
 namespace WonderDevTracker.Client
 {
     // Add properties to this class and update the server and client AuthenticationStateProviders
@@ -14,5 +16,16 @@ namespace WonderDevTracker.Client
         public required int CompanyId { get; set; }
         public required string[] Roles { get; set; }
         
+    }
+
+    public static class UserInfoExtensions
+    {
+        public static bool IsInRole(this UserInfo userInfo, Role role)
+        { 
+            string? roleName = Enum.GetName(role);
+            if (roleName is null) return false;
+            return userInfo.Roles.Contains(roleName);
+
+        }
     }
 }
