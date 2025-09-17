@@ -108,12 +108,14 @@ namespace WonderDevTracker.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<ProjectDTO>> GetUnassignedProjectsAsync(UserInfo user)
+        public async Task<IEnumerable<ProjectDTO>> GetAssignedProjectsAsync(UserInfo user)
         {
-            throw new NotImplementedException();
+           IEnumerable<Project> projects = await projectRepository.GetAssignedProjectsAsync(user);
+            IEnumerable<ProjectDTO> dtos = projects.Select(p => p.ToDTO());
+            return dtos;
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetUserProjectsAsync(UserInfo user)
+        public Task<IEnumerable<ProjectDTO>> GetUnassignedProjectsAsync(UserInfo user)
         {
             throw new NotImplementedException();
         }

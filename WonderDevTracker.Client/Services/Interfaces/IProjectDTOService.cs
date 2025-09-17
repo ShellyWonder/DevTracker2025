@@ -17,7 +17,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <summary>
         /// Get Project Manager(PM) 
         /// </summary>
-        /// <remarks>Retrieves PM  assigned to a specific project</remarks>
+        /// <remarks>Retrieves PM assigned to a specific project</remarks>
         /// <param name="projectId">Project's id</param>
         /// <param name="user">User's claims</param>
         /// <returns>Assigned PM or Null if one is not assigned</returns>
@@ -33,7 +33,14 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>A collection of users</returns>
         public Task<IEnumerable<AppUserDTO>> GetProjectMembersAsync(int projectId, UserInfo user);
-        public Task<IEnumerable<AppUserDTO>> GetUserProjectsAsync(UserInfo user);
+
+        /// <summary>
+        /// Get Assigned Projects
+        /// </summary>
+        /// <remarks>Retrieves all projects assigned to current user.</remarks>
+        /// <param name="user">Current user's claims</param>
+        /// <returns>A collection of user's assigned projects</returns>
+        public Task<IEnumerable<ProjectDTO>> GetAssignedProjectsAsync(UserInfo user);
         public Task<IEnumerable<AppUserDTO>> GetUsersNotOnProjectAsync(UserInfo user);
         public Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user);
         #endregion

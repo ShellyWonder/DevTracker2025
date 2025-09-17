@@ -6,7 +6,7 @@ namespace WonderDevTracker.Services.Interfaces
 {
     public interface IProjectRepository
     {
-        #region Get Methods
+        #region GET METHODS
         /// <summary>
         /// retrieves all active projects for a specific company asynchronously from the database.
         /// </summary>
@@ -60,7 +60,14 @@ namespace WonderDevTracker.Services.Interfaces
         /// <remarks>Retrieves all project members (except the Project Manager) assigned to project.</remarks>
         /// <returns>A collection of users</returns>
         public Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, UserInfo user);
-        public Task<IEnumerable<ApplicationUser>> GetUserProjectsAsync(UserInfo user);
+
+        /// <summary>
+        /// Get Assigned Projects
+        /// </summary>
+        /// <remarks>Retrieves all projects assigned to current user.</remarks>
+        /// <param name="user">Current user's claims</param>
+        /// <returns>A collection of user's assigned projects</returns>
+        public Task<IEnumerable<Project>> GetAssignedProjectsAsync(UserInfo user);
         public Task<IEnumerable<ApplicationUser>> GetUsersNotOnProjectAsync(UserInfo user);
 
         /// <summary>

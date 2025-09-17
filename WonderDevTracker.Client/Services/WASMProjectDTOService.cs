@@ -38,6 +38,11 @@ namespace WonderDevTracker.Client.Services
                 return null;
             }
         }
+
+        public Task<IEnumerable<AppUserDTO>> GetUserProjectsAsync(UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region CREATE PROJECT
@@ -143,10 +148,7 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetUserProjectsAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public Task<IEnumerable<AppUserDTO>> GetUsersNotOnProjectAsync(UserInfo user)
         {
@@ -175,6 +177,11 @@ namespace WonderDevTracker.Client.Services
         {
             var response = await http.PutAsJsonAsync($"api/Projects/{projectId}/pm", new { UserId = userId });
             response.EnsureSuccessStatusCode();
+        }
+
+        Task<IEnumerable<ProjectDTO>> IProjectDTOService.GetAssignedProjectsAsync(UserInfo user)
+        {
+            throw new NotImplementedException();
         }
     }
     

@@ -70,6 +70,7 @@ namespace WonderDevTracker.Services.Repositories
         {
             throw new NotImplementedException();
         }
+
         public async Task<string?> GetProjectManagerIdAsync(int projectId, UserInfo user)
         {
             IEnumerable<ApplicationUser> members = await GetProjectMembersAsync(projectId, user);
@@ -85,7 +86,6 @@ namespace WonderDevTracker.Services.Repositories
             return null;
           
         }
-
 
         public async Task<ApplicationUser?> GetProjectManagerAsync(int projectId, UserInfo user)
         {
@@ -117,6 +117,19 @@ namespace WonderDevTracker.Services.Repositories
             return members.AsEnumerable();
         }
 
+        public async Task<IEnumerable<Project>> GetAssignedProjectsAsync(UserInfo user)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            IEnumerable<Project> projects = await db.Projects
+                     //match the company id of the user & also ensure the project is not archived
+                     .Where(p => p.CompanyId == user.CompanyId && p.Archived == false
+                                       && p.Members!.Any(m => m.Id == user.UserId))
+                     .Include(p => p.Members)             // <-- ensure Members is populated
+                     .AsNoTracking() //read-only query optimization
+                     .ToListAsync();
+            return projects;
+        }
+
         public Task<Project?> GetProjectsByPriorityAsync(Project priority, UserInfo user)
         {
             throw new NotImplementedException();
@@ -132,10 +145,7 @@ namespace WonderDevTracker.Services.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<ApplicationUser>> GetUserProjectsAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public Task<IEnumerable<ApplicationUser>> GetUsersNotOnProjectAsync(UserInfo user)
         {
