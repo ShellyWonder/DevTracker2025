@@ -1,0 +1,75 @@
+﻿@* ProjectsAssigned *@
+
+@page "/projects/assigned"
+@attribute [Authorize]
+@inject IProjectDTOService ProjectService
+@inject ISnackbar Snackbar
+
+@inherits AuthenticatedComponentBase
+
+<PageTitle>My Projects | Dev Tracker</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
+    <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+    @if (!_loadingComplete)
+    {
+        <LoadingSpinner Message="Loading projects..." Color="Color.Primary" Size="Size.Large" />
+    }
+    else if (projects.Any())
+    {
+        <MudText Typo="Typo.h3" GutterBottom>My Projects </MudText>
+        <div class=" row row-cols-1  row-cols-md-2 row-cols-xl-3 g-3">
+            @* for more information see Helpers/Animation/AnimationHelper.cs *@
+            @foreach (var item in animationHelper.GetProjectsWithIndex())
+            {
+                <div class="col mb-2">
+
+                    <ProjectCard Project="@item.Project" Index="@item.Index" />
+
+                </div>
+            }
+
+        </div>
+        
+    }
+    else
+    {
+        <NotFoundFull Message="No assigned projects found."
+                      ReturnUrl="/"
+                      ReturnLabel="Home"
+                      ForwardUrl="/projects"
+                      ForwardLabel="View All Active Projects" />
+    }
+
+</MudContainer>
+
+@code {
+    private IEnumerable<ProjectDTO> projects = [];
+    private CardAnimationHelper animationHelper => new(projects);
+    private bool _loadingComplete = false;
+
+    protected override async Task OnInitializedWithAuthAsync()
+    {
+        try
+        {
+			projects = await ProjectService.GetAssignedProjectsAsync(UserInfo!);
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine($"Error loading projects: {ex.Message}");
+            Snackbar.Add("Error loading your assigned projects.", Severity.Error);
+        }
+        _loadingComplete = true;
+
+    }
+
+    private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    {
+        new BreadcrumbItem("Home", href:"/" ),
+        new BreadcrumbItem("Projects", href: "/projects"),
+        new BreadcrumbItem("My Projects", href:null, disabled: true ),
+
+    };
+
+}

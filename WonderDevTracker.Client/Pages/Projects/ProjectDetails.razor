@@ -140,10 +140,6 @@
 	private MudMessageBox? _archiveMessageBox;
 	private MudMessageBox? _restoreMessageBox;
 
-	//NOTE: Binding to projectManagerId (string) instead of ProjectManager
-	// (AppUserDTO) to avoid issues with MudSelect and complex objects
-	private string? projectManagerId;
-
 	// Refresh ProjectMembers component when there is a change to project Manager assignment.
 	private Guid _membersRefreshToken = Guid.NewGuid();
 
