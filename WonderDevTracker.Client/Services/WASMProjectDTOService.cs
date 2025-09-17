@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 
 namespace WonderDevTracker.Client.Services
@@ -39,9 +40,19 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetUserProjectsAsync(UserInfo user)
+        public async Task<IEnumerable<ProjectDTO>> GetAssignedProjectsAsync(UserInfo user)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<ProjectDTO>? projects = await http.GetFromJsonAsync<List<ProjectDTO>>($"api/Projects?filter={ProjectsFilter.Assigned}") ?? [];
+                return projects;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return [];
+            }
         }
         #endregion
 
@@ -76,9 +87,19 @@ namespace WonderDevTracker.Client.Services
         }
 
 
-        public Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user)
+        public async Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<ProjectDTO>? projects = await http.GetFromJsonAsync<List<ProjectDTO>>($"api/Projects?filter={ProjectsFilter.Archived}") ?? [];
+                return projects;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return [];
+            }
         }
 
         public async Task RestoreProjectByIdAsync(int projectId, UserInfo user)
@@ -179,10 +200,7 @@ namespace WonderDevTracker.Client.Services
             response.EnsureSuccessStatusCode();
         }
 
-        Task<IEnumerable<ProjectDTO>> IProjectDTOService.GetAssignedProjectsAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
     
 }

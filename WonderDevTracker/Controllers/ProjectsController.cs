@@ -20,16 +20,24 @@ namespace WonderDevTracker.Controllers
         /// <summary>
         /// Get Projects
         /// </summary>
-        /// <remarks>This method returns all active projects associated with the current user's company. Ensure the user is
-        /// authenticated and authorized to access project data before calling this method. Returns a 404
-        /// status code if no projects are found.</remarks>
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetProjects()
+        /// <remarks>This method returns projects associated with the current user's company
+        /// according to the project collection category(Active, Assigned and Archived).
+        /// 
+        /// Ensure the user is authenticated and authorized to access project data before calling this method. </remarks>
+        /// 
+        ///
+        /// <param name="filter">Optional filter to specify which projects to retrieve: **Active (default)**, Archived, or Assigned.</param>
+        
+        [HttpGet] //api/projects?fiter=assigned
+        public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetProjects([FromQuery] ProjectsFilter filter = ProjectsFilter.Active)
         {
-
-            var projects = await projectService.GetAllProjectsAsync(UserInfo);
-
-            if (projects == null || !projects.Any()) return NotFound();
+            //use switch expression to determine which projects to return
+            var projects = filter switch
+            {
+                ProjectsFilter.Archived => await projectService.GetAllArchivedProjectsAsync(UserInfo),
+                ProjectsFilter.Assigned => await projectService.GetAssignedProjectsAsync(UserInfo),
+                _ => await projectService.GetAllProjectsAsync(UserInfo)
+            };
 
             return Ok(projects);
         }
@@ -262,5 +270,5 @@ namespace WonderDevTracker.Controllers
         }
         #endregion
     }
-    
+
 }
