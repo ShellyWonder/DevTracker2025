@@ -62,7 +62,7 @@
 
 			<Authorized>
 				<MudNavLink Href="/account/manage" Icon="@Icons.Material.Filled.Person">
-					@context.User.Identity!.Name
+					@UserInfoHelper.GetUserInfo(context)?.FullName
 				</MudNavLink>
 				<MudNavLink ActiveClass=""
 							Icon="@Icons.Material.Filled.Logout"

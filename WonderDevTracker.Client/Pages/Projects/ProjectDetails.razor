@@ -45,73 +45,80 @@
 
 		<div class="d-flex mt-2">
 			<BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
-			<div class="ms-auto">
-				<MudButton Variant="Variant.Text"
-						   StartIcon="@Icons.Material.Filled.Edit"
-						   Href="@($"projects/{ProjectId}/edit")"
-						   Disabled="@(project is null)"
-						   Color="Color.Tertiary">
-					Edit
-				</MudButton>
-
-				@if (project!.Archived)
-				{
+			@if (_userCanEditProject)
+			{
+				<div class="ms-auto">
 					<MudButton Variant="Variant.Text"
-							   StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+							   StartIcon="@Icons.Material.Filled.Edit"
+							   Href="@($"projects/{ProjectId}/edit")"
 							   Disabled="@(project is null)"
-							   Color="Color.Success"
-							   Onclick="ConfirmRestoreAsync">
-						Restore
+							   Color="Color.Tertiary">
+						Edit
 					</MudButton>
 
-				}
-				else
-				{
-					<MudButton Variant="Variant.Text"
-							   StartIcon="@Icons.Material.Filled.Delete"
-							   Disabled="@(project is null)"
-							   Color="Color.Error"
-							   Onclick="ConfirmArchiveAsync">
-						Archive
-					</MudButton>
+					@if (project!.Archived)
+					{
+						<MudButton Variant="Variant.Text"
+								   StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+								   Disabled="@(project is null)"
+								   Color="Color.Success"
+								   Onclick="ConfirmRestoreAsync">
+							Restore
+						</MudButton>
 
-				}
-			</div>
+					}
+					else
+					{
+						<MudButton Variant="Variant.Text"
+								   StartIcon="@Icons.Material.Filled.Delete"
+								   Disabled="@(project is null)"
+								   Color="Color.Error"
+								   Onclick="ConfirmArchiveAsync">
+							Archive
+						</MudButton>
 
+					}
+				</div>
+			}
 		</div>
-		<MudMessageBox @ref="_archiveMessageBox"
-					   Title="Archive Project"
-					   CancelText="Cancel">
-			<MessageContent>
-				Are you sure you want to archive this project?
-			</MessageContent>
-			<YesButton>
-				<MudButton Variant="Variant.Filled"
-						   Color="Color.Error"
-						   Class="ms-2"
-						   StartIcon="@Icons.Material.Filled.Delete"
-						   OnClick="HandleArchiveAsync">
-					Yes, Archive
-				</MudButton>
-			</YesButton>
-		</MudMessageBox>
+		@if (_userCanEditProject)
+		{
+			@* Archive Confirmation Dialog *@
+			<MudMessageBox @ref="_archiveMessageBox"
+						   Title="Archive Project"
+						   CancelText="Cancel">
+				<MessageContent>
+					Are you sure you want to archive this project?
+				</MessageContent>
+				<YesButton>
+					<MudButton Variant="Variant.Filled"
+							   Color="Color.Error"
+							   Class="ms-2"
+							   StartIcon="@Icons.Material.Filled.Delete"
+							   OnClick="HandleArchiveAsync">
+						Yes, Archive
+					</MudButton>
+				</YesButton>
+			</MudMessageBox>
 
-		<MudMessageBox @ref="_restoreMessageBox"
-					   Title="Restore Project"
-					   CancelText="Cancel">
-			<MessageContent>
-				Are you sure you want to restore this project to active status?
-			</MessageContent>
-			<YesButton>
-				<MudButton Variant="Variant.Filled"
-						   Color="Color.Secondary"
-						   Class="ms-2"
-						   StartIcon="@Icons.Material.Filled.RestoreFromTrash"
-						   OnClick="HandleRestoreAsync">
-					Yes, Restore
-				</MudButton>
-			</YesButton>
-		</MudMessageBox>
+			<MudMessageBox @ref="_restoreMessageBox"
+						   Title="Restore Project"
+						   CancelText="Cancel">
+				<MessageContent>
+					Are you sure you want to restore this project to active status?
+				</MessageContent>
+				<YesButton>
+					<MudButton Variant="Variant.Filled"
+							   Color="Color.Secondary"
+							   Class="ms-2"
+							   StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+							   OnClick="HandleRestoreAsync">
+						Yes, Restore
+					</MudButton>
+				</YesButton>
+			</MudMessageBox>
+		}
+
 	}
 	else
 	{
@@ -135,6 +142,7 @@
 
 	private List<BreadcrumbItem> breadcrumbs = [];
 	private bool _loadingComplete = false;
+	private bool _userCanEditProject = false;
 
 	private void ResetIndex() => IndexTracker.Reset();
 	private MudMessageBox? _archiveMessageBox;
@@ -154,6 +162,10 @@
 			if (project is not null)
 			{
 				projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
+				_userCanEditProject =
+				(UserInfo?.IsInRole(Role.Admin) ?? false) ||
+				((UserInfo?.IsInRole(Role.ProjectManager) ?? false)
+					&& project?.ProjectManagerId == UserInfo?.UserId);
 			}
 		}
 		catch (Exception ex)
@@ -177,20 +189,22 @@
 
 	private async Task ConfirmArchiveAsync()
 	{
+		if (_userCanEditProject == false) return;
 		if (_archiveMessageBox is not null) await _archiveMessageBox.ShowAsync();
 	}
 
 	private async Task ConfirmRestoreAsync()
 	{
+		if (_userCanEditProject == false) return;
 		if (_restoreMessageBox is not null) await _restoreMessageBox.ShowAsync();
 	}
 
 	private async Task HandleArchiveAsync()
 	{
-
-		if (project is null) return;
-
+		if (_userCanEditProject == false || project is null) return;
+		
 		var projectName = project.Name; // Cache the name
+
 		try
 		{
 			//archive project
