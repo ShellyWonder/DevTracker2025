@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
-using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
@@ -11,9 +11,21 @@ namespace WonderDevTracker.Services.Repositories
     public class TicketRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
                                    UserManager<ApplicationUser>userManager) : ITicketRepository
     {
-        public Task<IEnumerable<TicketDTO>> GetOpenTicketsAsync(UserInfo user)
+        public async Task<IEnumerable<Ticket>> GetOpenTicketsAsync(UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            IEnumerable<Ticket> tickets = await db.Tickets
+                     //match the company id of the user & also ensure the project is not archived
+                     .Where(t => t.Project!.CompanyId == userInfo.CompanyId 
+                       && !t.Archived
+                       && t.Status != TicketStatus.Resolved)
+                     .Include(t => t.Project)
+                     .Include(t => t.SubmitterUser)
+                     .Include(t => t.DeveloperUser)
+                     .ToListAsync();
+            return tickets;
         }
+
+        
     }
 }

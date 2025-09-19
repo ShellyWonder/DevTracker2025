@@ -56,7 +56,9 @@ namespace WonderDevTracker.Models
     public static class TicketExtensions
     {
         public static TicketDTO ToDTO(this Ticket ticket)
-        {
+        {    //ensures all the properties of the project are available except a list of ALL tickets associated with the project
+            if (ticket.Project != null) ticket.Project.Tickets = [];
+                       
             TicketDTO dto = new()
             {
                 Id = ticket.Id,

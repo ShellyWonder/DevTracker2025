@@ -1,14 +1,18 @@
 ﻿using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Services.Interfaces;
+using WonderDevTracker.Models;
+using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services
 {
-    public class TicketDTOService : ITicketDTOService
+    public class TicketDTOService(ITicketRepository ticketRepository) : ITicketDTOService
     {
-        public Task<IEnumerable<TicketDTO>> GetOpenTicketsAsync(UserInfo user)
+        public async Task<IEnumerable<TicketDTO>> GetOpenTicketsAsync(UserInfo user)
         {
-            throw new NotImplementedException();
+            IEnumerable<Ticket> tickets = await ticketRepository.GetOpenTicketsAsync(user);
+            IEnumerable<TicketDTO> dtos = tickets.Select(t => t.ToDTO());
+            return dtos;
         }
     }
 }

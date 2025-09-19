@@ -55,6 +55,7 @@ namespace WonderDevTracker.Models
         {
             foreach (var ticket in project.Tickets)
             {
+                //avoids a circular dependency 
                 ticket.Project = null;
             }
             ProjectDTO dto = new()
