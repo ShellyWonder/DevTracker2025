@@ -29,8 +29,8 @@
     public AppUserDTO User { get; set; }
 
     //Text to display on the chip, defaults to User.FullName
-    [Parameter, EditorRequired]
-    public string DisplayText { get; set; }
+    [Parameter]
+    public string? DisplayText { get; set; }
 
     [Parameter, EditorRequired]
     //user.id to use as the value of the chip

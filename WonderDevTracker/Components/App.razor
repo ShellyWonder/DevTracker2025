@@ -44,7 +44,6 @@
     <script src="_framework/blazor.web.js"></script>
     <!--MUD BLAZOR-->
     <script src="_content/MudBlazor/MudBlazor.min.js?v=@(MudBlazor.Metadata.Version)"></script>
-
 </body>
 
 </html>
@@ -54,8 +53,8 @@
 
     private IComponentRenderMode? RenderModeForPage => HttpContext.Request.Path.StartsWithSegments("/Account")
         ? null
-        : InteractiveWebAssembly;
-    //: InteractiveServer;
+        // : InteractiveWebAssembly;
+    : InteractiveServer;
 
     
 }

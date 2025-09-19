@@ -14,7 +14,7 @@ namespace WonderDevTracker.Client.Models.Enums
                                        .GetCustomAttribute<DisplayAttribute>()?.GetName();
 
             return string.IsNullOrEmpty(displayName) ? value.ToString() : displayName;
- 
+
         }
 
         private static readonly Dictionary<Type, Dictionary<Enum, Color>> _enumColorMap = new()
@@ -52,7 +52,7 @@ namespace WonderDevTracker.Client.Models.Enums
             if (value is null) return Color.Default;
 
             if (_enumColorMap.TryGetValue(typeof(TEnum), out var map)
-                && map.TryGetValue(value.Value, out var color))
+              && map.TryGetValue((Enum)(object)value.Value, out var color)) // <-- boxed cast
             {
                 return color;
             }

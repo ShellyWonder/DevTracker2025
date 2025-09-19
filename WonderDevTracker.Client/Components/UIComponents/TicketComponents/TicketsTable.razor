@@ -1,0 +1,103 @@
+﻿@* TicketsTable *@
+
+<MudDataGrid Items="Tickets"
+             Elevation="0"
+             Dense="true"
+             RowsPerPage="10">
+    <Columns>
+        <PropertyColumn Property="t => t.Title" />
+        <PropertyColumn Property="t => GetProjectName(t)" Title="Project" />
+        <TemplateColumn Title="Priority" Sortable="true" SortBy="t => t.Priority">
+            <CellTemplate>
+                <TicketPriorityChip Priority="context.Item.Priority" />
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="t => t.Type">
+            <CellTemplate>
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Color="@context.Item.Type.GetColor()">
+                    @context.Item.Type!.GetDisplayName()
+                </MudChip>
+			</CellTemplate>
+		</PropertyColumn>
+        <PropertyColumn Property="t => t.Status">
+            <CellTemplate>
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Color="@context.Item.Status.GetColor()">
+                    @context.Item.Status!.GetDisplayName()
+                </MudChip>
+            </CellTemplate>
+        </PropertyColumn>
+        <TemplateColumn Title="Submitter"
+                        Sortable="true"
+                        SortBy="c => c.SubmitterUser?.FullName"
+                        ShowColumnOptions="true">
+            <CellTemplate>
+                @if (context.Item.SubmitterUser is not null)
+                {
+                    <div class="hstack gag-2 align-items-center">
+                        <MudAvatar Size="Size.Small">
+                            <MudImage Src="@context.Item.SubmitterUser.ImageUrl" Alt="Avatar" Class="me-2" Style="border-radius: 50%;" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.body2">@context.Item.SubmitterUser.FullName</MudText>
+                    </div>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Error">Unassigned</MudText>
+                }
+
+            </CellTemplate>
+        </TemplateColumn>
+
+        <TemplateColumn Title="Developer"
+                        Sortable="true"
+                        SortBy="c => c.DeveloperUser?.FullName"
+                        ShowColumnOptions="true">
+            <CellTemplate>
+                @if (context.Item.DeveloperUser is not null)
+                {
+                    <div class="hstack gag-2 align-items-center">
+                        <MudAvatar Size="Size.Small">
+                            <MudImage Src="@context.Item.DeveloperUser.ImageUrl" Alt="Avatar" Class="me-2" Style="border-radius: 50%;" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.body2">@context.Item.DeveloperUser.FullName</MudText>
+                    </div>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Error">Unassigned</MudText>
+                }
+
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="t => t.Created" Format="g" />
+       
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager />
+    </PagerContent>
+    <NoRecordsContent>
+        <NotFoundDisplay Message="No tickets available" />
+    </NoRecordsContent>
+</MudDataGrid>
+
+<SafeNavButton Href="#" Valid="true"
+               Color="Color.Tertiary"
+               Variant="Variant.Text"
+               Class="project-details-link ms-auto"
+               StartIcon="@Icons.Material.Filled.List"
+               TypeText="Add Tickets" />
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<TicketDTO> Tickets { get; set; } = [];
+
+    private static string GetProjectName(TicketDTO ticket)
+    => ticket.Project?.Name ?? "Unknown";
+
+
+
+}
