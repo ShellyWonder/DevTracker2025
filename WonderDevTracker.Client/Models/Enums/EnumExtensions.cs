@@ -45,6 +45,17 @@ namespace WonderDevTracker.Client.Models.Enums
                     { TicketStatus.InTesting, Color.Warning },
                     { TicketStatus.Resolved, Color.Success }
                 }
+            },
+            {
+                typeof(TicketType), new()
+                {
+                    { TicketType.NewDevelopment, Color.Primary },
+                    { TicketType.Enhancement, Color.Info },
+                    { TicketType.Defect, Color.Error },
+                    { TicketType.WorkTask, Color.Secondary },
+                    { TicketType.ChangeRequest, Color.Warning },
+                    { TicketType.GeneralTask, Color.Tertiary }
+                }
             }
         };
         public static Color GetColor<TEnum>(this TEnum? value) where TEnum : struct, Enum
