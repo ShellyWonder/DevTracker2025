@@ -1,0 +1,17 @@
+﻿@* TicketPriorityChip (tickets) *@
+
+<MudChip T="string"
+         Color="@priorityColor"
+         Label="true"
+         Variant="Variant.Text"
+         Size="@Size"
+         Class="priority-label">
+    Priority: @Priority?.GetDisplayName()
+</MudChip>
+
+@code {
+    [Parameter, EditorRequired]
+    public TicketPriority? Priority { get; set; }
+    private Size Size => Priority.HasValue ? Size.Small : Size.Medium;
+    private Color priorityColor => Priority.GetColor(); // assumes you have this ext
+}

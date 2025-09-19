@@ -1,19 +1,20 @@
 ﻿@* PriorityChip *@
+
 @*Displays the project priority in a chip. Accepts a nullable enum and auto-calculates the color.*@
-@using MudBlazor;
-@using WonderDevTracker.Client.Models.Enums;
+
+
 <MudChip T="string"
          Color="@priorityColor"
          Label="true"
          Variant="Variant.Text"
+         Size="@Size"
          Class="priority-label">
     Priority: @Priority?.GetDisplayName()
 </MudChip>
 
 @code {
-    [Parameter, EditorRequired]
+    [Parameter, EditorRequired] 
     public ProjectPriority? Priority { get; set; }
-  
-
+    private Size Size => Priority.HasValue ? Size.Small : Size.Medium;
     private Color priorityColor => Priority.GetColor();
 }
