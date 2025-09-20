@@ -1,0 +1,18 @@
+﻿@* TicketTypeChip *@
+
+<MudChip T="string"
+         Color="@typeColor"
+         Label="true"
+         Variant="Variant.Filled"
+         Size="@Size"
+         Class="priority-label">
+     @Type?.GetDisplayName()
+</MudChip>
+
+@code {
+    [Parameter, EditorRequired]
+    public TicketType? Type { get; set; }
+
+    private Size Size => Type.HasValue ? Size.Small : Size.Medium;
+    private Color typeColor => Type.GetColor();
+}

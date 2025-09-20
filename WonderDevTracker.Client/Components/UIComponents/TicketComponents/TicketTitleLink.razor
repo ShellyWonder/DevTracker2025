@@ -1,0 +1,10 @@
+﻿@* TicketTitleLink *@
+
+<MudLink Typo="Typo.inherit"
+		 Href="@($"tickets/(context.item.Id)")">
+	@Ticket?.Title
+</MudLink>
+@code {
+	[Parameter, EditorRequired]
+	public TicketDTO? Ticket { get; set; }
+}

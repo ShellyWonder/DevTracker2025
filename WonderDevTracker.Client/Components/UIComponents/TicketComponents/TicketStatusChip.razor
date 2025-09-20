@@ -1,0 +1,17 @@
+﻿@*TicketStatusChip *@
+
+<MudChip T="string"
+		 Color="@statusColor"
+		 Class="priority-label">
+	@Status?.GetDisplayName()
+</MudChip>
+@code {
+
+	[Parameter, EditorRequired]
+	public TicketStatus? Status { get; set; }
+
+
+
+	private Color statusColor => Status.GetColor();
+
+}
