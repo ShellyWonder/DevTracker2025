@@ -3,25 +3,25 @@
 <MudDataGrid Items="Tickets"
 			 Elevation="0"
 			 Dense="true"
+			 ColumnResizeMode="ResizeMode.Container"
+			 DragDropColumnReordering
+			 Hideable
+			 ShowMenuIcon
 			 RowsPerPage="10">
 	<Columns>
-		<PropertyColumn Property="t => t.Title" />
+		<PropertyColumn Property="t => t.Title" >
+			<CellTemplate>
+				<TicketTitleLink Ticket="context.Item" />
+			</CellTemplate>
+		</PropertyColumn>
 		<PropertyColumn Property="t => t.Priority">
 			<CellTemplate>
-				<MudChip T="string"
-						 Size="Size.Small"
-						 Color="@context.Item.Priority.GetColor()">
-					@context.Item.Priority!.GetDisplayName()
-				</MudChip>
+				<TicketPriorityChip Priority="@context.Item.Priority"/>
 			</CellTemplate>
 		</PropertyColumn>
 		<PropertyColumn Property="t => t.Status">
 			<CellTemplate>
-				<MudChip T="string"
-						 Size="Size.Small"
-						 Color="@context.Item.Status.GetColor()">
-					@context.Item.Status!.GetDisplayName()
-				</MudChip>
+				<TicketStatusChip Status="@context.Item.Status" />
 			</CellTemplate>
 		</PropertyColumn>
 		<TemplateColumn Title="Submitter"
@@ -29,45 +29,24 @@
 						SortBy="c => c.SubmitterUser?.FullName"
 						ShowColumnOptions="true">
 			<CellTemplate>
-				@if (context.Item.SubmitterUser is not null)
-				{
-					<div class="hstack gag-2 align-items-center">
-						<MudAvatar Size="Size.Small">
-							<MudImage Src="@context.Item.SubmitterUser.ImageUrl" Alt="Avatar" Class="me-2" Style="border-radius: 50%;" />
-						</MudAvatar>
-						<MudText Typo="Typo.body2">@context.Item.SubmitterUser.FullName</MudText>
-					</div>
-				}
-				else
-				{
-					<MudText Typo="Typo.body2" Color="Color.Error">Unassigned</MudText>
-				}
-
+				<AssignedToTicket User="@context.Item.SubmitterUser"/>
 			</CellTemplate>
 		</TemplateColumn>
-
 		<TemplateColumn Title="Developer"
 						Sortable="true"
 						SortBy="c => c.DeveloperUser?.FullName"
 						ShowColumnOptions="true">
 			<CellTemplate>
-				@if (context.Item.DeveloperUser is not null)
-				{
-					<div class="hstack gag-2 align-items-center">
-						<MudAvatar Size="Size.Small">
-							<MudImage Src="@context.Item.DeveloperUser.ImageUrl" Alt="Avatar" Class="me-2" Style="border-radius: 50%;" />
-						</MudAvatar>
-						<MudText Typo="Typo.body2">@context.Item.DeveloperUser.FullName</MudText>
-					</div>
-				}
-				else
-				{
-					<MudText Typo="Typo.body2" Color="Color.Error">Unassigned</MudText>
-				}
-
+				<AssignedToTicket User="@context.Item.DeveloperUser" />
 			</CellTemplate>
 		</TemplateColumn>
-		<PropertyColumn Property="t => t.Created" Format="g" />
+		<PropertyColumn Property="t => t.Modified" Title="Updated" Format="g">
+			<CellTemplate>
+				<MudText Typo="Typo.caption">
+					@context.Item.Modified.ToLocalTime().ToString("g")
+				</MudText>
+			</CellTemplate>
+		</PropertyColumn>
 	</Columns>
 	<PagerContent>
 		<MudDataGridPager />
