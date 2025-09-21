@@ -7,7 +7,24 @@
 			 DragDropColumnReordering
 			 Hideable
 			 ShowMenuIcon
+			 QuickFilter="TicketFilter"
 			 RowsPerPage="10">
+	<ToolBarContent>
+		<MudTextField Variant="Variant.Text"
+					  Placeholder="Search Tickets . . ."
+					  AdornmentIcon="@Icons.Material.Filled.Search"
+					  Adornment="Adornment.Start"
+					  @bind-Value="searchText"
+					  Immediate ="true"
+					  Clearable = "true"   />
+		<MudSpacer />
+		<SafeNavButton Href="#" Valid="true"
+					   Color="Color.Tertiary"
+					   Variant="Variant.Text"
+					   Class="project-details-link me-auto"
+					   StartIcon="@Icons.Material.Filled.List"
+					   TypeText="Add Ticket" />
+	</ToolBarContent>
 	<Columns>
 		<PropertyColumn Property="t => t.Title">
 			<CellTemplate>
@@ -47,9 +64,9 @@
 				<AssignedToTicket User="context.Item.DeveloperUser" />
 			</CellTemplate>
 		</TemplateColumn>
-		<PropertyColumn Property="t => t.Modified" Title="Updated" Format="g" >
+		<PropertyColumn Property="t => t.Modified" Title="Updated" Format="g">
 			<CellTemplate>
-				<MudText Typo="Typo.caption" >
+				<MudText Typo="Typo.caption">
 					@context.Item.Modified.ToLocalTime().ToString("g")
 				</MudText>
 			</CellTemplate>
@@ -64,12 +81,7 @@
 	</NoRecordsContent>
 </MudDataGrid>
 
-<SafeNavButton Href="#" Valid="true"
-			   Color="Color.Tertiary"
-			   Variant="Variant.Text"
-			   Class="project-details-link ms-auto"
-			   StartIcon="@Icons.Material.Filled.List"
-			   TypeText="Add Tickets" />
+
 
 @code {
 	[Parameter, EditorRequired]
@@ -77,5 +89,25 @@
 
 	private static string GetProjectName(TicketDTO ticket)
 	=> ticket.Project?.Name ?? "Unknown";
+
+	private string searchText = string.Empty;
+
+	private bool TicketFilter(TicketDTO ticket)
+	{
+		if (string.IsNullOrWhiteSpace(searchText)
+		   || ticket.Title!.Contains(searchText, StringComparison.CurrentCultureIgnoreCase)
+		   || ticket.Project?.Name!.Contains(searchText, StringComparison.CurrentCultureIgnoreCase) == true
+		   || (ticket.SubmitterUser?.FullName ?? "Unknown").Contains(searchText, StringComparison.CurrentCultureIgnoreCase) == true
+		   || (ticket.DeveloperUser?.FullName ?? "Unassigned").Contains(searchText, StringComparison.CurrentCultureIgnoreCase) == true
+		   || ticket.Priority!.GetDisplayName().Contains(searchText, StringComparison.CurrentCultureIgnoreCase)
+		   || ticket.Status!.GetDisplayName().Contains(searchText, StringComparison.CurrentCultureIgnoreCase)
+		   || ticket.Type!.GetDisplayName().Contains(searchText, StringComparison.CurrentCultureIgnoreCase))
+
+		{
+			return true;
+		}
+		   return false;
+
+	}
 
 }
