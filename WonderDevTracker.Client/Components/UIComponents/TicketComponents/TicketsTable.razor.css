@@ -1,0 +1,120 @@
+﻿/* ---------- Root container (scoped to TicketsTable) ---------- */
+.tickets-table {
+    /* helps row hover & focus rings look balanced */
+    --row-radius: 10px;
+    --row-gap: 6px;
+}
+
+    /* ---------- DataGrid frame ---------- */
+    .tickets-table ::deep .mud-table {
+        border-collapse: separate; /* needed to see row radius */
+        border-spacing: 0 var(--row-gap); /* card-like rows with gaps */
+    }
+
+    /* sticky header polish if FixedHeader is on */
+    .tickets-table ::deep .mud-table-root .mud-table-container {
+        scrollbar-gutter: stable; /* avoids header jitter on show/hide scrollbars */
+    }
+
+    /* header row */
+    .tickets-table ::deep .mud-table thead tr th {
+        font-weight: 600;
+        letter-spacing: .2px;
+        background: var(--mud-palette-background-grey);
+        position: sticky; /* works with FixedHeader=true as a fallback */
+        top: 0;
+        z-index: 2;
+    }
+
+    /* ---------- Row “cards” ---------- */
+    .tickets-table ::deep .mud-table tbody tr {
+        transition: transform 160ms ease, box-shadow 160ms ease, background-color 120ms ease, opacity 120ms ease;
+        border-radius: var(--row-radius);
+    }
+
+        .tickets-table ::deep .mud-table tbody tr > td {
+            background: var(--mud-palette-surface);
+        }
+
+        /* hover + focus affordance */
+        .tickets-table ::deep .mud-table tbody tr:hover > td {
+            background: var(--mud-palette-table-rows-hover) !important;
+        }
+
+        .tickets-table ::deep .mud-table tbody tr:focus-within {
+            outline: 2px solid rgba(93,129,201,.35); /* Info color soft ring */
+            outline-offset: -2px;
+        }
+
+        /* subtle lift on hover */
+        .tickets-table ::deep .mud-table tbody tr:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,.06);
+        }
+
+    /* ---------- Row mount animation (staggered fade-up) ---------- */
+    .tickets-table ::deep .mud-table tbody tr {
+        opacity: 0;
+        transform: translateY(6px);
+        animation: tt-row-in 220ms ease-out forwards;
+    }
+
+        .tickets-table ::deep .mud-table tbody tr:nth-child(1) {
+            animation-delay: 20ms;
+        }
+
+        .tickets-table ::deep .mud-table tbody tr:nth-child(2) {
+            animation-delay: 40ms;
+        }
+
+        .tickets-table ::deep .mud-table tbody tr:nth-child(3) {
+            animation-delay: 60ms;
+        }
+
+        .tickets-table ::deep .mud-table tbody tr:nth-child(4) {
+            animation-delay: 80ms;
+        }
+
+        .tickets-table ::deep .mud-table tbody tr:nth-child(5) {
+            animation-delay: 100ms;
+        }
+
+@keyframes tt-row-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------- Chip tidying inside cells (optional) ---------- */
+.tickets-table ::deep .mud-chip {
+    --tt-chip-scale: .98;
+    transform: scale(var(--tt-chip-scale));
+}
+
+/* ---------- Empty state (when no items) ---------- */
+.tickets-table ::deep .mud-table-empty-row > td {
+    background: transparent;
+    text-align: center;
+    color: var(--mud-palette-text-secondary);
+}
+
+/* ---------- Updating cross-fade hook (toggle class in code) ---------- */
+.tickets-table ::deep .mud-table-body.tt-updating {
+    opacity: .66;
+    transition: opacity 120ms ease;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .tickets-table ::deep .mud-table tbody tr {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .tickets-table ::deep .mud-table tbody tr,
+    .tickets-table ::deep .mud-table-body {
+        transition: none !important;
+    }
+}

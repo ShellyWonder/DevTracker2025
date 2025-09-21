@@ -1,5 +1,6 @@
 ﻿@* TicketsTable *@
 
+<div class="tickets-table">
 <MudDataGrid Items="Tickets"
 			 Elevation="2"
 			 Dense="true"
@@ -80,8 +81,7 @@
 		<NotFoundDisplay Message="No tickets available" />
 	</NoRecordsContent>
 </MudDataGrid>
-
-
+</div>
 
 @code {
 	[Parameter, EditorRequired]
