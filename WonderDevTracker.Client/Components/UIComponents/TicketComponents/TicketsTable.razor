@@ -1,113 +1,161 @@
 ﻿@* TicketsTable *@
 
-<div class="tickets-table">
-<MudDataGrid Items="Tickets"
-			 Elevation="2"
-			 Dense="true"
-			 ColumnResizeMode="ResizeMode.Container"
-			 DragDropColumnReordering
-			 Hideable
-			 ShowMenuIcon
-			 QuickFilter="TicketFilter"
-			 RowsPerPage="10">
-	<ToolBarContent>
-		<MudTextField Variant="Variant.Text"
-					  Placeholder="Search Tickets . . ."
-					  AdornmentIcon="@Icons.Material.Filled.Search"
-					  Adornment="Adornment.Start"
-					  @bind-Value="searchText"
-					  Immediate ="true"
-					  Clearable = "true"   />
-		<MudSpacer />
-		<SafeNavButton Href="#" Valid="true"
-					   Color="Color.Tertiary"
-					   Variant="Variant.Text"
-					   Class="project-details-link me-auto"
-					   StartIcon="@Icons.Material.Filled.List"
-					   TypeText="Add Ticket" />
-	</ToolBarContent>
-	<Columns>
-		<PropertyColumn Property="t => t.Title">
-			<CellTemplate>
-				<TicketTitleLink Ticket="context.Item" />
-			</CellTemplate>
-		</PropertyColumn>
-		<PropertyColumn Property="t => GetProjectName(t)" Title="Project" />
-		<PropertyColumn Property="t => t.Type">
-			<CellTemplate>
-				<TicketTypeChip Type="context.Item.Type" />
-			</CellTemplate>
-		</PropertyColumn>
-		<TemplateColumn Title="Priority" Sortable="true" SortBy="t => t.Priority">
-			<CellTemplate>
-				<TicketPriorityChip Priority="context.Item.Priority" />
-			</CellTemplate>
-		</TemplateColumn>
-		<PropertyColumn Property="t => t.Status">
-			<CellTemplate>
-				<TicketStatusChip Status="context.Item.Status" />
-			</CellTemplate>
-		</PropertyColumn>
-		<TemplateColumn Title="Submitter"
-						Sortable="true"
-						SortBy="c => c.SubmitterUser?.FullName"
-						ShowColumnOptions="true">
-			<CellTemplate>
-				<AssignedToTicket User="context.Item.SubmitterUser" />
-			</CellTemplate>
-		</TemplateColumn>
+<div class="tickets-page">
+	<div class="tt-table @( _tableIsLoaded ? "tt-loaded" : null )">
+		<MudDataGrid T="IndexedTicket"
+					 Items="_indexedTickets"
+					 Elevation="2"
+					 Dense="true"
+					 ColumnResizeMode="ResizeMode.Container"
+					 DragDropColumnReordering
+					 Hideable
+					 ShowMenuIcon
+					 FixedHeader="true"
+					 ariaLabel="Open Tickets table"
+					 RowClass="tt-row"
+					 Hover="true"
+					 RowStyleFunc="RowStyleFunc"
+					 QuickFilter="TicketQuickFilter"
+					 RowsPerPage="10">
+			<ToolBarContent>
+				<div class="tickets-search focus-animate">
+					<MudTextField Variant="Variant.Text"
+								  Placeholder="Search Tickets . . ."
+								  AdornmentIcon="@Icons.Material.Filled.Search"
+								  Adornment="Adornment.Start"
+								  @bind-Value="searchText"
+								  Immediate="false"
+								  DebounceInterval="300"
+								  Clearable="true"
+								  InputType="InputType.Text"
+								  ariaLabel="Search tickets" />
+				</div>
+				<MudSpacer />
+				<SafeNavButton Href="#" Valid="true"
+							   Color="Color.Tertiary"
+							   Variant="Variant.Text"
+							   Class="project-details-link me-auto"
+							   StartIcon="@Icons.Material.Filled.List"
+							   TypeText="Add Ticket" />
+			</ToolBarContent>
+			<Columns>
+				<TemplateColumn Title="Title" Sortable="true" SortBy="t => t.Ticket.Title">
+					<CellTemplate>
+						<TicketTitleLink Ticket="context.Item.Ticket" />
+					</CellTemplate>
+				</TemplateColumn>
 
-		<TemplateColumn Title="Developer"
-						Sortable="true"
-						SortBy="c => c.DeveloperUser?.FullName"
-						ShowColumnOptions="true">
-			<CellTemplate>
-				<AssignedToTicket User="context.Item.DeveloperUser" />
-			</CellTemplate>
-		</TemplateColumn>
-		<PropertyColumn Property="t => t.Modified" Title="Updated" Format="g">
-			<CellTemplate>
-				<MudText Typo="Typo.caption">
-					@context.Item.Modified.ToLocalTime().ToString("g")
-				</MudText>
-			</CellTemplate>
-		</PropertyColumn>
+				<PropertyColumn T="IndexedTicket" 
+					            TProperty="string"
+					            Property="t => GetProjectName(t.Ticket)" 
+								Sortable="true"
+								Title="Project"
+								SortBy="t => t.Ticket.Project?.Name ?? string.Empty" />
+				<TemplateColumn Title="Type" Sortable="true" SortBy="t => t.Ticket.Type">
+					<CellTemplate>
+						<TicketTypeChip Type="context.Item.Ticket.Type" />
+					</CellTemplate>
+				</TemplateColumn>
+				<TemplateColumn Title="Priority" Sortable="true" SortBy="t => t.Ticket.Priority">
+					<CellTemplate>
+						<TicketPriorityChip Priority="context.Item.Ticket.Priority" />
+					</CellTemplate>
+				</TemplateColumn>
+				<TemplateColumn Title="Status" Sortable="true" SortBy="t => t.Ticket.Status">
+					<CellTemplate>
+						<TicketStatusChip Status="context.Item.Ticket.Status" />
+					</CellTemplate>
+				</TemplateColumn>
+				<TemplateColumn Title="Submitter"
+								Sortable="true"
+								SortBy="t => t.Ticket.SubmitterUser == null ? string.Empty : t.Ticket.SubmitterUser.FullName"
+								ShowColumnOptions="true">
+					<CellTemplate>
+						<AssignedToTicket User="context.Item.Ticket.SubmitterUser" />
+					</CellTemplate>
+				</TemplateColumn>
 
-	</Columns>
-	<PagerContent>
-		<MudDataGridPager />
-	</PagerContent>
-	<NoRecordsContent>
-		<NotFoundDisplay Message="No tickets available" />
-	</NoRecordsContent>
-</MudDataGrid>
+				<TemplateColumn Title="Developer"
+								Sortable="true"
+								SortBy="t => t.Ticket.DeveloperUser == null ? string.Empty : t.Ticket.DeveloperUser.FullName"
+								ShowColumnOptions="true">
+					<CellTemplate>
+						<AssignedToTicket User="context.Item.Ticket.DeveloperUser" />
+					</CellTemplate>
+				</TemplateColumn>
+				<TemplateColumn Title="Updated" Sortable="true" SortBy="t => t.Ticket.Modified" >
+					<CellTemplate>
+						<MudText Typo="Typo.caption">
+							@context.Item.Ticket.Modified.ToLocalTime().ToString("g")
+						</MudText>
+					</CellTemplate>
+				</TemplateColumn>
+
+			</Columns>
+			<PagerContent>
+				<MudDataGridPager />
+			</PagerContent>
+			<NoRecordsContent>
+				<NotFoundDisplay Message="No tickets available" />
+			</NoRecordsContent>
+		</MudDataGrid>
+	</div>
 </div>
 
 @code {
 	[Parameter, EditorRequired]
 	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
 
+	// Indexed wrapper class
+	public sealed record IndexedTicket(TicketDTO Ticket, int Index);
+	private IEnumerable<IndexedTicket> _indexedTickets = Enumerable.Empty<IndexedTicket>();
+
+	//get project name safely
 	private static string GetProjectName(TicketDTO ticket)
 	=> ticket.Project?.Name ?? "Unknown";
 
+	//track if table is loaded
+	// used for the table (animation)fade/bounce
+	private bool _tableIsLoaded;
+
+	//search functionality
 	private string searchText = string.Empty;
 
-	private bool TicketFilter(TicketDTO ticket)
+	protected override void OnParametersSet()
 	{
-		if (string.IsNullOrWhiteSpace(searchText)
-		   || ticket.Title!.Contains(searchText, StringComparison.CurrentCultureIgnoreCase)
-		   || ticket.Project?.Name!.Contains(searchText, StringComparison.CurrentCultureIgnoreCase) == true
-		   || (ticket.SubmitterUser?.FullName ?? "Unknown").Contains(searchText, StringComparison.CurrentCultureIgnoreCase) == true
-		   || (ticket.DeveloperUser?.FullName ?? "Unassigned").Contains(searchText, StringComparison.CurrentCultureIgnoreCase) == true
-		   || ticket.Priority!.GetDisplayName().Contains(searchText, StringComparison.CurrentCultureIgnoreCase)
-		   || ticket.Status!.GetDisplayName().Contains(searchText, StringComparison.CurrentCultureIgnoreCase)
-		   || ticket.Type!.GetDisplayName().Contains(searchText, StringComparison.CurrentCultureIgnoreCase))
-
-		{
-			return true;
-		}
-		   return false;
-
+		// Whatever your source is (paged / filtered upstream), map with an index:
+		_indexedTickets = (Tickets ?? Enumerable.Empty<TicketDTO>())
+						 .Select((t, i) => new IndexedTicket(t, i));
+		_tableIsLoaded = true;
 	}
+
+	// ✔ Matches MudDataGrid RowStyleFunc signature: Func<TItem, int, string>
+	private string RowStyleFunc(IndexedTicket row, int rowNumber)
+		=> $"--tt-delay:{Math.Min(row.Index, 50) * 45}ms;";
+
+	// ✔ Matches MudDataGrid Filter signature: Func<TItem, bool>
+	private bool TicketQuickFilter(IndexedTicket row)
+	{
+		var query = searchText;
+		if (string.IsNullOrWhiteSpace(query)) return true;
+
+		var t = row.Ticket;
+
+		return
+			(t.Title?.Contains(query, StringComparison.CurrentCultureIgnoreCase) ?? false)
+			|| (t.Project?.Name?.Contains(query, StringComparison.CurrentCultureIgnoreCase) ?? false)
+			|| ((t.SubmitterUser?.FullName ?? "Unknown")
+				.Contains(query, StringComparison.CurrentCultureIgnoreCase))
+			|| ((t.DeveloperUser?.FullName ?? "Unassigned")
+				.Contains(query, StringComparison.CurrentCultureIgnoreCase))
+			|| (t.Priority?.GetDisplayName()
+				.Contains(query, StringComparison.CurrentCultureIgnoreCase) ?? false)
+			|| (t.Status?.GetDisplayName()
+				.Contains(query, StringComparison.CurrentCultureIgnoreCase) ?? false)
+			|| (t.Type?.GetDisplayName()
+				.Contains(query, StringComparison.CurrentCultureIgnoreCase) ?? false);
+	}
+
+
 
 }

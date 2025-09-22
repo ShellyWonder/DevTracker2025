@@ -195,6 +195,78 @@ h1, h2, h3, h4, h5, h6, button, nav {
 /* #endregion LoadingSpinner.razor  */
 /* #endregion Global CSS*/
 
+/* #region Tickets page/table container animations ==== */
+.tickets-page .tt-table {
+    opacity: 0;
+    transform: translateY(6px);
+    animation: tt-table-in 260ms ease-out forwards;
+    will-change: opacity, transform;
+}
+
+    .tickets-page .tt-table.tt-loaded {
+        /* after the initial fade-in finishes, give a small bounce */
+        animation: tt-table-in 260ms ease-out forwards, tt-table-bounce 360ms cubic-bezier(.17,.67,.32,1.35) 260ms both;
+    }
+
+@keyframes tt-table-in {
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes tt-table-bounce {
+    0% {
+        transform: none;
+    }
+
+    50% {
+        transform: scale(1.01);
+    }
+    /* gentle pop */
+    100% {
+        transform: none;
+    }
+}
+
+/* ==== Row animations (DataGrid or Table) ==== */
+.tt-row {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: tt-row-in 220ms ease-out var(--tt-delay, 0ms) forwards;
+    will-change: opacity, transform;
+}
+
+@keyframes tt-row-in {
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Row hover  */
+.tt-row:hover > td {
+    background-color: var(--mud-palette-table-rows-hover) !important;
+}
+
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce) {
+    .tickets-page .tt-table,
+    .tickets-page .tt-table.tt-loaded {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .tt-row {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+/* #endregion Tickets page/table container animations ==== */
+
+
 /* #region Blazor default CSS */
 h1:focus {
     outline: none;
