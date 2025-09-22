@@ -16,6 +16,14 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="userInfo">"The current user's claims"</param>
         public Task<IEnumerable<Ticket>> GetOpenTicketsAsync(UserInfo userInfo);
 
+        /// <summary>
+        /// Get Resolved Tickets
+        /// </summary>
+        /// <remarks>
+        /// Get a list of resolved tickets for the specified user's company.
+        /// </remarks>
+        /// <param name="userInfo">"The current user's claims"</param>
+        Task<IEnumerable<Ticket>> GetResolvedTicketsAsync(UserInfo userInfo);
         #endregion
     }
 }

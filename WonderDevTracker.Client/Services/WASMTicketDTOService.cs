@@ -9,5 +9,10 @@ namespace WonderDevTracker.Client.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task<IEnumerable<TicketDTO>> GetResolvedTicketsAsync(UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
