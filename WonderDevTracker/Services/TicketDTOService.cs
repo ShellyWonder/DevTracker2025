@@ -8,6 +8,14 @@ namespace WonderDevTracker.Services
 {
     public class TicketDTOService(ITicketRepository ticketRepository) : ITicketDTOService
     {
+        #region GET METHODS
+        public async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
+        {
+            IEnumerable<Ticket> tickets = await ticketRepository.GetArchivedTicketsAsync(userInfo);
+            IEnumerable<TicketDTO> dtos = tickets.Select(t => t.ToDTO());
+            return dtos;
+        }
+
         public async Task<IEnumerable<TicketDTO>> GetOpenTicketsAsync(UserInfo user)
         {
             IEnumerable<Ticket> tickets = await ticketRepository.GetOpenTicketsAsync(user);
@@ -21,5 +29,6 @@ namespace WonderDevTracker.Services
             IEnumerable<TicketDTO> dtos = tickets.Select(t => t.ToDTO());
             return dtos;
         }
+        #endregion
     }
 }
