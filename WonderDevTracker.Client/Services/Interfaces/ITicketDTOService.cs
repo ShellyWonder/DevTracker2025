@@ -20,7 +20,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <remarks>
         /// Get a list of resolved tickets for the specified user's company.
         /// </remarks>
-        /// <param name="UserInfo">"The current user's claims"</param>
+        /// <param name="UserInfo">The current user's claims</param>
         Task<IEnumerable<TicketDTO>> GetResolvedTicketsAsync(UserInfo user);
 
         /// <summary>
@@ -29,8 +29,18 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <remarks>
         /// Get a list of Archived tickets for the specified user's company.
         /// </remarks>
-        /// <param name="userInfo">"The current user's claims"</param>
+        /// <param name="userInfo">The current user's claims</param>
         Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo);
+
+        /// <summary>
+        /// Get Tickets Assigned to User
+        /// </summary>
+        /// <param name="userInfo">The current user's claims</param>
+        /// <remarks>Get all the tickets currently assigned to current user in a specific company.
+        /// If the user is a Project Manager this query returns all tickets in assigned project(s).
+        /// Admins will see tickets they submitted.
+        /// </remarks>
+        Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo);
         #endregion
     }
 }

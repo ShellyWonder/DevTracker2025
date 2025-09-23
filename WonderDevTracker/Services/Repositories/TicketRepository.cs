@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
-using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
@@ -51,6 +49,51 @@ namespace WonderDevTracker.Services.Repositories
                         && !t.Archived
                         && t.Status == TicketStatus.Resolved)
                      .ToListAsync();
+            return tickets;
+        }
+
+        public async Task<IEnumerable<Ticket>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            List<Ticket> tickets = new();
+
+            if (userInfo.IsInRole(Role.ProjectManager))
+            {
+
+                List<int> AssignedProjectIds = await db.Users
+                    //get the user
+                    .Where(u => u.Id == userInfo.UserId)
+                    //include their projects
+                    .SelectMany(u => u.Projects!)
+                    //get only the project ids
+                    .Select(p => p.Id)
+                    //make it a list for C# use
+                    .ToListAsync();
+
+                //get all tickets in those projects
+                tickets = await db.Tickets
+                    .Include(t => t.Project)
+                    .Include(t => t.SubmitterUser)
+                    .Include(t => t.DeveloperUser)
+                    .Where(t => !t.Archived)
+                    .Where(t => t.SubmitterUserId == userInfo.UserId  //ticket submitter
+                                   || t.DeveloperUserId == userInfo.UserId //developer assingned to ticket
+                                   || AssignedProjectIds.Contains(t.ProjectId)) //ticket is in a project assigned to the PM
+                                        .ToListAsync();
+            }
+
+            else
+            {
+                //get all tickets user submitted || all tickets assigned to user
+                tickets = await db.Tickets
+                    .Include(t => t.Project)
+                    .Include(t => t.SubmitterUser)
+                    .Include(t => t.DeveloperUser)
+                    .Where(t => !t.Archived)
+                    .Where(t => t.SubmitterUserId == userInfo.UserId
+                                   || t.DeveloperUserId == userInfo.UserId)
+                    .ToListAsync();
+            }
             return tickets;
         }
     }
