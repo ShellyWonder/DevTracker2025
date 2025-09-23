@@ -1,0 +1,67 @@
+﻿@* TicketsIndex *@
+@page "/tickets/archived"
+
+@attribute [Authorize]
+
+@inject ITicketDTOService ticketService
+@inject ISnackbar Snackbar
+
+@inherits AuthenticatedComponentBase
+
+<PageTitle>Archived Tickets | Dev Tracker</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
+	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+	@if (!_loadingComplete)
+	{
+		<LoadingSpinner Message="Loading archived tickets ..." Color="Color.Primary" Size="Size.Large" />
+	}
+	else if (tickets.Any())
+	{
+		<MudText Typo="Typo.h3" GutterBottom> Archived Tickets </MudText>
+		<TicketsTable Tickets="tickets" />
+	}
+	else
+	{
+		<NotFoundFull Message="No archived tickets found."
+					  ReturnUrl="/"
+					  ReturnLabel="Home"
+					  ForwardUrl="/tickets/create"
+					  ForwardLabel="Create New Ticket" />
+	}
+
+</MudContainer>
+
+
+@code {
+	private IEnumerable<TicketDTO> tickets = [];
+
+	private bool _loadingComplete = false;
+
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+		try
+		{
+			tickets = await ticketService.GetArchivedTicketsAsync(UserInfo!);
+
+		}
+		catch (Exception ex)
+		{
+
+			Console.WriteLine($"Error loading tickets: {ex.Message}");
+			Snackbar.Add("Error loading tickets.", Severity.Error);
+		}
+		_loadingComplete = true;
+
+	}
+
+
+	private static readonly List<BreadcrumbItem> breadcrumbs = new()
+	{
+		new BreadcrumbItem("Home", href:"/" ),
+		new BreadcrumbItem("Tickets", href:"/tickets" ),
+		new BreadcrumbItem(" Archived Tickets", href:null, disabled: true ),
+
+	};
+
+
+}
