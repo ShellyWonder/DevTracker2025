@@ -1,5 +1,5 @@
 ﻿@* TicketsIndex *@
-@page "/tickets/open"
+@page "/tickets/resolved"
 
 @attribute [Authorize]
 
@@ -8,7 +8,7 @@
 
 @inherits AuthenticatedComponentBase
 
-<PageTitle>Open Tickets | Dev Tracker</PageTitle>
+<PageTitle>Resolved Tickets | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
 	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
 	@if (!_loadingComplete)
@@ -17,12 +17,12 @@
 	}
 	else if (tickets.Any())
 	{
-		<MudText Typo = "Typo.h3" GutterBottom > Open Tickets </MudText >
+		<MudText Typo="Typo.h3" GutterBottom> Resolved Tickets </MudText>
 		<TicketsTable Tickets="tickets" />
 	}
 	else
 	{
-		<NotFoundFull Message="No open tickets found."
+		<NotFoundFull Message="No resolved tickets found."
 					  ReturnUrl="/"
 					  ReturnLabel="Home"
 					  ForwardUrl="/tickets/create"
@@ -41,7 +41,7 @@
 	{
 		try
 		{
-			tickets = await ticketService.GetOpenTicketsAsync(UserInfo!);
+			tickets = await ticketService.GetResolvedTicketsAsync(UserInfo!);
 
 		}
 		catch (Exception ex)
@@ -59,7 +59,7 @@
 	{
 		new BreadcrumbItem("Home", href:"/" ),
 		new BreadcrumbItem("Tickets", href:"/tickets" ),
-		new BreadcrumbItem(" Open Tickets", href:null, disabled: true ),
+		new BreadcrumbItem(" Resolved Tickets", href:null, disabled: true ),
 
 	};
 
