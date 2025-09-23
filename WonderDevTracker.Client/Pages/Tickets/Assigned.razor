@@ -1,5 +1,5 @@
 ﻿@* TicketsIndex *@
-@page "/tickets/open"
+@page "/tickets/assigned"
 
 @attribute [Authorize]
 
@@ -8,21 +8,21 @@
 
 @inherits AuthenticatedComponentBase
 
-<PageTitle>Open Tickets | Dev Tracker</PageTitle>
+<PageTitle>My Tickets | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
 	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
 	@if (!_loadingComplete)
 	{
-		<LoadingSpinner Message="Loading open tickets ..." Color="Color.Primary" Size="Size.Large" />
+		<LoadingSpinner Message="Loading your tickets ..." Color="Color.Primary" Size="Size.Large" />
 	}
 	else if (tickets.Any())
 	{
-		<MudText Typo = "Typo.h3" GutterBottom > Open Tickets </MudText >
+		<MudText Typo="Typo.h3" GutterBottom> My Tickets </MudText>
 		<TicketsTable Tickets="tickets" />
 	}
 	else
 	{
-		<NotFoundFull Message="No open tickets found."
+		<NotFoundFull Message="Your tickets not found."
 					  ReturnUrl="/"
 					  ReturnLabel="Home"
 					  ForwardUrl="/tickets/create"
@@ -41,7 +41,7 @@
 	{
 		try
 		{
-			tickets = await ticketService.GetOpenTicketsAsync(UserInfo!);
+			tickets = await ticketService.GetTicketsAssignedToUserAsync(UserInfo!);
 
 		}
 		catch (Exception ex)
@@ -58,7 +58,8 @@
 	private static readonly List<BreadcrumbItem> breadcrumbs = new()
 	{
 		new BreadcrumbItem("Home", href:"/" ),
-		new BreadcrumbItem(" Open Tickets", href:null, disabled: true ),
+		new BreadcrumbItem("Tickets", href:"/tickets/open" ),
+		new BreadcrumbItem(" My Tickets", href:null, disabled: true ),
 
 	};
 
