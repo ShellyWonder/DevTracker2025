@@ -1,0 +1,146 @@
+﻿@* TicketCreate *@
+@page "/tickets/create"
+@attribute [Authorize]
+
+@inject ITicketDTOService ticketService
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+
+@inherits AuthenticatedComponentBase
+
+<PageTitle>Submit New Ticket | Dev Tracker</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Large">
+	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+	<MudPaper Class="p-3">
+		<AnimatedBlock Index="@Index.Next()">
+			<MudText Typo="Typo.h3" GutterBottom>
+				Submit a New Ticket
+			</MudText>
+		</AnimatedBlock>
+		<EditForm Model="ticket"
+				  class="vstack gap-3"
+				  OnValidSubmit="HandleValidSubmit">
+			<DataAnnotationsValidator />
+
+			<AnimatedBlock Index="@Index.Next()">
+				<MudTextField @bind-Value="ticket.Title"
+							  For="() => ticket.Title"
+							  Label="Title"
+							  Variant="Variant.Outlined"
+							  Required="true" />
+			</AnimatedBlock>
+
+			<AnimatedBlock Index="@Index.Next()">
+				<MudTextField @bind-Value="ticket.Description"
+							  For="() => ticket.Description"
+							  Label="Description"
+							  Variant="Variant.Outlined"
+							  Lines="5"
+							  MaxLines="15"
+							  AutoGrow="true"
+							  Required="true" />
+			</AnimatedBlock>
+
+			<AnimatedBlock Index="@Index.Next()">
+				<MudSelect @bind-Value="ticket.ProjectId"
+						   For="() => ticket.ProjectId"
+						   Label="Project"
+						   Variant="Variant.Outlined">
+					@*TODO: get a list of projects*@
+					<MudSelectItem Value="0">
+						Select a project
+					</MudSelectItem>
+				</MudSelect>
+			</AnimatedBlock>
+
+			<AnimatedBlock Index="@Index.Next()">
+				<div class="hstack flex-wrap gap-3 align-items-start">
+					<MudSelect @bind-Value="ticket.SubmitterUserId"
+							   For="() => ticket.SubmitterUserId"
+							   Label="Submitter"
+							   Variant="Variant.Outlined"
+							   Disabled>
+						@*TODO: insert current user info here*@
+						<MudSelectItem Value="ticket.SubmitterUserId">
+							Current User
+						</MudSelectItem>
+					</MudSelect>
+					<MudSelect @bind-Value="ticket.DeveloperUserId"
+							   For="() => ticket.DeveloperUserId"
+							   Label="Developer"
+							   Variant="Variant.Outlined"
+							   Disabled>
+						@*TODO: Get list of valid Developers(those assigned to project/company*@
+						@*TODO: Display only to Admin and PM assigned to the project*@
+						<MudSelectItem T="string">
+							Select a developer
+						</MudSelectItem>
+					</MudSelect>
+				</div>
+			</AnimatedBlock>
+
+			<AnimatedBlock Index="@Index.Next()">
+				<MudField Label="Ticket Type"
+						  Variant="Variant.Outlined">
+					<PriorityChipSelector TEnum="TicketType"
+										  Selected="ticket.Type ?? TicketType.Defect"
+										  SelectedChanged="val => ticket.Type = val" />
+				</MudField>
+			</AnimatedBlock>
+
+			<AnimatedBlock Index="@Index.Next()">
+				<MudField Label="Ticket Priority"
+						  Variant="Variant.Outlined">
+					<PriorityChipSelector TEnum="TicketPriority"
+										  Selected="ticket.Priority ?? TicketPriority.Medium"
+										  SelectedChanged="val => ticket.Priority = val" />
+				</MudField>
+			</AnimatedBlock>
+
+			<AnimatedBlock Index="@Index.Next()">
+				<ValidationSummary />
+				<div class="d-flex">
+					<BackToBtn Href="/tickets/open" Text="Back to Tickets" />
+
+					<SubmitBtn DisplayText="Submit"
+							   ButtonType="ButtonType.Submit" />
+
+				</div>
+			</AnimatedBlock>
+		</EditForm>
+	</MudPaper>
+</MudContainer>
+
+@code {
+	private TicketDTO ticket = new() { Created = DateTimeOffset.UtcNow };
+	private readonly IndexTrackerHelper Index = new();
+
+	protected override void OnParametersSet() => Index.Reset();
+
+
+	private static readonly List<BreadcrumbItem> breadcrumbs = new()
+	{
+	   new BreadcrumbItem("Home", href:"/" ),
+	   new BreadcrumbItem("Tickets", href:"/tickets/open" ),
+	   new BreadcrumbItem("Submit a New Ticket", href:null, disabled: true ),
+
+	};
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			ticket = await ticketService.AddTicketAsync(ticket, UserInfo!);
+			Snackbar.Add($"{ticket!.Title} created successfully!", Severity.Success);
+		}
+		catch (Exception ex)
+		{
+			// Handle error, e.g., show a message to the user
+			Console.Error.WriteLine($"Error creating ticket: {ex.Message}");
+			Snackbar.Add("Unable to create ticket. Please try again.", Severity.Error);
+			return;
+		}
+		NavManager.NavigateTo($"/tickets/open/{ticket.Id}");
+	}
+
+
+}
