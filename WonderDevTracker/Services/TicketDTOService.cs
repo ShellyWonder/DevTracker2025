@@ -8,6 +8,24 @@ namespace WonderDevTracker.Services
 {
     public class TicketDTOService(ITicketRepository ticketRepository) : ITicketDTOService
     {
+        #region CREATE METHODS
+        public async Task<TicketDTO?> AddTicketAsync(TicketDTO ticket, UserInfo userInfo)
+        {
+            Ticket dbTicket = new()
+            {
+                Title = ticket.Title,
+                Description = ticket.Description,
+                ProjectId = ticket.ProjectId,
+                Archived = ticket.Archived,
+                SubmitterUserId = ticket.SubmitterUserId,
+                DeveloperUserId = ticket.DeveloperUserId
+            };
+            dbTicket = await ticketRepository.AddTicketAsync(dbTicket, userInfo)
+                ?? throw new InvalidOperationException("Ticket creation failed."); 
+            return dbTicket.ToDTO();
+        }
+        #endregion
+
         #region GET METHODS
         public async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
@@ -37,5 +55,7 @@ namespace WonderDevTracker.Services
             return dtos;
         }
         #endregion
+
+
     }
 }
