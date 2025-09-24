@@ -3,6 +3,7 @@
 @attribute [Authorize]
 
 @inject ITicketDTOService ticketService
+@inject IProjectDTOService projectService
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
 
@@ -46,24 +47,30 @@
 						   For="() => ticket.ProjectId"
 						   Label="Project"
 						   Variant="Variant.Outlined">
-					@*TODO: get a list of projects*@
-					<MudSelectItem Value="0">
+						<MudSelectItem Value="0">
 						Select a project
-					</MudSelectItem>
+						</MudSelectItem>
+					@foreach (ProjectDTO project in projects)
+					{
+						<MudSelectItem Value="project.Id">
+							@project.Name
+						</MudSelectItem>
+
+					}
 				</MudSelect>
 			</AnimatedBlock>
 
 			<AnimatedBlock Index="@Index.Next()">
 				<div class="hstack flex-wrap gap-3 align-items-start">
-					<MudSelect @bind-Value="ticket.SubmitterUserId"
+					<MudSelect Value="UserInfo!.UserId"
 							   For="() => ticket.SubmitterUserId"
 							   Label="Submitter"
 							   Variant="Variant.Outlined"
 							   Disabled>
-						@*TODO: insert current user info here*@
-						<MudSelectItem Value="ticket.SubmitterUserId">
-							Current User
+						<MudSelectItem Value="UserInfo!.UserId">
+							@UserInfo?.FullName
 						</MudSelectItem>
+
 					</MudSelect>
 					<MudSelect @bind-Value="ticket.DeveloperUserId"
 							   For="() => ticket.DeveloperUserId"
@@ -86,6 +93,7 @@
 										  Selected="ticket.Type ?? TicketType.Defect"
 										  SelectedChanged="val => ticket.Type = val" />
 				</MudField>
+				<ValidationMessage For="() => ticket.Type" />
 			</AnimatedBlock>
 
 			<AnimatedBlock Index="@Index.Next()">
@@ -95,6 +103,7 @@
 										  Selected="ticket.Priority ?? TicketPriority.Medium"
 										  SelectedChanged="val => ticket.Priority = val" />
 				</MudField>
+				<ValidationMessage For="() => ticket.Priority" />
 			</AnimatedBlock>
 
 			<AnimatedBlock Index="@Index.Next()">
@@ -104,7 +113,6 @@
 
 					<SubmitBtn DisplayText="Submit"
 							   ButtonType="ButtonType.Submit" />
-
 				</div>
 			</AnimatedBlock>
 		</EditForm>
@@ -112,10 +120,55 @@
 </MudContainer>
 
 @code {
-	private TicketDTO ticket = new() { Created = DateTimeOffset.UtcNow };
+	private TicketDTO ticket = new();
+	IEnumerable<ProjectDTO> projects = [];
+	IEnumerable<AppUserDTO> developers = [];
+
 	private readonly IndexTrackerHelper Index = new();
 
 	protected override void OnParametersSet() => Index.Reset();
+
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+		if (UserInfo is not null)
+		{
+			// Set the submitter to the current user
+			ticket.SubmitterUserId = UserInfo.UserId;
+			ticket.Created = DateTime.UtcNow;
+			ticket.Status = TicketStatus.New;
+
+			try
+			{    //Get all active projects to display in form select
+				projects = await projectService.GetAllProjectsAsync(UserInfo!);
+			}
+			catch (Exception ex)
+			{
+
+				Console.WriteLine(ex);
+				Snackbar.Add("Unable to load projects. Please try again.", Severity.Error);
+			}
+		}
+	}
+
+	private async Task HandleProjectChangeAsync()
+	{
+		if (ticket.ProjectId == 0) //project not selected
+		{
+			ticket.DeveloperUserId = null;
+			developers = [];
+			return;
+		}
+		try
+		{
+			IEnumerable<AppUserDTO> developers = await projectService.GetProjectDevelopersAsync(ticket.ProjectId, UserInfo!);
+			
+		}
+		catch (Exception ex)
+		{
+			
+			Console.WriteLine(ex);
+		}
+	}
 
 
 	private static readonly List<BreadcrumbItem> breadcrumbs = new()
@@ -125,6 +178,7 @@
 	   new BreadcrumbItem("Submit a New Ticket", href:null, disabled: true ),
 
 	};
+
 	private async Task HandleValidSubmit()
 	{
 		try
