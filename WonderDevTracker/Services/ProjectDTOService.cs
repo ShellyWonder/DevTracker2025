@@ -66,10 +66,7 @@ namespace WonderDevTracker.Services
             return projectDTO;
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public async Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user)
         {
@@ -80,10 +77,6 @@ namespace WonderDevTracker.Services
             return dto;
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<IEnumerable<AppUserDTO>> GetProjectMembersAsync(int projectId, UserInfo user)
         {
@@ -98,6 +91,24 @@ namespace WonderDevTracker.Services
             }
             return dtos;
         }
+
+        public async Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user)
+        {
+            IEnumerable<ApplicationUser> developers =  await projectRepository.GetProjectDevelopersAsync(projectId, user);
+            List<AppUserDTO> dtos = [];
+            foreach (var dev in developers)
+            {
+                AppUserDTO dto = await dev.ToDTOWithRole(userManager);
+                dtos.Add(dto);
+            }
+            return dtos;
+        }
+
+        public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user)
         {
             throw new NotImplementedException();

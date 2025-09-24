@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
+using WonderDevTracker.Client.Components.UIComponents.ProjectComponents.ProjectDetailsComponents;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
@@ -66,9 +67,21 @@ namespace WonderDevTracker.Services.Repositories
             return project;
         }
 
-        public Task<IEnumerable<ApplicationUser>> GetProjectDevelopersAsync(int projectId, UserInfo user)
+        public async Task<IEnumerable<ApplicationUser>> GetProjectDevelopersAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
+            IEnumerable<ApplicationUser> members = await GetProjectMembersAsync(projectId, user);
+
+           var developers = new List<ApplicationUser>();
+            foreach (var member in members)
+            {
+                if (await userManager.IsInRoleAsync(member, nameof(Role.Developer)) == true)
+                {
+                    developers.Add(member);
+                }
+            }
+            return developers.AsEnumerable();
+
+
         }
 
         public async Task<string?> GetProjectManagerIdAsync(int projectId, UserInfo user)
