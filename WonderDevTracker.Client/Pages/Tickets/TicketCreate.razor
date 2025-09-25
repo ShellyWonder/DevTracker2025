@@ -19,8 +19,7 @@
 			</MudText>
 		</AnimatedBlock>
 		<EditForm Model="ticket"
-				  class="vstack gap-3"
-				  OnValidSubmit="HandleValidSubmit">
+				  class="vstack gap-3">
 			<DataAnnotationsValidator />
 
 			<AnimatedBlock Index="@Index.Next()">
@@ -40,24 +39,28 @@
 							  MaxLines="15"
 							  AutoGrow="true"
 							  Required="true" />
+
 			</AnimatedBlock>
 
 			<AnimatedBlock Index="@Index.Next()">
-				<MudSelect @bind-Value="ticket.ProjectId"
+				<MudSelect T="int"
+						   @bind-Value="ticket.ProjectId"
+						   @bind-Value:after="HandleProjectChangeAsync"
 						   For="() => ticket.ProjectId"
 						   Label="Project"
 						   Variant="Variant.Outlined">
-						<MudSelectItem Value="0">
+					<MudSelectItem Value="@(0)">
 						Select a project
-						</MudSelectItem>
+					</MudSelectItem>
 					@foreach (ProjectDTO project in projects)
 					{
-						<MudSelectItem Value="project.Id">
+						<MudSelectItem Value="@(project.Id)">
 							@project.Name
 						</MudSelectItem>
 
 					}
 				</MudSelect>
+				<ValidationMessage For="() => ticket.ProjectId" />
 			</AnimatedBlock>
 
 			<AnimatedBlock Index="@Index.Next()">
@@ -76,13 +79,16 @@
 							   For="() => ticket.DeveloperUserId"
 							   Label="Developer"
 							   Variant="Variant.Outlined"
-							   Disabled>
-						@*TODO: Get list of valid Developers(those assigned to project/company*@
-						@*TODO: Display only to Admin and PM assigned to the project*@
-						<MudSelectItem T="string">
-							Select a developer
-						</MudSelectItem>
+							   Disabled="@(developers.Count() == 0 || canUserAssignTicket == false)"
+							   Placeholder="@(developers.Any() ? "Select a developer" : "No developers available")">
+						@foreach (AppUserDTO developer in developers)
+						{
+							<MudSelectItem Value="@developer.Id">
+								@developer.FullName
+							</MudSelectItem>
+						}
 					</MudSelect>
+					<ValidationMessage For="() => ticket.DeveloperUserId" />
 				</div>
 			</AnimatedBlock>
 
@@ -107,7 +113,7 @@
 			</AnimatedBlock>
 
 			<AnimatedBlock Index="@Index.Next()">
-				<ValidationSummary />
+
 				<div class="d-flex">
 					<BackToBtn Href="/tickets/open" Text="Back to Tickets" />
 
@@ -123,6 +129,7 @@
 	private TicketDTO ticket = new();
 	IEnumerable<ProjectDTO> projects = [];
 	IEnumerable<AppUserDTO> developers = [];
+	bool canUserAssignTicket = false;
 
 	private readonly IndexTrackerHelper Index = new();
 
@@ -160,13 +167,32 @@
 		}
 		try
 		{
-			IEnumerable<AppUserDTO> developers = await projectService.GetProjectDevelopersAsync(ticket.ProjectId, UserInfo!);
-			
+			AppUserDTO? projectManager = await projectService.GetProjectManagerAsync(ticket.ProjectId, UserInfo!);
+			if (UserInfo!.IsInRole(Role.Admin) || projectManager?.Id == UserInfo?.UserId)
+			{
+				canUserAssignTicket = true;
+			}
+			else
+			{
+				canUserAssignTicket = false;
+				ticket.DeveloperUserId = null;
+
+			}
+
+			IEnumerable<AppUserDTO> projectMembers = await projectService.GetProjectMembersAsync(ticket.ProjectId, UserInfo!);
+			developers = projectMembers.Where(m => m.Role == Role.Developer);
+
+			if (!developers.Any(d => d.Id == ticket.DeveloperUserId))
+			{
+				ticket.DeveloperUserId = null;
+			}
+
 		}
 		catch (Exception ex)
 		{
-			
+
 			Console.WriteLine(ex);
+			Snackbar.Add("Failed to load developers for the selected project.", Severity.Warning);
 		}
 	}
 

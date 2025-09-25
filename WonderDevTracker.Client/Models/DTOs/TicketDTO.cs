@@ -39,6 +39,7 @@ namespace WonderDevTracker.Client.Models.DTOs
         public TicketType? Type { get; set; }
 
         //navigation properties
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid project.")]
         public int ProjectId { get; set; }
         public virtual ProjectDTO? Project { get; set; }
 
