@@ -33,17 +33,21 @@ namespace WonderDevTracker.Client.Models.DTOs
 
         public bool ArchivedByProject { get; set; } = false;
 
-        public TicketPriority? Priority { get; set; }
-        public TicketStatus? Status { get; set; }
+        [Required]
+        public TicketPriority Priority { get; set; } = TicketPriority.Medium;
 
-        public TicketType? Type { get; set; }
+        [Required]
+        public TicketStatus Status { get; set; } = TicketStatus.New;
+        [Required]
+        public TicketType Type { get; set; } = TicketType.Defect;
 
         //navigation properties
+        [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Please select a valid project.")]
         public int ProjectId { get; set; }
         public virtual ProjectDTO? Project { get; set; }
 
-        [Required]
+      
         public string? SubmitterUserId { get; set; }
         public AppUserDTO? SubmitterUser { get; set; }
         public string? DeveloperUserId { get; set; }

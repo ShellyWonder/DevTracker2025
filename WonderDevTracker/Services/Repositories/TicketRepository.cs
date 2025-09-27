@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
@@ -7,8 +8,51 @@ using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services.Repositories
 {
-    public class TicketRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : ITicketRepository
+    public class TicketRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
+                                   UserManager<ApplicationUser> userManager) : ITicketRepository
     {
+        public async Task<Ticket?> AddTicketAsync(Ticket ticket, UserInfo userInfo)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            //ensure the project is valid & belongs to the user's company
+            Project? project = await db.Projects
+                .Include(p => p.Members)
+                 .FirstOrDefaultAsync(p => p.Id == ticket.ProjectId
+                  && p.CompanyId == userInfo.CompanyId) ?? 
+                             throw new InvalidOperationException("Invalid project."); 
+
+            ticket.Created = DateTimeOffset.UtcNow;
+            ticket.Status = TicketStatus.New;
+            ticket.SubmitterUserId = userInfo.UserId;
+
+
+            ApplicationUser? developer = null;
+            if (!string.IsNullOrEmpty(ticket.DeveloperUserId))
+            {
+                bool IsManagerOfProject = userInfo.IsInRole(Role.ProjectManager)
+                    && project!.Members!.Any(m => m.Id == userInfo.UserId);
+
+                if (userInfo.IsInRole(Role.Admin) || IsManagerOfProject)
+                {
+                    developer = project!.Members!.FirstOrDefault(m => m.Id == ticket.DeveloperUserId);
+
+                    if (developer is not null)
+                    {
+                        bool isDeveloper = await userManager.IsInRoleAsync(developer, nameof(Role.Developer));
+                        if (!isDeveloper) developer = null;
+                    }
+
+                }
+            }
+            ticket.DeveloperUser = developer;
+            ticket.DeveloperUserId = developer?.Id;
+
+            db.Tickets.Add(ticket);
+            await db.SaveChangesAsync();
+
+            return ticket;
+        }
+
         public async Task<IEnumerable<Ticket>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();

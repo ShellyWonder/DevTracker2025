@@ -129,11 +129,11 @@
 		_tableIsLoaded = true;
 	}
 
-	// ✔ Matches MudDataGrid RowStyleFunc signature: Func<TItem, int, string>
+	//  Matches MudDataGrid RowStyleFunc signature: Func<TItem, int, string>
 	private string RowStyleFunc(IndexedTicket row, int rowNumber)
 		=> $"--tt-delay:{Math.Min(row.Index, 50) * 45}ms;";
 
-	// ✔ Matches MudDataGrid Filter signature: Func<TItem, bool>
+	// Matches MudDataGrid Filter signature: Func<TItem, bool>
 	private bool TicketQuickFilter(IndexedTicket row)
 	{
 		var query = searchText;
@@ -148,12 +148,12 @@
 				.Contains(query, StringComparison.CurrentCultureIgnoreCase))
 			|| ((t.DeveloperUser?.FullName ?? "Unassigned")
 				.Contains(query, StringComparison.CurrentCultureIgnoreCase))
-			|| (t.Priority?.GetDisplayName()
-				.Contains(query, StringComparison.CurrentCultureIgnoreCase) ?? false)
-			|| (t.Status?.GetDisplayName()
-				.Contains(query, StringComparison.CurrentCultureIgnoreCase) ?? false)
-			|| (t.Type?.GetDisplayName()
-				.Contains(query, StringComparison.CurrentCultureIgnoreCase) ?? false);
+			|| (t.Priority.GetDisplayName()
+				.Contains(query, StringComparison.CurrentCultureIgnoreCase))
+			|| (t.Status.GetDisplayName()
+				.Contains(query, StringComparison.CurrentCultureIgnoreCase))
+			|| (t.Type.GetDisplayName()
+				.Contains(query, StringComparison.CurrentCultureIgnoreCase));
 	}
 
 

@@ -1,5 +1,6 @@
 ﻿using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
@@ -16,8 +17,11 @@ namespace WonderDevTracker.Services
                 Title = ticket.Title,
                 Description = ticket.Description,
                 ProjectId = ticket.ProjectId,
-                Archived = ticket.Archived,
-                SubmitterUserId = ticket.SubmitterUserId,
+                Created = DateTimeOffset.UtcNow,
+                Status = TicketStatus.New,
+                Priority = ticket.Priority,
+                Type = ticket.Type,
+                SubmitterUserId = userInfo.UserId,
                 DeveloperUserId = ticket.DeveloperUserId
             };
             dbTicket = await ticketRepository.AddTicketAsync(dbTicket, userInfo)

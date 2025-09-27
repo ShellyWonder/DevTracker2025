@@ -33,10 +33,10 @@ namespace WonderDevTracker.Models
 
         public bool ArchivedByProject { get; set; } = false;
 
-        public TicketPriority? Priority { get; set; }
-        public TicketStatus? Status { get; set; }
+        public TicketPriority Priority { get; set; }
+        public TicketStatus Status { get; set; } = TicketStatus.New;
 
-        public TicketType? Type { get; set; }
+        public TicketType Type { get; set; } = TicketType.Defect; 
 
         //navigation properties
         public int ProjectId { get; set; }

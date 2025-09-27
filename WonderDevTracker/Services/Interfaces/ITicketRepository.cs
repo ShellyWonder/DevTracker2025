@@ -44,5 +44,18 @@ namespace WonderDevTracker.Services.Interfaces
         /// </remarks>
         Task<IEnumerable<Ticket>> GetTicketsAssignedToUserAsync(UserInfo userInfo);
         #endregion
+
+        #region CREATE METHODS
+        /// <summary>
+        /// Add Ticket
+        /// </summary>
+        /// <remarks>
+        /// Creates a new project ticket in the database asynchronously.
+        /// </remarks>
+        /// <param name="ticket">New project ticket to be saved in Db</param>
+        /// <param name="userInfo">Current user's claims</param>
+        /// <returns>New ticket after being saved in Db</returns>
+        Task<Ticket?> AddTicketAsync(Ticket ticket, UserInfo userInfo);
+        #endregion
     }
 }

@@ -94,16 +94,14 @@ namespace WonderDevTracker.Services
 
         public async Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user)
         {
-            IEnumerable<ApplicationUser> developers =  await projectRepository.GetProjectDevelopersAsync(projectId, user);
-            List<AppUserDTO> dtos = [];
-            foreach (var dev in developers)
-            {
-                AppUserDTO dto = await dev.ToDTOWithRole(userManager);
-                dtos.Add(dto);
-            }
+            var developers = await projectRepository.GetProjectDevelopersAsync(projectId, user);
+
+            // fan-out/fan-in: run all mappings concurrently
+            var dtoTasks = developers.Select(dev => dev.ToDTOWithRole(userManager));
+            var dtos = await Task.WhenAll(dtoTasks);
+
             return dtos;
         }
-
         public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user)
         {
             throw new NotImplementedException();

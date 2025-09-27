@@ -19,7 +19,8 @@
 			</MudText>
 		</AnimatedBlock>
 		<EditForm Model="ticket"
-				  class="vstack gap-3">
+				  class="vstack gap-3"
+				  OnValidSubmit="HandleValidSubmit">
 			<DataAnnotationsValidator />
 
 			<AnimatedBlock Index="@Index.Next()">
@@ -48,19 +49,17 @@
 						   @bind-Value:after="HandleProjectChangeAsync"
 						   For="() => ticket.ProjectId"
 						   Label="Project"
-						   Variant="Variant.Outlined">
-					<MudSelectItem Value="@(0)">
-						Select a project
-					</MudSelectItem>
-					@foreach (ProjectDTO project in projects)
+						   Variant="Variant.Outlined"
+						   Required="true"
+						   RequiredError="Please select a valid project.">
+					<MudSelectItem Value="@(0)">Select a project</MudSelectItem>
+					@foreach (var p in projects)
 					{
-						<MudSelectItem Value="@(project.Id)">
-							@project.Name
-						</MudSelectItem>
-
+						<MudSelectItem Value="@(p.Id)">@p.Name</MudSelectItem>
 					}
 				</MudSelect>
 				<ValidationMessage For="() => ticket.ProjectId" />
+
 			</AnimatedBlock>
 
 			<AnimatedBlock Index="@Index.Next()">
@@ -96,7 +95,7 @@
 				<MudField Label="Ticket Type"
 						  Variant="Variant.Outlined">
 					<PriorityChipSelector TEnum="TicketType"
-										  Selected="ticket.Type ?? TicketType.Defect"
+										  Selected="ticket.Type"
 										  SelectedChanged="val => ticket.Type = val" />
 				</MudField>
 				<ValidationMessage For="() => ticket.Type" />
@@ -106,7 +105,8 @@
 				<MudField Label="Ticket Priority"
 						  Variant="Variant.Outlined">
 					<PriorityChipSelector TEnum="TicketPriority"
-										  Selected="ticket.Priority ?? TicketPriority.Medium"
+										  Selected="ticket.Priority"
+
 										  SelectedChanged="val => ticket.Priority = val" />
 				</MudField>
 				<ValidationMessage For="() => ticket.Priority" />
@@ -207,9 +207,15 @@
 
 	private async Task HandleValidSubmit()
 	{
+		if (!canUserAssignTicket)
+		{
+			ticket.DeveloperUserId = null;
+		}
+
 		try
 		{
-			ticket = await ticketService.AddTicketAsync(ticket, UserInfo!);
+			var result = await ticketService.AddTicketAsync(ticket!, UserInfo!);
+			ticket = result!;
 			Snackbar.Add($"{ticket!.Title} created successfully!", Severity.Success);
 		}
 		catch (Exception ex)
@@ -219,7 +225,15 @@
 			Snackbar.Add("Unable to create ticket. Please try again.", Severity.Error);
 			return;
 		}
-		NavManager.NavigateTo($"/tickets/open/{ticket.Id}");
+		if (ticket.Id > 0)
+		{
+			// Handle unexpected case where ticket ID is not set
+			Snackbar.Add($"Ticket:{ticket.Title} submitted successfully.", Severity.Error);
+
+			// Navigate to the ticket list or details page after successful creation
+			NavManager.NavigateTo($"/tickets/open");
+		}
+
 	}
 
 
