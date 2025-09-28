@@ -19,7 +19,7 @@
 	else if (project is not null)
 	{
 		@* Reset Index at start of render;
-            controls the index for components that use IndexTracker.*@
+					controls the index for components that use IndexTracker.*@
 		ResetIndex();
 		<PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
 
@@ -56,69 +56,16 @@
 						Edit
 					</MudButton>
 
-					@if (project!.Archived)
-					{
-						<MudButton Variant="Variant.Text"
-								   StartIcon="@Icons.Material.Filled.RestoreFromTrash"
-								   Disabled="@(project is null)"
-								   Color="Color.Success"
-								   Onclick="ConfirmRestoreAsync">
-							Restore
-						</MudButton>
-
-					}
-					else
-					{
-						<MudButton Variant="Variant.Text"
-								   StartIcon="@Icons.Material.Filled.Delete"
-								   Disabled="@(project is null)"
-								   Color="Color.Error"
-								   Onclick="ConfirmArchiveAsync">
-							Archive
-						</MudButton>
-
-					}
+					<ArchiveBar IsArchived="project!.Archived"
+								UserCanEdit="_userCanEditProject"
+								ItemLabel="Project"
+								Busy="@_processingArchiveRestore"
+								OnArchiveRequested="HandleArchiveAsync"
+								OnRestoreRequested="HandleRestoreAsync" />
 				</div>
+
 			}
 		</div>
-		@if (_userCanEditProject)
-		{
-			@* Archive Confirmation Dialog *@
-			<MudMessageBox @ref="_archiveMessageBox"
-						   Title="Archive Project"
-						   CancelText="Cancel">
-				<MessageContent>
-					Are you sure you want to archive this project?
-				</MessageContent>
-				<YesButton>
-					<MudButton Variant="Variant.Filled"
-							   Color="Color.Error"
-							   Class="ms-2"
-							   StartIcon="@Icons.Material.Filled.Delete"
-							   OnClick="HandleArchiveAsync">
-						Yes, Archive
-					</MudButton>
-				</YesButton>
-			</MudMessageBox>
-
-			<MudMessageBox @ref="_restoreMessageBox"
-						   Title="Restore Project"
-						   CancelText="Cancel">
-				<MessageContent>
-					Are you sure you want to restore this project to active status?
-				</MessageContent>
-				<YesButton>
-					<MudButton Variant="Variant.Filled"
-							   Color="Color.Secondary"
-							   Class="ms-2"
-							   StartIcon="@Icons.Material.Filled.RestoreFromTrash"
-							   OnClick="HandleRestoreAsync">
-						Yes, Restore
-					</MudButton>
-				</YesButton>
-			</MudMessageBox>
-		}
-
 	}
 	else
 	{
@@ -131,7 +78,6 @@
 					  ForwardLabel="Create New Project" />
 
 	}
-
 </MudContainer>
 
 @code {
@@ -143,10 +89,9 @@
 	private List<BreadcrumbItem> breadcrumbs = [];
 	private bool _loadingComplete = false;
 	private bool _userCanEditProject = false;
+	private bool _processingArchiveRestore = false;
 
 	private void ResetIndex() => IndexTracker.Reset();
-	private MudMessageBox? _archiveMessageBox;
-	private MudMessageBox? _restoreMessageBox;
 
 	// Refresh ProjectMembers component when there is a change to project Manager assignment.
 	private Guid _membersRefreshToken = Guid.NewGuid();
@@ -187,26 +132,15 @@
 
 	}
 
-	private async Task ConfirmArchiveAsync()
-	{
-		if (_userCanEditProject == false) return;
-		if (_archiveMessageBox is not null) await _archiveMessageBox.ShowAsync();
-	}
-
-	private async Task ConfirmRestoreAsync()
-	{
-		if (_userCanEditProject == false) return;
-		if (_restoreMessageBox is not null) await _restoreMessageBox.ShowAsync();
-	}
-
 	private async Task HandleArchiveAsync()
 	{
 		if (_userCanEditProject == false || project is null) return;
-		
-		var projectName = project.Name; // Cache the name
+
+		var projectName = project.Name ?? "Project"; // Cache the name
 
 		try
 		{
+			_processingArchiveRestore = true;
 			//archive project
 			await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
 
@@ -216,18 +150,21 @@
 			if (project != null) project.Archived = true;
 
 
-			await InvokeAsync(() => Snackbar.Add($"The Project '{projectName}' has been archived", Severity.Success));
+			await InvokeAsync(() => Snackbar.Add($"The Project, '{projectName}' has been archived", Severity.Success));
 
 			// Navigate back to projects list
 			NavManager.NavigateTo("/projects");
-			return;
-
 		}
 		catch (Exception ex)
 		{
 
 			Console.WriteLine(ex);
 			Snackbar.Add($"{projectName} is not available to be archived");
+		}
+		finally
+		{
+			_processingArchiveRestore = false;
+			StateHasChanged();
 		}
 	}
 
@@ -236,8 +173,11 @@
 		if (project is null) return;
 		try
 		{
-			var projectName = project.Name; // Cache the name
-											//restore project
+			_processingArchiveRestore = true;
+
+			string projectName = project.Name ?? "Project";
+
+			//restore project
 			await ProjectService.RestoreProjectByIdAsync(project.Id, UserInfo!);
 
 			//refresh project details to show restored status
@@ -259,6 +199,11 @@
 		{
 			Console.WriteLine(ex);
 			Snackbar.Add($"The Project is not available to be restored");
+		}
+		finally
+		{
+			_processingArchiveRestore = false;
+			StateHasChanged();
 		}
 	}
 

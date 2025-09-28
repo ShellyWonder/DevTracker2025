@@ -1,0 +1,117 @@
+﻿@* <h3>Archive</h3> *@
+
+@if (UserCanEdit)
+{
+    <div class="d-flex gap-2">
+        @if (!IsArchived)
+        {
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Error"
+                       Disabled="@Busy"
+                       StartIcon="@Icons.Material.Filled.Delete"
+                       OnClick="OpenArchiveConfirmAsync"
+                       >
+                Archive
+            </MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Success"
+                       Disabled="@Busy"
+                       StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+                       OnClick="OpenRestoreConfirmAsync"
+                       >
+                Restore
+            </MudButton>
+        }
+    </div>
+
+    <!-- Archive confirm -->
+    <MudMessageBox @ref="_archiveBox"
+                   Title="@($"Archive {ItemLabel}")"
+                   CancelText="Cancel">
+        <MessageContent>
+            Are you sure you want to archive this @ItemLabel?
+        </MessageContent>
+        <YesButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Error"
+                       Disabled="@Busy"
+                       StartIcon="@Icons.Material.Filled.Delete"
+                       OnClick="ConfirmArchiveAsync">
+                Yes, Archive
+            </MudButton>
+        </YesButton>
+    </MudMessageBox>
+
+    <!-- Restore confirm -->
+    <MudMessageBox @ref="_restoreBox"
+                   Title="@($"Archive {ItemLabel}")"
+                   CancelText="Cancel">
+        <MessageContent>
+            Are you sure you want to restore this @ItemLabel?
+        </MessageContent>
+        <YesButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Success"
+                       Disabled="@Busy"
+                       StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+                       OnClick="ConfirmRestoreAsync">
+                Yes, Restore
+            </MudButton>
+        </YesButton>
+    </MudMessageBox>
+}
+
+
+
+@code {
+
+    [Parameter] 
+    public bool IsArchived { get; set; }
+    [Parameter] 
+    public bool UserCanEdit { get; set; } = false;
+
+    /// <summary> labels and dialog titles. Ex: "Project", "Ticket".</summary>
+    [Parameter] 
+    public string ItemLabel { get; set; } = "Item";
+
+    /// <summary>Raised when user confirms archive in the dialog.</summary>
+    [Parameter] public EventCallback OnArchiveRequested { get; set; }
+
+    /// <summary>Raised when user confirms restore in the dialog.</summary>
+    [Parameter] public EventCallback OnRestoreRequested { get; set; }
+
+    /// <summary>Optional: let parent toggle busy/disabled state during its service call.</summary>
+    [Parameter] public bool Busy { get; set; }
+
+    private MudMessageBox? _archiveBox;
+    private MudMessageBox? _restoreBox;
+
+    private async Task OpenArchiveConfirmAsync()
+    {
+        if (!UserCanEdit || _archiveBox is null) return;
+        await _archiveBox.ShowAsync();
+    }
+
+    private async Task OpenRestoreConfirmAsync()
+    {
+        if (!UserCanEdit || _restoreBox is null) return;
+        await _restoreBox.ShowAsync();
+    }
+
+    private async Task ConfirmArchiveAsync()
+    {
+        if (OnArchiveRequested.HasDelegate)
+            await OnArchiveRequested.InvokeAsync();
+    }
+
+    private async Task ConfirmRestoreAsync()
+    {
+        if (OnRestoreRequested.HasDelegate)
+            await OnRestoreRequested.InvokeAsync();
+    }
+}
+
+
