@@ -1,0 +1,260 @@
+﻿@* TicketDetails*@
+@page "/tickets/{Id:int}"
+@attribute [Authorize]
+
+@inject ITicketDTOService TicketService
+@inject IProjectDTOService ProjectService
+@inject ICompanyDTOService CompanyService
+@inject IndexTrackerHelper IndexTracker
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+
+@inherits AuthenticatedComponentBase
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
+	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+	@if (!_loadingComplete)
+	{
+		<LoadingSpinner Message="Loading project details..." Color="Color.Primary" Size="Size.Large" />
+	}
+	else if (ticket is not null)
+	{
+		@* Reset Index at start of render;
+						controls the index for components that use IndexTracker.*@
+		ResetIndex();
+		<PageTitle>@ticket?.Title Details | Dev Tracker</PageTitle>
+
+		<div class="vstack gap-3">
+			<!-- Scaffolded components -->
+			@* <TicketGeneralInfo Ticket="ticket"
+							   Index="@IndexTracker.Next()" />*@
+
+         <div class="hstack gap-2 ms-auto">
+				<!-- Scaffolded components/ Add IndexTracker -->
+				@* <ProjectTeamCard User="SelectedPM"
+								 PlaceholderName="Unassigned"
+								 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
+				<ProjectTeamCard User="Developer"
+								 PlaceholderName="Unassigned"
+								 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" /> *@
+			 
+		 </div>
+			<!-- Scaffolded components/ Add IndexTracker -->
+			<div class="hstack gap-2 ms-auto">
+				 <div>Priority Component</div>
+				 <div>Status Component</div>
+				 <div>Type Component</div>
+			 </div>
+
+			@*<TicketDescription Ticket="ticket" Index="@IndexTracker.Next()" />
+			<TicketComments Ticket="ticket"
+							Index="@IndexTracker.Next()" />
+
+            <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
+			<TicketHistory Ticket="ticket"
+						   Index="@IndexTracker.Next()" /> *@
+		</div>
+		<div class="d-flex mt-2">
+			<BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
+			@if (_userCanEditProject)
+			{
+				<div class="ms-auto">
+					<MudButton Variant="Variant.Text"
+							   StartIcon="@Icons.Material.Filled.Edit"
+							   Href="@($"tickets/{TicketId}/edit")"
+							   Disabled="@(project is null)"
+							   Color="Color.Tertiary">
+						Edit
+					</MudButton>
+
+					<ArchiveBar IsArchived="project!.Archived"
+								UserCanEdit="_userCanEditProject"
+								ItemLabel="Project"
+								Busy="@_processingArchiveRestore"
+								@* OnArchiveRequested="HandleArchiveAsync"
+								OnRestoreRequested="HandleRestoreAsync" *@ />
+				</div>
+
+			}
+		</div>
+	}
+	else
+	{
+		<PageTitle>Ticket Not Found | Dev Tracker</PageTitle>
+
+		<NotFoundFull Message="Ticket not found"
+					  ReturnUrl="/tickets/open"
+					  ReturnLabel="Back to Tickets"
+					  ForwardUrl="/tickets/create"
+					  ForwardLabel="Create New Ticket" />
+
+	}
+</MudContainer>
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+	[Parameter]
+	public int TicketId { get; set; }
+	private ProjectDTO? project;
+
+	private TicketDTO? ticket;
+	private bool isLoading = true;
+
+	private List<BreadcrumbItem> breadcrumbs = [];
+	private bool _loadingComplete = false;
+	private bool _userCanEditProject = false;
+	private bool _processingArchiveRestore = false;
+
+	private void ResetIndex() => IndexTracker.Reset();
+
+	// Refresh ProjectMembers component when there is a change to project Manager assignment.
+	private Guid _membersRefreshToken = Guid.NewGuid();
+
+	private IReadOnlyList<AppUserDTO> projectManagers = Array.Empty<AppUserDTO>();
+
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+		try
+		{
+			// project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+			if (ticket is not null)
+			{
+				projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
+				_userCanEditProject =
+				(UserInfo?.IsInRole(Role.Admin) ?? false) ||
+				((UserInfo?.IsInRole(Role.ProjectManager) ?? false)
+					&& project?.ProjectManagerId == UserInfo?.UserId);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Error loading project details.", Severity.Error);
+		}
+		_loadingComplete = true;
+
+
+		breadcrumbs = new()
+		{
+				new BreadcrumbItem("Home", href: "/"),
+				new BreadcrumbItem("Projects", href: "/projects"),
+		};
+		if (ticket?.Archived == true) breadcrumbs.Add(new BreadcrumbItem("Archived tickets", href: "/tickets/archived"));
+
+		breadcrumbs.Add(new BreadcrumbItem(ticket?.Title ?? "Project Not Found", href: null, disabled: true));
+
+	}
+
+	// private async Task HandleArchiveAsync()
+	// {
+	// 	if (_userCanEditProject == false || project is null) return;
+
+	// 	var projectName = project.Name ?? "Project"; // Cache the name
+
+	// 	try
+	// 	{
+	// 		_processingArchiveRestore = true;
+	// 		//archive project
+	// 		await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
+
+	// 		// //refresh project details to show archived status
+	// 		project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+	// 		if (project != null) project.Archived = true;
+
+
+	// 		await InvokeAsync(() => Snackbar.Add($"The Project, '{projectName}' has been archived", Severity.Success));
+
+	// 		// Navigate back to projects list
+	// 		NavManager.NavigateTo("/projects");
+	// 	}
+	// 	catch (Exception ex)
+	// 	{
+
+	// 		Console.WriteLine(ex);
+	// 		Snackbar.Add($"{projectName} is not available to be archived");
+	// 	}
+	// 	finally
+	// 	{
+	// 		_processingArchiveRestore = false;
+	// 		StateHasChanged();
+	// 	}
+	// }
+
+	// private async Task HandleRestoreAsync()
+	// {
+	// 	if (project is null) return;
+	// 	try
+	// 	{
+	// 		_processingArchiveRestore = true;
+
+	// 		string projectName = project.Name ?? "Project";
+
+	// 		//restore project
+	// 		await ProjectService.RestoreProjectByIdAsync(project.Id, UserInfo!);
+
+	// 		//refresh project details to show restored status
+	// 		project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+	// 		if (project != null) project.Archived = false;
+
+	// 		Snackbar.Add($"The Project '{projectName}' has been restored", Severity.Success);
+	// 		// Navigate back to projects list
+	// 		NavManager.NavigateTo("/projects");
+
+	// 		if (project == null)
+	// 		{
+	// 			Snackbar.Add("The project could not be found after restoring.", Severity.Error);
+	// 			return;
+	// 		}
+	// 	}
+	// 	catch (Exception ex)
+	// 	{
+	// 		Console.WriteLine(ex);
+	// 		Snackbar.Add($"The Project is not available to be restored");
+	// 	}
+	// 	finally
+	// 	{
+	// 		_processingArchiveRestore = false;
+	// 		StateHasChanged();
+	// 	}
+	// }
+
+	// private async Task HandleSavePMAsync(string? newPMId)
+	// {
+	// 	if (project is null) return;
+
+	// 	try
+	// 	{
+	// 		if (string.IsNullOrWhiteSpace(newPMId))
+	// 		{
+	// 			await ProjectService.RemoveProjectManagerAsync(ProjectId, UserInfo!);
+	// 		}
+	// 		else
+	// 		{
+	// 			await ProjectService.AssignProjectManagerAsync(ProjectId, newPMId, UserInfo!);
+	// 		}
+
+	// 		// Refetch authoritative DTO (ProjectManagerId already populated)
+	// 		project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+
+	// 		_membersRefreshToken = Guid.NewGuid();
+
+	// 		Snackbar.Add("Project Manager updated.", Severity.Success);
+	// 		StateHasChanged();
+	// 	}
+	// 	catch (Exception ex)
+	// 	{
+
+	// 		Console.WriteLine(ex);
+
+	// 		await InvokeAsync(() => Snackbar.Add("Unable to update Project Manager.", Severity.Error));
+	// 	}
+
+
+	// }
+
+
+}
