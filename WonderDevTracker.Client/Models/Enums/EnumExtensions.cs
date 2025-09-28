@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
+
 namespace WonderDevTracker.Client.Models.Enums
 {
     public static class EnumExtensions
@@ -16,6 +17,10 @@ namespace WonderDevTracker.Client.Models.Enums
             return string.IsNullOrEmpty(displayName) ? value.ToString() : displayName;
 
         }
+
+        //A symmetric overload called on TEnum directly(no boxing/casts in the component):
+        public static string GetDisplayName<TEnum>(this TEnum value) where TEnum : struct, Enum
+                            => ((Enum)(object)value).GetDisplayName();
 
         private static readonly Dictionary<Type, Dictionary<Enum, Color>> _enumColorMap = new()
         {
@@ -70,5 +75,8 @@ namespace WonderDevTracker.Client.Models.Enums
 
             return Color.Default;
         }
+        // Overload for non-nullable enums
+        public static Color GetColor<TEnum>(this TEnum value) where TEnum : struct, Enum
+    => ((TEnum?)value).GetColor<TEnum>();
     }
 }

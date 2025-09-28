@@ -1,0 +1,56 @@
+﻿@* <h3>TicketEnumCard *@
+
+@using WonderDevTracker.Client.Models.Enums
+@typeparam TEnum where TEnum : struct, System.Enum
+
+<MudCard Class="mb-3">
+    <MudCardContent Class="d-flex justify-content-between align-items-center">
+        <MudText Typo="Typo.h5">@Title</MudText>
+
+        <MudSelect T="TEnum"
+                   @bind-Value="Value"
+                   Dense="true"
+                   Variant="Variant.Filled"
+                   Color="@SelectedColor"
+                   Class="rounded-pill px-4"
+                   Disabled="@Disabled"
+                   Adornment="Adornment.None">
+            @foreach (var item in Options)
+            {
+                <MudSelectItem T="TEnum" Value="item">
+                    @GetDisplayName(item)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+
+    [Parameter] public TEnum Value { get; set; }
+    [Parameter] public EventCallback<TEnum> ValueChanged { get; set; }
+
+    // Optional: restrict the choices; defaults to all enum values
+    [Parameter] public IEnumerable<TEnum>? Items { get; set; }
+
+    [Parameter] public bool Disabled { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private IEnumerable<TEnum> Options => Items ?? Enum.GetValues<TEnum>();
+
+    // Uses your EnumExtensions.GetColor()
+    private Color SelectedColor => Value.GetColor();
+
+    private static string GetDisplayName(TEnum value)
+    {
+        // Uses your EnumExtensions.GetDisplayName() if present; else enum name
+        var mem = typeof(TEnum).GetMember(value.ToString()).FirstOrDefault();
+        var display = mem?.GetCustomAttributes(typeof(DisplayAttribute), false)
+                         .Cast<DisplayAttribute>()
+                         .FirstOrDefault()?.GetName();
+        return string.IsNullOrWhiteSpace(display) ? value.ToString()! : display!;
+    }
+}
