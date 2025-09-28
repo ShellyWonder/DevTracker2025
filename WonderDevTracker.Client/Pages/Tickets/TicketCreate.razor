@@ -227,8 +227,7 @@
 		}
 		if (ticket.Id > 0)
 		{
-			// Handle unexpected case where ticket ID is not set
-			Snackbar.Add($"Ticket:{ticket.Title} submitted successfully.", Severity.Error);
+			
 
 			// Navigate to the ticket list or details page after successful creation
 			NavManager.NavigateTo($"/tickets/open");
