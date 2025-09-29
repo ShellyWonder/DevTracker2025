@@ -29,7 +29,7 @@
 			@* <TicketGeneralInfo Ticket="ticket"
 							   Index="@IndexTracker.Next()" />*@
 
-         <div class="hstack gap-2 ms-auto">
+			<div class="hstack gap-2 ms-auto">
 				<!-- Scaffolded components/ Add IndexTracker -->
 				@* <ProjectTeamCard User="SelectedPM"
 								 PlaceholderName="Unassigned"
@@ -37,14 +37,16 @@
 				<ProjectTeamCard User="Developer"
 								 PlaceholderName="Unassigned"
 								 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" /> *@
-			 
-		 </div>
+
+			</div>
 			<!-- Scaffolded components/ Add IndexTracker -->
 			<div class="hstack gap-2 ms-auto">
-				 <div>Priority Component</div>
-				 <div>Status Component</div>
-				 <div>Type Component</div>
-			 </div>
+				<TicketMetaRow Index="@IndexTracker.Next()"
+							   @bind-Priority="ticket.Priority"
+							   @bind-Status="ticket.Status"
+							   @bind-Type="ticket.Type" />
+
+			</div>
 
 			@*<TicketDescription Ticket="ticket" Index="@IndexTracker.Next()" />
 			<TicketComments Ticket="ticket"
@@ -143,7 +145,7 @@
 		};
 		if (ticket?.Archived == true) breadcrumbs.Add(new BreadcrumbItem("Archived tickets", href: "/tickets/archived"));
 
-		breadcrumbs.Add(new BreadcrumbItem(ticket?.Title ?? "Project Not Found", href: null, disabled: true));
+		breadcrumbs.Add(new BreadcrumbItem(ticket?.Title ?? "Ticket Not Found", href: null, disabled: true));
 
 	}
 

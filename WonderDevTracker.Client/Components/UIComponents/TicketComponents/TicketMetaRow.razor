@@ -1,0 +1,47 @@
+﻿@* TicketMetaRow *@
+
+@* Shows Priority, Status, Type in a row (stacks on mobile) *@
+
+<AnimatedCard Index="Index">
+	<MudGrid Class="align-items-stretch">
+		<MudItem xs="12" md="4">
+			<TicketEnumCard TEnum="TicketPriority"
+							Title="Priority"
+							@bind-Value="Priority" />
+		</MudItem>
+
+		<MudItem xs="12" md="4">
+			<TicketEnumCard TEnum="TicketStatus"
+							Title="Status"
+							@bind-Value="Status" />
+		</MudItem>
+
+		<MudItem xs="12" md="4">
+			<TicketEnumCard TEnum="TicketType"
+							Title="Type"
+							@bind-Value="Type" />
+		</MudItem>
+	</MudGrid>
+</AnimatedCard>
+
+@code {
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+
+	[Parameter]
+	public TicketPriority Priority { get; set; }
+	[Parameter]
+	public EventCallback<TicketPriority> PriorityChanged { get; set; }
+
+
+	[Parameter]
+	public TicketStatus Status { get; set; }
+	[Parameter]
+	public EventCallback<TicketStatus> StatusChanged { get; set; }
+
+
+	[Parameter]
+	public TicketType Type { get; set; }
+	[Parameter]
+	public EventCallback<TicketType> TypeChanged { get; set; }
+}
