@@ -1,0 +1,12 @@
+﻿@*TicketTitle *@
+@* Displays the ticket's title. Accepts a single parameter, Ticket. *@
+
+<MudText Typo="Typo.h2" Color="Color.Primary">@Ticket.Title</MudText>
+
+@code {
+    [Parameter, EditorRequired]
+    public TicketDTO Ticket { get; set; } 
+
+    [Parameter]
+    public string? Class { get; set; }
+}

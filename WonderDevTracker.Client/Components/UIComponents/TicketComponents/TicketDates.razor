@@ -1,0 +1,19 @@
+﻿@* TicketDates *@
+@* Displays the project's submitted date and updated date(if available). Accepts two parameters, SubmittedDate and UpdatedDate. *@
+
+@* TicketDates *@
+<MudText Typo="Typo.caption" Class="text-secondary">
+    Submitted @SubmittedDate?.ToString("g")
+    @if (UpdatedDate is not null)
+    {
+        <text> • Updated @UpdatedDate?.ToString("g")</text>
+    }
+</MudText>
+
+@code {
+    [Parameter, EditorRequired]
+    public DateTimeOffset? SubmittedDate { get; set; }
+
+    [Parameter]
+    public DateTimeOffset? UpdatedDate { get; set; }
+}

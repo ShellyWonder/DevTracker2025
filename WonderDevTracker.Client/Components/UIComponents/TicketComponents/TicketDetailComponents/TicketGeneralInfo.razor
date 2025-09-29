@@ -1,0 +1,42 @@
+﻿@* ProjectGeneralInfo *@
+@using WonderDevTracker.Client.Components.UIComponents.ProjectComponents.Dialogs
+
+@inject IDialogService DialogService
+
+<AnimatedCard Index="Index">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<div class="d-flex justify-content-between">
+				<TicketTile Ticket="Ticket" />
+				@if (Ticket.Archived)
+				{
+					<MudText Typo="Typo.caption">
+
+						<MudChip T="string"
+								 Color="Color.Error"
+								 Size="Size.Medium"
+								 aria-label="Archived Project">
+							Archived
+						</MudChip>
+					</MudText>
+				}
+			</div>
+		</CardHeaderContent>
+	</MudCardHeader>
+	<MudCardContent>
+		<TicketDates SubmittedDate="Ticket.Created" UpdatedDate="Ticket.Updated" />
+	</MudCardContent>
+</AnimatedCard>
+
+
+@code {
+	[Parameter, EditorRequired]
+	public TicketDTO Ticket { get; set; } = default!;
+
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+
+
+
+}
+
