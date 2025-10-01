@@ -41,7 +41,7 @@
 			<Columns>
 				<TemplateColumn Title="Title" Sortable="true" SortBy="t => t.Ticket.Title">
 					<CellTemplate>
-						<TicketTitleLink Ticket="context.Item.Ticket" />
+						<TicketTitleLink Ticket="@context.Item.Ticket" />
 					</CellTemplate>
 				</TemplateColumn>
 
