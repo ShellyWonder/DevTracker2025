@@ -25,7 +25,7 @@
 		<PageTitle>@ticket?.Title Details | Dev Tracker</PageTitle>
 
 		<div class="vstack gap-3">
-			
+
 			<TicketGeneralInfo Ticket="ticket"
 							   Index="@IndexTracker.Next()" />
 
@@ -98,6 +98,7 @@
 	public int Id { get; set; }
 	[Parameter]
 	public int TicketId { get; set; }
+
 	private ProjectDTO? project;
 
 	private TicketDTO? ticket;
@@ -115,39 +116,80 @@
 
 	private IReadOnlyList<AppUserDTO> projectManagers = Array.Empty<AppUserDTO>();
 
-	protected override async Task OnInitializedWithAuthAsync()
+	protected override async Task OnParametersSetAsync()
 	{
+		isLoading = true;
+		_loadingComplete = false;
+		ticket = null;
+		project = null;
+		_userCanEditProject = false;
 		try
 		{
-			// project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
+			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
 			if (ticket is not null)
 			{
-				projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
-				_userCanEditProject =
-				(UserInfo?.IsInRole(Role.Admin) ?? false) ||
-				((UserInfo?.IsInRole(Role.ProjectManager) ?? false)
-					&& project?.ProjectManagerId == UserInfo?.UserId);
+				breadcrumbs = [new BreadcrumbItem("Home", href: "/")];
+				if (ticket.Project is null)
+				{
+					breadcrumbs.Add(new BreadcrumbItem("Tickets", href: "/tickets/open"));
+					if (ticket.Archived) breadcrumbs.Add(new BreadcrumbItem("Archived Tickets", href: "/tickets/archived"));
+
+				}
+				else
+				{
+					breadcrumbs.Add(new BreadcrumbItem("Projects", href: "/projects"));
+					breadcrumbs.Add(new BreadcrumbItem(ticket.Project.Name ?? "Unknown Project", href: $"/projects/{ticket.Project.Id}"));
+				}
+				breadcrumbs.Add(new BreadcrumbItem(ticket.Title ?? "Ticket Not Found", href: null, disabled: true));
 			}
+
+
 		}
 		catch (Exception ex)
 		{
 			Console.WriteLine(ex);
-			Snackbar.Add("Error loading project details.", Severity.Error);
+			Snackbar.Add("Error loading ticket details.", Severity.Error);
 		}
+
+		isLoading = false;
 		_loadingComplete = true;
+		StateHasChanged();
+
+		if (ticket is null) NavManager.NavigateTo("tickets/open");
 
 
-		breadcrumbs = new()
-		{
-				new BreadcrumbItem("Home", href: "/"),
-				new BreadcrumbItem("Projects", href: "/projects"),
-		};
-		if (ticket?.Archived == true) breadcrumbs.Add(new BreadcrumbItem("Archived tickets", href: "/tickets/archived"));
 
-		breadcrumbs.Add(new BreadcrumbItem(ticket?.Title ?? "Ticket Not Found", href: null, disabled: true));
+
+
 
 	}
+
+	// protected override async Task OnInitializedWithAuthAsync()
+	// {
+	// 	try
+	// 	{
+
+
+	// 		if (ticket is not null)
+	// 		{
+	// 			projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
+	// 			_userCanEditProject =
+	// 			(UserInfo?.IsInRole(Role.Admin) ?? false) ||
+	// 			((UserInfo?.IsInRole(Role.ProjectManager) ?? false)
+	// 				&& project?.ProjectManagerId == UserInfo?.UserId);
+	// 		}
+	// 	}
+	// 	catch (Exception ex)
+	// 	{
+	// 		Console.WriteLine(ex);
+	// 		Snackbar.Add("Error loading project details.", Severity.Error);
+	// 	}
+	// 	_loadingComplete = true;
+
+
+	//
+
+	// }
 
 	// private async Task HandleArchiveAsync()
 	// {
