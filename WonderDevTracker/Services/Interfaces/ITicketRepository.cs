@@ -8,6 +8,16 @@ namespace WonderDevTracker.Services.Interfaces
     {
         #region GET METHODS
         /// <summary>
+        /// Get Ticket By Id
+        /// </summary>
+        /// <remarks>Asynchronously retrieves a ticket by its unique identifier for the specified user.</remarks>
+        /// <param name="ticketId">The unique identifier of the ticket to retrieve. </param>
+        /// <param name="userInfo">Current user's claims</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a TicketDTO representing the
+        /// ticket if found and accessible to the user; otherwise, null.</returns>
+        public Task<Ticket?> GetTicketByIdAsync(int ticketId, UserInfo userInfo);
+
+        /// <summary>
         /// Get Open Tickets
         /// </summary>
         /// <remarks>

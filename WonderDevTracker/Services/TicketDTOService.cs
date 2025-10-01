@@ -31,6 +31,13 @@ namespace WonderDevTracker.Services
         #endregion
 
         #region GET METHODS
+
+        public async Task<TicketDTO?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
+        {
+           Ticket ticket = await ticketRepository.GetTicketByIdAsync(ticketId, userInfo)
+                ?? throw new KeyNotFoundException("Ticket not found or access denied.");
+              return ticket.ToDTO();
+        }
         public async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
             IEnumerable<Ticket> tickets = await ticketRepository.GetArchivedTicketsAsync(userInfo);
@@ -51,6 +58,8 @@ namespace WonderDevTracker.Services
             IEnumerable<TicketDTO> dtos = tickets.Select(t => t.ToDTO());
             return dtos;
         }
+
+        
 
         public async Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
         {

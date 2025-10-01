@@ -53,6 +53,20 @@ namespace WonderDevTracker.Services.Repositories
             return ticket;
         }
 
+        public  async Task<Ticket?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            Ticket? ticket = await db.Tickets
+                .Include(t => t.Project)
+                .Include(t => t.SubmitterUser)
+                .Include(t => t.DeveloperUser)
+                //match the company id of the user 
+                .Where(t => t.Project!.CompanyId == userInfo.CompanyId)
+                                      .FirstOrDefaultAsync(t => t.Id == ticketId);
+            return ticket;
+        }
+
+
         public async Task<IEnumerable<Ticket>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
@@ -96,6 +110,7 @@ namespace WonderDevTracker.Services.Repositories
             return tickets;
         }
 
+        
         public async Task<IEnumerable<Ticket>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
         {
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
