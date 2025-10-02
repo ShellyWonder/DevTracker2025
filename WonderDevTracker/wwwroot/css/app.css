@@ -83,6 +83,21 @@
 
 /* #endregion ProjectCard.razor  */
 
+/* #region LabeledCard.razor */
+.tt-section-card {
+    border-radius: 12px;
+}
+
+    .tt-section-card .mud-card-header {
+        padding-bottom: .25rem;
+    }
+
+    .tt-section-card .mud-card-content {
+        padding-top: 0;
+    }
+
+/* #endregion LabeledCard.razor */
+
 /* #region breadcrumbs */
 .breadcrumbs1 {
     font-size: 0.9rem;

@@ -29,16 +29,26 @@
 			<TicketGeneralInfo Ticket="ticket"
 							   Index="@IndexTracker.Next()" />
 
-			<div class="hstack gap-2 ms-auto">
-				<!-- Scaffolded components/ Add IndexTracker -->
-				@* <ProjectTeamCard User="SelectedPM"
-								 PlaceholderName="Unassigned"
-								 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
-				<ProjectTeamCard User="Developer"
-								 PlaceholderName="Unassigned"
-								 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" /> *@
+			<MudGrid Gutter="3" Class="mt-2">
+    <MudItem xs="12" md="6">
+					<LabeledCard Index="@IndexTracker.Next()" Title="Submitted By:">
+						<ProjectTeamCard User="ticket.SubmitterUser"
+										 PlaceholderName="Unassigned"
+										 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
+        </LabeledCard>
+    </MudItem>
 
-			</div>
+    <MudItem xs="12" md="6">
+					<LabeledCard Index="@IndexTracker.Next()" 
+					             Title="Assigned To:" >
+
+						<ProjectTeamCard User="ticket.DeveloperUser"
+										 PlaceholderName="Unassigned"
+										 PlaceholderRole="@Role.Developer.GetDisplayName()" />
+        </LabeledCard>
+    </MudItem>
+</MudGrid>
+
 			<!-- Scaffolded components/ Add IndexTracker -->
 			<div class="hstack gap-2 ms-auto">
 				<TicketMetaRow Index="@IndexTracker.Next()"

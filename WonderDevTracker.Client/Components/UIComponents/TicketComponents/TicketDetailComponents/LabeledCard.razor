@@ -1,0 +1,41 @@
+﻿@* LabeledCard ~ Shared UI wrapper for a titled section card with optional actions *@
+
+<AnimatedCard Index="Index">
+<MudCard Elevation="@Elevation" Class="@Class">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<MudText Typo="Typo.h6">@Title</MudText>
+		</CardHeaderContent>
+
+		<CardHeaderActions>
+			@Actions
+		</CardHeaderActions>
+	</MudCardHeader>
+
+	<MudCardContent Class="@ContentClass">
+		@ChildContent
+	</MudCardContent>
+</MudCard>
+</AnimatedCard>
+@code {
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+
+	[Parameter, EditorRequired]
+	public string Title { get; set; } = default!;
+
+	[Parameter]
+	public int Elevation { get; set; } = 1;
+
+	[Parameter]
+	public string? Class { get; set; } = "tt-section-card";
+
+	[Parameter]
+	public string? ContentClass { get; set; } = "pt-0";
+
+	[Parameter]
+	public RenderFragment? Actions { get; set; }
+
+	[Parameter, EditorRequired]
+	public RenderFragment ChildContent { get; set; } = default!;
+}
