@@ -7,18 +7,24 @@
 			<MudText Typo="Typo.h6">@Title</MudText>
 		</CardHeaderContent>
 
-		<CardHeaderActions>
-			@Actions
-		</CardHeaderActions>
+			<CardHeaderActions>
+				@if (Actions is not null)
+				{
+					@Actions
+				}
+			</CardHeaderActions>
 	</MudCardHeader>
 
 	<MudCardContent Class="@ContentClass">
-		@ChildContent
+			@if (ChildContent is not null)
+			{
+				@ChildContent
+			}
 	</MudCardContent>
 </MudCard>
 </AnimatedCard>
 @code {
-	[Parameter, EditorRequired]
+	[Parameter]
 	public int Index { get; set; }
 
 	[Parameter, EditorRequired]
