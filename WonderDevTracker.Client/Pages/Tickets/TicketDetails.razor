@@ -60,16 +60,16 @@
 						   Status="@ticket.Status"
 						   Type="@ticket.Type" />
 
+			<DescriptionCard Title="Description"
+							 Index="@IndexTracker.Next()"
+							 Text="@ticket.Description" />
 
-			
+			@* <TicketComments Ticket="ticket"
+							Index="@IndexTracker.Next()" /> *@
 
-			@*<TicketDescription Ticket="ticket" Index="@IndexTracker.Next()" />
-			<TicketComments Ticket="ticket"
-							Index="@IndexTracker.Next()" />
-
-            <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
+           @*  <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
 			<TicketHistory Ticket="ticket"
-						   Index="@IndexTracker.Next()" /> *@
+						   Index="@IndexTracker.Next()" />  *@
 		</div>
 		<div class="d-flex mt-2">
 			<BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />

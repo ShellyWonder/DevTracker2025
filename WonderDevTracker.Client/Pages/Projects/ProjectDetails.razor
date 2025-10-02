@@ -32,7 +32,9 @@
 								@bind-ProjectManagerId="project.ProjectManagerId"
 								OnSaveProjectManagerRequested="HandleSavePMAsync" />
 
-			<ProjectDescription Project="project" Index="@IndexTracker.Next()" />
+			<DescriptionCard Title="Description"
+							 Index="@IndexTracker.Next()"
+							 Text="@project.Description" />
 
 			<!-- Sibling B: receive the same 'project' plus a refresh token -->
 			<ProjectMembers Project="project"

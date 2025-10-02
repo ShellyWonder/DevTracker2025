@@ -1,0 +1,33 @@
+﻿@* DescriptionCard *@
+
+@* Generic description display for Project, Ticket, etc. *@
+<AnimatedCard Index="Index">
+    <MudCardHeader>
+        <MudText Typo="Typo.h3" Color="Color.Primary">@Title</MudText>
+    </MudCardHeader>
+
+    <MudCardContent>
+        @if (string.IsNullOrWhiteSpace(Text))
+        {
+            <NotFoundDisplay Message="@EmptyMessage" />
+        }
+        else
+        {
+            <MudText Typo="Typo.body1">@((Markup ? (MarkupString)Text : (object)Text))</MudText>
+        }
+    </MudCardContent>
+</AnimatedCard>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "Description";
+    [Parameter, EditorRequired] public int Index { get; set; }
+
+    // Raw text to render. If you store HTML, set Markup=true.
+    [Parameter] public string? Text { get; set; }
+
+    // If true, renders Text as MarkupString (use only with trusted content).
+    [Parameter] public bool Markup { get; set; } = false;
+
+    // Message to show when Text is null/empty.
+    [Parameter] public string EmptyMessage { get; set; } = "No description provided.";
+}
