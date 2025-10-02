@@ -29,34 +29,39 @@
 			<TicketGeneralInfo Ticket="ticket"
 							   Index="@IndexTracker.Next()" />
 
-			<MudGrid Gutter="3" Class="mt-2">
-    <MudItem xs="12" md="6">
+			<MudGrid Class="mt-2">
+				<MudItem xs="12" md="6">
 					<LabeledCard Index="@IndexTracker.Next()" Title="Submitted By:">
 						<ProjectTeamCard User="ticket.SubmitterUser"
 										 PlaceholderName="Unassigned"
 										 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
-        </LabeledCard>
-    </MudItem>
+					</LabeledCard>
+				</MudItem>
 
-    <MudItem xs="12" md="6">
-					<LabeledCard Index="@IndexTracker.Next()" 
-					             Title="Assigned To:" >
+				<MudItem xs="12" md="6">
+					<LabeledCard Index="@IndexTracker.Next()"
+								 Title="Assigned To:">
+
+						@* <MudIconButton Icon="@Icons.Material.Filled.Edit"
+									   ariaLabel="Change assignee" /> *@
+
+
 
 						<ProjectTeamCard User="ticket.DeveloperUser"
 										 PlaceholderName="Unassigned"
 										 PlaceholderRole="@Role.Developer.GetDisplayName()" />
-        </LabeledCard>
-    </MudItem>
-</MudGrid>
+					</LabeledCard>
+				</MudItem>
+			</MudGrid>
 
-			<!-- Scaffolded components/ Add IndexTracker -->
-			<div class="hstack gap-2 ms-auto">
-				<TicketMetaRow Index="@IndexTracker.Next()"
-							   @bind-Priority="ticket.Priority"
-							   @bind-Status="ticket.Status"
-							   @bind-Type="ticket.Type" />
+			<!-- Priority, Status & Type components -->
+			<TicketMetaRow Index="@IndexTracker.Next()"
+						   Priority="@ticket.Priority"
+						   Status="@ticket.Status"
+						   Type="@ticket.Type" />
 
-			</div>
+
+			
 
 			@*<TicketDescription Ticket="ticket" Index="@IndexTracker.Next()" />
 			<TicketComments Ticket="ticket"

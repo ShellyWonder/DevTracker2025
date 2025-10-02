@@ -1,61 +1,33 @@
-﻿@* <h3>TicketEnumCard *@
+﻿@* TicketEnumCard *@
 @typeparam TEnum where TEnum : struct, System.Enum
 
-<MudCard Class="mb-3">
-    <MudCardContent Class="d-flex justify-content-between align-items-center">
-        <MudText Typo="Typo.h5">@Title</MudText>
+<MudPaper Class="@($"p-3 h-100 d-flex justify-content-between align-items-center {Class}")" Elevation="@Elevation">
+    <MudText Typo="Typo.h6">@Title</MudText>
 
-        <MudSelect T="TEnum"
-                   @bind-Value="Value"
-                   Dense="true"
-                   Variant="Variant.Filled"
-                   Color="@SelectedColor"
-                   Class="rounded-pill px-4"
-                   Disabled="@Disabled"
-                   Adornment="Adornment.None">
-            @foreach (var item in Options)
-            {
-                <MudSelectItem T="TEnum" Value="item">
-                    @GetDisplayName(item)
-                </MudSelectItem>
-            }
-        </MudSelect>
-    </MudCardContent>
-</MudCard>
+    <MudChip T="string"
+             Color="@ChipColor"
+             Variant="@Variant"
+             Class="mt-1">
+        @DisplayText
+    </MudChip>
+</MudPaper>
 
 @code {
-
+    [Parameter, EditorRequired] 
+    public string Title { get; set; } = default!;
     [Parameter] 
-    public string Title { get; set; } = string.Empty;
-
+    public TEnum? Value { get; set; }
     [Parameter] 
-    public TEnum Value { get; set; }
-
+    public string? Class { get; set; }
     [Parameter] 
-    public EventCallback<TEnum> ValueChanged { get; set; }
-
-    // defaults to all enum values
-    [Parameter]
-    public IEnumerable<TEnum>? Items { get; set; }
-                
+    public int Elevation { get; set; } = 5;
     [Parameter] 
-    public bool Disabled { get; set; }
+    public Variant Variant { get; set; } = Variant.Filled;
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+    private string DisplayText => Value.HasValue
+        ? ((Enum)(object)Value.Value).GetDisplayName()
+        : "—";
 
-    private IEnumerable<TEnum> Options => Items ?? Enum.GetValues<TEnum>();
-
-    // Uses your EnumExtensions.GetColor()
-    private Color SelectedColor => Value.GetColor();
-
-    private static string GetDisplayName(TEnum value)
-    {
-        // Uses your EnumExtensions.GetDisplayName() if present; else enum name
-        var mem = typeof(TEnum).GetMember(value.ToString()).FirstOrDefault();
-        var display = mem?.GetCustomAttributes(typeof(DisplayAttribute), false)
-                         .Cast<DisplayAttribute>()
-                         .FirstOrDefault()?.GetName();
-        return string.IsNullOrWhiteSpace(display) ? value.ToString()! : display!;
-    }
+    private Color ChipColor =>
+             Value.HasValue ? Value.GetColor() : Color.Tertiary;
 }
