@@ -70,26 +70,30 @@
 		</div>
 		<div class="d-flex mt-2">
 			<BackToBtn Href=@($"/projects/{ticket.ProjectId}") Text="Back to Project" Disabled="@(ticket is null)" />
-			@if (_userCanEditTicket)
-			{
-				<div class="ms-auto">
-					<MudButton Variant="Variant.Text"
-							   StartIcon="@Icons.Material.Filled.Edit"
-							   Href="@($"tickets/{TicketId}/edit")"
-							   Disabled="@(ticket is null)"
-							   Color="Color.Tertiary">
-						Edit
-					</MudButton>
-
+			<div class="ms-auto">
+					@if (_userCanEditTicket)
+					{
+							<MudButton Variant="Variant.Text"
+									   StartIcon="@Icons.Material.Filled.Edit"
+									   Href="@($"tickets/{TicketId}/edit")"
+									   Disabled="@(ticket is null)"
+									   Color="Color.Tertiary">
+								Edit
+							</MudButton>
+					}
+					@if (_userCanArchiveTicket)
+					{
 					<ArchiveBar IsArchived="ticket!.Archived"
 								UserCanArchiveAndRestore="_userCanArchiveTicket"
 								ItemLabel="Ticket"
 								Busy="@_processingArchiveRestore" />
-				</div>
+						
+					}
+			</div>
 
-								@* OnArchiveRequested="HandleArchiveAsync"
+				@* OnArchiveRequested="HandleArchiveAsync"
 								OnRestoreRequested="HandleRestoreAsync" *@ 
-			}
+					
 		</div>
 	}
 	else
@@ -133,6 +137,7 @@
 		ticket = null;
 		project = null;
 		_userCanEditTicket = false;
+		_userCanArchiveTicket = false;
 		try
 		{
 			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
@@ -154,9 +159,12 @@
 
 				AppUserDTO? pm = await ProjectService.GetProjectManagerAsync(ticket.ProjectId, UserInfo!);
 				_userCanEditTicket = (ticket.SubmitterUserId == UserInfo?.UserId) ||
-									 (ticket.DeveloperUserId == UserInfo?.UserId) ||
-				                     (UserInfo?.IsInRole(Role.Admin) ?? false) ||
-				                     (pm?.Id == UserInfo?.UserId);
+										(ticket.DeveloperUserId == UserInfo?.UserId) ||
+										(UserInfo?.IsInRole(Role.Admin) ?? false) ||
+										(pm?.Id == UserInfo?.UserId);
+				_userCanArchiveTicket = (UserInfo?.IsInRole(Role.Admin) ?? false) ||
+										(pm?.Id == UserInfo?.UserId);
+
 			}
 
 
@@ -167,7 +175,7 @@
 			Snackbar.Add("Error loading ticket details.", Severity.Error);
 		}
 
-		
+
 		_loadingComplete = true;
 		StateHasChanged();
 
