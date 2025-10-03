@@ -41,11 +41,8 @@
 				<MudItem xs="12" md="6">
 					<LabeledCard Index="@IndexTracker.Next()"
 								 Title="Assigned To:">
-
 						@* <MudIconButton Icon="@Icons.Material.Filled.Edit"
 									   ariaLabel="Change assignee" /> *@
-
-
 
 						<ProjectTeamCard User="ticket.DeveloperUser"
 										 PlaceholderName="Unassigned"
@@ -67,31 +64,31 @@
 			@* <TicketComments Ticket="ticket"
 							Index="@IndexTracker.Next()" /> *@
 
-           @*  <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
+			@*  <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
 			<TicketHistory Ticket="ticket"
 						   Index="@IndexTracker.Next()" />  *@
 		</div>
 		<div class="d-flex mt-2">
-			<BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
-			@if (_userCanEditProject)
+			<BackToBtn Href=@($"/projects/{ticket.ProjectId}") Text="Back to Project" Disabled="@(ticket is null)" />
+			@if (_userCanEditTicket)
 			{
 				<div class="ms-auto">
 					<MudButton Variant="Variant.Text"
 							   StartIcon="@Icons.Material.Filled.Edit"
 							   Href="@($"tickets/{TicketId}/edit")"
-							   Disabled="@(project is null)"
+							   Disabled="@(ticket is null)"
 							   Color="Color.Tertiary">
 						Edit
 					</MudButton>
 
-					<ArchiveBar IsArchived="project!.Archived"
-								UserCanEdit="_userCanEditProject"
-								ItemLabel="Project"
-								Busy="@_processingArchiveRestore"
-								@* OnArchiveRequested="HandleArchiveAsync"
-								OnRestoreRequested="HandleRestoreAsync" *@ />
+					<ArchiveBar IsArchived="ticket!.Archived"
+								UserCanArchiveAndRestore="_userCanArchiveTicket"
+								ItemLabel="Ticket"
+								Busy="@_processingArchiveRestore" />
 				</div>
 
+								@* OnArchiveRequested="HandleArchiveAsync"
+								OnRestoreRequested="HandleRestoreAsync" *@ 
 			}
 		</div>
 	}
@@ -117,11 +114,10 @@
 	private ProjectDTO? project;
 
 	private TicketDTO? ticket;
-	private bool isLoading = true;
-
 	private List<BreadcrumbItem> breadcrumbs = [];
 	private bool _loadingComplete = false;
-	private bool _userCanEditProject = false;
+	private bool _userCanEditTicket = false;
+	private bool _userCanArchiveTicket = false;
 	private bool _processingArchiveRestore = false;
 
 	private void ResetIndex() => IndexTracker.Reset();
@@ -133,11 +129,10 @@
 
 	protected override async Task OnParametersSetAsync()
 	{
-		isLoading = true;
 		_loadingComplete = false;
 		ticket = null;
 		project = null;
-		_userCanEditProject = false;
+		_userCanEditTicket = false;
 		try
 		{
 			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
@@ -156,6 +151,12 @@
 					breadcrumbs.Add(new BreadcrumbItem(ticket.Project.Name ?? "Unknown Project", href: $"/projects/{ticket.Project.Id}"));
 				}
 				breadcrumbs.Add(new BreadcrumbItem(ticket.Title ?? "Ticket Not Found", href: null, disabled: true));
+
+				AppUserDTO? pm = await ProjectService.GetProjectManagerAsync(ticket.ProjectId, UserInfo!);
+				_userCanEditTicket = (ticket.SubmitterUserId == UserInfo?.UserId) ||
+									 (ticket.DeveloperUserId == UserInfo?.UserId) ||
+				                     (UserInfo?.IsInRole(Role.Admin) ?? false) ||
+				                     (pm?.Id == UserInfo?.UserId);
 			}
 
 
@@ -166,45 +167,13 @@
 			Snackbar.Add("Error loading ticket details.", Severity.Error);
 		}
 
-		isLoading = false;
+		
 		_loadingComplete = true;
 		StateHasChanged();
 
 		if (ticket is null) NavManager.NavigateTo("tickets/open");
 
-
-
-
-
-
 	}
-
-	// protected override async Task OnInitializedWithAuthAsync()
-	// {
-	// 	try
-	// 	{
-
-
-	// 		if (ticket is not null)
-	// 		{
-	// 			projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
-	// 			_userCanEditProject =
-	// 			(UserInfo?.IsInRole(Role.Admin) ?? false) ||
-	// 			((UserInfo?.IsInRole(Role.ProjectManager) ?? false)
-	// 				&& project?.ProjectManagerId == UserInfo?.UserId);
-	// 		}
-	// 	}
-	// 	catch (Exception ex)
-	// 	{
-	// 		Console.WriteLine(ex);
-	// 		Snackbar.Add("Error loading project details.", Severity.Error);
-	// 	}
-	// 	_loadingComplete = true;
-
-
-	//
-
-	// }
 
 	// private async Task HandleArchiveAsync()
 	// {

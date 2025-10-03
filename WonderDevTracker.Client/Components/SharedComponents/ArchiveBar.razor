@@ -1,6 +1,6 @@
 ﻿@* <h3>Archive</h3> *@
 
-@if (UserCanEdit)
+@if (UserCanArchiveAndRestore)
 {
     <div class="d-flex gap-2">
         @if (!IsArchived)
@@ -71,7 +71,7 @@
     [Parameter] 
     public bool IsArchived { get; set; }
     [Parameter] 
-    public bool UserCanEdit { get; set; } = false;
+    public bool UserCanArchiveAndRestore { get; set; } = false;
 
     /// <summary> labels and dialog titles. Ex: "Project", "Ticket".</summary>
     [Parameter] 
@@ -91,13 +91,13 @@
 
     private async Task OpenArchiveConfirmAsync()
     {
-        if (!UserCanEdit || _archiveBox is null) return;
+        if (!UserCanArchiveAndRestore || _archiveBox is null) return;
         await _archiveBox.ShowAsync();
     }
 
     private async Task OpenRestoreConfirmAsync()
     {
-        if (!UserCanEdit || _restoreBox is null) return;
+        if (!UserCanArchiveAndRestore || _restoreBox is null) return;
         await _restoreBox.ShowAsync();
     }
 
