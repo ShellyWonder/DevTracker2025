@@ -83,16 +83,16 @@
 					}
 					@if (_userCanArchiveTicket)
 					{
-					<ArchiveBar IsArchived="ticket!.Archived"
-								UserCanArchiveAndRestore="_userCanArchiveTicket"
-								ItemLabel="Ticket"
-								Busy="@_processingArchiveRestore" />
-						
+							<ArchiveBar IsArchived="ticket!.Archived"
+										UserCanArchiveAndRestore="_userCanArchiveTicket"
+										ItemLabel="Ticket"
+										Busy="@_processingArchiveRestore" 
+										OnArchiveRequested="HandleArchiveAsync"
+										OnRestoreRequested="HandleRestoreAsync" />
 					}
 			</div>
 
-				@* OnArchiveRequested="HandleArchiveAsync"
-								OnRestoreRequested="HandleRestoreAsync" *@ 
+				
 					
 		</div>
 	}
@@ -125,6 +125,7 @@
 	private bool _processingArchiveRestore = false;
 
 	private void ResetIndex() => IndexTracker.Reset();
+	private string ticketTitle => ticket?.Title ?? "Ticket";
 
 	// Refresh ProjectMembers component when there is a change to project Manager assignment.
 	private Guid _membersRefreshToken = Guid.NewGuid();
@@ -183,80 +184,75 @@
 
 	}
 
-	// private async Task HandleArchiveAsync()
-	// {
-	// 	if (_userCanEditProject == false || project is null) return;
+	private async Task HandleArchiveAsync()
+	{
+		if (_userCanArchiveTicket == false || ticket is null) return;
 
-	// 	var projectName = project.Name ?? "Project"; // Cache the name
+		try
+		{
+			_processingArchiveRestore = true;
+			//archive title
+			await TicketService.ArchiveTicketAsync(ticket.Id, UserInfo!);
 
-	// 	try
-	// 	{
-	// 		_processingArchiveRestore = true;
-	// 		//archive project
-	// 		await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
-
-	// 		// //refresh project details to show archived status
-	// 		project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
-	// 		if (project != null) project.Archived = true;
+			// //refresh ticket details to show archived status
+			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+			if (ticket != null) ticket.Archived = true;
 
 
-	// 		await InvokeAsync(() => Snackbar.Add($"The Project, '{projectName}' has been archived", Severity.Success));
+			await InvokeAsync(() => Snackbar.Add($"The Ticket, '{ticketTitle}' has been archived", Severity.Success));
 
-	// 		// Navigate back to projects list
-	// 		NavManager.NavigateTo("/projects");
-	// 	}
-	// 	catch (Exception ex)
-	// 	{
+			// Navigate back to projects list
+			NavManager.NavigateTo("/projects");
+		}
+		catch (Exception ex)
+		{
 
-	// 		Console.WriteLine(ex);
-	// 		Snackbar.Add($"{projectName} is not available to be archived");
-	// 	}
-	// 	finally
-	// 	{
-	// 		_processingArchiveRestore = false;
-	// 		StateHasChanged();
-	// 	}
-	// }
+			Console.WriteLine(ex);
+			Snackbar.Add($"{ticketTitle} is not available to be archived");
+		}
+		finally
+		{
+			_processingArchiveRestore = false;
+			StateHasChanged();
+		}
+	}
 
-	// private async Task HandleRestoreAsync()
-	// {
-	// 	if (project is null) return;
-	// 	try
-	// 	{
-	// 		_processingArchiveRestore = true;
+	private async Task HandleRestoreAsync()
+	{
+		if (ticket is null) return;
+		try
+		{
+			_processingArchiveRestore = true;
 
-	// 		string projectName = project.Name ?? "Project";
+			//restore project
+			await TicketService.RestoreTicketByIdAsync(ticket.Id, UserInfo!);
 
-	// 		//restore project
-	// 		await ProjectService.RestoreProjectByIdAsync(project.Id, UserInfo!);
+			//refresh ticket details to show restored status
+			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
 
-	// 		//refresh project details to show restored status
-	// 		project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+			if (ticket != null) ticket.Archived = false;
 
-	// 		if (project != null) project.Archived = false;
+			Snackbar.Add($"The ticket '{ticketTitle}' has been restored", Severity.Success);
+			// Navigate back to projects list
+			NavManager.NavigateTo("/tickets/open");
 
-	// 		Snackbar.Add($"The Project '{projectName}' has been restored", Severity.Success);
-	// 		// Navigate back to projects list
-	// 		NavManager.NavigateTo("/projects");
-
-	// 		if (project == null)
-	// 		{
-	// 			Snackbar.Add("The project could not be found after restoring.", Severity.Error);
-	// 			return;
-	// 		}
-	// 	}
-	// 	catch (Exception ex)
-	// 	{
-	// 		Console.WriteLine(ex);
-	// 		Snackbar.Add($"The Project is not available to be restored");
-	// 	}
-	// 	finally
-	// 	{
-	// 		_processingArchiveRestore = false;
-	// 		StateHasChanged();
-	// 	}
-	// }
+			if (ticket == null)
+			{
+				Snackbar.Add("The ticket could not be found after restoring.", Severity.Error);
+				return;
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add($"The ticket is not available to be restored");
+		}
+		finally
+		{
+			_processingArchiveRestore = false;
+			StateHasChanged();
+		}
+	}
 
 	// private async Task HandleSavePMAsync(string? newPMId)
 	// {
