@@ -67,5 +67,29 @@ namespace WonderDevTracker.Services.Interfaces
         /// <returns>New ticket after being saved in Db</returns>
         Task<Ticket?> AddTicketAsync(Ticket ticket, UserInfo userInfo);
         #endregion
+
+        #region ARCHIVE/RESTORE METHODS
+        /// <summary>
+        /// Archive Ticket
+        /// </summary>
+        /// <remarks>
+        /// Archives a ticket by its ID asynchronously. 
+        /// Only user with 'Admin' or "ProjectManager" roles can archive a ticket.
+        /// </remarks>
+        /// <param name="ticketId">Specific company ticket's id</param>
+        /// <param name="user">Current user claims</param>
+        /// <returns>True if the ticket was archived, otherwise false</returns>
+        public Task ArchiveTicketAsync(int ticketId, UserInfo user);
+
+        /// <summary>
+        /// Restores an archived ticket by its ID asynchronously  to active status
+        /// </summary>
+        /// <remarks>
+        /// Only user with 'Admin' or "ProjectManager" roles may restore a ticket.
+        /// </remarks>
+        /// <param name="ticketId">Specific company ticket's id</param>
+        /// <param name="user">Current user claims</param>
+        public Task RestoreTicketByIdAsync(int ticketId, UserInfo user);
+        #endregion
     }
 }

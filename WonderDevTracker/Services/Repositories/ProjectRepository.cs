@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
-using WonderDevTracker.Client.Components.UIComponents.ProjectComponents.ProjectDetailsComponents;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
@@ -393,8 +392,6 @@ namespace WonderDevTracker.Services.Repositories
                 .AnyAsync(p => isAdmin || p.Members!.Any(m => m.Id == user.UserId));
             return IsRoleAuthorized;
         }
-
-
         #endregion
     }
 }

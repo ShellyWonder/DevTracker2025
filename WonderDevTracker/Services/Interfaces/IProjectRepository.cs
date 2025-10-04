@@ -1,5 +1,4 @@
 ﻿using WonderDevTracker.Client;
-using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Models;
 
 namespace WonderDevTracker.Services.Interfaces

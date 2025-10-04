@@ -59,13 +59,25 @@ namespace WonderDevTracker.Services
             return dtos;
         }
 
-        
-
+      
         public async Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
         {
             IEnumerable<Ticket> tickets = await ticketRepository.GetTicketsAssignedToUserAsync(userInfo);
             IEnumerable<TicketDTO> dtos = tickets.Select(t => t.ToDTO());
             return dtos;
+        }
+        #endregion
+
+        #region ARCHIVE/RESTORE METHODS
+
+        public async Task RestoreTicketByIdAsync(int ticketId, UserInfo user)
+        {
+           await ticketRepository.RestoreTicketByIdAsync(ticketId, user);
+        }
+
+        public async Task ArchiveTicketAsync(int ticketId, UserInfo user)
+        {
+           await ticketRepository.ArchiveTicketAsync(ticketId, user);
         }
         #endregion
 

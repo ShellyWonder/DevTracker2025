@@ -10,6 +10,11 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
+        public Task ArchiveTicketAsync(int ticketId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
             throw new NotImplementedException();
@@ -31,6 +36,11 @@ namespace WonderDevTracker.Client.Services
         }
 
         public Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RestoreTicketByIdAsync(int ticketId, UserInfo user)
         {
             throw new NotImplementedException();
         }

@@ -18,8 +18,8 @@ namespace WonderDevTracker.Services.Repositories
             Project? project = await db.Projects
                 .Include(p => p.Members)
                  .FirstOrDefaultAsync(p => p.Id == ticket.ProjectId
-                  && p.CompanyId == userInfo.CompanyId) ?? 
-                             throw new InvalidOperationException("Invalid project."); 
+                  && p.CompanyId == userInfo.CompanyId) ??
+                             throw new InvalidOperationException("Invalid project.");
 
             ticket.Created = DateTimeOffset.UtcNow;
             ticket.Status = TicketStatus.New;
@@ -53,7 +53,7 @@ namespace WonderDevTracker.Services.Repositories
             return ticket;
         }
 
-        public  async Task<Ticket?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
+        public async Task<Ticket?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
         {
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
             Ticket? ticket = await db.Tickets
@@ -65,7 +65,6 @@ namespace WonderDevTracker.Services.Repositories
                                       .FirstOrDefaultAsync(t => t.Id == ticketId);
             return ticket;
         }
-
 
         public async Task<IEnumerable<Ticket>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
@@ -80,6 +79,7 @@ namespace WonderDevTracker.Services.Repositories
                         .ToListAsync();
             return tickets;
         }
+
         public async Task<IEnumerable<Ticket>> GetOpenTicketsAsync(UserInfo userInfo)
         {
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
@@ -110,11 +110,10 @@ namespace WonderDevTracker.Services.Repositories
             return tickets;
         }
 
-        
         public async Task<IEnumerable<Ticket>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
         {
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
-            List<Ticket> tickets = new();
+            List<Ticket> tickets = [];
 
             if (userInfo.IsInRole(Role.ProjectManager))
             {
@@ -155,5 +154,100 @@ namespace WonderDevTracker.Services.Repositories
             }
             return tickets;
         }
+
+        public async Task ArchiveTicketAsync(int ticketId, UserInfo user)
+        {
+            if (await IsUserAuthorizedToArchiveTicket(ticketId, user))
+            {
+                await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+                Ticket? ticket = await db.Tickets
+                    .FirstOrDefaultAsync(t => t.Id == ticketId)
+                    ?? throw new KeyNotFoundException("Ticket not found.");
+                ticket.Archived = true;
+                await db.SaveChangesAsync();
+            }
+        }
+        public async Task RestoreTicketByIdAsync(int ticketId, UserInfo user)
+        {
+            if (await IsUserAuthorizedToArchiveTicket(ticketId, user))
+            {
+                await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+                Ticket? ticket = await db.Tickets
+                    .FirstOrDefaultAsync(t => t.Id == ticketId)
+                    ?? throw new KeyNotFoundException("Ticket not found.");
+                ticket.Archived = false;
+                await db.SaveChangesAsync();
+            }
+        }
+
+
+        #region PRIVATE METHODS
+        /// <summary>
+        ///  Checks:
+        ///  1. if ticket exists in the database
+        ///  2. if the user is authorized to edit the ticket
+        /// Update Requirements:
+        /// 1. User must belong to the same company as the ticket.
+        /// 2. User role: Admin, project manager,the ticket's submitter or developer assigned to the ticket.
+        /// 3. If PM, User must be the existing assigned ProjectManager.
+        /// </summary>
+        /// <param name="ticketId">The ID of the project to check.</param>
+        /// <param name="user">The user attempting to update the ticket.</param>
+        /// <returns>True if the user is authorized to update the ticket, otherwise false.</returns>
+
+        private async Task<bool> IsUserAuthorizedToEditTicket(int ticketId, UserInfo user)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            bool result = false;
+
+            if (user.IsInRole(Role.Admin))
+            {
+                // Admins can edit any ticket within their company
+                result = await db.Tickets
+                    .AnyAsync(t => t.Id == ticketId && t.Project!.CompanyId == user.CompanyId);
+            }
+            else if (user.IsInRole(Role.ProjectManager))
+            {
+                // Project Managers can edit tickets in projects they manage
+                result = await db.Tickets
+                        .AnyAsync(t => t.Id == ticketId
+                        && t.Project!.Members!.Any(m => m.Id == user.UserId) // Ensure the PM is a member of the project
+                        || t.SubmitterUserId == user.UserId);
+
+            }
+            else
+            {
+                result = await db.Tickets
+                       .AnyAsync(t => t.Id == ticketId
+                       && (t.SubmitterUserId == user.UserId // Ensure the PM is a member of the project
+                       || t.DeveloperUserId == user.UserId));
+            }
+            return result;
+        }
+
+        private async Task<bool> IsUserAuthorizedToArchiveTicket(int ticketId, UserInfo user)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            bool result = false;
+
+            if (user.IsInRole(Role.Admin))
+            {
+                // Admins can edit any ticket within their company
+                result = await db.Tickets
+                    .AnyAsync(t => t.Id == ticketId && t.Project!.CompanyId == user.CompanyId);
+            }
+            if (user.IsInRole(Role.ProjectManager))
+            {
+                // Project Managers can edit tickets in projects they manage
+                result = await db.Tickets
+                        .AnyAsync(t => t.Id == ticketId
+                        && t.Project!.Members!.Any(m => m.Id == user.UserId) // Ensure the PM is a member of the project
+                        || t.SubmitterUserId == user.UserId);
+
+            }
+           
+            return result;
+        }
+        #endregion
     }
 }
