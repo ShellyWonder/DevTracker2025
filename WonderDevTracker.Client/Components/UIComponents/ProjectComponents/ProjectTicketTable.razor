@@ -9,14 +9,14 @@
 			 ShowMenuIcon
 			 RowsPerPage="10">
 	<Columns>
-		<PropertyColumn Property="t => t.Title" >
+		<PropertyColumn Property="t => t.Title">
 			<CellTemplate>
 				<TicketTitleLink Ticket="context.Item" />
 			</CellTemplate>
 		</PropertyColumn>
 		<PropertyColumn Property="t => t.Priority">
 			<CellTemplate>
-				<TicketPriorityChip Priority="@context.Item.Priority"/>
+				<TicketPriorityChip Priority="@context.Item.Priority" />
 			</CellTemplate>
 		</PropertyColumn>
 		<PropertyColumn Property="t => t.Status">
@@ -29,7 +29,7 @@
 						SortBy="c => c.SubmitterUser?.FullName"
 						ShowColumnOptions="true">
 			<CellTemplate>
-				<AssignedToTicket User="@context.Item.SubmitterUser"/>
+				<AssignedToTicket User="@context.Item.SubmitterUser" />
 			</CellTemplate>
 		</TemplateColumn>
 		<TemplateColumn Title="Developer"
@@ -56,7 +56,8 @@
 	</NoRecordsContent>
 </MudDataGrid>
 
-<SafeNavButton Href="#" Valid="true"
+<SafeNavButton Href="/tickets/create"
+			   Valid="true"
 			   Color="Color.Tertiary"
 			   Variant="Variant.Text"
 			   Class="project-details-link ms-auto"
