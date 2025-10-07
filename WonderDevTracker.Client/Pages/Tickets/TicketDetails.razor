@@ -75,7 +75,7 @@
 					{
 							<MudButton Variant="Variant.Text"
 									   StartIcon="@Icons.Material.Filled.Edit"
-									   Href="@($"tickets/{TicketId}/edit")"
+									   Href="@($"tickets/{ticket?.Id}/edit")"
 									   Disabled="@(ticket is null)"
 									   Color="Color.Tertiary">
 								Edit
@@ -91,9 +91,6 @@
 										OnRestoreRequested="HandleRestoreAsync" />
 					}
 			</div>
-
-				
-					
 		</div>
 	}
 	else

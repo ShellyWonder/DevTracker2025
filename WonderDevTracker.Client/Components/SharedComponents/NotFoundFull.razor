@@ -9,11 +9,11 @@
     ForwardUrl="/projects/create"
     ForwardLabel="Create New Project" />
 *@
-<div class="h-100 d-flex flex-column justify-content-center align-items-center">
+<div >
     <MudText Typo="Typo.button" Color="Color.Primary" Style="font-size: 2.3rem">
         @Message
     </MudText>
-    <div class=" d-flex flex-column flex-sm-row gap-3 mt-3">
+    <div class=" d-flex h-100 flex-column flex-sm-row gap-3 mt-3">
         @if (!string.IsNullOrWhiteSpace(ReturnUrl))
         {
             <SafeNavButton Href="@ReturnUrl" Valid="true" 
