@@ -1,0 +1,257 @@
+﻿@* TicketEdit *@
+@page "/tickets/{id:int}/edit"
+@using System.Threading.Tasks
+@attribute [Authorize]
+
+@inject ITicketDTOService ticketService
+@inject IProjectDTOService projectService
+@inject IndexTrackerHelper IndexTracker
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+
+@inherits AuthenticatedComponentBase
+
+
+<MudContainer MaxWidth="MaxWidth.Large">
+	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+	@if (!_loadingComplete)
+	{
+		<LoadingSpinner Message="Loading ticket..." Color="Color.Primary" Size="Size.Large" />
+	}
+	else if (ticket is null)
+	{
+
+		<PageTitle>Ticket Not Found | Dev Tracker</PageTitle>
+		<div class="h-100 d-flex flex-column justify-content-center align-items-center">
+			<NotFoundFull Message="Ticket not found"
+						  ReturnUrl="/tickets/open"
+						  ReturnLabel="Back to Tickets"
+						  ForwardUrl="/tickets/create"
+						  ForwardLabel="Create New Ticket" />
+		</div>
+
+	}
+	else
+	{
+
+		@* Reset Index at start of render;
+						controls the index for components that use IndexTracker.*@
+		ResetIndex();
+		<PageTitle>Edit @ticket?.Title  | Dev Tracker</PageTitle>
+
+		<MudPaper Class="p-3">
+			<AnimatedBlock Index="@Index.Next()">
+				<MudText Typo="Typo.h3" GutterBottom>
+					Edit @ticket?.Title
+				</MudText>
+			</AnimatedBlock>
+			<EditForm Model="ticket"
+					  class="vstack gap-3"
+					  OnValidSubmit="HandleValidSubmit">
+				<DataAnnotationsValidator />
+
+				<AnimatedBlock Index="@Index.Next()">
+					<MudTextField @bind-Value="ticket.Title"
+								  For="() => ticket.Title"
+								  Label="Title"
+								  Variant="Variant.Outlined"
+								  Required="true" />
+				</AnimatedBlock>
+
+				<AnimatedBlock Index="@Index.Next()">
+					<MudTextField @bind-Value="ticket.Description"
+								  For="() => ticket.Description"
+								  Label="Description"
+								  Variant="Variant.Outlined"
+								  Lines="5"
+								  MaxLines="15"
+								  AutoGrow="true"
+								  Required="true" />
+
+				</AnimatedBlock>
+
+				<AnimatedBlock Index="@Index.Next()">
+					<MudSelect T="int"
+							   @bind-Value="ticket.ProjectId"
+							   For="() => ticket.ProjectId"
+							   Label="Project"
+							   Variant="Variant.Outlined"
+							   Disabled="true">
+						@* @bind-Value:after="HandleProjectChangeAsync" *@
+						<MudSelectItem Value="ticket.ProjectId">
+							@(ticket.Project?.Name ?? "Unknown")
+						</MudSelectItem>
+					</MudSelect>
+
+				</AnimatedBlock>
+
+				<AnimatedBlock Index="@Index.Next()">
+					<div class="hstack flex-wrap gap-3 align-items-start">
+						<MudSelect Value="ticket.SubmitterUserId"
+								   For="() => ticket.SubmitterUserId"
+								   Label="Submitter"
+								   Variant="Variant.Outlined"
+								   Disabled>
+							<MudSelectItem Value="ticket.SubmitterUserId">
+								@(ticket.SubmitterUser?.FullName ?? "Unknown")
+							</MudSelectItem>
+
+						</MudSelect>
+						<MudSelect @bind-Value="ticket.DeveloperUserId"
+								   For="() => ticket.DeveloperUserId"
+								   Label="Developer"
+								   Variant="Variant.Outlined"
+								   Disabled="@(developers.Count() == 0 || canUserAssignTicket == false)"
+								   Placeholder="@(developers.Any() ? "Select a developer" : "No developers available")">
+							@foreach (AppUserDTO developer in developers)
+							{
+								<MudSelectItem Value="@developer.Id">
+									@developer.FullName
+								</MudSelectItem>
+							}
+						</MudSelect>
+						<ValidationMessage For="() => ticket.DeveloperUserId" />
+					</div>
+				</AnimatedBlock>
+
+				<AnimatedBlock Index="@Index.Next()">
+					<MudField Label="Ticket Status"
+							  Variant="Variant.Outlined">
+						<PriorityChipSelector TEnum="TicketStatus"
+											  Selected="ticket.Status"
+											  SelectedChanged="val => ticket.Status = val" />
+					</MudField>
+					<ValidationMessage For="() => ticket.Type" />
+				</AnimatedBlock>
+				<AnimatedBlock Index="@Index.Next()">
+					<MudField Label="Ticket Type"
+							  Variant="Variant.Outlined">
+						<PriorityChipSelector TEnum="TicketType"
+											  Selected="ticket.Type"
+											  SelectedChanged="val => ticket.Type = val" />
+					</MudField>
+					<ValidationMessage For="() => ticket.Type" />
+				</AnimatedBlock>
+
+				<AnimatedBlock Index="@Index.Next()">
+					<MudField Label="Ticket Priority"
+							  Variant="Variant.Outlined">
+						<PriorityChipSelector TEnum="TicketPriority"
+											  Selected="ticket.Priority"
+											  SelectedChanged="val => ticket.Priority = val" />
+					</MudField>
+					<ValidationMessage For="() => ticket.Priority" />
+				</AnimatedBlock>
+
+				<AnimatedBlock Index="@Index.Next()">
+
+					<div class="d-flex">
+						<BackToBtn Href="@($"/tickets/{Id}")" Text="Back to Ticket" />
+
+						<SubmitBtn DisplayText="Save Changes"
+								   ButtonType="ButtonType.Submit" />
+					</div>
+				</AnimatedBlock>
+			</EditForm>
+		</MudPaper>
+	}
+
+</MudContainer>
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+
+	private TicketDTO ticket = new();
+	IEnumerable<ProjectDTO> projects = [];
+	IEnumerable<AppUserDTO> developers = [];
+	private List<BreadcrumbItem> breadcrumbs = [];
+	bool canUserAssignTicket = false;
+	private bool _loadingComplete = true;
+
+	private readonly IndexTrackerHelper Index = new();
+	private void ResetIndex() => IndexTracker.Reset();
+
+	protected override async Task OnParametersSetAsync()
+	{
+		Index.Reset();
+		if (UserInfo is not null)
+		{
+			// Set the submitter to the current user
+			ticket.SubmitterUserId = UserInfo.UserId;
+			ticket.Created = DateTime.UtcNow;
+			ticket.Status = TicketStatus.New;
+
+			try
+
+			{
+				//Get all active projects to display in form select
+				_loadingComplete = false;
+				ticket = await ticketService.GetTicketByIdAsync(Id, UserInfo!) ?? throw new Exception("Ticket not found");
+
+				if (ticket is not null)
+				{
+					breadcrumbs = new List<BreadcrumbItem>
+					{
+					   new BreadcrumbItem("Home", href:"/" ),
+					   new BreadcrumbItem("Tickets", href:"/tickets/open" ),
+					   new BreadcrumbItem(ticket.Title!, href:$"/tickets/{Id}" ),
+					   new BreadcrumbItem("Edit Ticket", href:null, disabled: true ),
+
+
+					};
+				}
+				else
+				{
+					breadcrumbs = new List<BreadcrumbItem>
+					{
+					   new BreadcrumbItem("Home", href:"/" ),
+					   new BreadcrumbItem("Tickets", href:"/tickets/open" ),
+					   new BreadcrumbItem("Ticket Not Found", href:null, disabled: true ),
+					};
+				}
+
+			}
+			catch (Exception ex)
+			{
+
+				Console.WriteLine(ex);
+				Snackbar.Add("Unable to load ticket. Please try again.", Severity.Error);
+			}
+			_loadingComplete = true;
+			await InvokeAsync(StateHasChanged);
+		}
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		if (!canUserAssignTicket)
+		{
+			ticket.DeveloperUserId = null;
+		}
+
+		try
+		{
+			var result = await ticketService.AddTicketAsync(ticket!, UserInfo!);
+			ticket = result!;
+			Snackbar.Add($"{ticket!.Title} created successfully!", Severity.Success);
+		}
+		catch (Exception ex)
+		{
+			// Handle error, e.g., show a message to the user
+			Console.Error.WriteLine($"Error creating ticket: {ex.Message}");
+			Snackbar.Add("Unable to create ticket. Please try again.", Severity.Error);
+			return;
+		}
+		if (ticket.Id > 0)
+		{
+
+
+			// Navigate to the ticket list or details page after successful creation
+			NavManager.NavigateTo($"/tickets/open");
+		}
+
+	}
+
+
+}

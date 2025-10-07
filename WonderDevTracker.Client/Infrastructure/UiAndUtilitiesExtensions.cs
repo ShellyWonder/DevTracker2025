@@ -4,6 +4,7 @@ using MudBlazor;
 using MudBlazor.Services;
 using WonderDevTracker.Client.Helpers.Animation;
 using WonderDevTracker.Client.Services;
+using WonderDevTracker.Client.Services.Interfaces;
 
 namespace WonderDevTracker.Client.Infrastructure
 {
@@ -15,6 +16,7 @@ namespace WonderDevTracker.Client.Infrastructure
             services.AddBlazoredLocalStorage();
             services.AddScoped<ThemeManagerService>();
             services.AddScoped<IndexTrackerHelper>();
+            services.AddScoped<IAppAuthorizationService, AppAuthorizationService>();
 
             services.AddMudServices(config =>
             {

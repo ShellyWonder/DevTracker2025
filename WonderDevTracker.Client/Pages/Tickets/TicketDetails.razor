@@ -71,25 +71,25 @@
 		<div class="d-flex mt-2">
 			<BackToBtn Href=@($"/projects/{ticket.ProjectId}") Text="Back to Project" Disabled="@(ticket is null)" />
 			<div class="ms-auto">
-					@if (_userCanEditTicket)
-					{
-							<MudButton Variant="Variant.Text"
-									   StartIcon="@Icons.Material.Filled.Edit"
-									   Href="@($"tickets/{ticket?.Id}/edit")"
-									   Disabled="@(ticket is null)"
-									   Color="Color.Tertiary">
-								Edit
-							</MudButton>
-					}
-					@if (_userCanArchiveTicket)
-					{
-							<ArchiveBar IsArchived="ticket!.Archived"
-										UserCanArchiveAndRestore="_userCanArchiveTicket"
-										ItemLabel="Ticket"
-										Busy="@_processingArchiveRestore" 
-										OnArchiveRequested="HandleArchiveAsync"
-										OnRestoreRequested="HandleRestoreAsync" />
-					}
+				@if (_userCanEditTicket)
+				{
+					<MudButton Variant="Variant.Text"
+							   StartIcon="@Icons.Material.Filled.Edit"
+							   Href="@($"tickets/{ticket?.Id}/edit")"
+							   Disabled="@(ticket is null)"
+							   Color="Color.Tertiary">
+						Edit
+					</MudButton>
+				}
+				@if (_userCanArchiveTicket)
+				{
+					<ArchiveBar IsArchived="ticket!.Archived"
+								UserCanArchiveAndRestore="_userCanArchiveTicket"
+								ItemLabel="Ticket"
+								Busy="@_processingArchiveRestore"
+								OnArchiveRequested="HandleArchiveAsync"
+								OnRestoreRequested="HandleRestoreAsync" />
+				}
 			</div>
 		</div>
 	}
@@ -109,10 +109,9 @@
 @code {
 	[Parameter]
 	public int Id { get; set; }
+
 	[Parameter]
 	public int TicketId { get; set; }
-
-	private ProjectDTO? project;
 
 	private TicketDTO? ticket;
 	private List<BreadcrumbItem> breadcrumbs = [];
@@ -133,7 +132,6 @@
 	{
 		_loadingComplete = false;
 		ticket = null;
-		project = null;
 		_userCanEditTicket = false;
 		_userCanArchiveTicket = false;
 		try
