@@ -13,13 +13,14 @@ namespace WonderDevTracker.Client.Services
         /// <param name="projectId">Project Id</param>
         /// <param name="user">Current user's claims</param>
         
-        public async Task<bool> IsUserAdminPM(int projectId, UserInfo user)
+        public async Task<bool> IsUserAdminPMAsync(int projectId, UserInfo user)
         {
             
                 if (user.IsInRole(Role.Admin)) return true;
 
                 var pm = await projectService.GetProjectManagerAsync(projectId, user);
-                return pm?.Id == user.UserId;
+            if (pm is null) return false;
+            return pm?.Id == user.UserId;
             
         }
 

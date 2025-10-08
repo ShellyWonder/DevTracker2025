@@ -4,6 +4,7 @@ using MudBlazor;
 using MudBlazor.Services;
 using WonderDevTracker.Client.Helpers.Animation;
 using WonderDevTracker.Client.Services;
+using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Components.Account;
 
 namespace WonderDevTracker.Infrastructure
@@ -32,6 +33,7 @@ namespace WonderDevTracker.Infrastructure
             services.AddScoped<IdentityUserAccessor>();
             services.AddScoped<IdentityRedirectManager>();
             services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+            services.AddScoped<IAppAuthorizationService, AppAuthorizationService>();
 
 
             services.AddScoped<ThemeManagerService>();

@@ -7,6 +7,7 @@
 @inject IProjectDTOService projectService
 @inject IndexTrackerHelper IndexTracker
 @inject NavigationManager NavManager
+@inject IAppAuthorizationService AuthService
 @inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
@@ -177,11 +178,6 @@
 		Index.Reset();
 		if (UserInfo is not null)
 		{
-			// Set the submitter to the current user
-			ticket.SubmitterUserId = UserInfo.UserId;
-			ticket.Created = DateTime.UtcNow;
-			ticket.Status = TicketStatus.New;
-
 			try
 
 			{
@@ -197,9 +193,12 @@
 					   new BreadcrumbItem("Tickets", href:"/tickets/open" ),
 					   new BreadcrumbItem(ticket.Title!, href:$"/tickets/{Id}" ),
 					   new BreadcrumbItem("Edit Ticket", href:null, disabled: true ),
-
-
 					};
+					canUserAssignTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
+
+					IEnumerable<AppUserDTO> projectMembers = await projectService.GetProjectMembersAsync(ticket.ProjectId, UserInfo!);
+					developers = projectMembers.Where(m => m.Role == Role.Developer);
+
 				}
 				else
 				{

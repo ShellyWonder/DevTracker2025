@@ -2,7 +2,7 @@
 {
     public interface IAppAuthorizationService
     {
-        Task<bool> IsUserAdminPM(int projectId, UserInfo user);
+        Task<bool> IsUserAdminPMAsync(int projectId, UserInfo user);
         
     }
 }
