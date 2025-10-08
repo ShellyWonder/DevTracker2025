@@ -1,10 +1,23 @@
-﻿using WonderDevTracker.Client.Models.Enums;
+﻿using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 
 namespace WonderDevTracker.Client.Services
 {
     public class AppAuthorizationService(IProjectDTOService projectService) : IAppAuthorizationService
     {
+        public async Task<bool> CanEditTicketAsync(TicketDTO ticket, UserInfo user)
+        {
+            if (ticket is null) return false;
+
+            // Admin or PM on the project?
+            if (await IsUserAdminPMAsync(ticket.ProjectId, user)) return true;
+
+            // Otherwise, only the ticket's submitter or assigned developer can edit.
+            return string.Equals(ticket.SubmitterUserId, user.UserId, StringComparison.Ordinal)
+                || string.Equals(ticket.DeveloperUserId, user.UserId, StringComparison.Ordinal);
+        }
+
         /// <summary>
         /// Is the user an Admin or the Project Manager of the specified project?
         /// </summary>
@@ -12,7 +25,7 @@ namespace WonderDevTracker.Client.Services
         ///  It is the most common authorization/permission pattern in the app</remarks>
         /// <param name="projectId">Project Id</param>
         /// <param name="user">Current user's claims</param>
-        
+
         public async Task<bool> IsUserAdminPMAsync(int projectId, UserInfo user)
         {
             

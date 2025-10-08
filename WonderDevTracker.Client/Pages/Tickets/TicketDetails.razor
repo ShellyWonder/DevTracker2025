@@ -5,6 +5,7 @@
 @inject ITicketDTOService TicketService
 @inject IProjectDTOService ProjectService
 @inject ICompanyDTOService CompanyService
+@inject IAppAuthorizationService AuthService
 @inject IndexTrackerHelper IndexTracker
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
@@ -130,8 +131,8 @@
 
 	protected override async Task OnParametersSetAsync()
 	{
-		_loadingComplete = false;
 		ticket = null;
+		_loadingComplete = false;
 		_userCanEditTicket = false;
 		_userCanArchiveTicket = false;
 		try
@@ -153,16 +154,11 @@
 				}
 				breadcrumbs.Add(new BreadcrumbItem(ticket.Title ?? "Ticket Not Found", href: null, disabled: true));
 
-				AppUserDTO? pm = await ProjectService.GetProjectManagerAsync(ticket.ProjectId, UserInfo!);
-				_userCanEditTicket = (ticket.SubmitterUserId == UserInfo?.UserId) ||
-										(ticket.DeveloperUserId == UserInfo?.UserId) ||
-										(UserInfo?.IsInRole(Role.Admin) ?? false) ||
-										(pm?.Id == UserInfo?.UserId);
-				_userCanArchiveTicket = (UserInfo?.IsInRole(Role.Admin) ?? false) ||
-										(pm?.Id == UserInfo?.UserId);
+				// Check if user has permission to edit the ticket
+				_userCanEditTicket = await AuthService.CanEditTicketAsync(ticket!, UserInfo!);
+				_userCanArchiveTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
 
 			}
-
 
 		}
 		catch (Exception ex)

@@ -102,7 +102,7 @@
 								   For="() => ticket.DeveloperUserId"
 								   Label="Developer"
 								   Variant="Variant.Outlined"
-								   Disabled="@(developers.Count() == 0 || canUserAssignTicket == false)"
+								   Disabled="@(developers.Count() == 0 || _canUserAssignTicket == false)"
 								   Placeholder="@(developers.Any() ? "Select a developer" : "No developers available")">
 							@foreach (AppUserDTO developer in developers)
 							{
@@ -167,8 +167,9 @@
 	IEnumerable<ProjectDTO> projects = [];
 	IEnumerable<AppUserDTO> developers = [];
 	private List<BreadcrumbItem> breadcrumbs = [];
-	bool canUserAssignTicket = false;
+	bool _canUserAssignTicket = false;
 	private bool _loadingComplete = true;
+	private bool _canUserEditTicket = false;
 
 	private readonly IndexTrackerHelper Index = new();
 	private void ResetIndex() => IndexTracker.Reset();
@@ -194,11 +195,13 @@
 					   new BreadcrumbItem(ticket.Title!, href:$"/tickets/{Id}" ),
 					   new BreadcrumbItem("Edit Ticket", href:null, disabled: true ),
 					};
-					canUserAssignTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
+					_canUserAssignTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
 
 					IEnumerable<AppUserDTO> projectMembers = await projectService.GetProjectMembersAsync(ticket.ProjectId, UserInfo!);
 					developers = projectMembers.Where(m => m.Role == Role.Developer);
 
+					// If the current DeveloperUserId is not in the list of developers, clear it
+					if (!developers.Any(d => d.Id == ticket.DeveloperUserId)) ticket.DeveloperUserId = null;
 				}
 				else
 				{
@@ -217,6 +220,23 @@
 				Console.WriteLine(ex);
 				Snackbar.Add("Unable to load ticket. Please try again.", Severity.Error);
 			}
+
+			if (ticket is null)
+			{
+				breadcrumbs = new List<BreadcrumbItem>
+				{
+					   new BreadcrumbItem("Home", href:"/" ),
+					   new BreadcrumbItem("Tickets", href:"/tickets/open" ),
+					   new BreadcrumbItem("Ticket Not Found", href:null, disabled: true ),
+				};
+			}
+			// Check if user has permission to edit the ticket
+			_canUserEditTicket = await AuthService.CanEditTicketAsync(ticket!, UserInfo!);
+			if (!_canUserEditTicket)
+			{
+				Snackbar.Add("You do not have permission to edit this ticket.", Severity.Error);
+				NavManager.NavigateTo($"/tickets/{Id}");
+			}
 			_loadingComplete = true;
 			await InvokeAsync(StateHasChanged);
 		}
@@ -224,7 +244,7 @@
 
 	private async Task HandleValidSubmit()
 	{
-		if (!canUserAssignTicket)
+		if (!_canUserAssignTicket)
 		{
 			ticket.DeveloperUserId = null;
 		}

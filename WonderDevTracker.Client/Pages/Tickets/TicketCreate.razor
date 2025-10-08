@@ -4,6 +4,7 @@
 
 @inject ITicketDTOService ticketService
 @inject IProjectDTOService projectService
+@inject IAppAuthorizationService AuthService
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
 
@@ -78,8 +79,8 @@
 							   For="() => ticket.DeveloperUserId"
 							   Label="Developer"
 							   Variant="Variant.Outlined"
-							   Disabled="@(developers.Count() == 0 || canUserAssignTicket == false)"
-							   Placeholder="@(developers.Any() ? "Select a developer" : "No developers available")">
+							   Disabled="BtnDisabled"
+							   Placeholder="PlaceholderText">
 						@foreach (AppUserDTO developer in developers)
 						{
 							<MudSelectItem Value="@developer.Id">
@@ -106,7 +107,6 @@
 						  Variant="Variant.Outlined">
 					<PriorityChipSelector TEnum="TicketPriority"
 										  Selected="ticket.Priority"
-
 										  SelectedChanged="val => ticket.Priority = val" />
 				</MudField>
 				<ValidationMessage For="() => ticket.Priority" />
@@ -129,9 +129,11 @@
 	private TicketDTO ticket = new();
 	IEnumerable<ProjectDTO> projects = [];
 	IEnumerable<AppUserDTO> developers = [];
-	bool canUserAssignTicket = false;
+	bool _canUserAssignTicket = false;
 
 	private readonly IndexTrackerHelper Index = new();
+	private bool BtnDisabled => developers.Count() == 0 || _canUserAssignTicket == false;
+	private string PlaceholderText => developers.Count() == 0 ? "No developers available" : "Select a developer";
 
 	protected override void OnParametersSet() => Index.Reset();
 
@@ -167,18 +169,15 @@
 		}
 		try
 		{
-			AppUserDTO? projectManager = await projectService.GetProjectManagerAsync(ticket.ProjectId, UserInfo!);
-			if (UserInfo!.IsInRole(Role.Admin) || projectManager?.Id == UserInfo?.UserId)
+			// Check if the user can assign tickets (is Admin or PM of the selected project)
+			_canUserAssignTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
+
+			if(!_canUserAssignTicket)
 			{
-				canUserAssignTicket = true;
-			}
-			else
-			{
-				canUserAssignTicket = false;
+				_canUserAssignTicket = false;
 				ticket.DeveloperUserId = null;
-
 			}
-
+			
 			IEnumerable<AppUserDTO> projectMembers = await projectService.GetProjectMembersAsync(ticket.ProjectId, UserInfo!);
 			developers = projectMembers.Where(m => m.Role == Role.Developer);
 
@@ -207,7 +206,7 @@
 
 	private async Task HandleValidSubmit()
 	{
-		if (!canUserAssignTicket)
+		if (!_canUserAssignTicket)
 		{
 			ticket.DeveloperUserId = null;
 		}
