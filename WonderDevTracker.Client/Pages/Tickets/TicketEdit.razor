@@ -235,7 +235,7 @@
 			if (!_canUserEditTicket)
 			{
 				Snackbar.Add("You do not have permission to edit this ticket.", Severity.Error);
-				NavManager.NavigateTo($"/tickets/{Id}");
+				NavManager.NavigateTo($"/tickets/open");
 			}
 			_loadingComplete = true;
 			await InvokeAsync(StateHasChanged);
@@ -244,23 +244,31 @@
 
 	private async Task HandleValidSubmit()
 	{
-		if (!_canUserAssignTicket)
-		{
-			ticket.DeveloperUserId = null;
-		}
+		if (ticket is null) return;
+		if (!_canUserAssignTicket) ticket.DeveloperUserId = null;
+
+		bool success;
+
 
 		try
 		{
-			var result = await ticketService.AddTicketAsync(ticket!, UserInfo!);
-			ticket = result!;
-			Snackbar.Add($"{ticket!.Title} created successfully!", Severity.Success);
+			await ticketService.UpdateTicketAsync(ticket!, UserInfo!);
+			
+			success = true;
 		}
 		catch (Exception ex)
 		{
 			// Handle error, e.g., show a message to the user
-			Console.Error.WriteLine($"Error creating ticket: {ex.Message}");
-			Snackbar.Add("Unable to create ticket. Please try again.", Severity.Error);
+			Console.Error.WriteLine($"Error updating ticket: {ex.Message}");
+			Snackbar.Add("Unable to update ticket. Please try again.", Severity.Error);
+			success = false;
 			return;
+		}
+		if (success)
+		{
+			Snackbar.Add($"{ticket!.Title} updated successfully!", Severity.Success);
+			NavManager.NavigateTo($"/tickets/{ticket.Id}");
+
 		}
 		if (ticket.Id > 0)
 		{
