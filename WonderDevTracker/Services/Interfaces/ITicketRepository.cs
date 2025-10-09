@@ -91,5 +91,15 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user claims</param>
         public Task RestoreTicketByIdAsync(int ticketId, UserInfo user);
         #endregion
+
+        #region UPDATE METHODS
+        /// <summary>
+        /// Update Ticket
+        /// </summary>
+        /// <remarks>Updates a ticket in the database</remarks>
+        /// <param name="ticket">Ticket to be updated</param>
+        /// <param name="user">Current user's claims</param>
+        public Task UpdateTicketAsync(Ticket ticket, UserInfo user);
+        #endregion
     }
 }

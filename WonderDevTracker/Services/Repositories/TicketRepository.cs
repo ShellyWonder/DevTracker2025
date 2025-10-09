@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
@@ -180,6 +181,27 @@ namespace WonderDevTracker.Services.Repositories
             }
         }
 
+        public async Task UpdateTicketAsync(Ticket ticket, UserInfo user)
+        {
+            bool IsAuthorized = await IsUserAuthorizedToEditTicket(ticket.Id, user);
+
+            if (IsAuthorized)
+            {
+                ticket.Updated = DateTimeOffset.UtcNow;
+                // clear out navigation properties so they are not updated
+                ticket.Comments=[];
+                ticket.Attachments=[];
+                ticket.History=[];
+                ticket.DeveloperUser=null;
+                ticket.SubmitterUser=null;
+
+                await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+                db.Update(ticket);
+                await db.SaveChangesAsync();
+
+            }
+        }
+
 
         #region PRIVATE METHODS
         /// <summary>
@@ -245,9 +267,10 @@ namespace WonderDevTracker.Services.Repositories
                         || t.SubmitterUserId == user.UserId);
 
             }
-           
+
             return result;
         }
+
         #endregion
     }
 }

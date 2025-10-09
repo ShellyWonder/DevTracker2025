@@ -44,5 +44,10 @@ namespace WonderDevTracker.Client.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task UpdateTicketAsync(TicketDTO ticket, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
