@@ -4,6 +4,7 @@
 
 @inject IProjectDTOService ProjectService
 @inject ICompanyDTOService CompanyService
+@inject IAppAuthorizationService AuthService
 @inject IndexTrackerHelper IndexTracker
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
@@ -37,7 +38,8 @@
 							 Text="@project.Description" />
 
 			<!-- Sibling B: receive the same 'project' plus a refresh token -->
-			<ProjectMembers Project="project"
+			<ProjectMembers UserCanManageTeam="_userCanEditProject"
+							Project="project"
 							RefreshToken="_membersRefreshToken"
 							Index="@IndexTracker.Next()" />
 
@@ -53,7 +55,7 @@
 					<MudButton Variant="Variant.Text"
 							   StartIcon="@Icons.Material.Filled.Edit"
 							   Href="@($"projects/{ProjectId}/edit")"
-							   Disabled="@(project is null)"
+							   Disabled="@(project is null || !_userCanEditProject)"
 							   Color="Color.Tertiary">
 						Edit
 					</MudButton>
@@ -109,10 +111,8 @@
 			if (project is not null)
 			{
 				projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
-				_userCanEditProject =
-				(UserInfo?.IsInRole(Role.Admin) ?? false) ||
-				((UserInfo?.IsInRole(Role.ProjectManager) ?? false)
-					&& project?.ProjectManagerId == UserInfo?.UserId);
+				_userCanEditProject = await AuthService.IsUserAdminPMAsync(ProjectId, UserInfo!);
+
 			}
 		}
 		catch (Exception ex)

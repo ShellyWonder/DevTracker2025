@@ -9,145 +9,149 @@
 
 @if (Project is not null)
 {
-    <div class="vstack gap-3">
-        <AnimatedCard Index="Index">
-            <MudCardHeader>
-                <MudText Typo="Typo.h3" Color="Color.Primary">Project Members</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                @if (Project.Members?.Count == 0)
-                {
-                    <NotFoundDisplay Message="No assigned project members" />
-                }
-                else
-                {
-                    <div class="row  g-3 py-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+	<div class="vstack gap-3">
+		<AnimatedCard Index="Index">
+			<MudCardHeader>
+				<MudText Typo="Typo.h3" Color="Color.Primary">Project Members</MudText>
+			</MudCardHeader>
+			<MudCardContent>
+				@if (Project.Members?.Count == 0)
+				{
+					<NotFoundDisplay Message="No assigned project members" />
+				}
+				else
+				{
+					<div class="row  g-3 py-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
 
-                        @foreach (AppUserDTO member in Project.Members!)
-                        {
-                            bool isPm = member.Id == Project.ProjectManagerId;
-                            <div class="col" @key=member.Id>
-                                <ProjectTeamCard User="member" IsPM="isPm" />
-                            </div>
-                        }
-                    </div>
-                }
+						@foreach (AppUserDTO member in Project.Members!)
+						{
+							bool isPm = member.Id == Project.ProjectManagerId;
+							<div class="col" @key=member.Id>
+								<ProjectTeamCard User="member" IsPM="isPm" />
+							</div>
+						}
+					</div>
+				}
+				@if (UserCanManageTeam)
+				{
+					<SafeNavButton Valid="true"
+								   Color="Color.Tertiary"
+								   Variant="Variant.Text"
+								   Class="project-details-link ms-auto"
+								   StartIcon="@Icons.Material.Filled.Group"
+								   OnClick="()=>_IsMemberDialogOpen = true"
+								   TypeText="Manage Team" />
+				}
 
-                <AuthorizeView Roles="@($"{Role.Admin}, {Role.ProjectManager}")">
-                    <SafeNavButton Valid="true"
-                                   Color="Color.Tertiary"
-                                   Variant="Variant.Text"
-                                   Class="project-details-link ms-auto"
-                                   StartIcon="@Icons.Material.Filled.Group"
-                                   OnClick="()=>IsMemberDialogOpen = true"
-                                   TypeText="Manage Team" />
-                </AuthorizeView>
-            </MudCardContent>
-        </AnimatedCard>
-    </div>
-    @* Manage Team(submitters and devs) Dialog*@
-    <MudDialog @bind-Visible="IsMemberDialogOpen">
-        <TitleContent>
-            <MudText Typo="Typo.h3" Color="Color.Primary">Manage Project Team</MudText>
-        </TitleContent>
-        <DialogContent>
-            <ManageProjectTeam Project="Project"
-                               OnSaved="HandleTeamSaved"
-                               OnClose="HandleDialogClosed" />
-        </DialogContent>
-    </MudDialog>
+
+			</MudCardContent>
+		</AnimatedCard>
+	</div>
+	@* Manage Team(submitters and devs) Dialog*@
+	<MudDialog @bind-Visible="_IsMemberDialogOpen">
+		<TitleContent>
+			<MudText Typo="Typo.h3" Color="Color.Primary">Manage Project Team</MudText>
+		</TitleContent>
+		<DialogContent>
+			<ManageProjectTeam Project="Project"
+							   OnSaved="HandleTeamSaved"
+							   OnClose="HandleDialogClosed" />
+		</DialogContent>
+	</MudDialog>
 
 }
 
 @code {
-    [Parameter, EditorRequired]
-    public ProjectDTO? Project { get; set; }
+	[Parameter, EditorRequired]
+	public ProjectDTO? Project { get; set; }
 
-    [Parameter, EditorRequired]
-    public int Index { get; set; }
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
 
-    //from parent ProjectDetails -- triggers an update to the members list
-    [Parameter]
-    public Guid RefreshToken { get; set; }
+	//from parent ProjectDetails -- triggers an update to the members list
+	[Parameter]
+	public Guid RefreshToken { get; set; }
 
-    private Guid _membersRefreshToken;
+	private Guid _membersRefreshToken;
 
-    [Parameter]
-    public EventCallback OnClose { get; set; }
+	[Parameter]
+	public EventCallback OnClose { get; set; }
+	[Parameter]
+	public bool UserCanManageTeam { get; set; }
 
-    //state holders
-    private IEnumerable<AppUserDTO> _developers = [];
-    private IEnumerable<AppUserDTO> _submitters = [];
+	//state holders
+	private IEnumerable<AppUserDTO> _developers = [];
+	private IEnumerable<AppUserDTO> _submitters = [];
 
-    private bool IsMemberDialogOpen = false;
- 
+	private bool _IsMemberDialogOpen = false;
 
-    //selected members -- bind to chip sets(IReadOnlyCollection is only option for chip sets)
-    private IReadOnlyCollection<string> selectedDeveloperIds = [];
-    private IReadOnlyCollection<string> selectedSubmitterIds = [];
 
-    //existing members
-    private IEnumerable<string> ExistingMemberIds = [];
+	//selected members -- bind to chip sets(IReadOnlyCollection is only option for chip sets)
+	private IReadOnlyCollection<string> selectedDeveloperIds = [];
+	private IReadOnlyCollection<string> selectedSubmitterIds = [];
 
-    protected override async Task OnParametersSetAsync()
-    {
-        // Always handle the first render
-        bool firstRender = _membersRefreshToken == Guid.Empty;
+	//existing members
+	private IEnumerable<string> ExistingMemberIds = [];
 
-        // Rebuild if the parent signaled a change
-        if (firstRender || RefreshToken != _membersRefreshToken)
-        {
-            _membersRefreshToken = RefreshToken;
-            await RebuildRoleBuckets();
-        }
-    }
+	protected override async Task OnParametersSetAsync()
+	{
+		// Always handle the first render
+		bool firstRender = _membersRefreshToken == Guid.Empty;
 
-    private async Task RebuildRoleBuckets()
-    {
-        if (Project is null) return;
+		// Rebuild if the parent signaled a change
+		if (firstRender || RefreshToken != _membersRefreshToken)
+		{
+			_membersRefreshToken = RefreshToken;
+			await RebuildRoleBuckets();
+		}
+	}
 
-        //Get existing project members
-        ExistingMemberIds = Project.Members is not null
-                            ? [.. Project.Members.Select(m => m.Id)]
-                            : [];
-        try
-        {
-            //Get all available users in roles
-            // _projectManager = await CompanyService.GetProjectManagerAsync(Project.Id);
-            _developers = await CompanyService.GetUsersInRoleAsync(Role.Developer, UserInfo!);
-            _submitters = await CompanyService.GetUsersInRoleAsync(Role.Submitter, UserInfo!);
+	private async Task RebuildRoleBuckets()
+	{
+		if (Project is null) return;
 
-            // Pre-select existing members in the chip sets
-            selectedDeveloperIds = [.. _developers.Select(d => d.Id).Where(id => ExistingMemberIds.Contains(id))];
-            selectedSubmitterIds = [.. _submitters.Select(s => s.Id).Where(id => ExistingMemberIds.Contains(id))];
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            Snackbar.Add("Error loading project members.");
-        }
-    }
+		//Get existing project members
+		ExistingMemberIds = Project.Members is not null
+							? [.. Project.Members.Select(m => m.Id)]
+							: [];
+		try
+		{
+			//Get all available users in roles
+			// _projectManager = await CompanyService.GetProjectManagerAsync(Project.Id);
+			_developers = await CompanyService.GetUsersInRoleAsync(Role.Developer, UserInfo!);
+			_submitters = await CompanyService.GetUsersInRoleAsync(Role.Submitter, UserInfo!);
 
-    private async Task HandleTeamSaved(ProjectDTO updatedProject)
-    {
-        await InvokeAsync(async () =>
-        {
-            // Replace the old Project with the updated one from the dialog
-            Project = updatedProject;
+			// Pre-select existing members in the chip sets
+			selectedDeveloperIds = [.. _developers.Select(d => d.Id).Where(id => ExistingMemberIds.Contains(id))];
+			selectedSubmitterIds = [.. _submitters.Select(s => s.Id).Where(id => ExistingMemberIds.Contains(id))];
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Error loading project members.");
+		}
+	}
 
-            // Refresh your tracking list
-            await RebuildRoleBuckets();
+	private async Task HandleTeamSaved(ProjectDTO updatedProject)
+	{
+		await InvokeAsync(async () =>
+		{
+			// Replace the old Project with the updated one from the dialog
+			Project = updatedProject;
 
-            await InvokeAsync(StateHasChanged); // force re-render
+			// Refresh your tracking list
+			await RebuildRoleBuckets();
 
-        });
-    }
+			await InvokeAsync(StateHasChanged); // force re-render
 
-    private Task HandleDialogClosed()
-    {
-        IsMemberDialogOpen = false;
-        return Task.CompletedTask;
-    }
+		});
+	}
+
+	private Task HandleDialogClosed()
+	{
+		_IsMemberDialogOpen = false;
+		return Task.CompletedTask;
+	}
 
 }
 
