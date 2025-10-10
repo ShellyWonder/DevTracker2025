@@ -102,8 +102,8 @@
 								   For="() => ticket.DeveloperUserId"
 								   Label="Developer"
 								   Variant="Variant.Outlined"
-								   Disabled="@(developers.Count() == 0 || _canUserAssignTicket == false)"
-								   Placeholder="@(developers.Any() ? "Select a developer" : "No developers available")">
+								   Disabled="BtnDisabled"
+								   Placeholder="PlaceholderText">
 							@foreach (AppUserDTO developer in developers)
 							{
 								<MudSelectItem Value="@developer.Id">
@@ -173,6 +173,9 @@
 
 	private readonly IndexTrackerHelper Index = new();
 	private void ResetIndex() => IndexTracker.Reset();
+	private bool BtnDisabled => developers.Count() == 0 || _canUserAssignTicket == false;
+	private string PlaceholderText => developers.Any() ? "Select a developer" : "No developers available";
+
 
 	protected override async Task OnParametersSetAsync()
 	{
