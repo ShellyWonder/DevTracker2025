@@ -32,6 +32,14 @@ namespace WonderDevTracker.Client.Components.BaseComponents
         protected virtual Task OnInitializedWithAuthAsync() => Task.CompletedTask;
 
         //use for a single role scenario(e.g. show/hide in the navMenu)
+        protected bool IsAuthenticated => UserInfo is not null;
+
+        //can be used gobally since Admins have all company permissions, not project-specific
+        protected bool IsAdmin => UserInfo?.IsInRole(Role.Admin) == true;
+
+        // True for PM in Company but does not check for membership in a project;
+        // use AppAuthenticationService to verify project-specific manager
+        protected bool IsProjectManager => UserInfo?.IsInRole(Role.ProjectManager) == true;
         protected bool UserIsInRole(Role role) => AuthUser?.IsInRole(role.ToString()) ?? false;
 
         //use for multi-role scenario

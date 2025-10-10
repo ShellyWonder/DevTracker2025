@@ -2,6 +2,10 @@
 @using WonderDevTracker.Client.Components.UIComponents.ProjectComponents.Dialogs
 
 @inject IDialogService DialogService
+@inject IAppAuthorizationService AuthService
+
+@inherits AuthenticatedComponentBase
+
 
 <AnimatedCard Index="Index">
 	<MudCardHeader>
@@ -37,7 +41,9 @@
 								 PlaceholderName="Unassigned"
 								 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
 
-				<AuthorizeView Roles="@($"{Role.Admin}")">
+				@if (IsAdmin)
+				{
+
 					<SafeNavButton Valid="true"
 								   Color="Color.Tertiary"
 								   Variant="Variant.Text"
@@ -46,7 +52,8 @@
 								   StartIcon="@Icons.Material.Filled.Group"
 								   OnClick="OpenPmDialog"
 								   TypeText="Assign New Project Manager" />
-				</AuthorizeView>
+				}
+
 			</div>
 		</CardHeaderContent>
 	</MudCardHeader>
