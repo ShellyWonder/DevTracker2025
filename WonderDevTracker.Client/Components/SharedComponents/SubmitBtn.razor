@@ -6,7 +6,7 @@
            Variant="@Variant"
            ButtonType="@ButtonType"
            aria-label="@AriaLabel"
-           aria-busy="@(_processing)"
+           aria-busy="@AriaBusy"
            title="@(Title ?? DisplayText)"
            StartIcon="@Icons.Material.Filled.Save"
            Disabled="@(Disabled || (_processing && DisableWhileExecuting))"
@@ -81,6 +81,7 @@
 
     // ---- Internal state ----
     private bool _processing;
+    private string AriaBusy => _processing ? "true" : "false";
     // ---- End Internal state ----
 	
     // ---- Event handlers ----

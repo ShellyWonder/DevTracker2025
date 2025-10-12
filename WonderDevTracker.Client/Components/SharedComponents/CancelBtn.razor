@@ -7,6 +7,7 @@
            ButtonType="@ButtonType"
            aria-label="@AriaLabel"
            title="@Title"
+		   Disabled="@Disabled"
            StartIcon="@Icons.Material.Filled.Cancel"
            OnClick="@OnClick">
     @DisplayText
@@ -33,6 +34,9 @@
 
     [Parameter]
     public string? Href { get; set; }
+
+    [Parameter]
+	public bool Disabled { get; set; } = false;
 
     [Parameter] 
     public EventCallback<MouseEventArgs> OnClick { get; set; }
