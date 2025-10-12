@@ -80,7 +80,6 @@ namespace WonderDevTracker.Services.Repositories
             }
             return developers.AsEnumerable();
 
-
         }
 
         public async Task<string?> GetProjectManagerIdAsync(int projectId, UserInfo user)

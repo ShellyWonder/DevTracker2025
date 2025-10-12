@@ -177,6 +177,7 @@
 				_canUserAssignTicket = false;
 				ticket.DeveloperUserId = null;
 			}
+
 			
 			IEnumerable<AppUserDTO> projectMembers = await projectService.GetProjectMembersAsync(ticket.ProjectId, UserInfo!);
 			developers = projectMembers.Where(m => m.Role == Role.Developer);
