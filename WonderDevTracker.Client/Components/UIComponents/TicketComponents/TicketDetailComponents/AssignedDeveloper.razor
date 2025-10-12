@@ -1,0 +1,39 @@
+﻿@* AssignedDeveloper *@
+
+@inject ITicketDTOService TicketService
+@inject IndexTrackerHelper IndexTracker
+
+<LabeledCard Index="@IndexTracker.Next()"
+			 Title="Assigned To:">
+
+	<div class=" d-flex align-items-center">
+		<ProjectTeamCard User="Ticket.DeveloperUser"
+						 PlaceholderName="Unassigned"
+						 PlaceholderRole="@Role.Developer.GetDisplayName()" />
+
+		@if (CanAssign)
+		{
+			<MudIconButton Class="ms-auto"
+						   Icon="@Icons.Material.Filled.Edit"
+						   ariaLabel="Change assignee" />
+		}
+	</div>
+</LabeledCard>
+
+@code {
+	[Parameter, EditorRequired] 
+	public TicketDTO Ticket { get; set; } = default!;
+
+	[Parameter] 
+	public int Index { get; set; }
+	// If true, shows the edit button and allows the user to open the assign dialog.
+	[Parameter] 
+	public bool CanAssign { get; set; }
+
+	// Parent opens dialog; 
+	[Parameter] 
+	public EventCallback OnEditRequested { get; set; }
+
+	private Task OnEditClicked() => OnEditRequested.InvokeAsync();
+
+}

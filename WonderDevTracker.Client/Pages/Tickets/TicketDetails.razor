@@ -32,23 +32,15 @@
 
 			<MudGrid Class="mt-2">
 				<MudItem xs="12" md="6">
-					<LabeledCard Index="@IndexTracker.Next()" Title="Submitted By:">
-						<ProjectTeamCard User="ticket.SubmitterUser"
-										 PlaceholderName="Unassigned"
-										 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
-					</LabeledCard>
+					<TicketSubmitter Ticket="ticket"
+									 Index="@IndexTracker.Next()" />
 				</MudItem>
 
 				<MudItem xs="12" md="6">
-					<LabeledCard Index="@IndexTracker.Next()"
-								 Title="Assigned To:">
-						@* <MudIconButton Icon="@Icons.Material.Filled.Edit"
-									   ariaLabel="Change assignee" /> *@
-
-						<ProjectTeamCard User="ticket.DeveloperUser"
-										 PlaceholderName="Unassigned"
-										 PlaceholderRole="@Role.Developer.GetDisplayName()" />
-					</LabeledCard>
+					<AssignedDeveloper Ticket="ticket"
+									   Index="@IndexTracker.Next()"
+									   CanAssign="_userCanAssignTicket" />
+					@* OnEditRequested="OpenChangeAssigneeAsync" /> *@
 				</MudItem>
 			</MudGrid>
 
@@ -107,7 +99,7 @@
 	}
 </MudContainer>
 
-@code {
+	@code {
 	[Parameter]
 	public int Id { get; set; }
 
@@ -116,9 +108,12 @@
 
 	private TicketDTO? ticket;
 	private List<BreadcrumbItem> breadcrumbs = [];
+	private IEnumerable<AppUserDTO> developers = [];
+
 	private bool _loadingComplete = false;
 	private bool _userCanEditTicket = false;
 	private bool _userCanArchiveTicket = false;
+	private bool _userCanAssignTicket = false;
 	private bool _processingArchiveRestore = false;
 
 	private void ResetIndex() => IndexTracker.Reset();
@@ -135,6 +130,7 @@
 		_loadingComplete = false;
 		_userCanEditTicket = false;
 		_userCanArchiveTicket = false;
+		_userCanAssignTicket = false;
 		try
 		{
 			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
@@ -157,6 +153,10 @@
 				// Check if user has permission to edit the ticket
 				_userCanEditTicket = await AuthService.CanEditTicketAsync(ticket!, UserInfo!);
 				_userCanArchiveTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
+				_userCanAssignTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
+
+				IEnumerable<AppUserDTO> projectMembers = await ProjectService.GetProjectMembersAsync(ticket.ProjectId, UserInfo!);
+				developers = projectMembers.Where(m => m.Role == Role.Developer);
 
 			}
 

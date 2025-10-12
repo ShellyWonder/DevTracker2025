@@ -1,0 +1,18 @@
+﻿@* <h3>TicketSubmitter</h3> *@
+@inject ITicketDTOService TicketService
+@inject IndexTrackerHelper IndexTracker
+
+<LabeledCard Index="@IndexTracker.Next()"
+			 Title="Submitted By:">
+	<ProjectTeamCard User="Ticket.SubmitterUser"
+					 PlaceholderName="Unassigned"
+					 PlaceholderRole="@Role.ProjectManager.GetDisplayName()" />
+</LabeledCard>
+
+@code {
+	[Parameter, EditorRequired]
+	public TicketDTO Ticket { get; set; } = default!;
+	[Parameter]
+	public int Index { get; set; }
+
+}
