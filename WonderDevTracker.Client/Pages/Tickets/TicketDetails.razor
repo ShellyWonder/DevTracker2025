@@ -49,7 +49,9 @@
 			<TicketMetaRow Index="@IndexTracker.Next()"
 						   Priority="@ticket.Priority"
 						   Status="@ticket.Status"
-						   Type="@ticket.Type" />
+						   Type="@ticket.Type" 
+						   CanEdit="_userCanEditTicket"
+						   />
 
 			<DescriptionCard Title="Description"
 							 Index="@IndexTracker.Next()"

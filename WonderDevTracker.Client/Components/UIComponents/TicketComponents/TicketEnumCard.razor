@@ -7,7 +7,8 @@
     <MudChip T="string"
              Color="@ChipColor"
              Variant="@Variant"
-             Class="mt-1">
+             Class="mt-1"
+             CloseIcon="@CloseIcon">
         @DisplayText
     </MudChip>
 </MudPaper>
@@ -23,6 +24,9 @@
     public int Elevation { get; set; } = 5;
     [Parameter] 
     public Variant Variant { get; set; } = Variant.Filled;
+
+    [Parameter] 
+    public string CloseIcon { get; set; } = Icons.Material.Filled.ArrowDropDown;
 
     private string DisplayText => Value.HasValue
         ? ((Enum)(object)Value.Value).GetDisplayName()
