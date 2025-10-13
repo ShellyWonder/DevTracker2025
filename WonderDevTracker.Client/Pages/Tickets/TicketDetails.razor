@@ -21,7 +21,7 @@
 	else if (ticket is not null)
 	{
 		@* Reset Index at start of render;
-						controls the index for components that use IndexTracker.*@
+						controls the index for components that use IndexTracker,used to assign order for Animation .*@
 		ResetIndex();
 		<PageTitle>@ticket?.Title Details | Dev Tracker</PageTitle>
 
@@ -29,7 +29,7 @@
 
 			<TicketGeneralInfo Ticket="ticket"
 							   Index="@IndexTracker.Next()" />
-
+			<!-- Submitter and Developer components -->
 			<MudGrid Class="mt-2">
 				<MudItem xs="12" md="6">
 					<TicketSubmitter Ticket="ticket"
@@ -37,10 +37,11 @@
 				</MudItem>
 
 				<MudItem xs="12" md="6">
-					<AssignedDeveloper Ticket="ticket"
-									   Index="@IndexTracker.Next()"
-									   CanAssign="_userCanAssignTicket" />
-					@* OnEditRequested="OpenChangeAssigneeAsync" /> *@
+				<AssignedDeveloper Ticket="ticket"
+								   Index="@IndexTracker.Next()"
+								   Developers="developers"
+								   CanAssign="_userCanAssignTicket"
+								   OnSaveRequested="HandleAssignDevAsync" />
 				</MudItem>
 			</MudGrid>
 
@@ -62,7 +63,9 @@
 						   Index="@IndexTracker.Next()" />  *@
 		</div>
 		<div class="d-flex mt-2">
-			<BackToBtn Href=@($"/projects/{ticket.ProjectId}") Text="Back to Project" Disabled="@(ticket is null)" />
+			<BackToBtn Href=@($"/projects/{ticket.ProjectId}") 
+			           Text="Back to Project" 
+					   Disabled="@(ticket is null)" />
 			<div class="ms-auto">
 				@if (_userCanEditTicket)
 				{
@@ -245,39 +248,36 @@
 		}
 	}
 
-	// private async Task HandleSavePMAsync(string? newPMId)
-	// {
-	// 	if (project is null) return;
+	private async Task HandleAssignDevAsync(string? newDevId)
+	{
+		//Authorization check
+		if (_userCanAssignTicket == false || ticket is null) return;
+		// No change? No-op.
+		if (ticket?.DeveloperUserId == newDevId) return;
 
-	// 	try
-	// 	{
-	// 		if (string.IsNullOrWhiteSpace(newPMId))
-	// 		{
-	// 			await ProjectService.RemoveProjectManagerAsync(ProjectId, UserInfo!);
-	// 		}
-	// 		else
-	// 		{
-	// 			await ProjectService.AssignProjectManagerAsync(ProjectId, newPMId, UserInfo!);
-	// 		}
+		try
+		{
+			// Persist change
+			ticket!.DeveloperUserId = newDevId;
+			await TicketService.UpdateTicketAsync(ticket, UserInfo!);
 
-	// 		// Refetch authoritative DTO (ProjectManagerId already populated)
-	// 		project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
+			// Re-fresh the page
+			await OnParametersSetAsync();
 
-	// 		_membersRefreshToken = Guid.NewGuid();
+			Snackbar.Add("Developer updated.", Severity.Success);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Failed to update assignee.", Severity.Error);
 
-	// 		Snackbar.Add("Project Manager updated.", Severity.Success);
-	// 		StateHasChanged();
-	// 	}
-	// 	catch (Exception ex)
-	// 	{
+			// revert local change keeping UI strictly consistent on failure
+			ticket = await TicketService.GetTicketByIdAsync(ticket!.Id, UserInfo!);
+		}
 
-	// 		Console.WriteLine(ex);
+		StateHasChanged();
+	}
 
-	// 		await InvokeAsync(() => Snackbar.Add("Unable to update Project Manager.", Severity.Error));
-	// 	}
-
-
-	// }
 
 
 }

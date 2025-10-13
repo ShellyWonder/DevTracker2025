@@ -3,6 +3,7 @@
 @inject IndexTrackerHelper IndexTracker
 
 <LabeledCard Index="@IndexTracker.Next()"
+			 Class="h-100"
 			 Title="Submitted By:">
 	<ProjectTeamCard User="Ticket.SubmitterUser"
 					 PlaceholderName="Unassigned"

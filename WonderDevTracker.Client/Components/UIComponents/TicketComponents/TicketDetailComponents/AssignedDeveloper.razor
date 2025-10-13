@@ -1,39 +1,120 @@
-﻿@* AssignedDeveloper *@
+﻿@* AssignDeveloper.razor *@
 
-@inject ITicketDTOService TicketService
 @inject IndexTrackerHelper IndexTracker
 
 <LabeledCard Index="@IndexTracker.Next()"
 			 Title="Assigned To:">
+	@if (!_isEditing)
+	{
+		<div class="d-flex align-items-center">
+			<ProjectTeamCard User="Ticket.DeveloperUser"
+							 PlaceholderName="Unassigned"
+							 PlaceholderRole="@Role.Developer.GetDisplayName()" />
 
-	<div class=" d-flex align-items-center">
-		<ProjectTeamCard User="Ticket.DeveloperUser"
-						 PlaceholderName="Unassigned"
-						 PlaceholderRole="@Role.Developer.GetDisplayName()" />
+			@if (CanAssign)
+			{
+				<MudIconButton Class="ms-auto"
+							   Icon="@Icons.Material.Filled.Edit"
+							   aria-label="Change assigned developer"
+							   Disabled="@_busy"
+							   OnClick="StartEdit" />
+			}
+		</div>
+	}
+	else
+	{
+		<div class="d-flex align-items-center gap-2 w-100">
+			<MudSelect T="string"
+					   @bind-Value="_selectedDeveloperId"
+					   Label="Developer"
+					   Variant="Variant.Outlined"
+					   Class="flex-grow-1"
+					   Disabled="@BtnDisabled"
+					   Placeholder="@PlaceholderText"
+			           Clearable>
+				@foreach (var dev in Developers)
+				{
+					<MudSelectItem T="string" Value="@dev.Id">
+						@dev.FullName
+					</MudSelectItem>
+				}
+			</MudSelect>
 
-		@if (CanAssign)
-		{
-			<MudIconButton Class="ms-auto"
-						   Icon="@Icons.Material.Filled.Edit"
-						   ariaLabel="Change assignee" />
-		}
-	</div>
+			<CancelBtn Class="ms-1"
+					   OnClick="CancelEdit"
+					   Disabled="@_busy" />
+
+			<SubmitBtn Class="ms-2"
+					   OnClick="SaveAsync"
+					   Disabled="@BtnDisabled"
+					   BusyText="Saving..."
+					   AriaLabel="Save assignment"
+					   Title="Save assignment"
+					   Color="Color.Success"
+					   ShowBusyVisual="true"
+					   Size="Size.Medium" />
+
+		
+		</div>
+	}
 </LabeledCard>
 
 @code {
-	[Parameter, EditorRequired] 
+	// Incoming data
+	[Parameter, EditorRequired]
 	public TicketDTO Ticket { get; set; } = default!;
 
-	[Parameter] 
+	[Parameter]
 	public int Index { get; set; }
-	// If true, shows the edit button and allows the user to open the assign dialog.
-	[Parameter] 
-	public bool CanAssign { get; set; }
 
-	// Parent opens dialog; 
-	[Parameter] 
-	public EventCallback OnEditRequested { get; set; }
+	// List of possible developers to assign
+	[Parameter]
+	public IEnumerable<AppUserDTO> Developers { get; set; } = [];
 
-	private Task OnEditClicked() => OnEditRequested.InvokeAsync();
+	// If true, the Edit icon is shown and user can toggle into edit mode
+	[Parameter] public bool CanAssign { get; set; } = false;
 
+	// Parent will actually persist and refresh Ticket
+	[Parameter] public EventCallback<string?> OnSaveRequested { get; set; }
+
+	// Local UI state
+	private bool _isEditing;
+	private bool _busy;
+	private string? _selectedDeveloperId;
+
+	// Helpers
+	private bool BtnDisabled => _busy || !Developers.Any();
+	private string PlaceholderText => Developers.Any() ? "Select a developer" : "No developers available";
+
+	private void StartEdit()
+	{
+		if (!CanAssign) return;
+		_isEditing = true;
+		_selectedDeveloperId = Ticket.DeveloperUserId; // seed with current value
+	}
+
+	private void CancelEdit()
+	{
+		if (_busy) return;
+		_isEditing = false;
+		_selectedDeveloperId = Ticket.DeveloperUserId; // revert
+	}
+
+	private async Task SaveAsync()
+	{
+		if (!CanAssign || _busy) return;
+		_busy = true;
+		try
+		{
+			// Hand control to the parent to persist the change.
+			await OnSaveRequested.InvokeAsync(_selectedDeveloperId);
+
+			// Assume parent refreshes Ticket and re-renders this component.
+			_isEditing = false;
+		}
+		finally
+		{
+			_busy = false;
+		}
+	}
 }
