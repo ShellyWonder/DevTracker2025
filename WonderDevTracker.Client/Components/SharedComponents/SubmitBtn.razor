@@ -4,13 +4,14 @@
            Color="@Color"
            Class="@Class"
            Variant="@Variant"
+           Size="@Size"
            ButtonType="@ButtonType"
            aria-label="@AriaLabel"
            aria-busy="@AriaBusy"
            title="@(Title ?? DisplayText)"
-           StartIcon="@Icons.Material.Filled.Save"
+		   StartIcon="@StartIcon"
            Disabled="@(Disabled || (_processing && DisableWhileExecuting))"
-           OnClick="@HandleClick">
+           OnClick="HandleClick">
     @if (_processing && ShowBusyVisual)
     {
         <span class="d-inline-flex align-items-center">
@@ -29,14 +30,14 @@
 
     // ---- Public API ----
     //Text to display on the button
-    [Parameter, EditorRequired]
+    [Parameter]
 	public string DisplayText { get; set; } = "Save";
 
     [Parameter] 
     public string? BusyText { get; set; } = "Saving…";
 
     [Parameter]
-    public EventCallback<MouseEventArgs> OnClick { get; set; }
+    public EventCallback OnClick { get; set; }
     // ---- End Public API ----
 
     // --Behavior toggles
@@ -60,6 +61,8 @@
 
     [Parameter]
     public Variant Variant { get; set; } = Variant.Filled;
+
+    [Parameter] public Size Size { get; set; } = Size.Medium;
 
     [Parameter]
     public string? Class { get; set; } = "ms-auto mt-2";
@@ -85,14 +88,14 @@
     // ---- End Internal state ----
 	
     // ---- Event handlers ----
-    private async Task HandleClick(MouseEventArgs e)
+    private async Task HandleClick()
     {
         if (_processing && DisableWhileExecuting) return;
 
         try
         {
             if (DisableWhileExecuting) _processing = true;
-            await OnClick.InvokeAsync(e); // parent should implement async Task
+            await OnClick.InvokeAsync(); // parent should implement async Task
         }
         finally
         {
