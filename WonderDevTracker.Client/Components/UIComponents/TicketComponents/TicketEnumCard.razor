@@ -3,30 +3,87 @@
 
 <MudPaper Class="@($"p-3 h-100 d-flex justify-content-between align-items-center {Class}")" Elevation="@Elevation">
     <MudText Typo="Typo.h6">@Title</MudText>
+    @if (CanEdit)
+    {
+        <MudMenu Dense="true">
+            <ActivatorContent>
+                <MudChip T="string"
+                         Color="@ChipColor"
+                         Variant="@Variant"
+                         Class="priority-label"
+                         Label="true"
+                         CloseIcon="@CloseIcon"
+                         OnClose="() => {}">
+                    @DisplayText
+                </MudChip>
+            </ActivatorContent>
+            <ChildContent>
+                @foreach (var opt in System.Enum.GetValues<TEnum>())
+                {
+                   
+                    <MudMenuItem OnClick="@(() => Select(opt))">
+                        <MudChip T="string"
+                                 Color="@opt.GetColor()"    
+                                 Variant="@Variant"
+                                 Label="true"
+                                 Class="priority-label">
+                            @GetDisplay(opt)
+                        </MudChip>
+                    </MudMenuItem>
+                }
+            </ChildContent>
+        </MudMenu>
+    }
+    else
+    {
+        <MudChip T="string"
+                 Color="@ChipColor"
+                 Variant="@Variant"
+                 Class="mt-1 priority-label"
+                 CloseIcon="@CloseIcon">
+            @DisplayText
+        </MudChip>
 
-    <MudChip T="string"
-             Color="@ChipColor"
-             Variant="@Variant"
-             Class="mt-1"
-             CloseIcon="@CloseIcon">
-        @DisplayText
-    </MudChip>
+    }
 </MudPaper>
 
 @code {
-    [Parameter, EditorRequired] 
+    [Parameter, EditorRequired]
     public string Title { get; set; } = default!;
-    [Parameter] 
+
+    [Parameter]
     public TEnum? Value { get; set; }
-    [Parameter] 
+
+    [Parameter]
+    public EventCallback<TEnum?> ValueChanged { get; set; }
+
+    [Parameter]
+    public bool CanEdit { get; set; } = false;
+
+    [Parameter]
     public string? Class { get; set; }
-    [Parameter] 
+
+    [Parameter]
     public int Elevation { get; set; } = 5;
-    [Parameter] 
+
+    [Parameter]
     public Variant Variant { get; set; } = Variant.Filled;
 
-    [Parameter] 
+    [Parameter]
     public string CloseIcon { get; set; } = Icons.Material.Filled.ArrowDropDown;
+
+    [Parameter]
+    public EventCallback OnClose { get; set; } 
+
+
+    private async Task Select(TEnum opt)
+    {
+        Value = opt;
+        await ValueChanged.InvokeAsync(opt);
+    }
+
+    private static string GetDisplay(TEnum v)
+        => ((System.Enum)(object)v).GetDisplayName(); // uses your DisplayAttribute helper
 
     private string DisplayText => Value.HasValue
         ? ((Enum)(object)Value.Value).GetDisplayName()

@@ -1,115 +1,61 @@
 ﻿@* TicketMetaRow: Priority | Status | Type in equal-height boxes *@
 
 <AnimatedBlock Index="@Index">
-	<div class="row row-cols-1 row-cols-md-3 g-3">
-		@if (CanEdit)
-	    {
-			<div class="col">
-				<MudMenu>
-					<ActivatorContent>
-				<TicketEnumCard TEnum="TicketPriority"
-								Title="Priority"
-								Value="@(Priority)" />
-					</ActivatorContent>
-					<ChildContent>
-						@foreach (TicketPriority priority in Enum.GetValues<TicketPriority>())
-						{
-							<MudMenuItem Class="text-center">
-								<TicketEnumCard TEnum="TicketPriority"
-												Title="Priority"
-												Value="@(Priority)" />
-							</MudMenuItem>
-						}		
-					</ChildContent>
-				</MudMenu>
-			</div>
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <TicketEnumCard TEnum="TicketPriority"
+                            Title="Priority"
+                            Value="@(Priority)"
+                            CanEdit="CanEdit"
+                            ValueChanged="@(v => PriorityChanged.InvokeAsync(v ?? Priority))" />
+        </MudItem>
 
-			<div class="col">
-				<MudMenu>
-					<ActivatorContent>
-				<TicketEnumCard TEnum="TicketStatus"
-								Title="Status"
-								Value="@(Status)" />
-					</ActivatorContent>
-					<ChildContent>
-						@foreach (TicketStatus status in Enum.GetValues<TicketStatus>())
-						{
-							<MudMenuItem Class="text-center">
-								<TicketEnumCard TEnum="TicketStatus"
-												Title="Status"
-												Value="@(Status)" />
-							</MudMenuItem>
-						}
-					</ChildContent>
-				</MudMenu>
-			</div>
+        <MudItem xs="12" md="4">
+        <TicketEnumCard TEnum="TicketStatus"
+                        Title="Status"
+                        Value="@(Status)"
+                        CanEdit="CanEdit"
+                        ValueChanged="@(v => StatusChanged.InvokeAsync(v ?? Status))" />
+        </MudItem>
 
-			<div class="col">
-				<MudMenu>
-					<ActivatorContent>
-				<TicketEnumCard TEnum="TicketType"
-								Title="Type"
-								Value="@(Type)" />
-					</ActivatorContent>
-					<ChildContent>
-						@foreach (TicketType type in Enum.GetValues<TicketType>())
-						{
-							<MudMenuItem Class="text-center">
-								<TicketEnumCard TEnum="TicketType"
-												Title="Type"
-												Value="@(Type)" />
-							</MudMenuItem>
-						}
-					</ChildContent>
-				</MudMenu>
-			</div>
-	    }
-		else
-		{
-			<div class="col">
-				<TicketEnumCard TEnum="TicketPriority"
-								Title="Priority"
-								Value="@(Priority)" />
-			</div>
-			<div class="col">
-				<TicketEnumCard TEnum="TicketStatus"
-								Title="Status"
-								Value="@(Status)" />
-			</div>
-			<div class="col">
-				<TicketEnumCard TEnum="TicketType"
-								Title="Type"
-								Value="@(Type)" />
-			</div>
-		}
-	</div>
-	</AnimatedBlock>
+        <MudItem xs="12" md="4">
+        <TicketEnumCard TEnum="TicketType"
+                        Title="Type"
+                        Value="@(Type)"
+                        CanEdit="CanEdit"
+                        ValueChanged="@(v => TypeChanged.InvokeAsync(v ?? Type))" />
+        </MudItem>
+
+    </MudGrid>
+
+
+</AnimatedBlock>
 
 
 @code {
-	[Parameter]
-	public int Index { get; set; }
+    [Parameter]
+    public int Index { get; set; }
 
-	[Parameter]
-	public bool CanEdit { get; set; } = false;
+    [Parameter]
+    public bool CanEdit { get; set; } = false;
 
-	[Parameter]
-	public TicketPriority Priority { get; set; }
+    [Parameter]
+    public TicketPriority Priority { get; set; }
 
-	[Parameter]
-	public EventCallback<TicketPriority> PriorityChanged { get; set; }
+    [Parameter]
+    public EventCallback<TicketPriority> PriorityChanged { get; set; }
 
-	[Parameter]
-	public TicketStatus Status { get; set; }
+    [Parameter]
+    public TicketStatus Status { get; set; }
 
-	[Parameter]
-	public EventCallback<TicketStatus> StatusChanged { get; set; }
+    [Parameter]
+    public EventCallback<TicketStatus> StatusChanged { get; set; }
 
-	[Parameter]
-	public TicketType Type { get; set; }
+    [Parameter]
+    public TicketType Type { get; set; }
 
-	[Parameter]
-	public EventCallback<TicketType> TypeChanged { get; set; }
+    [Parameter]
+    public EventCallback<TicketType> TypeChanged { get; set; }
 
 
 }

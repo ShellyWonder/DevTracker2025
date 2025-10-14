@@ -30,7 +30,7 @@
 			<TicketGeneralInfo Ticket="ticket"
 							   Index="@IndexTracker.Next()" />
 			<!-- Submitter and Developer components -->
-			<MudGrid Class="mt-2">
+			<MudGrid>
 				<MudItem xs="12" md="6">
 					<TicketSubmitter Ticket="ticket"
 									 Index="@IndexTracker.Next()" />
@@ -48,8 +48,11 @@
 			<!-- Priority, Status & Type components -->
 			<TicketMetaRow Index="@IndexTracker.Next()"
 						   Priority="@ticket.Priority"
+						   PriorityChanged="@(p => SavePriorityAsync(p))"
 						   Status="@ticket.Status"
+						   StatusChanged="@(s => SaveStatusAsync(s))"
 						   Type="@ticket.Type" 
+						   TypeChanged="@(t => SaveTypeAsync(t))"
 						   CanEdit="_userCanEditTicket"
 						   />
 
@@ -278,6 +281,27 @@
 		}
 
 		StateHasChanged();
+	}
+
+	private async Task SavePriorityAsync(TicketPriority value)
+	{
+		ticket?.Priority = value;
+		await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
+		Snackbar.Add("Priority updated.", Severity.Success);
+	}
+
+	private async Task SaveStatusAsync(TicketStatus value)
+	{
+		ticket?.Status = value;
+		await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
+		Snackbar.Add("Status updated.", Severity.Success);
+	}
+
+	private async Task SaveTypeAsync(TicketType value)
+	{
+		ticket?.Type = value;
+		await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
+		Snackbar.Add("Type updated.", Severity.Success);
 	}
 
 
