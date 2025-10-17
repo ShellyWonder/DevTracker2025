@@ -132,8 +132,11 @@ namespace WonderDevTracker.Services
                 dbTicket.DeveloperUser = developer;
 
                 await ticketRepository.UpdateTicketAsync(dbTicket, user);
+                return;
             }
-           
+
+            await ticketRepository.UpdateTicketAsync(dbTicket, user);
+            return;
         }
         #endregion
     }

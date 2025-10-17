@@ -1,61 +1,67 @@
 ﻿@* TicketMetaRow: Priority | Status | Type in equal-height boxes *@
+@typeparam TPriority where TPriority : struct, System.Enum
+@typeparam TStatus where TStatus : struct, System.Enum
+@typeparam TType where TType : struct, System.Enum
+
 
 <AnimatedBlock Index="@Index">
-    <MudGrid>
-        <MudItem xs="12" md="4">
-            <TicketEnumCard TEnum="TicketPriority"
-                            Title="Priority"
-                            Value="@(Priority)"
-                            CanEdit="CanEdit"
-                            ValueChanged="@(v => PriorityChanged.InvokeAsync(v ?? Priority))" />
-        </MudItem>
+	<MudGrid>
+		<MudItem xs="12" md="4">
+			<TicketEnumCard TEnum="TPriority"
+							Title="Priority"
+							CanEdit="CanEdit"
+							Value="Priority"
+							ValueChanged="PriorityChanged" />
+							
+		</MudItem>
 
-        <MudItem xs="12" md="4">
-        <TicketEnumCard TEnum="TicketStatus"
-                        Title="Status"
-                        Value="@(Status)"
-                        CanEdit="CanEdit"
-                        ValueChanged="@(v => StatusChanged.InvokeAsync(v ?? Status))" />
-        </MudItem>
+		<MudItem xs="12" md="4">
+			<TicketEnumCard TEnum="TStatus"
+							Title="Status"
+							CanEdit="CanEdit"
+							Value="Status"
+							ValueChanged="StatusChanged" />
+		</MudItem>
 
-        <MudItem xs="12" md="4">
-        <TicketEnumCard TEnum="TicketType"
-                        Title="Type"
-                        Value="@(Type)"
-                        CanEdit="CanEdit"
-                        ValueChanged="@(v => TypeChanged.InvokeAsync(v ?? Type))" />
-        </MudItem>
+		<MudItem xs="12" md="4">
+			 <TicketEnumCard TEnum="TType"
+							Title="Type"
+							CanEdit="CanEdit"
+							Value="Type"
+							ValueChanged="TypeChanged" />
+		</MudItem>
 
-    </MudGrid>
+	</MudGrid>
 
 
 </AnimatedBlock>
 
 
 @code {
-    [Parameter]
-    public int Index { get; set; }
+	[Parameter]
+	public TicketDTO Ticket { get; set; } = default!;
+	[Parameter]
+	public int Index { get; set; }
 
-    [Parameter]
-    public bool CanEdit { get; set; } = false;
+	[Parameter]
+	public bool CanEdit { get; set; } = false;
 
-    [Parameter]
-    public TicketPriority Priority { get; set; }
+	[Parameter]
+	public TPriority? Priority { get; set; }
+	[Parameter]
+	public EventCallback<TPriority?> PriorityChanged { get; set; }
 
-    [Parameter]
-    public EventCallback<TicketPriority> PriorityChanged { get; set; }
 
-    [Parameter]
-    public TicketStatus Status { get; set; }
+	[Parameter]
+	public TStatus? Status { get; set; }
+	[Parameter]
+	public EventCallback<TStatus?> StatusChanged { get; set; }
 
-    [Parameter]
-    public EventCallback<TicketStatus> StatusChanged { get; set; }
 
-    [Parameter]
-    public TicketType Type { get; set; }
-
-    [Parameter]
-    public EventCallback<TicketType> TypeChanged { get; set; }
+	[Parameter]
+	public TType? Type { get; set; }
+	[Parameter]
+	public EventCallback<TType?> TypeChanged { get; set; }
 
 
 }

@@ -75,15 +75,14 @@
     [Parameter]
     public EventCallback OnClose { get; set; } 
 
-
-    private async Task Select(TEnum opt)
+    private async Task Select(TEnum selected)
     {
-        Value = opt;
-        await ValueChanged.InvokeAsync(opt);
+        await ValueChanged.InvokeAsync(selected);
     }
 
+       
     private static string GetDisplay(TEnum v)
-        => ((System.Enum)(object)v).GetDisplayName(); // uses your DisplayAttribute helper
+        => ((System.Enum)(object)v).GetDisplayName(); 
 
     private string DisplayText => Value.HasValue
         ? ((Enum)(object)Value.Value).GetDisplayName()

@@ -257,6 +257,8 @@
 		{
 			await ticketService.UpdateTicketAsync(ticket!, UserInfo!);
 			
+
+			
 			success = true;
 		}
 		catch (Exception ex)
@@ -273,7 +275,7 @@
 			NavManager.NavigateTo($"/tickets/{ticket.Id}");
 
 		}
-		if (ticket.Id > 0)
+		if (ticket?.Id > 0)
 		{
 
 

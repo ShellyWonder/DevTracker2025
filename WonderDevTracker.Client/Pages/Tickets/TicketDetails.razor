@@ -37,24 +37,26 @@
 				</MudItem>
 
 				<MudItem xs="12" md="6">
-				<AssignedDeveloper Ticket="ticket"
-								   Index="@IndexTracker.Next()"
-								   Developers="developers"
-								   CanAssign="_userCanAssignTicket"
-								   OnSaveRequested="HandleAssignDevAsync" />
+					<AssignedDeveloper Ticket="ticket"
+									   Index="@IndexTracker.Next()"
+									   Developers="developers"
+									   CanAssign="_userCanAssignTicket"
+									   OnSaveRequested="HandleAssignDevAsync" />
 				</MudItem>
 			</MudGrid>
 
 			<!-- Priority, Status & Type components -->
 			<TicketMetaRow Index="@IndexTracker.Next()"
+						   TPriority="TicketPriority"
+						   TStatus="TicketStatus"
+						   TType="TicketType"
 						   Priority="@ticket.Priority"
-						   PriorityChanged="@(p => SavePriorityAsync(p))"
 						   Status="@ticket.Status"
+						   Type="@ticket.Type"
+						   CanEdit="@_userCanEditTicket"
+						   PriorityChanged="@(p => SavePriorityAsync(p))"
 						   StatusChanged="@(s => SaveStatusAsync(s))"
-						   Type="@ticket.Type" 
-						   TypeChanged="@(t => SaveTypeAsync(t))"
-						   CanEdit="_userCanEditTicket"
-						   />
+						   TypeChanged="@(t => SaveTypeAsync(t))" />
 
 			<DescriptionCard Title="Description"
 							 Index="@IndexTracker.Next()"
@@ -68,8 +70,8 @@
 						   Index="@IndexTracker.Next()" />  *@
 		</div>
 		<div class="d-flex mt-2">
-			<BackToBtn Href=@($"/projects/{ticket.ProjectId}") 
-			           Text="Back to Project" 
+			<BackToBtn Href=@($"/projects/{ticket.ProjectId}")
+					   Text="Back to Project"
 					   Disabled="@(ticket is null)" />
 			<div class="ms-auto">
 				@if (_userCanEditTicket)
@@ -107,7 +109,7 @@
 	}
 </MudContainer>
 
-	@code {
+@code {
 	[Parameter]
 	public int Id { get; set; }
 
@@ -283,23 +285,26 @@
 		StateHasChanged();
 	}
 
-	private async Task SavePriorityAsync(TicketPriority value)
+	private async Task SavePriorityAsync(TicketPriority? value)
 	{
-		ticket?.Priority = value;
+		if (value is null || ticket is null) return;
+		ticket?.Priority = value.Value;
 		await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
 		Snackbar.Add("Priority updated.", Severity.Success);
 	}
 
-	private async Task SaveStatusAsync(TicketStatus value)
+	private async Task SaveStatusAsync(TicketStatus? value)
 	{
-		ticket?.Status = value;
+		if (value is null || ticket is null) return;
+		ticket?.Status = value.Value;
 		await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
 		Snackbar.Add("Status updated.", Severity.Success);
 	}
 
-	private async Task SaveTypeAsync(TicketType value)
+	private async Task SaveTypeAsync(TicketType? value)
 	{
-		ticket?.Type = value;
+		if (value is null || ticket is null) return;
+		ticket?.Type = value.Value;
 		await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
 		Snackbar.Add("Type updated.", Severity.Success);
 	}
