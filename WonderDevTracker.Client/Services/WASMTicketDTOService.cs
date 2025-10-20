@@ -17,7 +17,7 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public  async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
+        public async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public  async Task<IEnumerable<TicketDTO>> GetResolvedTicketsAsync(UserInfo user)
+        public async Task<IEnumerable<TicketDTO>> GetResolvedTicketsAsync(UserInfo user)
         {
             try
             {
@@ -65,10 +65,22 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public Task<TicketDTO?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
+        public async Task<TicketDTO?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            try
+            {
+                TicketDTO? ticket = await http.GetFromJsonAsync<TicketDTO>($"api/Tickets/{ticketId}");
+                return ticket;
+
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return null;
+            }
         }
+        
 
         public async Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
         {

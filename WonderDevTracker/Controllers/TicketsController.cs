@@ -44,9 +44,9 @@ namespace WonderDevTracker.Controllers
         /// Get Ticket by Id
         /// </summary>
         /// <param name="ticketId">The ID of the ticket to retrieve.</param>
-        /// <remarks>Returns detailed information about a specific ticket. Ensure the user is
-        /// authenticated and authorized to access ticket data before calling this method. Returns a 404
-        /// status code if no tickets are found.</remarks>
+        /// <remarks>Returns detailed information about a specific ticket. User is
+        /// authenticated/authorized to access ticket data before calling this method. Returns a 404
+        /// status code if no ticket is found.</remarks>
 
         //Route parameter must match blazor parameter 
         [HttpGet("{ticketId:int}")]
