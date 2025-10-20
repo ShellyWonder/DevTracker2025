@@ -16,7 +16,7 @@ namespace WonderDevTracker.Controllers
         // Check if the user is authenticated
         UserInfo UserInfo => UserInfoHelper.GetUserInfo(User)!;
 
-        #region GET ALL ACTIVE PROJECTS
+        #region GET ALL PROJECTS
         /// <summary>
         /// Get Projects
         /// </summary>
