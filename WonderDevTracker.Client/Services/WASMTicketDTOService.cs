@@ -103,9 +103,10 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task UpdateTicketAsync(TicketDTO ticket, UserInfo user)
+        public async Task UpdateTicketAsync(TicketDTO ticket, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.PutAsJsonAsync($"api/Tickets/{ticket.Id}", ticket);
+            response.EnsureSuccessStatusCode();
         }
     }
 }

@@ -25,7 +25,7 @@ namespace WonderDevTracker.Controllers
         ///  <param name="filter">Optional filter to specify which tickets to retrieve: **Open (default)**, Archived, Resolved or Assigned.</param>
         [HttpGet]
         //Example: api/Tickets?fiter=assigned
-        public async Task<ActionResult<IEnumerable<TicketDTO>>> GetTickets([FromQuery] TicketsFilter filter =TicketsFilter.Open)
+        public async Task<ActionResult<IEnumerable<TicketDTO>>> GetTickets([FromQuery] TicketsFilter filter = TicketsFilter.Open)
         {
             var tickets = filter switch
             {
@@ -58,6 +58,30 @@ namespace WonderDevTracker.Controllers
                 return NotFound();
             }
             return Ok(ticket);
+        }
+        #endregion
+
+        #region UPDATE TICKET
+        /// <summary>
+        /// Update Ticket
+        /// </summary>
+        /// <param name="ticketId">The unique identifier of the ticket to update. Must match the ID of the ticket provided in the request body.</param>
+        /// <param name="ticket">The updated ticket information. The ticket's Id property must match the value of ticketId.</param>
+        /// <remarks>Updates the details of an existing ticket with the specified identifier. Returns: 
+        /// 
+        /// NoContent if the update is successful;
+        /// 
+        /// BadRequest if the ticket ID does not match;
+        /// 
+        ///NotFound if the ticket is null.</remarks>
+        [HttpPut("{ticketId:int}")]
+        public async Task<IActionResult> UpdateTicket([FromRoute] int ticketId, [FromBody] TicketDTO ticket)
+        {
+            if (ticketId != ticket.Id) return BadRequest("Ticket ID mismatch.");
+            if (ticket == null) return NotFound();
+            
+            await ticketService.UpdateTicketAsync(ticket, UserInfo);
+            return NoContent();
         }
         #endregion
     }
