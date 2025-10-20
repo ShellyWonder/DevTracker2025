@@ -60,8 +60,11 @@ namespace WonderDevTracker.Client.Models.DTOs
 
         //navigation properties
         [Required]
+        [Description("The Id of the project this ticket belongs to")]
         [Range(1, int.MaxValue, ErrorMessage = "Please select a valid project.")]
         public int ProjectId { get; set; }
+
+        [Description("The project this ticket belongs to")]
         public virtual ProjectDTO? Project { get; set; }
 
         [Description("The Id of company user who submitted this ticket")]

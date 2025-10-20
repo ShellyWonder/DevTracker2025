@@ -28,7 +28,7 @@ namespace WonderDevTracker.Controllers
         ///
         /// <param name="filter">Optional filter to specify which projects to retrieve: **Active (default)**, Archived, or Assigned.</param>
         
-        [HttpGet] //api/projects?fiter=assigned
+        [HttpGet] //Example: api/projects?fiter=assigned
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetProjects([FromQuery] ProjectsFilter filter = ProjectsFilter.Active)
         {
             //use switch expression to determine which projects to return

@@ -1,9 +1,11 @@
-﻿using WonderDevTracker.Client.Models.DTOs;
+﻿using System.Net.Http.Json;
+using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 
 namespace WonderDevTracker.Client.Services
 {
-    public class WASMTicketDTOService : ITicketDTOService
+    public class WASMTicketDTOService(HttpClient http) : ITicketDTOService
     {
         public Task<TicketDTO?> AddTicketAsync(TicketDTO ticket, UserInfo userInfo)
         {
@@ -15,19 +17,52 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
+        public  async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<TicketDTO>? tickets = await http.GetFromJsonAsync<List<TicketDTO>>($"api/Tickets?filter={TicketsFilter.Archived}")
+                    ?? [];
+                return tickets;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return [];
+            }
         }
 
-        public Task<IEnumerable<TicketDTO>> GetOpenTicketsAsync(UserInfo user)
+        public async Task<IEnumerable<TicketDTO>> GetOpenTicketsAsync(UserInfo user)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<TicketDTO>? tickets = await http.GetFromJsonAsync<List<TicketDTO>>("api/Tickets")
+                    ?? [];
+                return tickets;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return [];
+            }
         }
 
-        public Task<IEnumerable<TicketDTO>> GetResolvedTicketsAsync(UserInfo user)
+        public  async Task<IEnumerable<TicketDTO>> GetResolvedTicketsAsync(UserInfo user)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<TicketDTO>? tickets = await http.GetFromJsonAsync<List<TicketDTO>>($"api/Tickets?filter={TicketsFilter.Resolved}")
+                    ?? [];
+                return tickets;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return [];
+            }
         }
 
         public Task<TicketDTO?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
@@ -35,9 +70,20 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
+        public async Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            try
+            {
+                List<TicketDTO>? tickets = await http.GetFromJsonAsync<List<TicketDTO>>($"api/Tickets?filter={TicketsFilter.Assigned}")
+                    ?? [];
+                return tickets;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return [];
+            }
         }
 
         public Task RestoreTicketByIdAsync(int ticketId, UserInfo user)
