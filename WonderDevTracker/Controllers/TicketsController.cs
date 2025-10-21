@@ -39,6 +39,7 @@ namespace WonderDevTracker.Controllers
             return Ok(tickets);
         }
         #endregion
+
         #region GET TICKET BY ID
         /// <summary>
         /// Get Ticket by Id
@@ -84,7 +85,40 @@ namespace WonderDevTracker.Controllers
             return NoContent();
         }
         #endregion
+
+        #region ARCHIVE/RESTORE TICKET
+        /// <summary>
+        /// Archive Ticket
+        /// </summary>
+        /// <param name="ticketId">Id of a ticket.</param>
+        /// <remarks>
+        ///Archives an individual active ticket if user is authorized.
+        ///Functions as a soft delete.</remarks>
+        
+        [HttpPatch("{ticketId:int}/archive")]
+        public async Task<IActionResult> ArchiveTicket([FromRoute] int ticketId)
+        {
+            await ticketService.ArchiveTicketAsync(ticketId, UserInfo);
+            return NoContent();
+        }
+        /// <summary>
+        /// Restore Ticket
+        /// </summary>
+        /// <param name="ticketId">Id of a ticket.</param>
+        /// <remarks>Restores an individual archived ticket if user is authorized. </remarks>
+       
+        [HttpPatch("{ticketId:int}/restore")]
+        public async Task<IActionResult> RestoreTicket([FromRoute] int ticketId)
+        {
+            await ticketService.RestoreTicketByIdAsync(ticketId, UserInfo);
+            return NoContent();
+        }
+        #endregion
+
+
+
     }
+
 
 
 }

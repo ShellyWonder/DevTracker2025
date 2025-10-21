@@ -12,9 +12,10 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task ArchiveTicketAsync(int ticketId, UserInfo user)
+        public async Task ArchiveTicketAsync(int ticketId, UserInfo user)
         {
-            throw new NotImplementedException();
+           var response = await http.PatchAsync($"api/Tickets/{ticketId}/archive", null);//null body
+              response.EnsureSuccessStatusCode();
         }
 
         public async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
@@ -98,9 +99,10 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public Task RestoreTicketByIdAsync(int ticketId, UserInfo user)
+        public async Task RestoreTicketByIdAsync(int ticketId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.PatchAsync($"api/Tickets/{ticketId}/restore", null);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateTicketAsync(TicketDTO ticket, UserInfo user)
