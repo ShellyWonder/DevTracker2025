@@ -62,8 +62,8 @@
 							 Index="@IndexTracker.Next()"
 							 Text="@ticket.Description" />
 
-			@* <TicketComments Ticket="ticket"
-							Index="@IndexTracker.Next()" /> *@
+			<TicketCommentArea Index="@IndexTracker.Next()"
+			                   Title="Comments"/>
 
 			@*  <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
 			<TicketHistory Ticket="ticket"

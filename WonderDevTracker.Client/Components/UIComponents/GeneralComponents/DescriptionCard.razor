@@ -19,8 +19,11 @@
 </AnimatedCard>
 
 @code {
-    [Parameter, EditorRequired] public string Title { get; set; } = "Description";
-    [Parameter, EditorRequired] public int Index { get; set; }
+    [Parameter, EditorRequired] 
+    public string Title { get; set; } = "Description";
+
+    [Parameter, EditorRequired] 
+    public int Index { get; set; }
 
     // Raw text to render. If you store HTML, set Markup=true.
     [Parameter] public string? Text { get; set; }

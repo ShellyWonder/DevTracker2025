@@ -1,0 +1,31 @@
+﻿@* TicketCommentArea *@
+<AnimatedCard Index="Index">
+	<MudPaper>
+		<MudCardHeader>
+			<MudText Typo="Typo.h3" Color="Color.Primary">@Title</MudText>
+		</MudCardHeader>
+		<div>
+			Comments go here
+		</div>
+		<div class="p-3 d-flex gap-2 align-items-end">
+			<MudTextField T="string"
+						  Lines="3"
+						  AutoGrow
+						  Variant="Variant.Outlined"
+						  Class="flex-grow-1" />
+
+			<SubmitBtn DisplayText="Send"
+					   StartIcon="@Icons.Material.Filled.Send"
+					   Color="Color.Primary" />
+		</div>
+	</MudPaper>
+</AnimatedCard>
+
+
+@code {
+	[Parameter, EditorRequired]
+	public string Title { get; set; } = "Ticket Comments";
+
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+}
