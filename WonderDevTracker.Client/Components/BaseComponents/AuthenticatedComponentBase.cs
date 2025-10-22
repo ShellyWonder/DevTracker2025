@@ -38,7 +38,7 @@ namespace WonderDevTracker.Client.Components.BaseComponents
         protected bool IsAdmin => UserInfo?.IsInRole(Role.Admin) == true;
 
         // True for PM in Company but does not check for membership in a project;
-        // use AppAuthenticationService to verify project-specific manager
+        // use AppAuthorizationService to verify project-specific manager
         protected bool IsProjectManager => UserInfo?.IsInRole(Role.ProjectManager) == true;
         protected bool UserIsInRole(Role role) => AuthUser?.IsInRole(role.ToString()) ?? false;
 

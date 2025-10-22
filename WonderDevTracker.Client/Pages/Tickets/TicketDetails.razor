@@ -63,7 +63,8 @@
 							 Text="@ticket.Description" />
 
 			<TicketCommentArea Index="@IndexTracker.Next()"
-			                   Title="Comments"/>
+			                   Title="Comments" 
+							   CanComment="_userCanEditTicket && !ticket.Archived"/>
 
 			@*  <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
 			<TicketHistory Ticket="ticket"
@@ -160,7 +161,7 @@
 				}
 				breadcrumbs.Add(new BreadcrumbItem(ticket.Title ?? "Ticket Not Found", href: null, disabled: true));
 
-				// Check if user has permission to edit the ticket
+				// Check if user has permission to alter ticket
 				_userCanEditTicket = await AuthService.CanEditTicketAsync(ticket!, UserInfo!);
 				_userCanArchiveTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
 				_userCanAssignTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);

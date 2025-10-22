@@ -1,31 +1,67 @@
 ﻿@* TicketCommentArea *@
+@attribute [Authorize]
+
+
+@inherits AuthenticatedComponentBase 
+
 <AnimatedCard Index="Index">
 	<MudPaper>
 		<MudCardHeader>
 			<MudText Typo="Typo.h3" Color="Color.Primary">@Title</MudText>
 		</MudCardHeader>
-		<div>
+		<MudDivider  DividerType="DividerType.FullWidth" Light/>
+		<div class="p-3" style="background-color: var(--mud-palette-background)">
 			Comments go here
 		</div>
-		<div class="p-3 d-flex gap-2 align-items-end">
-			<MudTextField T="string"
-						  Lines="3"
-						  AutoGrow
-						  Variant="Variant.Outlined"
-						  Class="flex-grow-1" />
+		@if (CanComment)
+		{
+			<MudDivider  DividerType="DividerType.FullWidth" Light/>
+			<EditForm Model="newComment" class="p-3 d-flex gap-2 align-items-end">
+				<DataAnnotationsValidator />
+				<MudTextField T="string"
+							  Lines="3"
+							  AutoGrow
+							  Variant="Variant.Outlined"
+							  Class="flex-grow-1" 
+							  Label="Add a comment"
+							  @bind-Value="newComment.Content"
+							  For="()=> newComment.Content"   />
 
-			<SubmitBtn DisplayText="Send"
-					   StartIcon="@Icons.Material.Filled.Send"
-					   Color="Color.Primary" />
-		</div>
+				<SubmitBtn DisplayText="Send"
+						   ButtonType="ButtonType.Submit"
+						   StartIcon="@Icons.Material.Filled.Send"
+						   Color="Color.Primary" />
+			</EditForm>
+			
+		}
 	</MudPaper>
 </AnimatedCard>
 
 
 @code {
+
 	[Parameter, EditorRequired]
 	public string Title { get; set; } = "Ticket Comments";
 
 	[Parameter, EditorRequired]
 	public int Index { get; set; }
+
+	[Parameter, EditorRequired]
+	public bool CanComment { get; set; } = false;
+
+	TicketCommentDTO newComment = new();
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (UserInfo is null) 
+		{
+			CanComment = false;
+			return;
+		}
+
+		newComment = new TicketCommentDTO()
+		{ 
+			UserId = UserInfo.UserId 
+		};
+	}
 }
