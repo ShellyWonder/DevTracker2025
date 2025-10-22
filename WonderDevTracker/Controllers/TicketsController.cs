@@ -80,7 +80,7 @@ namespace WonderDevTracker.Controllers
         {
             if (ticketId != ticket.Id) return BadRequest("Ticket ID mismatch.");
             if (ticket == null) return NotFound();
-            
+
             await ticketService.UpdateTicketAsync(ticket, UserInfo);
             return NoContent();
         }
@@ -94,7 +94,7 @@ namespace WonderDevTracker.Controllers
         /// <remarks>
         ///Archives an individual active ticket if user is authorized.
         ///Functions as a soft delete.</remarks>
-        
+
         [HttpPatch("{ticketId:int}/archive")]
         public async Task<IActionResult> ArchiveTicket([FromRoute] int ticketId)
         {
@@ -106,12 +106,52 @@ namespace WonderDevTracker.Controllers
         /// </summary>
         /// <param name="ticketId">Id of a ticket.</param>
         /// <remarks>Restores an individual archived ticket if user is authorized. </remarks>
-       
+
         [HttpPatch("{ticketId:int}/restore")]
         public async Task<IActionResult> RestoreTicket([FromRoute] int ticketId)
         {
             await ticketService.RestoreTicketByIdAsync(ticketId, UserInfo);
             return NoContent();
+        }
+        #endregion
+
+        #region ADD TICKET
+        /// <summary>
+        /// Create Ticket
+        /// </summary>
+        /// <remarks>Creates a new project ticket in the database. 
+        /// Authorized user roles in their respective companies can create(submit) a new ticket:
+        /// 'Admin' 
+        /// 'ProjectManager' 
+        /// 'Developer'
+        /// 'Submitter'
+        /// </remarks>
+        /// <param name="ticket">Ticket to be created.</param>
+
+        [HttpPost]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, " +
+                           $"{nameof(Role.ProjectManager)}, {nameof(Role.Developer)}," +
+                           $"{nameof(Role.Submitter)}")]
+        public async Task<ActionResult<TicketDTO>> AddTicket([FromBody] TicketDTO ticket)
+        {
+            try
+            {
+                var createdTicket = await ticketService.AddTicketAsync(ticket, UserInfo);
+                return CreatedAtAction(nameof(GetTicketById), new { ticketId = createdTicket!.Id }, createdTicket);
+
+            }
+            catch (ApplicationException invalidProjectException)
+            {
+
+                Console.WriteLine(invalidProjectException);
+                return BadRequest(invalidProjectException.Message);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return Problem();
+            }
         }
         #endregion
 

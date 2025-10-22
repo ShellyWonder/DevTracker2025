@@ -7,9 +7,13 @@ namespace WonderDevTracker.Client.Services
 {
     public class WASMTicketDTOService(HttpClient http) : ITicketDTOService
     {
-        public Task<TicketDTO?> AddTicketAsync(TicketDTO ticket, UserInfo userInfo)
+        public async Task<TicketDTO?> AddTicketAsync(TicketDTO ticket, UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            var response = await http.PostAsJsonAsync("api/Tickets", ticket);
+            response.EnsureSuccessStatusCode();
+            var createdTicket = await response.Content.ReadFromJsonAsync<TicketDTO>()
+                ?? throw new HttpIOException(HttpRequestError.InvalidResponse);
+            return createdTicket;
         }
 
         public async Task ArchiveTicketAsync(int ticketId, UserInfo user)
@@ -81,8 +85,7 @@ namespace WonderDevTracker.Client.Services
                 return null;
             }
         }
-        
-
+      
         public async Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
         {
             try

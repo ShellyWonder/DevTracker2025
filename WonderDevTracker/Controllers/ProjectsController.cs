@@ -27,7 +27,7 @@ namespace WonderDevTracker.Controllers
         /// 
         ///
         /// <param name="filter">Optional filter to specify which projects to retrieve: **Active (default)**, Archived, or Assigned.</param>
-        
+
         [HttpGet] //Example: api/projects?fiter=assigned
         public async Task<ActionResult<IEnumerable<ProjectDTO>>> GetProjects([FromQuery] ProjectsFilter filter = ProjectsFilter.Active)
         {
@@ -79,14 +79,25 @@ namespace WonderDevTracker.Controllers
         [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
         public async Task<ActionResult<ProjectDTO>> CreateProject([FromBody] ProjectDTO project)
         {
-            ProjectDTO createdProject = await projectService.CreateProjectAsync(project, UserInfo);
 
-            //create project with a 201 status code and a Location header pointing to its route
-            return CreatedAtAction(
-                actionName: nameof(GetProjectById),
-                routeValues: new { projectId = createdProject.Id },
-                value: createdProject
-                );
+            try
+            {
+
+                ProjectDTO createdProject = await projectService.CreateProjectAsync(project, UserInfo);
+
+                //create project with a 201 status code and a Location header pointing to its route
+                return CreatedAtAction(
+                    actionName: nameof(GetProjectById),
+                    routeValues: new { projectId = createdProject.Id },
+                    value: createdProject
+                    );
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return Problem();
+            }
         }
         #endregion
 
