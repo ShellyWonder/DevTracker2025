@@ -80,7 +80,7 @@
 							   Label="Developer"
 							   Variant="Variant.Outlined"
 							   Disabled="BtnDisabled"
-							   Placeholder="PlaceholderText">
+							   Placeholder="Select a developer">
 						@foreach (AppUserDTO developer in developers)
 						{
 							<MudSelectItem Value="@developer.Id">
@@ -230,7 +230,7 @@
 			
 
 			// Navigate to the ticket list or details page after successful creation
-			NavManager.NavigateTo($"/tickets/open");
+			NavManager.NavigateTo($"tickets/{ticket.Id}");
 		}
 
 	}
