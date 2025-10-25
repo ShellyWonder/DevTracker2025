@@ -21,7 +21,7 @@
 	else if (ticket is not null)
 	{
 		@* Reset Index at start of render;
-						controls the index for components that use IndexTracker,used to assign order for Animation .*@
+		controls the index for components that use IndexTracker,used to assign order for Animation .*@
 		ResetIndex();
 		<PageTitle>@ticket?.Title Details | Dev Tracker</PageTitle>
 
@@ -111,204 +111,204 @@
 </MudContainer>
 
 @code {
-	[Parameter]
-	public int Id { get; set; }
+		[Parameter]
+		public int Id { get; set; }
 
-	[Parameter]
-	public int TicketId { get; set; }
+		[Parameter]
+		public int TicketId { get; set; }
 
-	private TicketDTO? ticket;
-	private List<BreadcrumbItem> breadcrumbs = [];
-	private IEnumerable<AppUserDTO> developers = [];
+		private TicketDTO? ticket;
+		private List<BreadcrumbItem> breadcrumbs = [];
+		private IEnumerable<AppUserDTO> developers = [];
 
-	private bool _loadingComplete = false;
-	private bool _userCanEditTicket = false;
-	private bool _userCanArchiveTicket = false;
-	private bool _userCanAssignTicket = false;
-	private bool _processingArchiveRestore = false;
+		private bool _loadingComplete = false;
+		private bool _userCanEditTicket = false;
+		private bool _userCanArchiveTicket = false;
+		private bool _userCanAssignTicket = false;
+		private bool _processingArchiveRestore = false;
 
-	private void ResetIndex() => IndexTracker.Reset();
-	private string ticketTitle => ticket?.Title ?? "Ticket";
+		private void ResetIndex() => IndexTracker.Reset();
+		private string ticketTitle => ticket?.Title ?? "Ticket";
 
-	// Refresh ProjectMembers component when there is a change to project Manager assignment.
-	private Guid _membersRefreshToken = Guid.NewGuid();
+		// Refresh ProjectMembers component when there is a change to project Manager assignment.
+		private Guid _membersRefreshToken = Guid.NewGuid();
 
-	private IReadOnlyList<AppUserDTO> projectManagers = Array.Empty<AppUserDTO>();
+		private IReadOnlyList<AppUserDTO> projectManagers = Array.Empty<AppUserDTO>();
 
-	protected override async Task OnParametersSetAsync()
-	{
-		ticket = null;
-		_loadingComplete = false;
-		_userCanEditTicket = false;
-		_userCanArchiveTicket = false;
-		_userCanAssignTicket = false;
-		try
+		protected override async Task OnParametersSetAsync()
 		{
-			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
-			if (ticket is not null)
+			ticket = null;
+			_loadingComplete = false;
+			_userCanEditTicket = false;
+			_userCanArchiveTicket = false;
+			_userCanAssignTicket = false;
+			try
 			{
-				breadcrumbs = [new BreadcrumbItem("Home", href: "/")];
-				if (ticket.Project is null)
+				ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+				if (ticket is not null)
 				{
-					breadcrumbs.Add(new BreadcrumbItem("Tickets", href: "/tickets/open"));
-					if (ticket.Archived) breadcrumbs.Add(new BreadcrumbItem("Archived Tickets", href: "/tickets/archived"));
+					breadcrumbs = [new BreadcrumbItem("Home", href: "/")];
+					if (ticket.Project is null)
+					{
+						breadcrumbs.Add(new BreadcrumbItem("Tickets", href: "/tickets/open"));
+						if (ticket.Archived) breadcrumbs.Add(new BreadcrumbItem("Archived Tickets", href: "/tickets/archived"));
+
+					}
+					else
+					{
+						breadcrumbs.Add(new BreadcrumbItem("Projects", href: "/projects"));
+						breadcrumbs.Add(new BreadcrumbItem(ticket.Project.Name ?? "Unknown Project", href: $"/projects/{ticket.Project.Id}"));
+					}
+					breadcrumbs.Add(new BreadcrumbItem(ticket.Title ?? "Ticket Not Found", href: null, disabled: true));
+
+					// Check if user has permission to alter ticket
+					_userCanEditTicket = await AuthService.CanEditTicketAsync(ticket!, UserInfo!);
+					_userCanArchiveTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
+					_userCanAssignTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
+
+					IEnumerable<AppUserDTO> projectMembers = await ProjectService.GetProjectMembersAsync(ticket.ProjectId, UserInfo!);
+					developers = projectMembers.Where(m => m.Role == Role.Developer);
 
 				}
-				else
-				{
-					breadcrumbs.Add(new BreadcrumbItem("Projects", href: "/projects"));
-					breadcrumbs.Add(new BreadcrumbItem(ticket.Project.Name ?? "Unknown Project", href: $"/projects/{ticket.Project.Id}"));
-				}
-				breadcrumbs.Add(new BreadcrumbItem(ticket.Title ?? "Ticket Not Found", href: null, disabled: true));
-
-				// Check if user has permission to alter ticket
-				_userCanEditTicket = await AuthService.CanEditTicketAsync(ticket!, UserInfo!);
-				_userCanArchiveTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
-				_userCanAssignTicket = await AuthService.IsUserAdminPMAsync(ticket.ProjectId, UserInfo!);
-
-				IEnumerable<AppUserDTO> projectMembers = await ProjectService.GetProjectMembersAsync(ticket.ProjectId, UserInfo!);
-				developers = projectMembers.Where(m => m.Role == Role.Developer);
 
 			}
-
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine(ex);
-			Snackbar.Add("Error loading ticket details.", Severity.Error);
-		}
-
-
-		_loadingComplete = true;
-		StateHasChanged();
-
-		if (ticket is null) NavManager.NavigateTo("tickets/open");
-
-	}
-
-	private async Task HandleArchiveAsync()
-	{
-		if (_userCanArchiveTicket == false || ticket is null) return;
-
-		try
-		{
-			_processingArchiveRestore = true;
-			//archive title
-			await TicketService.ArchiveTicketAsync(ticket.Id, UserInfo!);
-
-			// //refresh ticket details to show archived status
-			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
-			if (ticket != null) ticket.Archived = true;
-
-
-			await InvokeAsync(() => Snackbar.Add($"The Ticket, '{ticketTitle}' has been archived", Severity.Success));
-
-			// Navigate back to projects list
-			NavManager.NavigateTo("/projects");
-		}
-		catch (Exception ex)
-		{
-
-			Console.WriteLine(ex);
-			Snackbar.Add($"{ticketTitle} is not available to be archived");
-		}
-		finally
-		{
-			_processingArchiveRestore = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task HandleRestoreAsync()
-	{
-		if (ticket is null) return;
-		try
-		{
-			_processingArchiveRestore = true;
-
-			//restore project
-			await TicketService.RestoreTicketByIdAsync(ticket.Id, UserInfo!);
-
-			//refresh ticket details to show restored status
-			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
-
-			if (ticket != null) ticket.Archived = false;
-
-			Snackbar.Add($"The ticket '{ticketTitle}' has been restored", Severity.Success);
-			// Navigate back to projects list
-			NavManager.NavigateTo("/tickets/open");
-
-			if (ticket == null)
+			catch (Exception ex)
 			{
-				Snackbar.Add("The ticket could not be found after restoring.", Severity.Error);
-				return;
+				Console.WriteLine(ex);
+				Snackbar.Add("Error loading ticket details.", Severity.Error);
+			}
+
+
+			_loadingComplete = true;
+			StateHasChanged();
+
+			if (ticket is null) NavManager.NavigateTo("tickets/open");
+
+		}
+
+		private async Task HandleArchiveAsync()
+		{
+			if (_userCanArchiveTicket == false || ticket is null) return;
+
+			try
+			{
+				_processingArchiveRestore = true;
+				//archive title
+				await TicketService.ArchiveTicketAsync(ticket.Id, UserInfo!);
+
+				// //refresh ticket details to show archived status
+				ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+				if (ticket != null) ticket.Archived = true;
+
+
+				await InvokeAsync(() => Snackbar.Add($"The Ticket, '{ticketTitle}' has been archived", Severity.Success));
+
+				// Navigate back to projects list
+				NavManager.NavigateTo("/projects");
+			}
+			catch (Exception ex)
+			{
+
+				Console.WriteLine(ex);
+				Snackbar.Add($"{ticketTitle} is not available to be archived");
+			}
+			finally
+			{
+				_processingArchiveRestore = false;
+				StateHasChanged();
 			}
 		}
-		catch (Exception ex)
+
+		private async Task HandleRestoreAsync()
 		{
-			Console.WriteLine(ex);
-			Snackbar.Add($"The ticket is not available to be restored");
+			if (ticket is null) return;
+			try
+			{
+				_processingArchiveRestore = true;
+
+				//restore project
+				await TicketService.RestoreTicketByIdAsync(ticket.Id, UserInfo!);
+
+				//refresh ticket details to show restored status
+				ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+
+				if (ticket != null) ticket.Archived = false;
+
+				Snackbar.Add($"The ticket '{ticketTitle}' has been restored", Severity.Success);
+				// Navigate back to projects list
+				NavManager.NavigateTo("/tickets/open");
+
+				if (ticket == null)
+				{
+					Snackbar.Add("The ticket could not be found after restoring.", Severity.Error);
+					return;
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				Snackbar.Add($"The ticket is not available to be restored");
+			}
+			finally
+			{
+				_processingArchiveRestore = false;
+				StateHasChanged();
+			}
 		}
-		finally
+
+		private async Task HandleAssignDevAsync(string? newDevId)
 		{
-			_processingArchiveRestore = false;
+			//Authorization check
+			if (_userCanAssignTicket == false || ticket is null) return;
+			// No change? No-op.
+			if (ticket?.DeveloperUserId == newDevId) return;
+
+			try
+			{
+				// Persist change
+				ticket!.DeveloperUserId = newDevId;
+				await TicketService.UpdateTicketAsync(ticket, UserInfo!);
+
+				// Re-fresh the page
+				await OnParametersSetAsync();
+
+				Snackbar.Add("Developer updated.", Severity.Success);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				Snackbar.Add("Failed to update assignee.", Severity.Error);
+
+				// revert local change keeping UI strictly consistent on failure
+				ticket = await TicketService.GetTicketByIdAsync(ticket!.Id, UserInfo!);
+			}
+
 			StateHasChanged();
 		}
-	}
 
-	private async Task HandleAssignDevAsync(string? newDevId)
-	{
-		//Authorization check
-		if (_userCanAssignTicket == false || ticket is null) return;
-		// No change? No-op.
-		if (ticket?.DeveloperUserId == newDevId) return;
-
-		try
+		private async Task SavePriorityAsync(TicketPriority? value)
 		{
-			// Persist change
-			ticket!.DeveloperUserId = newDevId;
-			await TicketService.UpdateTicketAsync(ticket, UserInfo!);
-
-			// Re-fresh the page
-			await OnParametersSetAsync();
-
-			Snackbar.Add("Developer updated.", Severity.Success);
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine(ex);
-			Snackbar.Add("Failed to update assignee.", Severity.Error);
-
-			// revert local change keeping UI strictly consistent on failure
-			ticket = await TicketService.GetTicketByIdAsync(ticket!.Id, UserInfo!);
+			if (value is null || ticket is null) return;
+			ticket?.Priority = value.Value;
+			await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
+			Snackbar.Add("Priority updated.", Severity.Success);
 		}
 
-		StateHasChanged();
-	}
+		private async Task SaveStatusAsync(TicketStatus? value)
+		{
+			if (value is null || ticket is null) return;
+			ticket?.Status = value.Value;
+			await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
+			Snackbar.Add("Status updated.", Severity.Success);
+		}
 
-	private async Task SavePriorityAsync(TicketPriority? value)
-	{
-		if (value is null || ticket is null) return;
-		ticket?.Priority = value.Value;
-		await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
-		Snackbar.Add("Priority updated.", Severity.Success);
-	}
-
-	private async Task SaveStatusAsync(TicketStatus? value)
-	{
-		if (value is null || ticket is null) return;
-		ticket?.Status = value.Value;
-		await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
-		Snackbar.Add("Status updated.", Severity.Success);
-	}
-
-	private async Task SaveTypeAsync(TicketType? value)
-	{
-		if (value is null || ticket is null) return;
-		ticket?.Type = value.Value;
-		await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
-		Snackbar.Add("Type updated.", Severity.Success);
-	}
+		private async Task SaveTypeAsync(TicketType? value)
+		{
+			if (value is null || ticket is null) return;
+			ticket?.Type = value.Value;
+			await TicketService.UpdateTicketAsync(ticket!, UserInfo!);
+			Snackbar.Add("Type updated.", Severity.Success);
+		}
 
 
 
