@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 
@@ -12,6 +13,13 @@ namespace WonderDevTracker.Models
         public required string LastName { get; set; }
 
         public Guid? ProfilePictureId { get; set; }
+
+        [NotMapped]
+        public string? FullName =>
+        string.IsNullOrWhiteSpace(FirstName) && string.IsNullOrWhiteSpace(LastName)
+        ? UserName
+        : $"{FirstName} {LastName}".Trim();
+
 
         //navigation property within Db for profile picture
         public virtual FileUpload? ProfilePicture { get; set; } //navigation property for profile picture
