@@ -19,6 +19,7 @@ namespace WonderDevTracker.Infrastructure
             services.AddScoped<ICompanyDTOService, CompanyDTOService>();
             services.AddScoped<ITicketDTOService, TicketDTOService>();
             services.AddScoped<ITicketRepository, TicketRepository>();
+            services.AddScoped<ITicketCommentRepository, TicketCommentRepository>();
             // No-op email sender for development purposes, replace with a real implementation in production
             services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
             services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();

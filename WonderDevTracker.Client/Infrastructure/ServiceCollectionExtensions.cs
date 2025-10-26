@@ -14,6 +14,7 @@ namespace WonderDevTracker.Client.Infrastructure
             services.AddScoped<IProjectDTOService, WASMProjectDTOService>();
             services.AddScoped<ICompanyDTOService, WASMCompanyDTOService>();
             services.AddScoped<ITicketDTOService, WASMTicketDTOService>();
+            services.AddScoped<ITicketCommentDTOService, WASMTicketCommentDTOService>();
             services.AddScoped<IAppAuthorizationService, AppAuthorizationService>();
 
             return services;
