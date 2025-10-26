@@ -5,7 +5,6 @@ using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
-using WonderDevTracker.Services.Repositories;
 
 namespace WonderDevTracker.Services
 {

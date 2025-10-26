@@ -80,9 +80,10 @@ namespace WonderDevTracker.Client.Models.DTOs
         public AppUserDTO? DeveloperUser { get; set; }
 
        [Description("Comments associated with this ticket")]
-        public ICollection<TicketCommentDTO> Comments { get; set; } = [];
+        public int CommentCount { get; set; }
+        public CommentPreviewDTO? LatestComment { get; set; }
 
-         [Description("Attachments associated with this ticket")]
+        [Description("Attachments associated with this ticket")]
         public ICollection<TicketAttachmentDTO> Attachments { get; set; } = [];
 
         [Description("History records associated with this ticket")]
@@ -96,6 +97,14 @@ namespace WonderDevTracker.Client.Models.DTOs
         public DateTimeOffset Modified => Updated ?? Created;
 
 
+    }
+
+    public sealed class CommentPreviewDTO
+    {
+        public int Id { get; set; }
+        public string AuthorName { get; set; } = default!;
+        public string Snippet { get; set; } = default!;   
+        public DateTimeOffset Created { get; set; }
     }
 }
 

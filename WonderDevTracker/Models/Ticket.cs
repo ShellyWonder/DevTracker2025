@@ -36,7 +36,7 @@ namespace WonderDevTracker.Models
         public TicketPriority Priority { get; set; }
         public TicketStatus Status { get; set; } = TicketStatus.New;
 
-        public TicketType Type { get; set; } = TicketType.Defect; 
+        public TicketType Type { get; set; } = TicketType.Defect;
 
         //navigation properties
         public int ProjectId { get; set; }
@@ -48,17 +48,18 @@ namespace WonderDevTracker.Models
         public string? DeveloperUserId { get; set; }
         public virtual ApplicationUser? DeveloperUser { get; set; }
 
-        public virtual ICollection<TicketComment> Comments { get; set; } = [];
+        public int CommentCount { get; set; }
+        public CommentPreviewDTO? LatestComment { get; set; }  
         public virtual ICollection<TicketAttachment> Attachments { get; set; } = [];
         public virtual ICollection<TicketHistory> History { get; set; } = [];
 
     }
     public static class TicketExtensions
     {
-        public static TicketDTO ToDTO(this Ticket ticket)
+        public static TicketDTO ToDTO(this Ticket ticket, int commentCount, TicketComment? latest)
         {    //ensures all the properties of the project are available except a list of ALL tickets associated with the project
-            if (ticket.Project != null) ticket.Project.Tickets = [];
-                       
+            ticket.Project?.Tickets = [];
+
             TicketDTO dto = new()
             {
                 Id = ticket.Id,
@@ -77,11 +78,25 @@ namespace WonderDevTracker.Models
                 SubmitterUser = ticket.SubmitterUser?.ToDTO(),
                 DeveloperUserId = ticket.DeveloperUserId,
                 DeveloperUser = ticket.DeveloperUser?.ToDTO(),
-                Comments = [.. ticket.Comments.Select(c => c.ToDTO())],
+                CommentCount = ticket.CommentCount,
+                LatestComment = latest is null ? null : new CommentPreviewDTO
+                {
+                    Id = latest.Id,
+                    AuthorName = latest.User?.FullName ?? "Unknown", 
+                    Snippet = MakeSnippet(latest.Content!, 120),
+                    Created = latest.Created
+                },
                 Attachments = [.. ticket.Attachments.Select(a => a.ToDTO())],
                 History = [.. ticket.History.Select(h => h.ToDTO())]
             };
             return dto;
         }
+
+        // NEW: shim for old call sites
+        public static TicketDTO ToDTO(this Ticket ticket)
+            => ticket.ToDTO(commentCount: 0, latest: null);
+        private static string MakeSnippet(string content, int length)
+         => string.IsNullOrWhiteSpace(content) ? "" :
+       (content.Length <= length ? content : content[..length] + "…");
     }
 }
