@@ -2,37 +2,39 @@
 @attribute [Authorize]
 
 
-@inherits AuthenticatedComponentBase 
+@inherits AuthenticatedComponentBase
 
 <AnimatedCard Index="Index">
 	<MudPaper>
 		<MudCardHeader>
-			<MudText Typo="Typo.h3" Color="Color.Primary">@Title</MudText>
+			<MudText Typo="Typo.h3" Color="Color.Primary">@((MarkupString)Title)</MudText>
 		</MudCardHeader>
-		<MudDivider  DividerType="DividerType.FullWidth" Light/>
+		<MudDivider DividerType="DividerType.FullWidth" Light />
 		<div class="p-3" style="background-color: var(--mud-palette-background)">
 			Comments go here
 		</div>
 		@if (CanComment)
 		{
-			<MudDivider  DividerType="DividerType.FullWidth" Light/>
-			<EditForm Model="newComment" class="p-3 d-flex gap-2 align-items-end">
+			<MudDivider DividerType="DividerType.FullWidth" Light />
+			<EditForm Model="newComment"
+					  OnValidSubmit="@HandleSubmit"
+					  class="p-3 d-flex gap-2 align-items-end">
 				<DataAnnotationsValidator />
 				<MudTextField T="string"
 							  Lines="3"
 							  AutoGrow
 							  Variant="Variant.Outlined"
-							  Class="flex-grow-1" 
+							  Class="flex-grow-1"
 							  Label="Add a comment"
 							  @bind-Value="newComment.Content"
-							  For="()=> newComment.Content"   />
+							  For="()=> newComment.Content" />
 
 				<SubmitBtn DisplayText="Send"
 						   ButtonType="ButtonType.Submit"
 						   StartIcon="@Icons.Material.Filled.Send"
 						   Color="Color.Primary" />
 			</EditForm>
-			
+
 		}
 	</MudPaper>
 </AnimatedCard>
@@ -40,7 +42,7 @@
 
 @code {
 
-	[Parameter, EditorRequired]
+	[Parameter]
 	public string Title { get; set; } = "Ticket Comments";
 
 	[Parameter, EditorRequired]
@@ -49,19 +51,31 @@
 	[Parameter, EditorRequired]
 	public bool CanComment { get; set; } = false;
 
+	[Parameter, EditorRequired]
+	public EventCallback<TicketCommentDTO> OnAdd { get; set; }
+
 	TicketCommentDTO newComment = new();
 
 	protected override async Task OnParametersSetAsync()
 	{
-		if (UserInfo is null) 
+		if (UserInfo is null)
 		{
 			CanComment = false;
 			return;
 		}
 
 		newComment = new TicketCommentDTO()
-		{ 
-			UserId = UserInfo.UserId 
+		{
+			UserId = UserInfo.UserId
 		};
+	}
+
+	private async Task HandleSubmit()
+	{
+		if (CanComment)
+		{
+			await OnAdd.InvokeAsync(newComment);
+			newComment = new() { UserId = UserInfo!.UserId };
+		}
 	}
 }
