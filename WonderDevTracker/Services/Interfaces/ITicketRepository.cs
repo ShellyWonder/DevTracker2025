@@ -66,6 +66,19 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="userInfo">Current user's claims</param>
         /// <returns>New ticket after being saved in Db</returns>
         Task<Ticket?> AddTicketAsync(Ticket ticket, UserInfo userInfo);
+
+
+        /// <summary>
+        /// Create Ticket Comment
+        /// </summary>
+        /// <param name="comment">The comment data to be added to the ticket. Must contain valid ticket and comment details.</param>
+        /// <param name="userInfo">User's current claims. Used to associate the comment with the correct user
+        /// identity.</param>
+        /// <remarks>Creates a new comment for a ticket asynchronously using the specified comment data and user information.
+        /// Returns a task that represents the asynchronous operation. The task result contains a TicketCommentDTO representing
+        /// the created comment.</remarks>
+
+        Task<TicketComment> CreateCommentAsync(TicketComment comment, UserInfo userInfo);
         #endregion
 
         #region ARCHIVE/RESTORE METHODS

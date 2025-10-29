@@ -22,6 +22,11 @@ namespace WonderDevTracker.Client.Services
               response.EnsureSuccessStatusCode();
         }
 
+        public Task<TicketCommentDTO> CreateCommentAsync(TicketCommentDTO comment, UserInfo userInfo)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
             try

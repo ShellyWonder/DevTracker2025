@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
-using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
@@ -53,6 +52,20 @@ namespace WonderDevTracker.Services.Repositories
 
             return ticket;
         }
+
+        public async Task<TicketComment> CreateCommentAsync(TicketComment comment, UserInfo userInfo)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            bool canEdit = await IsUserAuthorizedToEditTicket(comment.TicketId, userInfo);
+            if (!canEdit) throw new UnauthorizedAccessException("User is not authorized to comment on this ticket.");
+
+            comment.Created = DateTimeOffset.UtcNow;
+            comment.UserId = userInfo.UserId;
+            db.Comments.Add(comment);
+            await db.SaveChangesAsync();
+            return comment;
+        }
+
 
         public async Task<Ticket?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
         {
@@ -189,11 +202,11 @@ namespace WonderDevTracker.Services.Repositories
             {
                 ticket.Updated = DateTimeOffset.UtcNow;
                 // clear out navigation properties so they are not updated
-                ticket.Comments=[];
-                ticket.Attachments=[];
-                ticket.History=[];
-                ticket.DeveloperUser=null;
-                ticket.SubmitterUser=null;
+                ticket.Comments = [];
+                ticket.Attachments = [];
+                ticket.History = [];
+                ticket.DeveloperUser = null;
+                ticket.SubmitterUser = null;
 
                 await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
                 db.Update(ticket);
@@ -270,6 +283,7 @@ namespace WonderDevTracker.Services.Repositories
 
             return result;
         }
+
 
         #endregion
     }

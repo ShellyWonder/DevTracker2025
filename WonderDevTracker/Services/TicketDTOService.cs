@@ -32,6 +32,21 @@ namespace WonderDevTracker.Services
                 ?? throw new InvalidOperationException("Ticket creation failed.");
             return dbTicket.ToDTO();
         }
+        public  async Task<TicketCommentDTO> CreateCommentAsync(TicketCommentDTO comment, UserInfo userInfo)
+        {
+            // convert DTO to entity
+            TicketComment dbComment = new()
+            {
+                Content = comment.Content,
+                Created = DateTimeOffset.UtcNow,
+                TicketId = comment.TicketId,
+                UserId = userInfo.UserId
+            };
+            dbComment = await ticketRepository.CreateCommentAsync(dbComment, userInfo)
+                ?? throw new InvalidOperationException("Comment creation failed.");
+            return dbComment.ToDTO();
+        }
+
         #endregion
 
         #region GET METHODS
@@ -138,6 +153,7 @@ namespace WonderDevTracker.Services
             await ticketRepository.UpdateTicketAsync(dbTicket, user);
             return;
         }
+
         #endregion
     }
 }

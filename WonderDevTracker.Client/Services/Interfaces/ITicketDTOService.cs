@@ -50,6 +50,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// Admins will see tickets they submitted.
         /// </remarks>
         Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo);
+
         #endregion
 
         #region CREATE METHODS
@@ -63,6 +64,19 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="userInfo">Current user's claims</param>
         /// <returns>New ticket after being saved in Db</returns>
         Task<TicketDTO?> AddTicketAsync(TicketDTO ticket, UserInfo userInfo);
+
+        /// <summary>
+        /// Create Ticket Comment
+        /// </summary>
+        /// <param name="comment">The comment data to be added to the ticket. Must contain valid ticket and comment details.</param>
+        /// <param name="userInfo">User's current claims. Used to associate the comment with the correct user
+        /// identity.</param>
+        /// <remarks>Creates a new comment for a ticket asynchronously using the specified comment data and user information.
+        /// Returns a task that represents the asynchronous operation. The task result contains a TicketCommentDTO representing
+        /// the created comment.</remarks>
+
+        Task<TicketCommentDTO> CreateCommentAsync(TicketCommentDTO comment, UserInfo userInfo);
+
         #endregion
 
         #region ARCHIVE/RESTORE METHODS
