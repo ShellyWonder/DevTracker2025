@@ -1,0 +1,44 @@
+﻿@*CommentDisplay*@
+@inherits AuthenticatedComponentBase
+
+@if (Comment is not null)
+{
+	<div class="d-flex gap-2 py-2 align-items-start @RowDirection">
+		<MudAvatar>
+			<MudImage Src="@Comment.User?.ImageUrl" />
+		</MudAvatar>
+		<div>
+			<MudPaper Class="px-3 py-2">
+				<MudText Typo="Typo.overline"
+				         Color="Color.Primary"
+				         Style="line-height: 1em" 
+				         GutterBottom>
+						 @Comment.User?.FullName
+						 </MudText>
+				<MudText Typo="Typo.body1">@Comment.Content</MudText>
+			</MudPaper>
+			<div class="@DateAlignment">
+			<MudText Typo="Typo.caption" 
+			         Color="Color.Default"
+					 Class="ps-3 text-secondary">
+					 @Comment.Created.ToLocalTime().ToString("g")
+			</MudText>
+
+			</div>
+		</div>
+	</div>
+}
+else
+{
+	<p>No comment to display.</p>
+}
+
+
+@code {
+	[Parameter, EditorRequired]
+	public TicketCommentDTO Comment { get; set; }
+
+	private string RowDirection => Comment.UserId == UserInfo?.UserId ? "flex-row-reverse" : "flex-row";
+	private string DateAlignment => Comment.UserId == UserInfo?.UserId ? "text-end" : "text-start";
+
+}
