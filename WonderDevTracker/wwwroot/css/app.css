@@ -83,7 +83,17 @@
         pointer-events: none;
     }
 
-/**End Details link*/
+/**End Details link**/
+
+/** TicketCommentArea**/
+
+.comment-display {
+    background-color: var(--mud-palette-background);
+    min-height: 150px;
+    max-height: 400px;
+    overflow-y: auto; /*adds scroll bar when max height is exceeded*/
+}
+/** End TicketCommentArea**/
 
 /**MudChip**/
 .priority-label {

@@ -63,6 +63,7 @@
 							 Text="@ticket.Description" />
 
 			<TicketCommentArea Index="@IndexTracker.Next()"
+							   Comments="ticket.Comments"
 							   CanComment="CanComment"
 							   OnAdd="HandleAddComment" />
 
@@ -323,14 +324,14 @@
 		{
 			await TicketService.CreateCommentAsync(comment, UserInfo!);
 			// Refresh ticket to show new comment
-			// ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
-			//TODO:  append new comment to existing list instead of refreshing the whole ticket.
-			Snackbar.Add("Comment added.", Severity.Success);
+			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+			
+			Snackbar.Add($"Comment added to {ticket!.Title}.", Severity.Success);
 		}
 		catch (Exception ex)
 		{
 			Console.WriteLine(ex);
-			Snackbar.Add("Failed to add comment.", Severity.Error);
+			Snackbar.Add($"Failed to add comment to {ticket!.Title}.", Severity.Error);
 		}
 	}
 
