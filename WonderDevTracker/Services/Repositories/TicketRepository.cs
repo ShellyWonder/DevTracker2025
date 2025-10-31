@@ -217,6 +217,27 @@ namespace WonderDevTracker.Services.Repositories
             }
         }
 
+        public async Task UpdateCommentAsync(TicketComment comment, UserInfo user)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            if (await db.Comments.AnyAsync(c => c.Id == comment.Id && c.UserId == user.UserId))
+            {
+                db.Update(comment);
+                await db.SaveChangesAsync();
+            }
+
+        }
+        //Currently, only used to verify comment ownership before editing by the service layer;
+        //Not used by the components
+        public async Task<TicketComment?> GetCommentByIdAsync(int id, UserInfo userInfo)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            TicketComment? comment = await db.Comments
+                               .FirstOrDefaultAsync(c => c.Id == id
+                                && c.Ticket!.Project!.CompanyId == userInfo.CompanyId);
+            return comment;
+        }
+
 
         #region PRIVATE METHODS
         /// <summary>
@@ -285,7 +306,6 @@ namespace WonderDevTracker.Services.Repositories
 
             return result;
         }
-
 
         #endregion
     }

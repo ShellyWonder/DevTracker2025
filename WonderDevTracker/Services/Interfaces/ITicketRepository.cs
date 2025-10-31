@@ -18,6 +18,15 @@ namespace WonderDevTracker.Services.Interfaces
         public Task<Ticket?> GetTicketByIdAsync(int ticketId, UserInfo userInfo);
 
         /// <summary>
+        /// Get Ticket Comment By Id
+        /// </summary>
+        /// <remarks>Retrieves a ticket comment by its id</remarks>
+        /// <param name="id">The unique identifier of the ticket comment to retrieve. </param>
+        /// <param name="userInfo">Current user's claims</param>
+        /// 
+        public Task<TicketComment?> GetCommentByIdAsync(int id, UserInfo userInfo);
+
+        /// <summary>
         /// Get Open Tickets
         /// </summary>
         /// <remarks>
@@ -113,6 +122,14 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="ticket">Ticket to be updated</param>
         /// <param name="user">Current user's claims</param>
         public Task UpdateTicketAsync(Ticket ticket, UserInfo user);
+
+        /// <summary>
+        /// Update Comment
+        /// </summary>
+        /// <param name="comment">Ticket comment to be updated </param>
+        /// <param name="user">Current user's claims</param>
+        /// <remarks>Updates active ticket comments</remarks>
+        public Task UpdateCommentAsync(TicketComment comment, UserInfo user);
         #endregion
     }
 }

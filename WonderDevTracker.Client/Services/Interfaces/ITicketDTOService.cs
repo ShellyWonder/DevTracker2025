@@ -112,6 +112,14 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="user">Current user's claims</param>
       
         public Task UpdateTicketAsync(TicketDTO ticket, UserInfo user);
+
+        /// <summary>
+        /// Update Comment
+        /// </summary>
+        /// <param name="comment">Ticket comment to be updated </param>
+        /// <param name="user">Current user's claims</param>
+        /// <remarks>Updates active ticket comments if comment belongs to current user.</remarks>
+        public Task UpdateCommentAsync(TicketCommentDTO comment, UserInfo user);
         #endregion
     }
 
