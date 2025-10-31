@@ -65,7 +65,8 @@
 			<TicketCommentArea Index="@IndexTracker.Next()"
 							   Comments="ticket.Comments"
 							   CanComment="CanComment"
-							   OnAdd="HandleAddComment" />
+							   OnAdd="HandleAddComment" 
+							   OnEdit="HandleEditComment" />
 
 			@*  <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
 			<TicketHistory Ticket="ticket"
@@ -325,7 +326,7 @@
 			await TicketService.CreateCommentAsync(comment, UserInfo!);
 			// Refresh ticket to show new comment
 			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
-			
+
 			Snackbar.Add($"Comment added to {ticket!.Title}.", Severity.Success);
 		}
 		catch (Exception ex)
@@ -335,6 +336,23 @@
 		}
 	}
 
+	private async Task HandleEditComment(TicketCommentDTO commentDTO)
+	{
+		if (commentDTO.UserId != UserInfo?.UserId) return;
+		try
+		{
+			await TicketService.UpdateCommentAsync(commentDTO, UserInfo!);
+			// // Refresh ticket to show updated comment
+			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+			
+			Snackbar.Add("Comment updated.", Severity.Success);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Failed to update comment.", Severity.Error);
+		}
+	}
 
 
 }

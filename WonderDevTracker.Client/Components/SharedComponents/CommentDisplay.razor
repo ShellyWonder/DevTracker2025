@@ -3,7 +3,11 @@
 
 @if (Comment is not null)
 {
-	<div class="d-flex gap-2 py-2 align-items-start @RowDirection">
+	<EditForm Model="formComment"
+			  OnValidSubmit="HandleSubmit"
+			  class="@RowDirection">
+		<DataAnnotationsValidator />
+
 		<MudAvatar>
 			<MudImage Src="@Comment.User?.ImageUrl" />
 		</MudAvatar>
@@ -57,18 +61,18 @@
 			else
 			{
 				<MudIconButton Icon="@Icons.Material.Filled.Save"
-				               Color="Color.Success"
-							   Size="Size.Small" 
-							   ButtonType="ButtonType.Submit"/>
+							   Color="Color.Success"
+							   Size="Size.Small"
+							   ButtonType="ButtonType.Submit" />
 
 				<MudIconButton Icon="@Icons.Material.Filled.Cancel"
-				               Color="Color.Error"
-							   Size="Size.Small" 
+							   Color="Color.Error"
+							   Size="Size.Small"
 							   OnClick="CancelEdit" />
 			}
 
 		</div>
-	</div>
+	</EditForm>
 }
 else
 {
@@ -80,8 +84,12 @@ else
 	[Parameter, EditorRequired]
 	public TicketCommentDTO Comment { get; set; }
 
+	[Parameter]
+	public EventCallback<TicketCommentDTO>OnEdit { get; set; }
+
 	private TicketCommentDTO formComment = new();
-	private string RowDirection => Comment.UserId == UserInfo?.UserId ? "flex-row-reverse" : "flex-row";
+	private string RowDirection => Comment.UserId == UserInfo?.UserId ? "d-flex gap-2 py-2 align-items-start flex-row-reverse"
+																			: "d-flex gap-2 py-2 align-items-start flex-row";
 	private string DateAlignment => Comment.UserId == UserInfo?.UserId ? "text-end" : "text-start";
 	private bool CanModify => Comment.UserId == UserInfo?.UserId;
 	private bool CanDelete => UserInfo?.IsInRole(Role.Admin) == true || Comment.UserId == UserInfo?.UserId;
@@ -94,7 +102,7 @@ else
 
 		formComment = new TicketCommentDTO()
 		{
-			Id = Comment. Id,
+			Id = Comment.Id,
 			Content = Comment.Content,
 			TicketId = Comment.TicketId,
 			Created = Comment.Created,
@@ -105,6 +113,12 @@ else
 	private void CancelEdit()
 	{
 		if (Comment is not null) formComment.Content = Comment.Content;
+		editing = false;
+	}
+
+	private async Task HandleSubmit()
+	{
+		await OnEdit.InvokeAsync(formComment);
 		editing = false;
 	}
 }

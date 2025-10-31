@@ -13,9 +13,10 @@
 		<div class="d-flex flex-column-reverse comment-display p-3">
 
 			@foreach (TicketCommentDTO comment in (Comments ?? Enumerable.Empty<TicketCommentDTO>())
-						                           .OrderByDescending(c => c.Created))
+						.OrderByDescending(c => c.Created))
 			{
-				<CommentDisplay Comment="comment" />
+				<CommentDisplay Comment="comment" 
+								OnEdit="OnEdit" />
 			}
 		</div>
 		@if (CanComment)
@@ -61,6 +62,9 @@
 
 	[Parameter, EditorRequired]
 	public EventCallback<TicketCommentDTO> OnAdd { get; set; }
+
+	[Parameter, EditorRequired]
+	public EventCallback<TicketCommentDTO> OnEdit { get; set; }
 
 	TicketCommentDTO newComment = new();
 
