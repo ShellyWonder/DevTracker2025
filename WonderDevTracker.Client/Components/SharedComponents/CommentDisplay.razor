@@ -7,24 +7,66 @@
 		<MudAvatar>
 			<MudImage Src="@Comment.User?.ImageUrl" />
 		</MudAvatar>
-		<div>
+		<div class="@EditStatus">
 			<MudPaper Class="px-3 py-2">
 				<MudText Typo="Typo.overline"
-				         Color="Color.Primary"
-				         Style="line-height: 1em" 
-				         GutterBottom>
-						 @Comment.User?.FullName
-						 </MudText>
-				<MudText Typo="Typo.body1">@Comment.Content</MudText>
+						 Color="Color.Primary"
+						 Style="line-height: 1em"
+						 GutterBottom>
+					@Comment.User?.FullName
+				</MudText>
+				@if (editing == false)
+				{
+
+					<MudText Typo="Typo.body1">@Comment.Content</MudText>
+				}
+				else
+				{
+					<MudTextField @bind-Value="formComment.Content"
+								  For="() => formComment.Content"
+								  Variant="Variant.Outlined"
+								  Label="Comment"
+								  Lines="6"
+								  AutoGrow />
+				}
 			</MudPaper>
 			<div class="@DateAlignment">
-			<MudText Typo="Typo.caption" 
-			         Color="Color.Default"
-					 Class="ps-3 text-secondary">
-					 @Comment.Created.ToLocalTime().ToString("g")
-			</MudText>
-
+				<MudText Typo="Typo.caption"
+						 Color="Color.Default"
+						 Class="ps-3 text-secondary">
+					@Comment.Created.ToLocalTime().ToString("g")
+				</MudText>
 			</div>
+		</div>
+		<div class="vstack gap-1 flex-grow-0">
+			@if (editing == false)
+			{
+				@if (CanModify)
+				{
+					<MudIconButton Icon="@Icons.Material.Filled.Edit"
+								   Size="Size.Small"
+								   OnClick="() => editing = true" />
+				}
+				@if (CanDelete)
+				{
+					<MudIconButton Icon="@Icons.Material.Filled.Delete"
+								   Size="Size.Small" />
+
+				}
+			}
+			else
+			{
+				<MudIconButton Icon="@Icons.Material.Filled.Save"
+				               Color="Color.Success"
+							   Size="Size.Small" 
+							   ButtonType="ButtonType.Submit"/>
+
+				<MudIconButton Icon="@Icons.Material.Filled.Cancel"
+				               Color="Color.Error"
+							   Size="Size.Small" 
+							   OnClick="CancelEdit" />
+			}
+
 		</div>
 	</div>
 }
@@ -38,7 +80,31 @@ else
 	[Parameter, EditorRequired]
 	public TicketCommentDTO Comment { get; set; }
 
+	private TicketCommentDTO formComment = new();
 	private string RowDirection => Comment.UserId == UserInfo?.UserId ? "flex-row-reverse" : "flex-row";
 	private string DateAlignment => Comment.UserId == UserInfo?.UserId ? "text-end" : "text-start";
+	private bool CanModify => Comment.UserId == UserInfo?.UserId;
+	private bool CanDelete => UserInfo?.IsInRole(Role.Admin) == true || Comment.UserId == UserInfo?.UserId;
+	private bool editing = false;
+	private string EditStatus => editing ? "flex-grow-1" : string.Empty;
 
+	protected override async Task OnParametersSetAsync()
+	{
+		if (Comment is null) return;
+
+		formComment = new TicketCommentDTO()
+		{
+			Id = Comment. Id,
+			Content = Comment.Content,
+			TicketId = Comment.TicketId,
+			Created = Comment.Created,
+			UserId = Comment.UserId
+
+		};
+	}
+	private void CancelEdit()
+	{
+		if (Comment is not null) formComment.Content = Comment.Content;
+		editing = false;
+	}
 }
