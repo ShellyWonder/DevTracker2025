@@ -11,14 +11,23 @@
 		</MudCardHeader>
 		<MudDivider DividerType="DividerType.FullWidth" Light />
 		<div class="d-flex flex-column-reverse comment-display p-3">
-
-			@foreach (TicketCommentDTO comment in (Comments ?? Enumerable.Empty<TicketCommentDTO>())
-						.OrderByDescending(c => c.Created))
+			@if (Comments.Any())
 			{
-				<CommentDisplay Comment="comment" 
-								OnEdit="OnEdit"
-								OnDelete="OnDelete"/>
+				foreach (TicketCommentDTO comment in (Comments ?? Enumerable.Empty<TicketCommentDTO>())
+				.OrderByDescending(c => c.Created))
+				{
+					<CommentDisplay Comment="comment"
+									OnEdit="OnEdit"
+									OnDelete="OnDelete" />
+				}
 			}
+			else
+			{
+				<div class="m-auto">
+					<NotFoundDisplay Message="No Comments to Display" />
+				</div>
+			}
+
 		</div>
 		@if (CanComment)
 		{
