@@ -5,7 +5,6 @@ using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
-using WonderDevTracker.Services.Repositories;
 
 namespace WonderDevTracker.Services
 {
@@ -160,6 +159,13 @@ namespace WonderDevTracker.Services
             if (comment is null || dbComment?.UserId != user.UserId) return;
             dbComment.Content = comment.Content;
             await ticketRepository.UpdateCommentAsync(dbComment, user);
+        }
+        #endregion
+
+        #region DELETE METHODS
+        public async Task DeleteCommentAsync(int id, UserInfo user)
+        {
+            await ticketRepository.DeleteCommentAsync(id, user);
         }
         #endregion
     }

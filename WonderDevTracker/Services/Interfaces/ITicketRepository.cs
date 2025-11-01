@@ -86,7 +86,6 @@ namespace WonderDevTracker.Services.Interfaces
         /// <remarks>Creates a new comment for a ticket asynchronously using the specified comment data and user information.
         /// Returns a task that represents the asynchronous operation. The task result contains a TicketCommentDTO representing
         /// the created comment.</remarks>
-
         Task<TicketComment> CreateCommentAsync(TicketComment comment, UserInfo userInfo);
         #endregion
 
@@ -130,6 +129,17 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <remarks>Updates active ticket comments</remarks>
         public Task UpdateCommentAsync(TicketComment comment, UserInfo user);
+        #endregion
+
+        #region DELETE METHODS
+        /// <summary>
+        ///Delete Comment
+        /// </summary>
+        /// <param name="id">The id of the comment to delete. Must correspond to an existing comment.</param>
+        /// <param name="user">Current user's claims.</param>
+        /// <remarks> asynchronous delete operation of a specified comment if  user is comment owner or company admin.</remarks>
+        Task DeleteCommentAsync(int id, UserInfo user);
+
         #endregion
     }
 }

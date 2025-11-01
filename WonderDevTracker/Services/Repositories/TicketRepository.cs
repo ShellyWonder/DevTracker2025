@@ -238,6 +238,31 @@ namespace WonderDevTracker.Services.Repositories
             return comment;
         }
 
+        public async Task DeleteCommentAsync(int id, UserInfo user)
+        {
+
+
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            TicketComment? comment = null;
+            if (user.IsInRole(Role.Admin))
+            {
+                comment = await db.Comments
+                               .FirstOrDefaultAsync(c => c.Id == id && c.Ticket!.Project!.CompanyId ==user.CompanyId);
+            }
+            else
+            {
+                //check ownership
+                comment = await db.Comments
+                               .FirstOrDefaultAsync(c => c.Id == id
+                                && c.UserId == user.UserId);
+
+            }
+            if (comment is not null)
+            {
+                db.Comments.Remove(comment);
+                await db.SaveChangesAsync();
+            }
+        }
 
         #region PRIVATE METHODS
         /// <summary>
