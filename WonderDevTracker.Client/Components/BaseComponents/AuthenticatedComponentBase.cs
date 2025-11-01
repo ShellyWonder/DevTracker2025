@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
+using System.Xml.Linq;
 using WonderDevTracker.Client.Helpers;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 
 namespace WonderDevTracker.Client.Components.BaseComponents
@@ -14,7 +16,7 @@ namespace WonderDevTracker.Client.Components.BaseComponents
         protected UserInfo? UserInfo { get; set; }
         protected ClaimsPrincipal? AuthUser { get; private set; }
         //guard UI until auth is loaded
-        protected bool AuthReady { get; set; } 
+        protected bool AuthReady { get; set; }
         protected override async Task OnInitializedAsync()
         {
             //load the auth state and set AuthUser
@@ -41,6 +43,17 @@ namespace WonderDevTracker.Client.Components.BaseComponents
         // use AppAuthorizationService to verify project-specific manager
         protected bool IsProjectManager => UserInfo?.IsInRole(Role.ProjectManager) == true;
         protected bool UserIsInRole(Role role) => AuthUser?.IsInRole(role.ToString()) ?? false;
+        protected bool CanDeleteComment(TicketCommentDTO comment)
+        {
+            if (comment is null || UserInfo is null)
+                return false;
+
+            // Allow if user owns the comment or is an Admin
+            return comment.UserId == UserInfo.UserId || IsAdmin;
+        }
+        protected bool CanModifyComment(TicketCommentDTO comment) =>
+        comment is not null && (comment.UserId == UserInfo!.UserId);
+
 
         //use for multi-role scenario
         protected bool UserIsAnyRole(params Role[] roles) =>
