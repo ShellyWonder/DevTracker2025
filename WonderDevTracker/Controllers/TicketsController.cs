@@ -68,13 +68,16 @@ namespace WonderDevTracker.Controllers
         /// </summary>
         /// <param name="ticketId">The unique identifier of the ticket to update. Must match the ID of the ticket provided in the request body.</param>
         /// <param name="ticket">The updated ticket information. The ticket's Id property must match the value of ticketId.</param>
-        /// <remarks>Updates the details of an existing ticket with the specified identifier. Returns: 
+        /// <remarks>Updates the details of an existing ticket with the specified identifier. 
+        /// 
+        /// Returns: 
         /// 
         /// NoContent if the update is successful;
         /// 
         /// BadRequest if the ticket ID does not match;
         /// 
         ///NotFound if the ticket is null.</remarks>
+
         [HttpPut("{ticketId:int}")]
         public async Task<IActionResult> UpdateTicket([FromRoute] int ticketId, [FromBody] TicketDTO ticket)
         {
@@ -82,6 +85,26 @@ namespace WonderDevTracker.Controllers
             if (ticket == null) return NotFound();
 
             await ticketService.UpdateTicketAsync(ticket, UserInfo);
+            return NoContent();
+        }
+
+
+        /// <summary>
+        /// Update Ticket Comment
+        /// </summary>
+        /// <param name="ticketId">Id of the ticket</param>
+        /// <param name="commentId">Id of the comment</param>
+        /// <param name="comment">updated content passed from the body</param>
+        /// <remarks>Updates a ticket comment by owner of the comment.</remarks>
+        [HttpPut("{ticketId:int}/comments/{commentId:int}"),Tags("Comments")]
+        public async Task<IActionResult> UpdateComment([FromRoute] int ticketId,
+                                                       [FromRoute] int commentId,
+                                                       [FromBody] TicketCommentDTO comment)
+        {
+            if (commentId != comment.Id || ticketId != comment.TicketId)
+                return BadRequest("Ticket ID or Comment ID mismatch.");
+            if (comment == null) return NotFound();
+            await ticketService.UpdateCommentAsync(comment, UserInfo);
             return NoContent();
         }
         #endregion
@@ -193,6 +216,32 @@ namespace WonderDevTracker.Controllers
         }
         #endregion
 
+        #region DELETE TICKET COMMENT
+        /// <summary>
+        /// Delete Ticket Comment
+        /// </summary>
+        /// <param name="commentId">Id of a ticket comment</param>
+        /// <remarks>Deletes an existing comment on an active ticket. Only ticket owner(author) or company admin may delete a comment.</remarks>
+        [HttpDelete("comments/{commentId:int}"), Tags("Comments")]
+        public async Task<IActionResult> DeleteTicketComment([FromRoute] int commentId)
+        {
+            try
+            {
+                await ticketService.DeleteCommentAsync(commentId, UserInfo);
+                return NoContent();
+            }
+            catch (ApplicationException invalidTicketException)
+            {
+                Console.WriteLine(invalidTicketException);
+                return Forbid(); //403
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Problem();
+            }
+        }
+        #endregion
 
 
     }

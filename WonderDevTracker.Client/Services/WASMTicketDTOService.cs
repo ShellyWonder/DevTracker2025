@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.ComponentModel.Design;
+using System.Net.Http.Json;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
@@ -31,9 +32,10 @@ namespace WonderDevTracker.Client.Services
             return createdComment;
         }
 
-        public Task DeleteCommentAsync(int id, UserInfo user)
+        public async Task DeleteCommentAsync(int commentId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.DeleteAsync($"/api/Tickets/comments/{commentId}");
+             response.EnsureSuccessStatusCode();
         }
 
         public async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
@@ -122,9 +124,11 @@ namespace WonderDevTracker.Client.Services
             response.EnsureSuccessStatusCode();
         }
 
-        public Task UpdateCommentAsync(TicketCommentDTO comment, UserInfo user)
-        {
-            throw new NotImplementedException();
+        public async Task UpdateCommentAsync(TicketCommentDTO comment, UserInfo user)
+        {                                                              
+
+            var response = await http.PutAsJsonAsync($"api/Tickets/{comment.TicketId}/comments/{comment.Id}", comment);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateTicketAsync(TicketDTO ticket, UserInfo user)
