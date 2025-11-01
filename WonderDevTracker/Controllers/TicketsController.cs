@@ -115,7 +115,7 @@ namespace WonderDevTracker.Controllers
         }
         #endregion
 
-        #region ADD TICKET
+        #region ADD TICKET/ADD NEW COMMENT
         /// <summary>
         /// Create Ticket
         /// </summary>
@@ -153,12 +153,51 @@ namespace WonderDevTracker.Controllers
                 return Problem();
             }
         }
+
+        /// <summary>
+        /// Add Ticket Comment
+        /// </summary>
+        /// <remarks>Returns a 400 Bad Request response if the ticketId does not match the TicketId in the
+        /// comment. Returns a 403 Forbidden response if the ticket is invalid. Returns a generic error response for
+        /// unexpected failures.</remarks>
+        /// <param name="ticketId">The unique id of the ticket to which the comment will be added. Must match the TicketId property of
+        /// the comment.</param>
+        /// <param name="comment">The comment details to add to the ticket. Must contain a valid TicketId that matches the ticketId parameter.</param>
+        /// <returns>An ActionResult containing the created TicketCommentDTO if the operation succeeds; otherwise, a result
+        /// indicating the error condition.</returns>
+       
+        [HttpPost("{ticketId:int}/comments"), Tags("Comments")]
+        public async Task<ActionResult<TicketCommentDTO>> AddTicketComment([FromRoute] int ticketId,
+                                                                            [FromBody] TicketCommentDTO comment)
+        {
+            if (ticketId != comment.TicketId) return BadRequest("Ticket ID mismatch.");
+
+            try
+            {
+                var createdComment = await ticketService.CreateCommentAsync(comment, UserInfo);
+                return Ok(createdComment);
+
+            }
+            catch (ApplicationException invalidTicketExceptiom)
+            {
+
+                Console.WriteLine(invalidTicketExceptiom);
+                return Forbid(); //403
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Problem();
+            }
+
+        }
         #endregion
 
 
 
     }
-
-
-
 }
+
+
+
+

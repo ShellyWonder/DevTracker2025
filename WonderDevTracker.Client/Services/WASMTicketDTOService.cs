@@ -22,7 +22,16 @@ namespace WonderDevTracker.Client.Services
               response.EnsureSuccessStatusCode();
         }
 
-        public Task<TicketCommentDTO> CreateCommentAsync(TicketCommentDTO comment, UserInfo userInfo)
+        public async Task<TicketCommentDTO> CreateCommentAsync(TicketCommentDTO comment, UserInfo userInfo)
+        {
+            var response = await http.PostAsJsonAsync($"/api/Tickets/{comment.TicketId}/comments", comment);
+             response.EnsureSuccessStatusCode();
+            var createdComment = await response.Content.ReadFromJsonAsync<TicketCommentDTO>()
+                                               ?? throw new HttpIOException(HttpRequestError.InvalidResponse);
+            return createdComment;
+        }
+
+        public Task DeleteCommentAsync(int id, UserInfo user)
         {
             throw new NotImplementedException();
         }
@@ -111,6 +120,11 @@ namespace WonderDevTracker.Client.Services
         {
             var response = await http.PatchAsync($"api/Tickets/{ticketId}/restore", null);
             response.EnsureSuccessStatusCode();
+        }
+
+        public Task UpdateCommentAsync(TicketCommentDTO comment, UserInfo user)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task UpdateTicketAsync(TicketDTO ticket, UserInfo user)
