@@ -121,6 +121,17 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <remarks>Updates active ticket comments if comment belongs to current user.</remarks>
         public Task UpdateCommentAsync(TicketCommentDTO comment, UserInfo user);
         #endregion
+
+        #region DELETE METHODS
+        /// <summary>
+        ///Delete Comment
+        /// </summary>
+        /// <param name="id">The id of the comment to delete. Must correspond to an existing comment.</param>
+        /// <param name="user">Current user's claims.</param>
+        /// <remarks> asynchronous delete operation of a specified comment if  user is comment owner or company admin.</remarks>
+        Task DeleteCommentAsync(int id, UserInfo user);
+
+        #endregion
     }
 
 }

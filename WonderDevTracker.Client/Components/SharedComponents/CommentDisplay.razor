@@ -1,4 +1,6 @@
 ﻿@*CommentDisplay*@
+@inject IDialogService DialogService
+
 @inherits AuthenticatedComponentBase
 
 @if (Comment is not null)
@@ -45,16 +47,17 @@
 		<div class="vstack gap-1 flex-grow-0">
 			@if (editing == false)
 			{
-				@if (CanModify)
+				@if (CanModifyComment(Comment))
 				{
 					<MudIconButton Icon="@Icons.Material.Filled.Edit"
 								   Size="Size.Small"
 								   OnClick="() => editing = true" />
 				}
-				@if (CanDelete)
+				@if (CanDeleteComment(Comment))
 				{
 					<MudIconButton Icon="@Icons.Material.Filled.Delete"
-								   Size="Size.Small" />
+								   Size="Size.Small" 
+								   OnClick="HandleDelete"/>
 
 				}
 			}
@@ -84,15 +87,17 @@ else
 	[Parameter, EditorRequired]
 	public TicketCommentDTO Comment { get; set; }
 
-	[Parameter]
-	public EventCallback<TicketCommentDTO>OnEdit { get; set; }
+	[Parameter, EditorRequired]
+	public EventCallback<TicketCommentDTO> OnEdit { get; set; }
+
+	[Parameter, EditorRequired]
+	public EventCallback<int> OnDelete { get; set; }
 
 	private TicketCommentDTO formComment = new();
-	private string RowDirection => Comment.UserId == UserInfo?.UserId ? "d-flex gap-2 py-2 align-items-start flex-row-reverse"
+	private string RowDirection => CanModifyComment(Comment) ? "d-flex gap-2 py-2 align-items-start flex-row-reverse"
 																			: "d-flex gap-2 py-2 align-items-start flex-row";
-	private string DateAlignment => Comment.UserId == UserInfo?.UserId ? "text-end" : "text-start";
-	private bool CanModify => Comment.UserId == UserInfo?.UserId;
-	private bool CanDelete => UserInfo?.IsInRole(Role.Admin) == true || Comment.UserId == UserInfo?.UserId;
+	private string DateAlignment => CanModifyComment(Comment) ? "text-end" : "text-start";
+	
 	private bool editing = false;
 	private string EditStatus => editing ? "flex-grow-1" : string.Empty;
 
@@ -120,5 +125,19 @@ else
 	{
 		await OnEdit.InvokeAsync(formComment);
 		editing = false;
+	}
+
+	private async Task HandleDelete()
+	{
+		bool? confirmed = await DialogService.ShowMessageBox(
+		title: "Delete Comment",
+		message: "Are you sure you want to delete this comment?",
+		yesText: "Delete",
+		noText: "Cancel"
+		);
+		if (confirmed == true)
+		{
+			await OnDelete.InvokeAsync(Comment.Id);
+		}
 	}
 }

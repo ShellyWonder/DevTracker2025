@@ -16,7 +16,8 @@
 						.OrderByDescending(c => c.Created))
 			{
 				<CommentDisplay Comment="comment" 
-								OnEdit="OnEdit" />
+								OnEdit="OnEdit"
+								OnDelete="OnDelete"/>
 			}
 		</div>
 		@if (CanComment)
@@ -65,6 +66,9 @@
 
 	[Parameter, EditorRequired]
 	public EventCallback<TicketCommentDTO> OnEdit { get; set; }
+
+	[Parameter, EditorRequired]
+	public EventCallback<int> OnDelete { get; set; }
 
 	TicketCommentDTO newComment = new();
 

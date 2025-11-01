@@ -65,8 +65,9 @@
 			<TicketCommentArea Index="@IndexTracker.Next()"
 							   Comments="ticket.Comments"
 							   CanComment="CanComment"
-							   OnAdd="HandleAddComment" 
-							   OnEdit="HandleEditComment" />
+							   OnAdd="HandleAddComment"
+							   OnEdit="HandleEditComment"
+							   OnDelete="HandleDeleteComment" />
 
 			@*  <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
 			<TicketHistory Ticket="ticket"
@@ -112,7 +113,7 @@
 	}
 </MudContainer>
 
-	@code {
+@code {
 	[Parameter]
 	public int Id { get; set; }
 
@@ -336,21 +337,43 @@
 		}
 	}
 
-	private async Task HandleEditComment(TicketCommentDTO commentDTO)
+	private async Task HandleEditComment(TicketCommentDTO comment)
 	{
-		if (commentDTO.UserId != UserInfo?.UserId) return;
+
+		if (!CanModifyComment(comment)) return;
 		try
 		{
-			await TicketService.UpdateCommentAsync(commentDTO, UserInfo!);
+			await TicketService.UpdateCommentAsync(comment, UserInfo!);
 			// // Refresh ticket to show updated comment
 			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
-			
+
 			Snackbar.Add("Comment updated.", Severity.Success);
 		}
 		catch (Exception ex)
 		{
 			Console.WriteLine(ex);
 			Snackbar.Add("Failed to update comment.", Severity.Error);
+		}
+	}
+
+	private async Task HandleDeleteComment(int commentId)
+	{
+		TicketCommentDTO? comment = ticket?.Comments?.FirstOrDefault(c => c.Id == commentId);
+
+		if (!CanDeleteComment(comment!)) return;
+
+		try
+		{
+
+			await TicketService.DeleteCommentAsync(commentId, UserInfo!);
+			// Refresh ticket to show updated comments
+			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+			Snackbar.Add("Comment deleted.", Severity.Success);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Failed to delete comment.", Severity.Error);
 		}
 	}
 
