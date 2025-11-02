@@ -1,8 +1,8 @@
 ﻿@* TicketCommentArea *@
 @attribute [Authorize]
 
-
 @inherits AuthenticatedComponentBase
+
 
 <AnimatedCard Index="Index">
 	<MudPaper>
@@ -11,7 +11,7 @@
 		</MudCardHeader>
 		<MudDivider DividerType="DividerType.FullWidth" Light />
 		<div class="d-flex flex-column-reverse comment-display p-3">
-			@if (Comments.Any())
+			@if (Comments is not null && Comments.Count() > 0)
 			{
 				foreach (TicketCommentDTO comment in (Comments ?? Enumerable.Empty<TicketCommentDTO>())
 				.OrderByDescending(c => c.Created))

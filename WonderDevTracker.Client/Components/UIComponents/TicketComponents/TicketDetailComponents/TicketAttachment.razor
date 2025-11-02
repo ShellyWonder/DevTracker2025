@@ -1,0 +1,36 @@
+﻿@* TicketAttachment *@
+<AnimatedCard Index="Index">
+	<MudPaper>
+		<MudCardHeader>
+			<MudText Typo="Typo.h3" Color="Color.Primary">Attachments</MudText>
+		</MudCardHeader>
+		<div>
+			@if (ticket!.Attachments.Any())
+			{
+				<div>TODO: Attachments (foreach) go here</div>
+			}
+			else
+			{
+				<div class="m-auto">
+					<NotFoundDisplay Message="No Ticket Attachments to Display" />
+				</div>
+			}
+		</div>
+	</MudPaper>
+
+</AnimatedCard>
+
+@code {
+	[Parameter, EditorRequired]
+	public IEnumerable<TicketAttachmentDTO> Attachments { get; set; } = Enumerable.Empty<TicketAttachmentDTO>();
+
+	[Parameter] 
+	public EventCallback<InputFileChangeEventArgs> OnUploadRequested { get; set; }
+	[Parameter] 
+	public EventCallback<TicketAttachmentDTO> OnDeleteRequested { get; set; }
+
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+
+	private TicketDTO? ticket;
+}

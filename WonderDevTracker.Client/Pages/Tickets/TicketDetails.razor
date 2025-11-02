@@ -69,9 +69,10 @@
 							   OnEdit="HandleEditComment"
 							   OnDelete="HandleDeleteComment" />
 
-			@*  <-- <TicketAttachments Ticket="ticket" Index="@IndexTracker.Next()" /> -->
-			<TicketHistory Ticket="ticket"
-						   Index="@IndexTracker.Next()" />  *@
+			<TicketAttachment Attachments="ticket.Attachments" Index="@IndexTracker.Next()" /> 
+
+			@* <TicketHistory Ticket="ticket"
+						   Index="@IndexTracker.Next()" />  *@ 
 		</div>
 		<div class="d-flex mt-2">
 			<BackToBtn Href=@($"/projects/{ticket.ProjectId}")
@@ -121,6 +122,7 @@
 	public int TicketId { get; set; }
 
 	private TicketDTO? ticket;
+	private List<TicketAttachmentDTO> _attachments = new(); // if needed for local state
 	private List<BreadcrumbItem> breadcrumbs = [];
 	private IEnumerable<AppUserDTO> developers = [];
 
@@ -150,6 +152,9 @@
 		try
 		{
 			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+			//ensures everytime ticket is loaded or reloaded, attachments are immediately available as a guaranteed List<T>.
+			_attachments = ticket?.Attachments?.ToList() ?? new();
+
 			if (ticket is not null)
 			{
 				breadcrumbs = [new BreadcrumbItem("Home", href: "/")];
