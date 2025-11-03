@@ -5,32 +5,68 @@
 			<MudText Typo="Typo.h3" Color="Color.Primary">Attachments</MudText>
 		</MudCardHeader>
 		<div>
-			@if (ticket!.Attachments.Any())
+			@if (ticket?.Attachments.Any() == true)
 			{
-				<div>TODO: Attachments (foreach) go here</div>
+				@foreach (var attachment in ticket.Attachments)
+				{
+					<div>@attachment.FileName</div>
+				}
 			}
 			else
 			{
-				<div class="m-auto">
+				<div class="d-flex align-items-center justify-content-center" style="min-height:150px;">
 					<NotFoundDisplay Message="No Ticket Attachments to Display" />
 				</div>
+
+			}
+			@if (UserCanEditTicket)
+			{
+				<SafeNavButton TypeText="Upload Attachment"
+							   Class="project-details-link"
+							   Color="Color.Secondary"
+							   Disabled="false"
+							   StartIcon="@Icons.Material.Filled.Add"
+							   Variant="Variant.Text" />
+				<InputFile OnChange="OnUploadRequested" />
 			}
 		</div>
 	</MudPaper>
-
 </AnimatedCard>
 
-@code {
-	[Parameter, EditorRequired]
-	public IEnumerable<TicketAttachmentDTO> Attachments { get; set; } = Enumerable.Empty<TicketAttachmentDTO>();
+@*Attachment Dialog*@
+<MudMessageBox @ref="_attachmentDialog"
+			   Title="Upload Attachment"
+			   CancelText="Cancel">
+	<MessageContent>
+		<MudTextField T="string"
+					  Variant="Variant.Outlined"
+					  Label="Description"
+					  @bind-Value="_newAttachment.Description"
+					  For="()=> _newAttachment.Description" />
+	</MessageContent>
+</MudMessageBox>
 
-	[Parameter] 
-	public EventCallback<InputFileChangeEventArgs> OnUploadRequested { get; set; }
-	[Parameter] 
-	public EventCallback<TicketAttachmentDTO> OnDeleteRequested { get; set; }
+@code {
+	[Parameter]
+	public IEnumerable<TicketAttachmentDTO> Attachments { get; set; } = Array.Empty<TicketAttachmentDTO>();
+
+	[Parameter]
+	public EventCallback<TicketAttachmentDTO> AttachmentAdded { get; set; } 
+
+
+	[Parameter, EditorRequired]
+	public bool UserCanEditTicket { get; set; } = false;
 
 	[Parameter, EditorRequired]
 	public int Index { get; set; }
 
+	[Parameter]
+	public EventCallback<InputFileChangeEventArgs> OnUploadRequested { get; set; }
+
+	[Parameter]
+	public EventCallback<TicketAttachmentDTO> OnDeleteRequested { get; set; }
+
+	private MudMessageBox? _attachmentDialog;
+	private TicketAttachmentDTO _newAttachment = new() { AttachmentUrl = string.Empty };
 	private TicketDTO? ticket;
 }

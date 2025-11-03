@@ -69,7 +69,9 @@
 							   OnEdit="HandleEditComment"
 							   OnDelete="HandleDeleteComment" />
 
-			<TicketAttachment Attachments="ticket.Attachments" Index="@IndexTracker.Next()" /> 
+			<TicketAttachment Attachments="@ticket.Attachments"
+			                  UserCanEditTicket="_userCanEditTicket" 
+							  Index="@IndexTracker.Next()" /> 
 
 			@* <TicketHistory Ticket="ticket"
 						   Index="@IndexTracker.Next()" />  *@ 
@@ -187,13 +189,10 @@
 			Console.WriteLine(ex);
 			Snackbar.Add("Error loading ticket details.", Severity.Error);
 		}
-
-
 		_loadingComplete = true;
 		StateHasChanged();
 
 		if (ticket is null) NavManager.NavigateTo("tickets/open");
-
 	}
 
 	private async Task HandleArchiveAsync()
