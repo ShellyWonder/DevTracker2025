@@ -1,5 +1,4 @@
-﻿@* ArchiveBar *@
-
+﻿@* ArchiveBar (presentational) *@
 @if (UserCanArchiveAndRestore)
 {
     <div class="d-flex gap-2">
@@ -10,8 +9,16 @@
                        Disabled="@Busy"
                        StartIcon="@Icons.Material.Filled.Delete"
                        OnClick="OpenArchiveConfirmAsync"
-                       >
-                Archive
+                       aria-busy="@Busy">
+                @if (Busy)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Archiving…</MudText>
+                }
+                else
+                {
+                    <MudText>Archive</MudText>
+                }
             </MudButton>
         }
         else
@@ -21,8 +28,16 @@
                        Disabled="@Busy"
                        StartIcon="@Icons.Material.Filled.RestoreFromTrash"
                        OnClick="OpenRestoreConfirmAsync"
-                       >
-                Restore
+                       aria-busy="@Busy">
+                @if (Busy)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Restoring…</MudText>
+                }
+                else
+                {
+                    <MudText>Restore</MudText>
+                }
             </MudButton>
         }
     </div>
@@ -39,15 +54,24 @@
                        Color="Color.Error"
                        Disabled="@Busy"
                        StartIcon="@Icons.Material.Filled.Delete"
-                       OnClick="ConfirmArchiveAsync">
-                Yes, Archive
+                       OnClick="ConfirmArchiveAsync"
+                       aria-busy="@Busy">
+                @if (Busy)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Archiving…</MudText>
+                }
+                else
+                {
+                    <MudText>Yes, Archive</MudText>
+                }
             </MudButton>
         </YesButton>
     </MudMessageBox>
 
     <!-- Restore confirm -->
     <MudMessageBox @ref="_restoreBox"
-                   Title="@($"Archive {ItemLabel}")"
+                   Title="@($"Restore {ItemLabel}")"
                    CancelText="Cancel">
         <MessageContent>
             Are you sure you want to restore this @ItemLabel?
@@ -57,33 +81,36 @@
                        Color="Color.Success"
                        Disabled="@Busy"
                        StartIcon="@Icons.Material.Filled.RestoreFromTrash"
-                       OnClick="ConfirmRestoreAsync">
-                Yes, Restore
+                       OnClick="ConfirmRestoreAsync"
+                       aria-busy="@Busy">
+                @if (Busy)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Restoring…</MudText>
+                }
+                else
+                {
+                    <MudText>Yes, Restore</MudText>
+                }
             </MudButton>
         </YesButton>
     </MudMessageBox>
 }
 
-
-
 @code {
+    [Parameter] public bool IsArchived { get; set; }
+    [Parameter] public bool UserCanArchiveAndRestore { get; set; } = false;
 
-    [Parameter] 
-    public bool IsArchived { get; set; }
-    [Parameter] 
-    public bool UserCanArchiveAndRestore { get; set; } = false;
+    /// <summary>Labels and dialog titles. Ex: "Project", "Ticket".</summary>
+    [Parameter] public string ItemLabel { get; set; } = "Item";
 
-    /// <summary> labels and dialog titles. Ex: "Project", "Ticket".</summary>
-    [Parameter] 
-    public string ItemLabel { get; set; } = "Item";
-
-    /// <summary>Raised when user confirms archive in the dialog.</summary>
+    /// <summary>Raised when user confirms archive.</summary>
     [Parameter] public EventCallback OnArchiveRequested { get; set; }
 
-    /// <summary>Raised when user confirms restore in the dialog.</summary>
+    /// <summary>Raised when user confirms restore.</summary>
     [Parameter] public EventCallback OnRestoreRequested { get; set; }
 
-    /// <summary>Optional: let parent toggle busy/disabled state during its service call.</summary>
+    /// <summary>Parent-controlled busy state. Do NOT set this in the child.</summary>
     [Parameter] public bool Busy { get; set; }
 
     private MudMessageBox? _archiveBox;
@@ -91,27 +118,27 @@
 
     private async Task OpenArchiveConfirmAsync()
     {
-        if (!UserCanArchiveAndRestore || _archiveBox is null) return;
+        if (!UserCanArchiveAndRestore || Busy || _archiveBox is null) return;
         await _archiveBox.ShowAsync();
     }
 
     private async Task OpenRestoreConfirmAsync()
     {
-        if (!UserCanArchiveAndRestore || _restoreBox is null) return;
+        if (!UserCanArchiveAndRestore || Busy || _restoreBox is null) return;
         await _restoreBox.ShowAsync();
     }
 
     private async Task ConfirmArchiveAsync()
     {
+        if (Busy) return; // parent also guards; this is extra safety
         if (OnArchiveRequested.HasDelegate)
             await OnArchiveRequested.InvokeAsync();
     }
 
     private async Task ConfirmRestoreAsync()
     {
+        if (Busy) return;
         if (OnRestoreRequested.HasDelegate)
             await OnRestoreRequested.InvokeAsync();
     }
 }
-
-

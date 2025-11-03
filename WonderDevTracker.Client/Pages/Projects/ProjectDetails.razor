@@ -63,7 +63,7 @@
 					<ArchiveBar IsArchived="project!.Archived"
 								UserCanArchiveAndRestore="_userCanEditProject"
 								ItemLabel="Project"
-								Busy="@_processingArchiveRestore"
+								Busy="@_processingRequest"
 								OnArchiveRequested="HandleArchiveAsync"
 								OnRestoreRequested="HandleRestoreAsync" />
 				</div>
@@ -93,7 +93,7 @@
 	private List<BreadcrumbItem> breadcrumbs = [];
 	private bool _loadingComplete = false;
 	private bool _userCanEditProject = false;
-	private bool _processingArchiveRestore = false;
+	private bool _processingRequest = false;
 
 	private void ResetIndex() => IndexTracker.Reset();
 
@@ -136,13 +136,15 @@
 
 	private async Task HandleArchiveAsync()
 	{
-		if (_userCanEditProject == false || project is null) return;
+		if (!_userCanEditProject || project is null || _processingRequest) return;
 
 		var projectName = project.Name ?? "Project"; // Cache the name
 
 		try
 		{
-			_processingArchiveRestore = true;
+			_processingRequest = true;
+			await InvokeAsync(StateHasChanged);
+
 			//archive project
 			await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
 
@@ -165,17 +167,18 @@
 		}
 		finally
 		{
-			_processingArchiveRestore = false;
-			StateHasChanged();
+			_processingRequest = false;
+			await InvokeAsync(StateHasChanged);
 		}
 	}
 
 	private async Task HandleRestoreAsync()
 	{
-		if (project is null) return;
+		if (!_userCanEditProject || project is null || _processingRequest) return;
 		try
 		{
-			_processingArchiveRestore = true;
+			_processingRequest = true;
+			await InvokeAsync(StateHasChanged);
 
 			string projectName = project.Name ?? "Project";
 
@@ -204,8 +207,8 @@
 		}
 		finally
 		{
-			_processingArchiveRestore = false;
-			StateHasChanged();
+			_processingRequest = false;
+			await InvokeAsync(StateHasChanged);
 		}
 	}
 
