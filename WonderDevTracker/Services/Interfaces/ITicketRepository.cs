@@ -87,6 +87,20 @@ namespace WonderDevTracker.Services.Interfaces
         /// Returns a task that represents the asynchronous operation. The task result contains a TicketCommentDTO representing
         /// the created comment.</remarks>
         Task<TicketComment> CreateCommentAsync(TicketComment comment, UserInfo userInfo);
+
+        /// <summary>
+        /// Add Ticket Attachment
+        /// </summary>
+        /// <param name="attachment">document being attached to the ticket</param>
+        /// <param name="userInfo">Current user's claims</param>
+        /// <remarks>
+        /// Uploads new ticket attachment for a particular ticket.
+        /// User must be:
+        /// 1. Assigned to ticket
+        /// 2. Assigned project manager
+        /// 3. Company admin
+        /// </remarks>
+        Task<TicketAttachment> AddTicketAttachmentAsync(TicketAttachment attachment, UserInfo userInfo);
         #endregion
 
         #region ARCHIVE/RESTORE METHODS

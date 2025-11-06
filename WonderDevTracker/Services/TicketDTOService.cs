@@ -46,6 +46,32 @@ namespace WonderDevTracker.Services
             return dbComment.ToDTO();
         }
 
+        public async Task<TicketAttachmentDTO> AddTicketAttachmentAsync(TicketAttachmentDTO attachment, byte[] fileData,
+                                                                  string contentType, UserInfo userInfo)
+                                                                  
+        {
+            FileUpload upload = new()
+            {
+                Data = fileData,
+                Type = contentType,
+                
+            };
+
+            TicketAttachment dbAttachment = new()
+            {
+                FileName = attachment.FileName,
+                Description = attachment.Description,
+                Created = DateTimeOffset.UtcNow,
+                TicketId = attachment.TicketId,
+                UserId = userInfo.UserId,
+                Upload = upload
+
+            };
+            dbAttachment = await ticketRepository.AddTicketAttachmentAsync(dbAttachment, userInfo)
+                ?? throw new InvalidOperationException("Attachment creation failed.");
+            return dbAttachment.ToDTO();
+        }
+
         #endregion
 
         #region GET METHODS

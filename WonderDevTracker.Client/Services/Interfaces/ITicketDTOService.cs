@@ -1,4 +1,5 @@
-﻿using WonderDevTracker.Client.Models.DTOs;
+﻿using WonderDevTracker.Client.Components.UIComponents.TicketComponents.TicketDetailComponents;
+using WonderDevTracker.Client.Models.DTOs;
 
 namespace WonderDevTracker.Client.Services.Interfaces
 {
@@ -69,13 +70,28 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// Create Ticket Comment
         /// </summary>
         /// <param name="comment">The comment data to be added to the ticket. Must contain valid ticket and comment details.</param>
-        /// <param name="userInfo">User's current claims. Used to associate the comment with the correct user
-        /// identity.</param>
+        /// <param name="userInfo">User's current claims. </param>
         /// <remarks>Creates a new comment for a ticket asynchronously using the specified comment data and user information.
         /// Returns a task that represents the asynchronous operation. The task result contains a TicketCommentDTO representing
         /// the created comment.</remarks>
 
         Task<TicketCommentDTO> CreateCommentAsync(TicketCommentDTO comment, UserInfo userInfo);
+
+        /// <summary>
+        /// Add Ticket Attachment
+        /// </summary>
+        /// <param name="attachment">document being attached to the ticket to be saved in the database</param>
+        /// <param name="userInfo">Current user's claims</param>
+        /// <param name="fileData">uploaded file's data  </param>
+        /// <param name="contentType">uploaded file's content type</param>
+        /// <remarks>
+        /// Uploads new ticket attachment for a particular ticket. User must be:
+        //1. Assigned to ticket
+        //2. Assigned project manager
+        //3. Company admin
+        //</remarks>
+        Task<TicketAttachmentDTO> AddTicketAttachmentAsync(TicketAttachmentDTO attachment, byte[] fileData,
+                                                                       string contentType, UserInfo userInfo);
 
         #endregion
 
@@ -110,7 +126,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <remarks>Updates a ticket in the database</remarks>
         /// <param name="ticket">Ticket to be updated</param>
         /// <param name="user">Current user's claims</param>
-      
+
         public Task UpdateTicketAsync(TicketDTO ticket, UserInfo user);
 
         /// <summary>

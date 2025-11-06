@@ -183,6 +183,7 @@ namespace WonderDevTracker.Services.Repositories
                 await db.SaveChangesAsync();
             }
         }
+
         public async Task RestoreTicketByIdAsync(int ticketId, UserInfo user)
         {
             if (await IsUserAuthorizedToArchiveTicket(ticketId, user))
@@ -227,6 +228,7 @@ namespace WonderDevTracker.Services.Repositories
             }
 
         }
+
         //Currently, only used to verify comment ownership before editing by the service layer;
         //Not used by the components
         public async Task<TicketComment?> GetCommentByIdAsync(int id, UserInfo userInfo)
@@ -262,6 +264,22 @@ namespace WonderDevTracker.Services.Repositories
                 db.Comments.Remove(comment);
                 await db.SaveChangesAsync();
             }
+        }
+
+        public async Task<TicketAttachment> AddTicketAttachmentAsync(TicketAttachment attachment, UserInfo userInfo)
+        {
+           bool canUpload = await IsUserAuthorizedToEditTicket(attachment.TicketId, userInfo);
+
+            if (!canUpload) throw new UnauthorizedAccessException("User is not authorized to add attachment to this ticket.");
+
+            attachment.Created = DateTimeOffset.UtcNow;
+            attachment.UserId = userInfo.UserId;
+
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+
+            db.Add(attachment);
+            await db.SaveChangesAsync();
+            return attachment;
         }
 
         #region PRIVATE METHODS
