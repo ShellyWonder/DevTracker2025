@@ -1,4 +1,5 @@
-﻿using WonderDevTracker.Models;
+﻿using WonderDevTracker.Client.Helpers;
+using WonderDevTracker.Models;
 
 namespace WonderDevTracker.Helpers
 {
@@ -11,7 +12,7 @@ namespace WonderDevTracker.Helpers
             using var ms = new MemoryStream();
             await file.CopyToAsync(ms);
             byte[] data = ms.ToArray();
-            if (ms.Length > 1 * 1024 * 1024) throw new Exception("The image is too large.");
+            if (ms.Length > BrowserFileHelper.MaxFileSize) throw new Exception("The image is too large.");
 
             FileUpload imageUpload = new()
             {
