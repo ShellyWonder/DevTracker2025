@@ -1,13 +1,17 @@
 ﻿@* TicketAttachment *@
+
+@using MudBlazor
+@inject ISnackbar Snackbar
+
 <AnimatedCard Index="Index">
 	<MudPaper>
 		<MudCardHeader>
 			<MudText Typo="Typo.h3" Color="Color.Primary">Attachments</MudText>
 		</MudCardHeader>
 		<div>
-			@if (ticket?.Attachments.Any() == true)
+			@if (Ticket?.Attachments.Any() == true)
 			{
-				@foreach (var attachment in ticket.Attachments)
+				@foreach (var attachment in Ticket.Attachments)
 				{
 					<div>@attachment.FileName</div>
 				}
@@ -20,15 +24,16 @@
 
 			}
 			@if (UserCanEditTicket)
-			{
+			{     
+				<!-- Open dialog -->
+				//TODO: Disable button if ticket is resolved/archived
 				<SafeNavButton TypeText="Upload Attachment"
 							   Class="project-details-link"
 							   Color="Color.Secondary"
 							   Disabled="false"
 							   StartIcon="@Icons.Material.Filled.Add"
 							   Variant="Variant.Text"
-							   OnClick="async () => await _attachmentDialog.ShowAsync()" />
-				@* <InputFile OnChange="OnUploadRequested" /> *@
+							   OnClick="ShowAttachmentDialog" />
 			}
 		</div>
 	</MudPaper>
@@ -39,9 +44,10 @@
 			   Title="Upload Attachment"
 			   CancelText="Cancel">
 	<MessageContent>
-		<MudFileUpload T="IBrowserFile" 
-			FilesChanged="@HandleFilesChange"
-		MaximumFileCount="1">
+		<MudFileUpload T="IBrowserFile"
+					   Accept=".png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+					   FilesChanged="HandleFilesChange"
+					   MaximumFileCount="1">
 			<ActivatorContent>
 				<div class="d-flex flex-column align-items-center">
 					<MudCard>
@@ -50,24 +56,25 @@
 							<MudText Typo="Typo.h6" Align="Align.Center">@(_selectedFile?.Name ?? "No File Selected")</MudText>
 						</MudCardContent>
 					</MudCard>
-					<!-- This button opens the file picker. Don't disable it.. -->
+					
 					<SafeNavButton TypeText="Select a File"
 								   Color="Color.Primary"
 								   Variant="Variant.Filled"
 								   Class="my-3"
 								   StartIcon="@Icons.Material.Filled.UploadFile"
 								   OnClick="async () =>
-		   		   {
-			   		   if (_selectedFile is not null)
-			   		   {
-				   		   await OnUploadRequested.InvokeAsync(new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty));
-				   		   _attachmentDialog?.Close();
-			   		   }
-		   		   }" />
+									{
+										if (_selectedFile is not null)
+										{
+											await OnUploadRequested.InvokeAsync(new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty));
+											_attachmentDialog?.Close();
+										}
+									}" />
 
 				</div>
 			</ActivatorContent>
 		</MudFileUpload>
+		<!-- Attachment Description Text Input -->
 		<MudTextField T="string"
 					  Variant="Variant.Outlined"
 					  Label="Description"
@@ -81,13 +88,13 @@
 						  StartIcon="@Icons.Material.Filled.Upload"
 						  OnClick="async () =>
 				  		{
-					  		if (_selectedFile is null) return;
+							if (_selectedFile is null) return;
 
-					  		var req = new AttachmentUploadRequest(_selectedFile, _description ?? string.Empty);
-					  		await OnUploadRequested.InvokeAsync(req);
+							  		var req = new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty);
+							await OnUploadRequested.InvokeAsync(req);
 
-					  		_attachmentDialog?.Close();
-				  		}" />
+							_attachmentDialog?.Close();
+						}" />
 	</YesButton>
 </MudMessageBox>
 
@@ -101,24 +108,90 @@
 	[Parameter, EditorRequired]
 	public int Index { get; set; }
 
-	[Parameter]
+	[Parameter, EditorRequired]
+	public TicketDTO Ticket { get; set; }
+
+	[Parameter, EditorRequired]
 	public EventCallback<AttachmentUploadRequest> OnUploadRequested { get; set; }
 
 	[Parameter]
 	public EventCallback<TicketAttachmentDTO> OnDeleteRequested { get; set; }
 
-	private MudMessageBox? _attachmentDialog;
+	private MudMessageBox? _attachmentDialog = default!;
+
+	private string _uploaderKey = Guid.NewGuid().ToString(); // forces a fresh input when changed
+
 	private TicketAttachmentDTO _newAttachment = new() { AttachmentUrl = string.Empty };
-	private TicketDTO? ticket;
 	private IBrowserFile? _selectedFile;
-	private string _description = string.Empty;
+	private bool _uploading = false;
 
 	private void HandleFilesChange(IBrowserFile file)
 	{
 		_selectedFile = file;
 		_newAttachment.FileName = _selectedFile?.Name ?? string.Empty;
-		
+
 	}
 
-	
+	private async Task ShowAttachmentDialog()
+	{
+		if (UserCanEditTicket && _attachmentDialog is null) return;
+
+		if (_attachmentDialog is null) return;
+		ResetAttachmentDraft();
+
+		bool? result = await _attachmentDialog.ShowAsync();
+
+		//if user confirmed upload
+		if (result is not true )
+		{
+			ResetAttachmentDraft();
+			return;
+
+		}
+		if (_selectedFile is null)
+		{
+			Snackbar.Add("No file selected for upload.", Severity.Error);
+			return;
+		}
+		else
+		{
+			//pass to the parent component
+			var req = new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty);
+			await OnUploadRequested.InvokeAsync(req);
+			_attachmentDialog?.Close();
+			ResetAttachmentDraft();
+		}
+
+	}
+	private async Task SubmitUploadAsync()
+	{
+		if (_uploading || _selectedFile is null) return;
+
+		_uploading = true;
+		try
+		{
+			var req = new AttachmentUploadRequest(
+				_selectedFile,
+				_newAttachment.Description ?? string.Empty);
+
+			await OnUploadRequested.InvokeAsync(req);
+
+			_attachmentDialog?.Close();
+			ResetAttachmentDraft();
+		}
+		finally
+		{
+			_uploading = false;
+		}
+	}
+
+
+	//reset state if user cancels
+	private void ResetAttachmentDraft()
+	{
+		_selectedFile = null;
+		_newAttachment.Description = string.Empty;
+		_newAttachment.FileName = string.Empty;
+	}
+
 }

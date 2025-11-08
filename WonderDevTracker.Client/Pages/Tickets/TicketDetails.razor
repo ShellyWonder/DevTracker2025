@@ -69,9 +69,11 @@
 							   OnEdit="HandleEditComment"
 							   OnDelete="HandleDeleteComment" />
 
-			<TicketAttachment Attachments="@ticket.Attachments"
+			<TicketAttachment Ticket="@ticket"
+							  Attachments="@ticket.Attachments.ToList()"
 			                  UserCanEditTicket="_userCanEditTicket" 
-							  Index="@IndexTracker.Next()" /> 
+							  Index="@IndexTracker.Next()"
+							  OnUploadRequested="HandleAttachmentUploadAsync" />
 
 			@* <TicketHistory Ticket="ticket"
 						   Index="@IndexTracker.Next()" />  *@ 
@@ -116,7 +118,7 @@
 	}
 </MudContainer>
 
-@code {
+	@code {
 	[Parameter]
 	public int Id { get; set; }
 
@@ -124,7 +126,8 @@
 	public int TicketId { get; set; }
 
 	private TicketDTO? ticket;
-	private List<TicketAttachmentDTO> _attachments = new(); // if needed for local state
+		
+	private List<TicketAttachmentDTO> _attachments = new(); 
 	private List<BreadcrumbItem> breadcrumbs = [];
 	private IEnumerable<AppUserDTO> developers = [];
 
@@ -133,7 +136,8 @@
 	private bool _userCanArchiveTicket = false;
 	private bool _userCanAssignTicket = false;
 	private bool _processingArchiveRestore = false;
-
+	private MudMessageBox? _attachmentDialog = default!;
+	
 	private void ResetIndex() => IndexTracker.Reset();
 	private string ticketTitle => ticket?.Title ?? "Ticket";
 	private bool CanComment => _userCanEditTicket || !ticket!.Archived;
@@ -381,6 +385,70 @@
 		}
 	}
 
+	private async Task HandleAttachmentUploadAsync(AttachmentUploadRequest req)
+	{
+		if (ticket is null || !_userCanEditTicket || req.File is null) return;
+		
+		try
+		{
+			// Read contents of selected file into a byte array;
+			byte[]? fileData = await BrowserFileHelper.GetFileDataAsync(req.File);
+			string? contentType = req.File.ContentType;
+			var attachment = new TicketAttachmentDTO
+			{
+				UserId = UserInfo!.UserId,
+				TicketId = ticket.Id,
+				FileName = req.File.Name,
+				Description = req.Description,
+				Created = DateTimeOffset.UtcNow,
+				AttachmentUrl = string.Empty // will be set by service
+			};
+			// Save to db; 
+			 await TicketService.AddTicketAttachmentAsync(attachment!, fileData!, contentType!, UserInfo!);
+			// Update local list (defensive against null)
+			ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+
+			Snackbar.Add("Attachment successfully uploaded.", Severity.Success);
+			// // close dialog to reset uploader & inputs
+			_attachmentDialog?.Close();
+			
+			
+		}
+		catch (IOException ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add(ex.Message, Severity.Error);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Upload failed. Please try again.", Severity.Error);
+		}
+		
+	}
+
+	//  delete handler 
+	// private async Task HandleAttachmentDeleteAsync(TicketAttachmentDTO attachment)
+	// {
+	// 	if (ticket is null || !_userCanEditTicket) return;
+
+	// 	try
+	// 	{
+	// 		await AttachmentService.DeleteAsync(ticket.Id, attachment.Id, UserInfo!);
+
+	// 		if (ticket.Attachments is not null)
+	// 			ticket.Attachments = ticket.Attachments.Where(a => a.Id != attachment.Id).ToList();
+
+	// 		Snackbar.Add("Attachment deleted.", Severity.Success);
+	// 		StateHasChanged();
+	// 	}
+	// 	catch (Exception ex)
+	// 	{
+	// 		Console.WriteLine(ex);
+	// 		Snackbar.Add("Delete failed.", Severity.Error);
+	// 	}
+
+	// }
 
 }
 
