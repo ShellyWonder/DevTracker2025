@@ -24,7 +24,7 @@
 
 			}
 			@if (UserCanEditTicket)
-			{     
+			{
 				<!-- Open dialog -->
 				//TODO: Disable button if ticket is resolved/archived
 				<SafeNavButton TypeText="Upload Attachment"
@@ -51,25 +51,32 @@
 			<ActivatorContent>
 				<div class="d-flex flex-column align-items-center">
 					<MudCard>
-						@*TOO: add image preview*@
+						@{
+							string? extension = Path.GetExtension(_selectedFile?.Name)?.Trim('.');
+							if (string.IsNullOrEmpty(extension)) extension = "default";
+						}
+						<MudCardMedia Image="@($"/img/attachmentsPNGs/png/{extension}.png")"
+									  Height="96"
+									  Style="background-size:contain; border: 6px inset transparent;" />
+
 						<MudCardContent>
 							<MudText Typo="Typo.h6" Align="Align.Center">@(_selectedFile?.Name ?? "No File Selected")</MudText>
 						</MudCardContent>
 					</MudCard>
-					
+
 					<SafeNavButton TypeText="Select a File"
 								   Color="Color.Primary"
 								   Variant="Variant.Filled"
 								   Class="my-3"
 								   StartIcon="@Icons.Material.Filled.UploadFile"
 								   OnClick="async () =>
-									{
-										if (_selectedFile is not null)
-										{
-											await OnUploadRequested.InvokeAsync(new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty));
-											_attachmentDialog?.Close();
-										}
-									}" />
+											   {
+												   if (_selectedFile is not null)
+												   {
+													   await OnUploadRequested.InvokeAsync(new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty));
+													   _attachmentDialog?.Close();
+												   }
+											   }" />
 
 				</div>
 			</ActivatorContent>
@@ -87,14 +94,14 @@
 						  Class="ms-2"
 						  StartIcon="@Icons.Material.Filled.Upload"
 						  OnClick="async () =>
-				  		{
-							if (_selectedFile is null) return;
+				  				{
+							  		if (_selectedFile is null) return;
 
 							  		var req = new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty);
-							await OnUploadRequested.InvokeAsync(req);
+							  		await OnUploadRequested.InvokeAsync(req);
 
-							_attachmentDialog?.Close();
-						}" />
+							  		_attachmentDialog?.Close();
+						  		}" />
 	</YesButton>
 </MudMessageBox>
 
@@ -142,7 +149,7 @@
 		bool? result = await _attachmentDialog.ShowAsync();
 
 		//if user confirmed upload
-		if (result is not true )
+		if (result is not true)
 		{
 			ResetAttachmentDraft();
 			return;
