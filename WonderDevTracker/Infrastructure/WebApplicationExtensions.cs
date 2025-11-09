@@ -26,6 +26,16 @@ namespace WonderDevTracker.Infrastructure
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
+            // Redirect missing PNG attachments to default image
+            //current use in TicketAttachment component
+            app.Use(async (context, next) =>
+            {
+                 await next(context);
+                if (context.Request.Path.StartsWithSegments("/img/attachmentsPNGs") && context.Response.StatusCode == 404) 
+                {
+                    context.Response.Redirect("/img/attachmentPNGs/png.default.png");
+                }
+            });
             app.UseOutputCache();
 
             app.UseAuthentication();
