@@ -2,7 +2,7 @@
 @if (Attachment is not null)
 {
 	<MudCard>
-		@* Placeholder path, change *@
+		
 		<MudCardMedia Image="@($"/img/attachmentsPNGs/png/{extension}.png")"
 					  Height="96"
 					  Style="background-size:contain; border: 6px inset transparent;" />
@@ -19,14 +19,17 @@
 			</MudCollapse>
 		</MudCardContent>
 		<MudCardActions>
+			<!-- Collapse Toggle -->
 			<SafeNavButton EndIcon="@Icons.Material.Filled.Info"
 						   Color="Color.Primary"
 						   OnClick="() => isDescriptionExpanded = !isDescriptionExpanded"
 						   />
+			<!-- Download -->
 			<SafeNavLink EndIcon="@Icons.Material.Filled.Download"
 						 Valid="!string.IsNullOrWhiteSpace(Attachment.AttachmentUrl)"
 						 Href="@Attachment.AttachmentUrl"
 						 Target="Target" />
+			<!-- Delete -->
 			<SafeNavButton EndIcon="@Icons.Material.Filled.Delete"
 			               Color="Color.Error"
 						   Valid="!string.IsNullOrWhiteSpace(Attachment.AttachmentUrl)" 
