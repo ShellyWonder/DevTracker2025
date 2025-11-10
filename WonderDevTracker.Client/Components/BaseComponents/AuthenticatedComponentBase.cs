@@ -58,5 +58,14 @@ namespace WonderDevTracker.Client.Components.BaseComponents
         //use for multi-role scenario
         protected bool UserIsAnyRole(params Role[] roles) =>
                        roles.Any(r => AuthUser?.IsInRole(r.ToString()) == true);
+
+        protected bool CanDeleteTicketAttachment(TicketAttachmentDTO attachment)
+        {
+            if (attachment is null || UserInfo is null)
+                return false;
+
+            // Allow if user owns the comment or is an Admin
+            return attachment.UserId == UserInfo.UserId || IsAdmin;
+        }
     }
 }

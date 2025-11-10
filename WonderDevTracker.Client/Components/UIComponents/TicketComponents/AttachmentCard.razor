@@ -1,7 +1,10 @@
 ﻿@*AttachmentCard *@
+@inject IDialogService DialogService
+@inherits AuthenticatedComponentBase
+
 @if (Attachment is not null)
 {
-	<MudCard>
+	<MudCard Class="h-100">
 		
 		<MudCardMedia Image="@($"/img/attachmentsPNGs/png/{extension}.png")"
 					  Height="96"
@@ -29,12 +32,17 @@
 						 Valid="!string.IsNullOrWhiteSpace(Attachment.AttachmentUrl)"
 						 Href="@Attachment.AttachmentUrl"
 						 Target="Target" />
+			@if (Attachment is not null && CanDeleteTicketAttachment(Attachment))
+		{
 			<!-- Delete -->
 			<SafeNavButton EndIcon="@Icons.Material.Filled.Delete"
 			               Color="Color.Error"
 						   Valid="!string.IsNullOrWhiteSpace(Attachment.AttachmentUrl)" 
-						   Class="ms-auto" />
+						   Class="ms-auto"
+						   OnClick="HandleDelete"/>
 
+			
+		}
 		</MudCardActions>
 	</MudCard>
 }
@@ -42,12 +50,31 @@
 	[Parameter, EditorRequired]
 	public TicketAttachmentDTO Attachment { get; set; }
 
+	[Parameter]
+	public EventCallback<int> OnDeleteRequested { get; set; }
+
 	string extension = "default";
 	bool isDescriptionExpanded = false;
 
 	protected override void OnParametersSet()
 	{
 		extension = Path.GetExtension(Attachment.FileName)?.Trim('.') ?? "default";
+	}
+
+	private async Task HandleDelete()
+	{
+		if (Attachment is null) return;
+		
+		bool? confirmed = await DialogService.ShowMessageBox(
+			title: "Confirm Deletion", 
+			message: "Are you sure you want to delete this attachment?",
+			yesText: "Yes, Delete",
+			noText: "No, Cancel"
+		);
+		if (confirmed == true)
+		{
+			await OnDeleteRequested.InvokeAsync(Attachment.Id);
+		}
 	}
 
 }
