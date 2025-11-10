@@ -76,6 +76,8 @@ namespace WonderDevTracker.Services.Repositories
                 .Include(t => t.DeveloperUser)
                 .Include(t => t.Comments)!
                     .ThenInclude(c => c.User)
+                .Include(t => t.Attachments)!
+                    .ThenInclude(a => a.User)
                 //match the company id of the user 
                 .Where(t => t.Project!.CompanyId == userInfo.CompanyId)
                                       .FirstOrDefaultAsync(t => t.Id == ticketId);
