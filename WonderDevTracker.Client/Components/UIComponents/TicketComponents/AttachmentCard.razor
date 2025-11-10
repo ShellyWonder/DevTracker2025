@@ -1,0 +1,50 @@
+﻿@*AttachmentCard *@
+@if (Attachment is not null)
+{
+	<MudCard>
+		@* Placeholder path, change *@
+		<MudCardMedia Image="@($"/img/attachmentsPNGs/png/{extension}.png")"
+					  Height="96"
+					  Style="background-size:contain; border: 6px inset transparent;" />
+		<MudCardContent>
+			<MudText Typo="Typo.body1"  Color="Color.Primary" Align="Align.Center" Class="text-truncate">@Attachment.FileName</MudText>
+			<MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@Attachment.User?.FullName</MudText>
+			<MudCollapse Expanded="isDescriptionExpanded">
+				<MudText Typo="Typo.body2"Class="py-2">
+					@Attachment.Description
+					</MudText>
+				<MudText Typo="Typo.caption"Class="py-2">
+					@Attachment.Created.ToString("g")
+					</MudText>
+			</MudCollapse>
+		</MudCardContent>
+		<MudCardActions>
+			<SafeNavButton EndIcon="@Icons.Material.Filled.Info"
+						   Color="Color.Primary"
+						   OnClick="() => isDescriptionExpanded = !isDescriptionExpanded"
+						   />
+			<SafeNavLink EndIcon="@Icons.Material.Filled.Download"
+						 Valid="!string.IsNullOrWhiteSpace(Attachment.AttachmentUrl)"
+						 Href="@Attachment.AttachmentUrl"
+						 Target="Target" />
+			<SafeNavButton EndIcon="@Icons.Material.Filled.Delete"
+			               Color="Color.Error"
+						   Valid="!string.IsNullOrWhiteSpace(Attachment.AttachmentUrl)" 
+						   Class="ms-auto" />
+
+		</MudCardActions>
+	</MudCard>
+}
+@code {
+	[Parameter, EditorRequired]
+	public TicketAttachmentDTO Attachment { get; set; }
+
+	string extension = "default";
+	bool isDescriptionExpanded = false;
+
+	protected override void OnParametersSet()
+	{
+		extension = Path.GetExtension(Attachment.FileName)?.Trim('.') ?? "default";
+	}
+
+}
