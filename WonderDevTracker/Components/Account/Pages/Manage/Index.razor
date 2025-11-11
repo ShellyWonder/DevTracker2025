@@ -78,7 +78,7 @@
         Input.LastName ??= lastName;
         Input.PhoneNumber ??= phoneNumber;
 
-        profilePictureUrl = user.ProfilePictureId.HasValue ? $"/uploads/{user.ProfilePictureId}" : ImageHelper.DefaultProfilePictureUrl;
+        profilePictureUrl = user.ProfilePictureId.HasValue ? $"/uploads/{user.ProfilePictureId}" : UploadHelper.DefaultProfilePictureUrl;
     }
 
     private async Task OnValidSubmitAsync()
@@ -101,7 +101,7 @@
         try
         {
             //save the new profile picture
-            FileUpload newProfilePic = await ImageHelper.GetImageUploadAsync(Input.ProfilePicture);
+            FileUpload newProfilePic = await UploadHelper.GetFileUploadAsync(Input.ProfilePicture);
             _context.Add(newProfilePic);
 
             //delete previous profile image

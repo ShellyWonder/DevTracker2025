@@ -12,7 +12,7 @@ namespace WonderDevTracker.Helpers
             using var ms = new MemoryStream();
             await file.CopyToAsync(ms);
             byte[] data = ms.ToArray();
-            if (ms.Length > BrowserFileHelper.MaxFileSize) throw new IOException("The image is too large.");
+            if (ms.Length > BrowserFileHelper.MaxFileSize) throw new IOException("The selected file is too large.");
 
             FileUpload upload = new()
             {
