@@ -284,6 +284,35 @@ namespace WonderDevTracker.Services.Repositories
             return attachment;
         }
 
+        public async Task DeleteTicketAttachmentAsync(int attachmentId, UserInfo user)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+
+            TicketAttachment? attachment;
+
+            if (user.IsInRole(Role.Admin))
+            {
+                attachment = await db.Attachments
+                               .Include(a => a.Upload) // grab the related upload(byte arrays) for deletion
+                               .FirstOrDefaultAsync(a => a.Id == attachmentId
+                                && a.Ticket!.Project!.CompanyId == user.CompanyId);
+            }
+            else
+            {
+                attachment = await db.Attachments
+                               .Include(a => a.Upload) // grab the related upload(byte arrays) for deletion
+                               .FirstOrDefaultAsync(a => a.Id == attachmentId && a.UserId == user.UserId);// check ownership of attachment
+            }
+            if (attachment is not null)
+            {
+                db.Remove(attachment);// remove the attachment first to avoid (invalid) foreign key constraint issues
+                db.Remove(attachment.Upload!); // Foreign key :remove the related upload(byte arrays)
+
+                await db.SaveChangesAsync();
+            }
+
+        }
+
         #region PRIVATE METHODS
         /// <summary>
         ///  Checks:
@@ -351,6 +380,8 @@ namespace WonderDevTracker.Services.Repositories
 
             return result;
         }
+
+        
 
         #endregion
     }

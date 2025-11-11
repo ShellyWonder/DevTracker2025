@@ -1,4 +1,5 @@
-﻿using WonderDevTracker.Client.Components.UIComponents.TicketComponents.TicketDetailComponents;
+﻿using System.Net.Mail;
+using WonderDevTracker.Client.Components.UIComponents.TicketComponents.TicketDetailComponents;
 using WonderDevTracker.Client.Models.DTOs;
 
 namespace WonderDevTracker.Client.Services.Interfaces
@@ -146,6 +147,13 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="user">Current user's claims.</param>
         /// <remarks> asynchronous delete operation of a specified comment if  user is comment owner or company admin.</remarks>
         Task DeleteCommentAsync(int id, UserInfo user);
+        /// <summary>
+        /// Delete Ticket Attachment
+        /// </summary>
+        /// <remarks>Deletes a ticket attachment from the database and storage asynchronously.Must be attachment owner or company Admin to delete ticket attachment. </remarks>
+        /// <param name="attachmentId">Attachment Id</param>
+        /// <param name="user">Current User's claims</param>
+        Task DeleteTicketAttachmentAsync(int attachmentId,UserInfo user);
 
         #endregion
     }

@@ -193,6 +193,10 @@ namespace WonderDevTracker.Services
         {
             await ticketRepository.DeleteCommentAsync(id, user);
         }
+        public async Task DeleteTicketAttachmentAsync(int attachmentId, UserInfo user)
+        {
+            await ticketRepository.DeleteTicketAttachmentAsync(attachmentId, user);
+        }
         #endregion
     }
 }
