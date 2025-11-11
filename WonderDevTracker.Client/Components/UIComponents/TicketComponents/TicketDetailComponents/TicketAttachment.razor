@@ -12,7 +12,7 @@
 			@if (Ticket?.Attachments.Any() == true)
 			{
 				<div class="attachments-section">
-					<div class="row row-cols-2 row-cols-sm-3 row-cols-md-4">
+					<div class="row row-cols-1 row-cols-md-4">
 						@foreach (var attachment in Ticket.Attachments)
 						{
 							<div class="col mb-3">

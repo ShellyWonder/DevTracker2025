@@ -123,9 +123,9 @@
 
 /* #region TicketAttachment.razor */
 .attachments-section {
-    background-color: #edf2fc; /* very light gray-blue tint */
+    background-color: #edf2fc; /* very light blue tint */
     border-radius: 12px;
-    padding: 1rem 1.5rem;
+    padding: 1.5rem 1.5rem;
 }
 /* #endregion TicketAttachment.razor */
 
