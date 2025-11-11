@@ -24,7 +24,7 @@
 		<MudCardActions>
 			<!-- Collapse Toggle -->
 			<SafeNavButton EndIcon="@Icons.Material.Filled.Info"
-						   Color="Color.Primary"
+						   Color="Color.Info"
 						   OnClick="() => isDescriptionExpanded = !isDescriptionExpanded"
 						   />
 			<!-- Download -->
@@ -32,6 +32,7 @@
 						 Valid="!string.IsNullOrWhiteSpace(Attachment.AttachmentUrl)"
 						 Href="@Attachment.AttachmentUrl"
 						 Target="Target" />
+
 			@if (Attachment is not null && CanDeleteTicketAttachment(Attachment))
 		{
 			<!-- Delete -->
@@ -50,7 +51,7 @@
 	[Parameter, EditorRequired]
 	public TicketAttachmentDTO Attachment { get; set; }
 
-	[Parameter]
+	[Parameter, EditorRequired]
 	public EventCallback<int> OnDeleteRequested { get; set; }
 
 	string extension = "default";

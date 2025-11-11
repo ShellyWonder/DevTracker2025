@@ -11,13 +11,17 @@
 		<div>
 			@if (Ticket?.Attachments.Any() == true)
 			{
-				<div class="row row-cols-2 row-cols-sm-3 row-cols-md-4">
-					@foreach (var attachment in Ticket.Attachments)
-					{
-						<div class="col mb-3">
-							<AttachmentCard Attachment="attachment" />
-						</div>
-					}
+				<div class="attachments-section">
+					<div class="row row-cols-2 row-cols-sm-3 row-cols-md-4">
+						@foreach (var attachment in Ticket.Attachments)
+						{
+							<div class="col mb-3">
+								<AttachmentCard Attachment="attachment"
+												OnDeleteRequested="OnDeleteRequested" />
+							</div>
+						}
+
+					</div>
 
 				</div>
 			}
@@ -75,13 +79,13 @@
 								   Class="my-3"
 								   StartIcon="@Icons.Material.Filled.UploadFile"
 								   OnClick="async () =>
-											   		   {
-												   		   if (_selectedFile is not null)
-												   		   {
-													   		   await OnUploadRequested.InvokeAsync(new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty));
-													   		   _attachmentDialog?.Close();
-												   		   }
-											   		   }" />
+														  		   {
+															  		   if (_selectedFile is not null)
+															  		   {
+																  		   await OnUploadRequested.InvokeAsync(new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty));
+																  		   _attachmentDialog?.Close();
+															  		   }
+														  		   }" />
 
 				</div>
 			</ActivatorContent>
@@ -99,14 +103,14 @@
 						  Class="ms-2"
 						  StartIcon="@Icons.Material.Filled.Upload"
 						  OnClick="async () =>
-				  						{
-									  		if (_selectedFile is null) return;
+				  								{
+											  		if (_selectedFile is null) return;
 
-									  		var req = new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty);
-									  		await OnUploadRequested.InvokeAsync(req);
+											  		var req = new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty);
+											  		await OnUploadRequested.InvokeAsync(req);
 
-									  		_attachmentDialog?.Close();
-								  		}" />
+											  		_attachmentDialog?.Close();
+										  		}" />
 	</YesButton>
 </MudMessageBox>
 
@@ -126,8 +130,8 @@
 	[Parameter, EditorRequired]
 	public EventCallback<AttachmentUploadRequest> OnUploadRequested { get; set; }
 
-	[Parameter]
-	public EventCallback<TicketAttachmentDTO> OnDeleteRequested { get; set; }
+	[Parameter, EditorRequired]
+	public EventCallback<int> OnDeleteRequested { get; set; }
 
 	private MudMessageBox? _attachmentDialog = default!;
 

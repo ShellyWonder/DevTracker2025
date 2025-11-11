@@ -121,6 +121,14 @@
 
 /* #endregion LabeledCard.razor */
 
+/* #region TicketAttachment.razor */
+.attachments-section {
+    background-color: #edf2fc; /* very light gray-blue tint */
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+}
+/* #endregion TicketAttachment.razor */
+
 /* #region TicketMetaRow.razor */
 .tt-meta-grid .mud-item.d-flex {
     align-items: stretch;
