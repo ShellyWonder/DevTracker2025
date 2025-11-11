@@ -5,6 +5,7 @@ using WonderDevTracker.Client.Helpers;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
+using WonderDevTracker.Helpers;
 
 namespace WonderDevTracker.Controllers
 {
@@ -138,7 +139,7 @@ namespace WonderDevTracker.Controllers
         }
         #endregion
 
-        #region ADD TICKET/ADD NEW COMMENT
+        #region ADD TICKET/ADD NEW COMMENT/ ADD TICKET ATTACHMENT
         /// <summary>
         /// Create Ticket
         /// </summary>
@@ -214,6 +215,56 @@ namespace WonderDevTracker.Controllers
             }
 
         }
+        /// <summary>
+        /// Add Ticket Attachment
+        /// </summary>
+        /// <remarks>  Uploads a new file attachment to the specified ticket. The file and attachment metadata must be submitted as multipart/form-data. The method
+        /// returns a bad request if the ticket ID does not match or if the file size exceeds the allowed
+        /// limit. Uploader must be one of the following:
+        ///
+        /// 1. Ticket-assigned developer or Submitter OR company Admin
+        /// 2. Ticket-assigned submitter 
+        /// 3. company Admin
+        /// </remarks>
+        /// <param name="ticketId">Ticket id. Must match the TicketId in the
+        /// attachment data.</param>
+        /// <param name="file">The file to attach to the ticket. The file must not exceed the maximum allowed file size.</param>
+        /// <param name="attachment">The metadata for the ticket attachment, including details such as TicketId and additional attachment
+        /// information. Must be submitted as form data.</param>
+
+        [HttpPost("{ticketId:int}/attachments"), Tags("Ticket Attachments")]
+        public async Task<IActionResult> AddTicketAttachment([FromRoute] int ticketId,
+                                                     IFormFile file,
+                                                     [FromForm] TicketAttachmentDTO attachment)//form encoded:from form-data not JSON body
+        {
+            if (ticketId != attachment.TicketId || file.Length > BrowserFileHelper.MaxFileSize) return BadRequest("Ticket ID mismatch or file size exceeds limit.");
+            try
+            {
+                attachment.UserId = UserInfo.UserId;
+                attachment.Created = DateTimeOffset.Now;
+                attachment.FileName = file.FileName;
+
+                var upload = await UploadHelper.GetFileUploadAsync(file);
+
+                TicketAttachmentDTO createdAttachment = await ticketService.AddTicketAttachmentAsync(attachment, upload.Data!,upload.Type!, UserInfo);
+                return Ok(createdAttachment);
+            }
+            catch (IOException ioException)
+            {
+                Console.WriteLine(ioException);
+                return BadRequest(ioException.Message);
+            }
+            catch (ApplicationException invalidTicketException)
+            {
+                Console.WriteLine(invalidTicketException);
+                return BadRequest(invalidTicketException.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Problem();
+            }
+        }
         #endregion
 
         #region DELETE TICKET COMMENT
@@ -241,6 +292,8 @@ namespace WonderDevTracker.Controllers
                 return Problem();
             }
         }
+
+
         #endregion
 
 
