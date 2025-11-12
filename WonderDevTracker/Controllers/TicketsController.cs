@@ -97,7 +97,7 @@ namespace WonderDevTracker.Controllers
         /// <param name="commentId">Id of the comment</param>
         /// <param name="comment">updated content passed from the body</param>
         /// <remarks>Updates a ticket comment by owner of the comment.</remarks>
-        [HttpPut("{ticketId:int}/comments/{commentId:int}"),Tags("Comments")]
+        [HttpPut("{ticketId:int}/comments/{commentId:int}"), Tags("Comments")]
         public async Task<IActionResult> UpdateComment([FromRoute] int ticketId,
                                                        [FromRoute] int commentId,
                                                        [FromBody] TicketCommentDTO comment)
@@ -189,7 +189,7 @@ namespace WonderDevTracker.Controllers
         /// <param name="comment">The comment details to add to the ticket. Must contain a valid TicketId that matches the ticketId parameter.</param>
         /// <returns>An ActionResult containing the created TicketCommentDTO if the operation succeeds; otherwise, a result
         /// indicating the error condition.</returns>
-       
+
         [HttpPost("{ticketId:int}/comments"), Tags("Comments")]
         public async Task<ActionResult<TicketCommentDTO>> AddTicketComment([FromRoute] int ticketId,
                                                                             [FromBody] TicketCommentDTO comment)
@@ -246,7 +246,7 @@ namespace WonderDevTracker.Controllers
 
                 var upload = await UploadHelper.GetFileUploadAsync(file);
 
-                TicketAttachmentDTO createdAttachment = await ticketService.AddTicketAttachmentAsync(attachment, upload.Data!,upload.Type!, UserInfo);
+                TicketAttachmentDTO createdAttachment = await ticketService.AddTicketAttachmentAsync(attachment, upload.Data!, upload.Type!, UserInfo);
                 return Ok(createdAttachment);
             }
             catch (IOException ioException)
@@ -267,7 +267,7 @@ namespace WonderDevTracker.Controllers
         }
         #endregion
 
-        #region DELETE TICKET COMMENT
+        #region DELETE TICKET COMMENT/ DELETE TICKET ATTACHMENT
         /// <summary>
         /// Delete Ticket Comment
         /// </summary>
@@ -293,11 +293,37 @@ namespace WonderDevTracker.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Delete Ticket Attachment
+        /// </summary>
+        /// <remarks>Deletes an existing attachment from a ticket. Only the uploader of the attachment or a company admin may delete the attachment.</remarks>
+        /// <param name="attachmentId">The unique identifier of the attachment to delete. Must correspond to an existing ticket attachment.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation. Returns <see cref="NoContentResult"/>
+        /// if the deletion is successful; <see cref="ForbidResult"/> if the operation is not permitted; or a generic
+        /// error result for other failures.</returns>
+        [HttpDelete("attachments/{attachmentId:int}"), Tags("Attachments")]
+        public async Task<IActionResult> DeleteTicketAttachment([FromRoute] int attachmentId)
+        {
+            try
+            {
+                await ticketService.DeleteTicketAttachmentAsync(attachmentId, UserInfo);
+                return NoContent();
+            }
+            catch (ApplicationException invalidTicketException)
+            {
+                Console.WriteLine(invalidTicketException);
+                return Forbid(); //403
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Problem();
+            }
+        }
         #endregion
 
-
     }
+
 }
 
 

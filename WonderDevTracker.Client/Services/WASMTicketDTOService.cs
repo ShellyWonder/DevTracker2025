@@ -66,9 +66,10 @@ namespace WonderDevTracker.Client.Services
         }
 
         
-        public Task DeleteTicketAttachmentAsync(int attachmentId, UserInfo user)
+        public async Task DeleteTicketAttachmentAsync(int attachmentId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.DeleteAsync($"/api/Tickets/attachments/{attachmentId}");
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
