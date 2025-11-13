@@ -15,11 +15,11 @@ namespace WonderDevTracker.Services.Repositories
         {
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
             //ensure the project is valid & belongs to the user's company
-            Project? project = await db.Projects
+            Project? project = (await db.Projects
                 .Include(p => p.Members)
                  .FirstOrDefaultAsync(p => p.Id == ticket.ProjectId
                   && p.CompanyId == userInfo.CompanyId) ??
-                             throw new InvalidOperationException("Invalid project.");
+                             throw new InvalidOperationException("Invalid project.")) ?? throw new ApplicationException("Project does not exist");
 
             ticket.Created = DateTimeOffset.UtcNow;
             ticket.Status = TicketStatus.New;
@@ -48,6 +48,31 @@ namespace WonderDevTracker.Services.Repositories
             ticket.DeveloperUserId = developer?.Id;
 
             db.Tickets.Add(ticket);
+
+            #region HISTORY
+
+            TicketHistory createdEvent = new()
+            {
+                Created = DateTimeOffset.UtcNow,
+                Description = "Ticket submitted.",
+                UserId = userInfo.UserId
+            };
+            ticket.History.Add(createdEvent);
+            if (userInfo.IsInRole(Role.Admin) || userInfo.IsInRole(Role.ProjectManager))
+            {
+                if (ticket.DeveloperUser is not null)
+                {
+                    TicketHistory assignmentEvent = new()
+                    {
+                        Created = DateTimeOffset.UtcNow,
+                        Description = $"Ticket assigned to {ticket.DeveloperUser!.FirstName} {ticket.DeveloperUser.LastName}.",
+                        UserId = userInfo.UserId
+                    };
+                    ticket.History.Add(assignmentEvent);
+                }
+                #endregion
+            }
+
             await db.SaveChangesAsync();
 
             return ticket;
@@ -78,6 +103,8 @@ namespace WonderDevTracker.Services.Repositories
                     .ThenInclude(c => c.User)
                 .Include(t => t.Attachments)!
                     .ThenInclude(a => a.User)
+                    .Include(t => t.History)!
+                     .ThenInclude(a => a.User)
                 //match the company id of the user 
                 .Where(t => t.Project!.CompanyId == userInfo.CompanyId)
                                       .FirstOrDefaultAsync(t => t.Id == ticketId);
@@ -181,7 +208,17 @@ namespace WonderDevTracker.Services.Repositories
                 Ticket? ticket = await db.Tickets
                     .FirstOrDefaultAsync(t => t.Id == ticketId)
                     ?? throw new KeyNotFoundException("Ticket not found.");
+
                 ticket.Archived = true;
+                #region History
+                TicketHistory archivedEvent = new()
+                {
+                    UserId = user.UserId,
+                    Created = DateTimeOffset.UtcNow,
+                    Description = "Ticket Archived"
+                };
+                ticket.History.Add(archivedEvent);
+                #endregion
                 await db.SaveChangesAsync();
             }
         }
@@ -195,6 +232,16 @@ namespace WonderDevTracker.Services.Repositories
                     .FirstOrDefaultAsync(t => t.Id == ticketId)
                     ?? throw new KeyNotFoundException("Ticket not found.");
                 ticket.Archived = false;
+
+                #region History
+                TicketHistory restoreEvent = new()
+                {
+                    UserId = user.UserId,
+                    Created = DateTimeOffset.UtcNow,
+                    Description = "Ticket Restore"
+                };
+                ticket.History.Add(restoreEvent);
+                #endregion
                 await db.SaveChangesAsync();
             }
         }
@@ -251,7 +298,7 @@ namespace WonderDevTracker.Services.Repositories
             if (user.IsInRole(Role.Admin))
             {
                 comment = await db.Comments
-                               .FirstOrDefaultAsync(c => c.Id == id && c.Ticket!.Project!.CompanyId ==user.CompanyId);
+                               .FirstOrDefaultAsync(c => c.Id == id && c.Ticket!.Project!.CompanyId == user.CompanyId);
             }
             else
             {
@@ -270,7 +317,7 @@ namespace WonderDevTracker.Services.Repositories
 
         public async Task<TicketAttachment> AddTicketAttachmentAsync(TicketAttachment attachment, UserInfo userInfo)
         {
-           bool canUpload = await IsUserAuthorizedToEditTicket(attachment.TicketId, userInfo);
+            bool canUpload = await IsUserAuthorizedToEditTicket(attachment.TicketId, userInfo);
 
             if (!canUpload) throw new UnauthorizedAccessException("User is not authorized to add attachment to this ticket.");
 
@@ -381,7 +428,7 @@ namespace WonderDevTracker.Services.Repositories
             return result;
         }
 
-        
+
 
         #endregion
     }

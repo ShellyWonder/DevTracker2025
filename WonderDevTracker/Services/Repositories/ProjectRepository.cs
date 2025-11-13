@@ -247,6 +247,16 @@ namespace WonderDevTracker.Services.Repositories
                 // If ticket.Archived == True, ticket was archived by user
                 ticket.Archived = true;
 
+                #region History
+                ticket.History.Add(new TicketHistory()
+
+                {
+                    UserId = user.UserId,
+                    Created = DateTimeOffset.UtcNow,
+                    Description = "Project archived"
+                });
+               
+                #endregion
             }
             await db.SaveChangesAsync();
         }
@@ -267,6 +277,17 @@ namespace WonderDevTracker.Services.Repositories
                 ticket.Archived = !ticket.ArchivedByProject;
                 // If ticket.Archived == false, ticket was archived before project was archived; Therefore, ticket remains archived
                 ticket.ArchivedByProject = false;
+
+                #region History
+                ticket.History.Add(new TicketHistory()
+
+                {
+                    UserId = user.UserId,
+                    Created = DateTimeOffset.UtcNow,
+                    Description = "Project restored"
+                });
+
+                #endregion
             }
             await db.SaveChangesAsync();
         }
