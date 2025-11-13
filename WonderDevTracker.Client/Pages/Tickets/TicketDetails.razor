@@ -76,8 +76,8 @@
 							  OnUploadRequested="HandleAttachmentUploadAsync" 
 							  OnDeleteRequested="HandleDeleteAttachmentAsync" />
 
-			@* <TicketHistory Ticket="ticket"
-						   Index="@IndexTracker.Next()" />  *@ 
+			<TicketHistory Histories="@ticket?.History"
+						   Index="@IndexTracker.Next()" />  
 			</div>
 		<div class="d-flex mt-2">
 			<BackToBtn Href=@($"/projects/{ticket.ProjectId}")

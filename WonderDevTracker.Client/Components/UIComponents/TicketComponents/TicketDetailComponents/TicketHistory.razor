@@ -1,0 +1,34 @@
+﻿@* TicketHistory *@
+<AnimatedCard Index="Index">
+	<MudPaper Class="px-3">
+		<MudCardHeader>
+			<MudText Typo="Typo.h3" Color="Color.Primary">@Title</MudText>
+		</MudCardHeader>
+		@if (Histories?.Any() == true)
+		{
+			<ul>
+				@foreach (var entry in Histories.OrderByDescending(h => h.Created))
+				{
+					<li>@entry.Description — @entry.User?.FullName</li>
+				}
+			</ul>
+		}
+		else
+		{
+			<NotFoundDisplay Message="No history yet." />
+		}
+	</MudPaper>
+</AnimatedCard>
+
+@code {
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+
+	[Parameter]
+	public string Title { get; set; } = "Ticket History";
+
+	[Parameter]
+	public IEnumerable<TicketHistoryDTO>? Histories { get; set; } = new List<TicketHistoryDTO>();
+
+	private TicketDTO? ticket;
+}
