@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
+using WonderDevTracker.Helpers;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
 
@@ -90,7 +91,6 @@ namespace WonderDevTracker.Services.Repositories
             await db.SaveChangesAsync();
             return comment;
         }
-
 
         public async Task<Ticket?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
         {
@@ -260,8 +260,12 @@ namespace WonderDevTracker.Services.Repositories
                 ticket.DeveloperUser = null;
                 ticket.SubmitterUser = null;
 
+                List<TicketHistory> historyEntries = await GetTicketHistoryAsync(ticket, user);
+
                 await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
-                db.Update(ticket);
+                db.Tickets.Update(ticket);
+                db.History.AddRange(historyEntries);
+
                 await db.SaveChangesAsync();
 
             }
@@ -428,8 +432,79 @@ namespace WonderDevTracker.Services.Repositories
             return result;
         }
 
+        private async Task<List<TicketHistory>> GetTicketHistoryAsync(Ticket newTicket, UserInfo userInfo)
+        {
+            //get the existing ticket from the database
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            Ticket? existingTicket = await db.Tickets
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == newTicket.Id
+                 && t.Project!.CompanyId == userInfo.CompanyId)
+                 ?? throw new KeyNotFoundException("Ticket not found.");
 
 
+            List<TicketHistory> historyEntries = [];
+            var now = DateTimeOffset.UtcNow;
+            var builder = new TicketHistoryBuilder(historyEntries, userInfo.UserId, newTicket.Id, now);
+
+            builder.AddIfChanged(
+           existingTicket.Status,
+           newTicket.Status,
+           //description builder
+           () => $"Ticket status changed from {existingTicket.Status.GetDisplayName()} to {newTicket.Status.GetDisplayName()}."
+           );
+
+            builder.AddIfChanged(
+            existingTicket.Type,
+            newTicket.Type,
+            //description builder
+            () => $"Ticket type changed from {existingTicket.Type.GetDisplayName()} to {newTicket.Type.GetDisplayName()}."
+            );
+
+            builder.AddIfChanged(
+            existingTicket.Priority,
+            newTicket.Priority,
+            //description builder
+            () => $"Ticket priority changed from {existingTicket.Type.GetDisplayName()} to {newTicket.Type.GetDisplayName()}."
+            );
+
+            builder.AddIfChanged(
+            existingTicket.Description,
+            newTicket.Description,
+            //description builder
+            () => "Ticket description updated."
+            );
+
+            builder.AddIfChanged(
+            existingTicket.Title,
+            newTicket.Title,
+            //description builder
+            () => $"Ticket title changed from {existingTicket.Title} to {newTicket.Title}."
+            );
+
+            if (existingTicket.DeveloperUserId != newTicket.DeveloperUserId)
+            {
+                string description;
+                if (string.IsNullOrEmpty(newTicket.DeveloperUserId))
+                {
+                    description = "Ticket unassigned.";
+                }
+                else
+                {
+                    //Get developer name
+                    string? developerName = await db.Users
+                        .Where(u => u.Id == newTicket.DeveloperUserId
+                                 && u.CompanyId == userInfo.CompanyId)
+                        .Select(u => u.FirstName + " " + u.LastName)
+                        .FirstOrDefaultAsync();
+
+                    description = $"Ticket assigned to {developerName ?? "a new developer"}.";
+                }
+
+                builder.Add(description);
+            }
+            return historyEntries;
+        }
         #endregion
     }
 }
