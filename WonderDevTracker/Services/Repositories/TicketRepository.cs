@@ -465,7 +465,7 @@ namespace WonderDevTracker.Services.Repositories
             existingTicket.Priority,
             newTicket.Priority,
             //description builder
-            () => $"Ticket priority changed from {existingTicket.Type.GetDisplayName()} to {newTicket.Type.GetDisplayName()}."
+            () => $"Ticket priority changed from {existingTicket.Priority.GetDisplayName()} to {newTicket.Priority.GetDisplayName()}."
             );
 
             builder.AddIfChanged(
