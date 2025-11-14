@@ -3,8 +3,8 @@
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
     --shell-offset: 96px; /*Height of fixed header/nav to offset 100vh calculations*/
-   
 }
+
 .tt-full-center {
     min-height: calc(100dvh - var(--shell-offset));
     display: flex;
@@ -120,6 +120,76 @@
     }
 
 /* #endregion LabeledCard.razor */
+
+/* #region TicketHistoryTimeline.razor */
+.timeline {
+    max-height: 400px;
+    overflow-y: scroll;
+    
+}
+
+.ticket-history-card {
+    background-color: #edf2fc;
+}
+
+/* Make the little speech-bubble arrow match the card background */
+.mud-timeline-vertical .mud-timeline-item .mud-timeline-item-content .ticket-history-card::before,
+.mud-timeline-vertical .mud-timeline-item .mud-timeline-item-content .ticket-history-card::after {
+    border-left-color: #edf2fc; /* used for right-side cards */
+    border-right-color: #edf2fc; /* used for left-side cards */
+}
+
+/* Container for the meta band */
+.th-inline-row {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 0.25rem;
+}
+
+/* The pill/band that spans the card width */
+.th-inline-band {
+    width: 100%;
+    padding: 0.4rem 1.2rem;
+    border-radius: 999px;
+    background: rgba(0, 119, 182, 0.06); /* soft blue tint */
+    border: 1px solid #DDE6EC;
+    text-align: center;
+}
+
+/* Text inside the band */
+.th-inline-text {
+    letter-spacing: 0.03em;
+    
+    
+}
+
+/* Optional: on very small screens, keep it full-width but soften margins */
+@media (max-width: 600px) {
+    .th-inline-row {
+        margin-top: 0.5rem;
+    }
+
+    .th-inline-band {
+        padding-inline: 0.8rem;
+    }
+}
+
+/* Ticket history bubble fade-in */
+.th-item {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: th-fade-in 400ms ease-out forwards;
+    animation-delay: var(--th-delay, 0ms);
+}
+
+@keyframes th-fade-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/*endregion TicketHistoryTimeline.razor*/
 
 /* #region TicketAttachment.razor */
 .attachments-section {

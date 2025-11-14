@@ -1,0 +1,59 @@
+﻿@* TicketHistoryTimeline *@
+
+<MudTimeline TimelinePosition="TimelinePosition.Alternate">
+	@foreach (TicketHistoryDTO entry in History.OrderByDescending(h => h.Created))
+	{
+		<MudTimelineItem>
+			<ItemContent>
+				<div class="th-item"
+					 style="--th-delay:@(IndexTracker.Next() * 80)ms">
+
+					<MudCard Class="mx-3 ticket-history-card">
+						<MudCardHeader>
+							<div class="hstack gap-2">
+								<MudAvatar>
+									<MudImage Src="@entry.User?.ImageUrl" />
+								</MudAvatar>
+								<div>
+									<MudText Typo="Typo.h6" Color="Color.Primary" Style="line-height: 1em">
+										@entry.User?.FullName
+									</MudText>
+									<MudText Typo="Typo.caption" Color="Color.Secondary" Style="line-height: 1em">
+										@entry.User?.Role?.GetDisplayName()
+									</MudText>
+								</div>
+							</div>
+						</MudCardHeader>
+						<MudCardContent Class="pt-0">
+							<div class="th-inline-row">
+								<div class="th-inline-band">
+									<MudText Typo="Typo.caption" Class="th-inline-text">
+										@entry.Created.ToLocalTime().ToString("MMM d yyyy h:mm tt") @(" — ") @entry.Description
+									</MudText>
+								</div>
+							</div>
+						</MudCardContent>
+					</MudCard>
+				</div>
+			</ItemContent>
+		</MudTimelineItem>
+
+	}
+</MudTimeline>
+
+@code {
+	[Parameter, EditorRequired]
+	public IEnumerable<TicketHistoryDTO> History { get; set; } = [];
+
+
+	[Parameter]
+	public string? Class { get; set; }
+
+	// animation helper
+	private readonly IndexTrackerHelper IndexTracker = new();
+
+	protected override void OnParametersSet()
+	{
+		IndexTracker.Reset();
+	}
+}

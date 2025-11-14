@@ -6,16 +6,16 @@
 		</MudCardHeader>
 		@if (Histories?.Any() == true)
 		{
-			<ul>
-				@foreach (var entry in Histories.OrderByDescending(h => h.Created))
-				{
-					<li>@entry.Description — @entry.User?.FullName</li>
-				}
-			</ul>
+			
+			<div class="timeline m-0">
+				<TicketHistoryTimeline History="Histories" />
+			</div>
+		
+
 		}
 		else
 		{
-			<NotFoundDisplay Message="No history yet." />
+			<NotFoundDisplay Message="No History to Display." />
 		}
 	</MudPaper>
 </AnimatedCard>
@@ -30,5 +30,4 @@
 	[Parameter]
 	public IEnumerable<TicketHistoryDTO>? Histories { get; set; } = new List<TicketHistoryDTO>();
 
-	private TicketDTO? ticket;
 }
