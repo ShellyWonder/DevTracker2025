@@ -78,10 +78,53 @@ namespace WonderDevTracker.Services
 
         public async Task<TicketDTO?> GetTicketByIdAsync(int ticketId, UserInfo userInfo)
         {
+            // 1. Load the ticket entity from the repository
             Ticket ticket = await ticketRepository.GetTicketByIdAsync(ticketId, userInfo)
                  ?? throw new KeyNotFoundException("Ticket not found or access denied.");
-            return ticket.ToDTO();
+
+            // 2. Map entity -> DTO
+            TicketDTO dto = ticket.ToDTO();
+
+            // 3. Local helper for populating the Role on a user DTO
+            async Task ApplyRoleAsync(AppUserDTO? userDto)
+            {
+                if (userDto?.Id is null)
+                    return;
+
+                // Look up the Identity user by Id
+                var identityUser = await userManager.FindByIdAsync(userDto.Id);
+                if (identityUser is null)
+                    return;
+
+                // Get the roles for that user
+                var roles = await userManager.GetRolesAsync(identityUser);
+                if (roles.Count == 0)
+                    return;
+
+                // Map the first role name to your Role enum
+                if (Enum.TryParse<Role>(roles[0], out var roleEnum))
+                {
+                    userDto.Role = roleEnum;
+                }
+            }
+
+            // 4. Populate roles for key users on the ticket
+            await ApplyRoleAsync(dto.SubmitterUser);
+            await ApplyRoleAsync(dto.DeveloperUser);
+            
+
+            // 5. Populate roles for each history entry user
+            if (dto.History is not null)
+            {
+                foreach (var historyEntry in dto.History)
+                {
+                    await ApplyRoleAsync(historyEntry.User);
+                }
+            }
+
+            return dto;
         }
+
         public async Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo)
         {
             IEnumerable<Ticket> tickets = await ticketRepository.GetArchivedTicketsAsync(userInfo);
