@@ -1,4 +1,5 @@
 ﻿using WonderDevTracker.Client;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Models;
 
@@ -18,6 +19,13 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="role">Role assigned to the user</param>
         /// <param name="userInfo">Current user's claims</param>
         public Task<IReadOnlyList<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo);
+
+        /// <summary>
+        /// Get Company
+        /// </summary>
+        /// <param name="userInfo">The Current user's claims.</param>
+        /// <remarks>Asynchronously retrieves the company information associated with the specified user.</remarks>
+        public Task<Company> GetCompanyAsync(UserInfo userInfo);
 
 
     }

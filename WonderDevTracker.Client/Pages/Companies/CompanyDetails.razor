@@ -56,4 +56,19 @@
 	#region UI HELPERS & COMPUTED
 	private void ResetIndex() => IndexTracker.Reset();
 	#endregion
+
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+
+		try
+		{
+			_company = await CompanyService.GetCompanyAsync(UserInfo!);
+		}
+		catch (Exception ex)
+		{
+
+			Console.WriteLine(ex);
+		}
+		_loadingComplete = true;
+	}
 }

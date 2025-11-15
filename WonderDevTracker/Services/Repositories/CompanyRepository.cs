@@ -11,6 +11,15 @@ namespace WonderDevTracker.Services.Repositories
     public class CompanyRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
                                    IServiceScopeFactory scopeFactory) : ICompanyRepository
     {
+        public async Task<Company> GetCompanyAsync(UserInfo userInfo)
+        {
+            await using var context = contextFactory.CreateDbContext();
+            Company company = await context.Companies
+                .Include(c => c.Members)
+                .Include(c => c.Invites)
+                .FirstAsync(c => c.Id == userInfo.CompanyId); //Cannot be null
+            return company;
+        }
         #region GET ALL USERS BY COMPANY ID
         public async Task<IEnumerable<ApplicationUser>> GetUsersAsync(UserInfo userInfo)
         {
