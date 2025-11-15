@@ -1,0 +1,59 @@
+﻿@*CompanyDetails *@
+
+@page "/company"
+@attribute [Authorize]
+
+@inject IProjectDTOService ProjectService
+@inject ICompanyDTOService CompanyService
+@inject IAppAuthorizationService AuthService
+@inject IndexTrackerHelper IndexTracker
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+
+@inherits AuthenticatedComponentBase
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
+	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+	@if (!_loadingComplete)
+	{
+		<LoadingSpinner Message="Loading Company Details..." Color="Color.Primary" Size="Size.Large" />
+	}
+	else if (_company is not null)
+	{
+		@* Reset Index at start of render;
+					controls the index for components that use IndexTracker.*@
+		ResetIndex();
+		<PageTitle>@_company?.Name Details | Dev Tracker</PageTitle>
+
+		<div class="v-stack gap-3">
+
+		</div>
+	}
+	else
+	{
+		<PageTitle>Company Not Found | Dev Tracker</PageTitle>
+
+		<NotFoundFull Message="Company not found"
+					  ReturnUrl="/"
+					  ReturnLabel="Back to Home"
+					   />
+
+	}
+	</MudContainer>
+
+	@code {
+
+	#region STATE
+	private static readonly List<BreadcrumbItem> breadcrumbs = new()
+	{
+		new BreadcrumbItem("Home", href:"/"),
+		new BreadcrumbItem("Company", href:null, disabled: true)
+	};
+	private bool _loadingComplete = false;
+	private CompanyDTO? _company;
+	#endregion
+
+	#region UI HELPERS & COMPUTED
+	private void ResetIndex() => IndexTracker.Reset();
+	#endregion
+}
