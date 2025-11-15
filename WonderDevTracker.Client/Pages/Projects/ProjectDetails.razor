@@ -17,50 +17,50 @@
 	{
 		<LoadingSpinner Message="Loading project details..." Color="Color.Primary" Size="Size.Large" />
 	}
-	else if (project is not null)
+	else if (_project is not null)
 	{
 		@* Reset Index at start of render;
 					controls the index for components that use IndexTracker.*@
 		ResetIndex();
-		<PageTitle>@project?.Name Details | Dev Tracker</PageTitle>
+		<PageTitle>@_project?.Name Details | Dev Tracker</PageTitle>
 
 		<div class="vstack gap-3">
 
 			<!-- Sibling A: General Info (bind PM) -->
-			<ProjectGeneralInfo Project="project"
+			<ProjectGeneralInfo Project="_project"
 								Index="@IndexTracker.Next()"
 								ProjectManagers="projectManagers"
-								@bind-ProjectManagerId="project.ProjectManagerId"
+								@bind-ProjectManagerId="_project.ProjectManagerId"
 								OnSaveProjectManagerRequested="HandleSavePMAsync" />
 
 			<DescriptionCard Title="Description"
 							 Index="@IndexTracker.Next()"
-							 Text="@project.Description" />
+							 Text="@_project.Description" />
 
 			<!-- Sibling B: receive the same 'project' plus a refresh token -->
 			<ProjectMembers UserCanManageTeam="_userCanEditProject"
-							Project="project"
+							Project="_project"
 							RefreshToken="_membersRefreshToken"
 							Index="@IndexTracker.Next()" />
 
-			<ProjectTickets Project="project" Index="@IndexTracker.Next()" />
+			<ProjectTickets Project="_project" Index="@IndexTracker.Next()" />
 
 		</div>
 
 		<div class="d-flex mt-2">
-			<BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(project is null)" />
+			<BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(_project is null)" />
 			@if (_userCanEditProject)
 			{
 				<div class="ms-auto">
 					<MudButton Variant="Variant.Text"
 							   StartIcon="@Icons.Material.Filled.Edit"
 							   Href="@($"projects/{ProjectId}/edit")"
-							   Disabled="@(project is null || !_userCanEditProject)"
+							   Disabled="@(_project is null || !_userCanEditProject)"
 							   Color="Color.Tertiary">
 						Edit
 					</MudButton>
 
-					<ArchiveBar IsArchived="project!.Archived"
+					<ArchiveBar IsArchived="_project!.Archived"
 								UserCanArchiveAndRestore="_userCanEditProject"
 								ItemLabel="Project"
 								Busy="@_processingRequest"
@@ -84,167 +84,5 @@
 	}
 </MudContainer>
 
-@code {
-	[Parameter]
-	public int ProjectId { get; set; }
 
-	private ProjectDTO? project;
-
-	private List<BreadcrumbItem> breadcrumbs = [];
-	private bool _loadingComplete = false;
-	private bool _userCanEditProject = false;
-	private bool _processingRequest = false;
-
-	private void ResetIndex() => IndexTracker.Reset();
-
-	// Refresh ProjectMembers component when there is a change to project Manager assignment.
-	private Guid _membersRefreshToken = Guid.NewGuid();
-
-	private IReadOnlyList<AppUserDTO> projectManagers = Array.Empty<AppUserDTO>();
-
-	protected override async Task OnInitializedWithAuthAsync()
-	{
-		try
-		{
-			project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
-			if (project is not null)
-			{
-				projectManagers = await CompanyService.GetUsersInRoleAsync(Role.ProjectManager, UserInfo!);
-				_userCanEditProject = await AuthService.IsUserAdminPMAsync(ProjectId, UserInfo!);
-
-			}
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine(ex);
-			Snackbar.Add("Error loading project details.", Severity.Error);
-		}
-		_loadingComplete = true;
-
-
-		breadcrumbs = new()
-		{
-				new BreadcrumbItem("Home", href: "/"),
-				new BreadcrumbItem("Projects", href: "/projects"),
-		};
-		if (project?.Archived == true) breadcrumbs.Add(new BreadcrumbItem("Archived Projects", href: "/projects/archived"));
-
-		breadcrumbs.Add(new BreadcrumbItem(project?.Name ?? "Project Not Found", href: null, disabled: true));
-
-	}
-
-	private async Task HandleArchiveAsync()
-	{
-		if (!_userCanEditProject || project is null || _processingRequest) return;
-
-		var projectName = project.Name ?? "Project"; // Cache the name
-
-		try
-		{
-			_processingRequest = true;
-			await InvokeAsync(StateHasChanged);
-
-			//archive project
-			await ProjectService.ArchiveProjectAsync(project.Id, UserInfo!);
-
-			// //refresh project details to show archived status
-			project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
-			if (project != null) project.Archived = true;
-
-
-			await InvokeAsync(() => Snackbar.Add($"The Project, '{projectName}' has been archived", Severity.Success));
-
-			// Navigate back to projects list
-			NavManager.NavigateTo("/projects");
-		}
-		catch (Exception ex)
-		{
-
-			Console.WriteLine(ex);
-			Snackbar.Add($"{projectName} is not available to be archived");
-		}
-		finally
-		{
-			_processingRequest = false;
-			await InvokeAsync(StateHasChanged);
-		}
-	}
-
-	private async Task HandleRestoreAsync()
-	{
-		if (!_userCanEditProject || project is null || _processingRequest) return;
-		try
-		{
-			_processingRequest = true;
-			await InvokeAsync(StateHasChanged);
-
-			string projectName = project.Name ?? "Project";
-
-			//restore project
-			await ProjectService.RestoreProjectByIdAsync(project.Id, UserInfo!);
-
-			//refresh project details to show restored status
-			project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
-			if (project != null) project.Archived = false;
-
-			Snackbar.Add($"The Project '{projectName}' has been restored", Severity.Success);
-			// Navigate back to projects list
-			NavManager.NavigateTo("/projects");
-
-			if (project == null)
-			{
-				Snackbar.Add("The project could not be found after restoring.", Severity.Error);
-				return;
-			}
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine(ex);
-			Snackbar.Add($"The Project is not available to be restored");
-		}
-		finally
-		{
-			_processingRequest = false;
-			await InvokeAsync(StateHasChanged);
-		}
-	}
-
-	private async Task HandleSavePMAsync(string? newPMId)
-	{
-		if (project is null) return;
-
-		try
-		{
-			if (string.IsNullOrWhiteSpace(newPMId))
-			{
-				await ProjectService.RemoveProjectManagerAsync(ProjectId, UserInfo!);
-			}
-			else
-			{
-				await ProjectService.AssignProjectManagerAsync(ProjectId, newPMId, UserInfo!);
-			}
-
-			// Refetch authoritative DTO (ProjectManagerId already populated)
-			project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
-
-			_membersRefreshToken = Guid.NewGuid();
-
-			Snackbar.Add("Project Manager updated.", Severity.Success);
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-
-			Console.WriteLine(ex);
-
-			await InvokeAsync(() => Snackbar.Add("Unable to update Project Manager.", Severity.Error));
-		}
-
-
-	}
-
-}
 
