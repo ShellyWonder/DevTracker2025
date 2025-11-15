@@ -54,7 +54,7 @@
 			   CancelText="Cancel">
 	<MessageContent>
 		<MudFileUpload T="IBrowserFile"
-					   Accept=".png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+					   Accept=".png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt, .zip"
 					   FilesChanged="HandleFilesChange"
 					   MaximumFileCount="1">
 			<ActivatorContent>
@@ -73,19 +73,12 @@
 						</MudCardContent>
 					</MudCard>
 
-					<SafeNavButton TypeText="Select a File"
-								   Color="Color.Primary"
-								   Variant="Variant.Filled"
-								   Class="my-3"
-								   StartIcon="@Icons.Material.Filled.UploadFile"
-								   OnClick="async () =>
-														  		   {
-															  		   if (_selectedFile is not null)
-															  		   {
-																  		   await OnUploadRequested.InvokeAsync(new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty));
-																  		   _attachmentDialog?.Close();
-															  		   }
-														  		   }" />
+					<MudButton Color="Color.Primary"
+							   Variant="Variant.Filled"
+							   Class="my-3"
+							   StartIcon="@Icons.Material.Filled.UploadFile">
+						Select a File
+					</MudButton>
 
 				</div>
 			</ActivatorContent>
@@ -102,19 +95,12 @@
 						  Color="Color.Success"
 						  Class="ms-2"
 						  StartIcon="@Icons.Material.Filled.Upload"
-						  OnClick="async () =>
-				  								{
-											  		if (_selectedFile is null) return;
-
-											  		var req = new AttachmentUploadRequest(_selectedFile, _newAttachment.Description ?? string.Empty);
-											  		await OnUploadRequested.InvokeAsync(req);
-
-											  		_attachmentDialog?.Close();
-										  		}" />
+						  OnClick="SubmitUploadAsync" />
 	</YesButton>
 </MudMessageBox>
 
 @code {
+	#region PARAMETERS
 	[Parameter]
 	public IEnumerable<TicketAttachmentDTO> Attachments { get; set; } = Array.Empty<TicketAttachmentDTO>();
 
@@ -132,6 +118,7 @@
 
 	[Parameter, EditorRequired]
 	public EventCallback<int> OnDeleteRequested { get; set; }
+	#endregion
 
 	private MudMessageBox? _attachmentDialog = default!;
 
@@ -141,13 +128,13 @@
 	private IBrowserFile? _selectedFile;
 	private bool _uploading = false;
 
+	#region HANDLE EVENT METHODS
 	private void HandleFilesChange(IBrowserFile file)
 	{
 		_selectedFile = file;
 		_newAttachment.FileName = _selectedFile?.Name ?? string.Empty;
 
 	}
-
 	private async Task ShowAttachmentDialog()
 	{
 		if (UserCanEditTicket && _attachmentDialog is null) return;
@@ -179,6 +166,7 @@
 		}
 
 	}
+	
 	private async Task SubmitUploadAsync()
 	{
 		if (_uploading || _selectedFile is null) return;
@@ -201,7 +189,6 @@
 		}
 	}
 
-
 	//reset state if user cancels
 	private void ResetAttachmentDraft()
 	{
@@ -209,5 +196,6 @@
 		_newAttachment.Description = string.Empty;
 		_newAttachment.FileName = string.Empty;
 	}
+	#endregion
 
 }
