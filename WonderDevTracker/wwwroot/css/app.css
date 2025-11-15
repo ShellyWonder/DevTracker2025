@@ -125,7 +125,11 @@
 .timeline {
     max-height: 400px;
     overflow-y: scroll;
-    
+    border-top: none;
+    border-bottom: none;
+    border-left: 4px solid #edf2fc;
+    border-right: 4px solid #edf2fc;
+   
 }
 
 .ticket-history-card {
@@ -159,8 +163,6 @@
 /* Text inside the band */
 .th-inline-text {
     letter-spacing: 0.03em;
-    
-    
 }
 
 /* Optional: on very small screens, keep it full-width but soften margins */
