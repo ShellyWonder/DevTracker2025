@@ -1,0 +1,99 @@
+﻿@* FileUploadPicker.razor *@
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+
+<div class="@RootClass">
+    <MudFileUpload T="IBrowserFile"
+                   Accept="@Accept"
+                   FilesChanged="HandleFilesChanged"
+                   MaximumFileCount="@MaxFileCount">
+        <ActivatorContent>
+            <div class="d-flex flex-column align-items-center">
+                @if (ShowPreviewCard)
+                {
+                    <MudCard>
+                        @{
+                            var ext = GetExtensionSafe(_selectedFile?.Name);
+                        }
+
+                        <MudCardMedia Image="@GetPreviewImagePath(ext)"
+                                      Height="96"
+                                      Style="background-size:contain; border: 6px inset transparent;" />
+
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Align="Align.Center">
+                                @(_selectedFile?.Name ?? @PlaceholderText)
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                }
+
+                <MudButton Variant="Variant.Filled"
+                           Color="@ButtonColor"
+                           StartIcon="@StartIcon"
+                           Class="my-3">
+                    @ButtonText
+                </MudButton>
+            </div>
+        </ActivatorContent>
+    </MudFileUpload>
+</div>
+
+@code {
+    // Config
+    [Parameter] 
+    public string Accept { get; set; } = ".png,.jpg,.jpeg,.gif";
+    [Parameter] 
+    public int MaxFileCount { get; set; } = 1;
+    [Parameter] 
+    public string ButtonText { get; set; } = "Select a file";
+    [Parameter] 
+    public string PlaceholderText { get; set; } = "No file selected";
+    [Parameter] 
+    public Color ButtonColor { get; set; } = Color.Primary;
+    [Parameter] 
+    public string? StartIcon { get; set; } = MudBlazor.Icons.Material.Filled.UploadFile;
+    [Parameter] 
+    public string? RootClass { get; set; }
+    [Parameter] 
+    public bool ShowPreviewCard { get; set; } = true;
+
+    /// <summary>
+    /// Base path for preview icons, e.g. "/img/attachmentsPNGs/png".
+    /// The extension (e.g. "png") is appended by GetPreviewImagePath.
+    /// </summary>
+    [Parameter] public string PreviewImageBasePath { get; set; } = "/img/attachmentsPNGs/png";
+
+    /// <summary>
+    /// Raised when the user has selected a file.
+    /// </summary>
+    [Parameter] public EventCallback<IBrowserFile> OnFileSelected { get; set; }
+
+    private IBrowserFile? _selectedFile;
+
+    private async Task HandleFilesChanged(IBrowserFile file)
+    {
+        _selectedFile = file;
+
+        if (OnFileSelected.HasDelegate)
+        {
+            await OnFileSelected.InvokeAsync(file);
+        }
+    }
+
+    private static string GetExtensionSafe(string? fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+            return "default";
+
+        var ext = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(ext))
+            return "default";
+
+        return ext.Trim('.').ToLowerInvariant();
+    }
+
+    private string GetPreviewImagePath(string extension)
+        => $"{PreviewImageBasePath}/{extension}.png";
+}
