@@ -1,6 +1,7 @@
 ﻿@*CompanyDetails *@
 
 @page "/company"
+@using WonderDevTracker.Client.Components.UIComponents.CompanyComponents.CompanyDetailsComponents
 @attribute [Authorize]
 
 @inject IProjectDTOService ProjectService
@@ -26,7 +27,15 @@
 		<PageTitle>@_company?.Name Details | Dev Tracker</PageTitle>
 
 		<div class="v-stack gap-3">
-
+			<MudPaper Class="p-3 mb-3">
+				<CompanyInfo Company="_company" />
+			</MudPaper>
+			<MudPaper Class="p-3 mb-3">
+				Members
+			</MudPaper>
+			<MudPaper Class="p-3 mb-3">
+				Invites
+			</MudPaper>
 		</div>
 	}
 	else
