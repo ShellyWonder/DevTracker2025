@@ -165,7 +165,7 @@
     letter-spacing: 0.03em;
 }
 
-/* Optional: on very small screens, keep it full-width but soften margins */
+/* on very small screens, keep it full-width but soften margins */
 @media (max-width: 600px) {
     .th-inline-row {
         margin-top: 0.5rem;
@@ -230,12 +230,15 @@
     border-radius: 12px;
 }
 /* #endregion TicketMetaRow.razor */
+
 /* #region TicketEnumCard.razor */
 .tt-enum-row .tt-enum-pill {
     min-width: 9rem;
     justify-content: space-between;
 }
 /* #endregion TicketEnumCard.razor */
+
+
 /* #region breadcrumbs */
 .breadcrumbs1 {
     font-size: 0.9rem;
@@ -243,6 +246,7 @@
     font-family: var(--font-sans);
 }
 /* #endregion breadcrumbs */
+
 /* #region form section animation */
 /* Form sections: lighter lift, quicker reveal, separate from .fade-in */
 /* Form section base class  */
@@ -288,6 +292,7 @@
     }
 }
 /* #endregion form section animation */
+
 /* #region Global CSS */
 html {
     height: 100dvh;
@@ -343,6 +348,7 @@ h1, h2, h3, h4, h5, h6, button, nav {
 }
 /* #endregion LoadingSpinner.razor  */
 /* #endregion Global CSS*/
+
 /* #region Tickets page/table container animations ==== */
 .tickets-page .tt-table {
     opacity: 0;
@@ -410,6 +416,7 @@ h1, h2, h3, h4, h5, h6, button, nav {
     }
 }
 /* #endregion Tickets page/table container animations ==== */
+
 /* #region Blazor default CSS */
 h1:focus {
     outline: none;
