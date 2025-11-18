@@ -2,7 +2,9 @@
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
+using WonderDevTracker.Client.Services;
 using WonderDevTracker.Client.Services.Interfaces;
+using WonderDevTracker.Helpers;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
 
@@ -24,6 +26,37 @@ namespace WonderDevTracker.Services
                 dto.Members?.Add(userWithRole);
             }
             return dto;
+        }
+
+        public async Task UpdateCompanyAsync(CompanyDTO company, UserInfo userInfo)
+        {
+            if (!userInfo.IsInRole(Role.Admin)) return;
+
+            //clear navigation properties to avoid updating them
+            Company dbCompany = await repository.GetCompanyAsync(userInfo);
+            dbCompany.Projects = [];
+            dbCompany.Members = [];
+
+            //update properties to be changed
+            dbCompany.Name = company.Name;
+            dbCompany.Description = company.Description;
+
+            if (company.ImageUrl.StartsWith("data:"))
+            {
+                try
+                {
+                    dbCompany.Image = UploadHelper.GetFileUpload(company.ImageUrl);
+                }
+                catch (Exception ex)
+                {
+
+                    Console.WriteLine(ex);
+                }
+               
+            }
+
+            await repository.UpdateCompanyAsync(dbCompany, userInfo);
+
         }
 
         public async Task<IEnumerable<AppUserDTO>> GetUsersAsync(UserInfo userInfo)
@@ -56,5 +89,7 @@ namespace WonderDevTracker.Services
             }
             return dtos;
         }
+
+        
     }
 }

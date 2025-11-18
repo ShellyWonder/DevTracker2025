@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
@@ -20,6 +21,36 @@ namespace WonderDevTracker.Services.Repositories
                 .FirstAsync(c => c.Id == userInfo.CompanyId); //Cannot be null
             return company;
         }
+        public async Task UpdateCompanyAsync(Company company, UserInfo userInfo)
+        {
+            if (!userInfo.IsInRole(Role.Admin) || company.Id != userInfo.CompanyId) return;
+            
+            await using var context = contextFactory.CreateDbContext();
+            FileUpload? existingImage = null;
+            //check if new image is being added
+            if (company.Image is not null && company.Image.Id != company.ImageId)
+            {
+                //fetch existing image to delete after save changes
+                existingImage = await context.Companies
+                    .Where(c => c.Id == userInfo.CompanyId)
+                    .Select(c => c.Image)
+                    .FirstOrDefaultAsync();
+
+                context.Add(company.Image);//save new image
+                company.ImageId = company.Image.Id;//update foreign key
+            }
+            context.Update(company);
+            await context.SaveChangesAsync();//save new image and company changes first
+            
+            if (existingImage is not null)
+            {
+                context.Remove(existingImage);//remove old image
+                await context.SaveChangesAsync();//save changes again
+            }
+
+            
+        }
+
         #region GET ALL USERS BY COMPANY ID
         public async Task<IEnumerable<ApplicationUser>> GetUsersAsync(UserInfo userInfo)
         {
@@ -42,6 +73,8 @@ namespace WonderDevTracker.Services.Repositories
             return [.. usersInRole.Where(u => u.CompanyId == userInfo.CompanyId)];
         }
 
+        
+       
         #endregion
     }
 }
