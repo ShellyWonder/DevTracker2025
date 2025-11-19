@@ -1,0 +1,31 @@
+﻿@*CompanyInvites *@
+@inherits AuthenticatedComponentBase
+
+<AnimatedCard Index="Index"
+			  Class="p-3 mb-3">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<MudText Typo="Typo.h2" Color="Color.Primary">Pending Invitations</MudText>
+		</CardHeaderContent>
+	</MudCardHeader>
+	<MudCardContent>
+		@if (!Invitees.Any())
+		{
+			<NotFoundDisplay Message="No pending invitations found for this company." />
+		}
+		else
+		{
+			//TODO : implement Invitee List Item component via a foreach loop
+		}
+	</MudCardContent>
+</AnimatedCard>
+	@code {
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+
+	[Parameter]
+	public CompanyDTO? Company { get; set; }
+
+	[Parameter]
+	public IEnumerable<AppUserDTO> Invitees { get; set; } = [];
+}
