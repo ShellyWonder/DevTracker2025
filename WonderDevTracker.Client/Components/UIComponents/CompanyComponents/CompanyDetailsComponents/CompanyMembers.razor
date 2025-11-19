@@ -1,0 +1,72 @@
+﻿@* CompanyMembers *@
+@inherits AuthenticatedComponentBase
+
+<AnimatedCard Index="Index"
+			  Class="p-3 mb-3">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<MudText Typo="Typo.h2" Color="Color.Primary">Members</MudText>
+		</CardHeaderContent>
+	</MudCardHeader>
+	<MudCardContent>
+		@if (!Members.Any())
+		{
+			<NotFoundDisplay Message="No members found for this company." />
+		}
+		else
+		{
+			<div class="vstack gap-3">
+				@foreach (Role role in Enum.GetValues<Role>())
+				{
+					//skip the DemoUser Role
+					if (role == Role.DemoUser) continue;
+
+					IEnumerable<AppUserDTO> usersInRole = Members.Where(m => m.Role == role)
+						                                            .OrderBy(m => m.LastName)
+																	.ThenBy(m => m.FirstName);
+
+					<div>
+						<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
+						<div class="d-flex flex-wrap">
+							@if(usersInRole.Any())
+							{
+								foreach(AppUserDTO user in usersInRole)
+								{
+									<MembersByRoleChip User="user"
+													   Value="user.Id"
+													   DisplayText="@user.FullName"
+													   Class="me-2 mb-2"/> 
+								}
+								
+							}
+							else
+							{
+								<NotFoundDisplay Message=@($"No members in the role of {@role.GetDisplayName()} found.") />
+							}
+
+							@if (IsAdmin)
+							{
+
+								<SafeNavButton Valid="true"
+											   Color="Color.Tertiary"
+											   Variant="Variant.Text"
+											   Size="Size.Small"
+											   Class="project-details-link me-auto"
+											   StartIcon="@Icons.Material.Filled.Group"
+											   OnClick="OpenPmDialog"
+											   TypeText="Manage Roles" />
+							}
+						</div>
+					</div>
+				}
+			</div>
+		}
+		</MudCardContent>
+</AnimatedCard>
+@code {
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+
+	[Parameter]
+	public IEnumerable<AppUserDTO> Members { get; set; } = [];
+}
