@@ -2,100 +2,106 @@
 @inject ISnackbar Snackbar
 @inherits AuthenticatedComponentBase
 
-@if (Company is not null)
-{
-	if (editing == false)
-	{
+<AnimatedCard Index="Index"
+			  Class="p-3 mb-3">
 
-		<div class="hstack gap-3 align-items-start">
-			<MudImage Src="@Company.ImageUrl"
-					  Class="rounded-3"
-					  Height="96"
-					  Width="96"
-					  ObjectFit="ObjectFit.Cover"
-					  ObjectPosition="ObjectPosition.Center"
-					  Elevation="5" />
-			<div>
-				<MudText Typo="Typo.h5" GutterBottom>@Company.Name</MudText>
-				<MudText Typo="Typo.body1">@Company.Description</MudText>
-			</div>
-		</div>
-		<div class="my-3">
-			<AuthorizeView Roles="@nameof(Role.Admin)">
-				<SafeNavButton Valid="true"
-							   Color="Color.Tertiary"
-							   Variant="Variant.Text"
-							   Size="Size.Medium"
-							   Class="project-details-link"
-							   StartIcon="@Icons.Material.Filled.Edit"
-							   TypeText="Edit"
-							   OnClick="() => editing = true" />
-			</AuthorizeView>
-
-		</div>
-	}
-	else
+	@if (Company is not null)
 	{
-		<EditForm Model="formCompany" OnValidSubmit="HandleSavedChanges">
-			<DataAnnotationsValidator />
+		if (editing == false)
+		{
+
 			<div class="hstack gap-3 align-items-start">
-				<MudFileUpload T="IBrowserFile"
-							   Class="mt-1"
-							   Accept=".png,.jpg,.jpeg,.gif,.svg, .webp"
-							   MaximumFileCount="1"
-				               FilesChanged="HandleImageSelected">
-
-					<ActivatorContent>
-						<div class="vstack gap-2 align-items-center">
-							<MudImage Src="@formCompany.ImageUrl"
-									  Class="rounded-3"
-									  Height="96"
-									  Width="96"
-									  ObjectFit="ObjectFit.Cover"
-									  ObjectPosition="ObjectPosition.Center"
-									  Elevation="5" />
-							<MudButton Variant="Variant.Text"
-									   Color="Color.Primary"
-									   Class="p-0 mt-1">
-								CHANGE IMAGE
-							</MudButton>
-						</div>
-					</ActivatorContent>
-				</MudFileUpload>
-
-				<div class="flex-grow-1 d-flex flex-column gap-3">
-					<MudTextField @bind-Value="formCompany.Name"
-								  For="() => formCompany.Name"
-								  Variant="Variant.Outlined"
-								  Label="Company Name" />
-
-					<MudTextField @bind-Value="formCompany.Description"
-								  For="() => formCompany.Description"
-								  Variant="Variant.Outlined"
-								  Label="Company Description"
-								  AutoGrow
-								  Lines="4"
-								  MaxLines="10" />
+				<MudImage Src="@Company.ImageUrl"
+						  Class="rounded-3"
+						  Height="96"
+						  Width="96"
+						  ObjectFit="ObjectFit.Cover"
+						  ObjectPosition="ObjectPosition.Center"
+						  Elevation="5" />
+				<div>
+					<MudText Typo="Typo.h2" Color="Color.Primary">@Company.Name</MudText>
+					<MudText Typo="Typo.body1">@Company.Description</MudText>
 				</div>
 			</div>
+			<div class="my-3">
+				<AuthorizeView Roles="@nameof(Role.Admin)">
+					<SafeNavButton Valid="true"
+								   Color="Color.Tertiary"
+								   Variant="Variant.Text"
+								   Size="Size.Medium"
+								   Class="project-details-link"
+								   StartIcon="@Icons.Material.Filled.Edit"
+								   TypeText="Edit"
+								   OnClick="() => editing = true" />
+				</AuthorizeView>
 
-			<div class="mt-2">
-				<CancelBtn ButtonType="ButtonType.Button"
-						   OnClick="HandleCancelChanges" />
-
-				<SubmitBtn ButtonType="ButtonType.Submit"
-						   DisplayText="Save Changes" />
 			</div>
-		</EditForm>
+		}
+		else
+		{
+			<EditForm Model="formCompany" OnValidSubmit="HandleSavedChanges">
+				<DataAnnotationsValidator />
+				<div class="hstack gap-3 align-items-start">
+					<MudFileUpload T="IBrowserFile"
+								   Class="mt-1"
+								   Accept=".png,.jpg,.jpeg,.gif,.svg, .webp"
+								   MaximumFileCount="1"
+								   FilesChanged="HandleImageSelected">
+
+						<ActivatorContent>
+							<div class="vstack gap-2 align-items-center">
+								<MudImage Src="@formCompany.ImageUrl"
+										  Class="rounded-3"
+										  Height="96"
+										  Width="96"
+										  ObjectFit="ObjectFit.Cover"
+										  ObjectPosition="ObjectPosition.Center"
+										  Elevation="5" />
+								<MudButton Variant="Variant.Text"
+										   Color="Color.Primary"
+										   Class="p-0 mt-1">
+									CHANGE IMAGE
+								</MudButton>
+							</div>
+						</ActivatorContent>
+					</MudFileUpload>
+
+					<div class="flex-grow-1 d-flex flex-column gap-3">
+						<MudTextField @bind-Value="formCompany.Name"
+									  For="() => formCompany.Name"
+									  Variant="Variant.Outlined"
+									  Label="Company Name" />
+
+						<MudTextField @bind-Value="formCompany.Description"
+									  For="() => formCompany.Description"
+									  Variant="Variant.Outlined"
+									  Label="Company Description"
+									  AutoGrow
+									  Lines="4"
+									  MaxLines="10" />
+					</div>
+				</div>
+
+				<div class="mt-2">
+					<CancelBtn ButtonType="ButtonType.Button"
+							   OnClick="HandleCancelChanges" />
+
+					<SubmitBtn ButtonType="ButtonType.Submit"
+							   DisplayText="Save Changes" />
+				</div>
+			</EditForm>
+		}
+
 	}
-
-}
-
+</AnimatedCard>
 
 @code {
 	#region PARAMETERS
 	[Parameter, EditorRequired]
 	public CompanyDTO Company { get; set; }
+
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
 
 	[Parameter]
 	public EventCallback<CompanyDTO> OnSave { get; set; }
@@ -130,7 +136,7 @@
 	#region OTHER METHODS
 	private async Task HandleSavedChanges()
 	{
-		if(IsAdmin)
+		if (IsAdmin)
 		{
 			await OnSave.InvokeAsync(formCompany);
 		}
@@ -171,8 +177,8 @@
 				Console.WriteLine($"Error uploading image: {ex.Message}");
 				Snackbar.Add($"Please select a valid image that is less than {BrowserFileHelper.MaxFileSize} bytes.", Severity.Error);
 			}
-	    }
+		}
 
 	}
-		#endregion
+	#endregion
 }

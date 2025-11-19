@@ -1,5 +1,4 @@
 ﻿@*CompanyDetails *@
-
 @page "/company"
 @using WonderDevTracker.Client.Components.UIComponents.CompanyComponents.CompanyDetailsComponents
 @attribute [Authorize]
@@ -27,15 +26,15 @@
 		<PageTitle>@_company?.Name Details | Dev Tracker</PageTitle>
 
 		<div class="v-stack gap-3">
-			<MudPaper Class="p-3 mb-3">
-				<CompanyInfo Company="_company" />
-			</MudPaper>
-			<MudPaper Class="p-3 mb-3">
-				Members
-			</MudPaper>
-			<MudPaper Class="p-3 mb-3">
-				Invites
-			</MudPaper>
+				<CompanyInfo Index="IndexTracker.Next()"
+					Company="_company" 
+							 OnSave="HandleUpdateCompany" />
+			<CompanyMembers Index="IndexTracker.Next()"
+			                 Members="_company.Members"/>
+				
+			<CompanyInvites Index="IndexTracker.Next()" 
+			                />
+				
 		</div>
 	}
 	else
@@ -79,5 +78,27 @@
 			Console.WriteLine(ex);
 		}
 		_loadingComplete = true;
+	}
+
+	private async Task HandleUpdateCompany(CompanyDTO updatedCompany)
+	{
+		if (!IsAdmin) return;
+		_company = updatedCompany;
+		try
+		{
+			await CompanyService.UpdateCompanyAsync(updatedCompany, UserInfo!);
+			updatedCompany = await CompanyService.GetCompanyAsync(UserInfo!);
+			Snackbar.Add("Company details updated successfully.", Severity.Success);
+
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Failed to update company details. Please try again.", Severity.Error);
+			
+		}
+
+
+		
 	}
 }
