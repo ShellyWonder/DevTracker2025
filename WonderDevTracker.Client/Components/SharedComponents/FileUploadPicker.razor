@@ -63,12 +63,14 @@
     /// Base path for preview icons, e.g. "/img/attachmentsPNGs/png".
     /// The extension (e.g. "png") is appended by GetPreviewImagePath.
     /// </summary>
-    [Parameter] public string PreviewImageBasePath { get; set; } = "/img/attachmentsPNGs/png";
+    [Parameter] 
+    public string PreviewImageBasePath { get; set; } = "/img/attachmentsPNGs/png";
 
     /// <summary>
     /// Raised when the user has selected a file.
     /// </summary>
-    [Parameter] public EventCallback<IBrowserFile> OnFileSelected { get; set; }
+    [Parameter] 
+    public EventCallback<IBrowserFile> OnFileSelected { get; set; }
 
     private IBrowserFile? _selectedFile;
 

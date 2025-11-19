@@ -16,57 +16,77 @@
 		else
 		{
 			<div class="vstack gap-3">
-				@foreach (Role role in Enum.GetValues<Role>())
+				@foreach (Role role in VisibleRoles)
 				{
-					//skip the DemoUser Role
-					if (role == Role.DemoUser) continue;
-
-					IEnumerable<AppUserDTO> usersInRole = Members.Where(m => m.Role == role)
-						                                            .OrderBy(m => m.LastName)
-																	.ThenBy(m => m.FirstName);
+					var usersInRole = GetMembersInRole(role);
 
 					<div>
 						<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
 						<div class="d-flex flex-wrap">
-							@if(usersInRole.Any())
+							@if (usersInRole.Any())
 							{
-								foreach(AppUserDTO user in usersInRole)
+								foreach (AppUserDTO user in usersInRole)
 								{
 									<MembersByRoleChip User="user"
 													   Value="user.Id"
 													   DisplayText="@user.FullName"
-													   Class="me-2 mb-2"/> 
+													   Class="me-2 mb-2" />
 								}
-								
+
 							}
 							else
 							{
-								<NotFoundDisplay Message=@($"No members in the role of {@role.GetDisplayName()} found.") />
+								<NotFoundDisplay Message="GetEmptyRoleMessage" />
 							}
 
+						</div>
+					</div>
+				}
 							@if (IsAdmin)
 							{
-
+								//TODO: Link to Manage Roles page/component
 								<SafeNavButton Valid="true"
 											   Color="Color.Tertiary"
 											   Variant="Variant.Text"
 											   Size="Size.Small"
 											   Class="project-details-link me-auto"
 											   StartIcon="@Icons.Material.Filled.Group"
-											   OnClick="OpenPmDialog"
 											   TypeText="Manage Roles" />
 							}
-						</div>
-					</div>
-				}
 			</div>
 		}
-		</MudCardContent>
+	</MudCardContent>
 </AnimatedCard>
 @code {
+	#region PARAMETERS
 	[Parameter, EditorRequired]
 	public int Index { get; set; }
 
 	[Parameter]
 	public IEnumerable<AppUserDTO> Members { get; set; } = [];
+	#endregion
+
+	#region COLLECTIONS & LOOKUPS
+	//which roles are visible in the members list
+	private static readonly Role[] _visibleRoles = Enum.GetValues<Role>()
+													   .Where(r => r != Role.DemoUser)
+													   .ToArray();
+	private IEnumerable<Role> VisibleRoles => _visibleRoles;
+
+	//get users for a specific role
+	private IEnumerable<AppUserDTO> GetMembersInRole(Role role) =>
+		Members
+			.Where(m => m.Role == role)
+			.OrderBy(m => m.LastName)
+			.ThenBy(m => m.FirstName);
+	#endregion
+
+	#region UI HELPERS 
+
+	//get message for empty role
+	private static string GetEmptyRoleMessage(Role role) =>
+    $"No members in the role of {role.GetDisplayName()} found.";
+	#endregion
+
+
 }
