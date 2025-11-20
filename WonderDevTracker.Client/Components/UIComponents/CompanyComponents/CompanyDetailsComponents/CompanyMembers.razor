@@ -15,62 +15,144 @@
 		}
 		else
 		{
-			<div class="vstack gap-3">
-				@foreach (Role role in VisibleRoles)
-				{
-					var usersInRole = GetMembersInRole(role);
+			if (!editing)
+			{
+				<div class="vstack gap-3">
+					@foreach (Role role in VisibleRoles)
+					{
+						var usersInRole = GetMembersInRole(role);
 
-					<div>
-						<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
-						<div class="d-flex flex-wrap">
-							@if (usersInRole.Any())
-							{
-								foreach (AppUserDTO user in usersInRole)
+						<div>
+							<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
+							<div class="d-flex flex-wrap">
+								@if (usersInRole.Any())
 								{
-									<MembersByRoleChip User="user"
-													   Value="user.Id"
-													   DisplayText="@user.FullName"
-													   Class="me-2 mb-2" />
+									foreach (AppUserDTO user in usersInRole)
+									{
+										<MembersByRoleChip User="user"
+														   Value="user.Id"
+														   DisplayText="@user.FullName"
+														   Class="me-2 mb-2" />
+									}
+
+								}
+								else
+								{
+									<NotFoundDisplay Message="GetEmptyRoleMessage(role)" />
 								}
 
-							}
-							else
-							{
-								<NotFoundDisplay Message="GetEmptyRoleMessage" />
-							}
-
+							</div>
 						</div>
+					}
+					@if (IsAdmin)
+					{
+						<SafeNavButton Valid="true"
+									   Color="Color.Tertiary"
+									   Variant="Variant.Text"
+									   Size="Size.Small"
+									   Class="project-details-link me-auto"
+									   StartIcon="@Icons.Material.Filled.Group"
+									   TypeText="Manage Roles"
+									   OnClick="() => editing = true" />
+					}
+				</div>
+			}
+			else
+			{
+				<MudPaper Class="p-2 mb-3 drag-hint d-flex align-items-center"
+						  Elevation="1">
+					<MudIcon Icon="@Icons.Material.Filled.TouchApp"
+							 Color="Color.Info"
+							 Class="me-2" />
+					<div>
+						<MudText Typo="Typo.subtitle1"
+								 Color="Color.Info"
+								 Class="fw-semibold mb-0">
+							Drag and drop members 
+						</MudText>
+						<MudText Typo="Typo.caption"
+								 Color="Color.Secondary">
+							Tip: To reassign roles, move users between role sections below.
+						</MudText>
 					</div>
-				}
-							@if (IsAdmin)
+				</MudPaper>
+				<MudDropContainer T="AppUserDTO"
+								  Items="MemberItems"
+								  ItemsSelector="SelectMemberByZone"
+								  ItemDropped="HandleUserDropped"
+				                  CanDropClass="bg-secondary-subtle">
+					<ItemRenderer>
+						<MembersByRoleChip User="context"
+										    Value="User.Id"/>
+					</ItemRenderer>
+					<ChildContent>
+						<div class="vstack gap-3">
+							@foreach (Role role in VisibleRoles)
 							{
-								//TODO: Link to Manage Roles page/component
-								<SafeNavButton Valid="true"
-											   Color="Color.Tertiary"
-											   Variant="Variant.Text"
-											   Size="Size.Small"
-											   Class="project-details-link me-auto"
-											   StartIcon="@Icons.Material.Filled.Group"
-											   TypeText="Manage Roles" />
+								var usersInRole = GetMembersInRole(role);
+
+								<div>
+									<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
+									<MudDropZone T="AppUserDTO"
+												 Identifier="@Enum.GetName(role)"
+												 Class="d-flex flex-wrap">
+										@if (!usersInRole.Any())
+										{
+											<NotFoundDisplay Message="@GetEmptyRoleMessage(role)" />
+
+										}
+
+									</MudDropZone>
+								</div>
 							}
-			</div>
+						</div>
+
+					</ChildContent>
+				</MudDropContainer>
+
+				
+				<div class="mt-2">
+					<CancelBtn OnClick="HandleCancelChanges" />
+
+
+					<SubmitBtn OnClick="() => editing = false"
+							   DisplayText="Save Changes" />
+
+
+				</div>
+			}
 		}
 	</MudCardContent>
 </AnimatedCard>
-@code {
+
+	@code {
 	#region PARAMETERS
 	[Parameter, EditorRequired]
 	public int Index { get; set; }
 
-	[Parameter]
+	[Parameter, EditorRequired]
 	public IEnumerable<AppUserDTO> Members { get; set; } = [];
+	[Parameter]
+	public EventCallback OnChange{ get; set; }
 	#endregion
 
+	#region STATE
+	private bool editing = false;
+	private bool SelectMemberByZone(AppUserDTO user, string zoneId)
+	{
+		if (user is null || user.Role is null || string.IsNullOrWhiteSpace(zoneId))
+			return false;
+
+		return Enum.GetName(user.Role.Value) == zoneId;
+	}
+
+
+	#endregion
 	#region COLLECTIONS & LOOKUPS
 	//which roles are visible in the members list
 	private static readonly Role[] _visibleRoles = Enum.GetValues<Role>()
-													   .Where(r => r != Role.DemoUser)
-													   .ToArray();
+																.Where(r => r != Role.DemoUser)
+																.ToArray();
 	private IEnumerable<Role> VisibleRoles => _visibleRoles;
 
 	//get users for a specific role
@@ -79,13 +161,29 @@
 			.Where(m => m.Role == role)
 			.OrderBy(m => m.LastName)
 			.ThenBy(m => m.FirstName);
+	private IEnumerable<AppUserDTO> MemberItems =>
+		Members
+			.OrderBy(m => m.LastName)
+			.ThenBy(m => m.FirstName);
 	#endregion
 
-	#region UI HELPERS 
+	#region UI HELPERS
+	private void HandleUserDropped(MudItemDropInfo<AppUserDTO> dropEvent)
+	{
+		if (dropEvent.Item is not null && Enum.TryParse(dropEvent.DropzoneIdentifier, out Role dropZoneRole))
+		{
+			dropEvent.Item.Role = dropZoneRole;
+		}
+	}
 
+	private async Task HandleCancelChanges()
+	{
+		await OnChange.InvokeAsync();
+		editing = false;
+	}
 	//get message for empty role
 	private static string GetEmptyRoleMessage(Role role) =>
-    $"No members in the role of {role.GetDisplayName()} found.";
+	$"No members in the role of {role.GetDisplayName()} found.";
 	#endregion
 
 

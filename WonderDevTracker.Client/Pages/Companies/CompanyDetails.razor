@@ -26,15 +26,15 @@
 		<PageTitle>@_company?.Name Details | Dev Tracker</PageTitle>
 
 		<div class="v-stack gap-3">
-				<CompanyInfo Index="IndexTracker.Next()"
-					Company="_company" 
-							 OnSave="HandleUpdateCompany" />
+			<CompanyInfo Index="IndexTracker.Next()"
+						 Company="_company"
+						 OnSave="HandleUpdateCompany" />
 			<CompanyMembers Index="IndexTracker.Next()"
-			                 Members="_company.Members"/>
-				
-			<CompanyInvites Index="IndexTracker.Next()" 
-			                />
-				
+							Members="_company.Members" 
+							OnChange="HandleRefreshMembers"/>
+
+			<CompanyInvites Index="IndexTracker.Next()" />
+
 		</div>
 	}
 	else
@@ -43,11 +43,10 @@
 
 		<NotFoundFull Message="Company not found"
 					  ReturnUrl="/"
-					  ReturnLabel="Back to Home"
-					   />
+					  ReturnLabel="Back to Home" />
 
 	}
-	</MudContainer>
+</MudContainer>
 
 	@code {
 
@@ -95,9 +94,26 @@
 		{
 			Console.WriteLine(ex);
 			Snackbar.Add("Failed to update company details. Please try again.", Severity.Error);
-			
+
 		}
 
+
+
+	}
+
+	private async Task HandleRefreshMembers()
+	{
+		if (_company is null || UserInfo is null) return;
+		
+			try
+			{
+				_company.Members = [.. await CompanyService.GetUsersAsync(UserInfo)];
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				Snackbar.Add("Failed to fetch company members", Severity.Error);
+			}
 
 		
 	}

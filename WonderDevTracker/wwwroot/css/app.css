@@ -238,6 +238,13 @@
 }
 /* #endregion TicketEnumCard.razor */
 
+/* #region CompanyMembers.razor */
+.drag-hint {
+    border-left: 4px solid var(--mud-palette-info);
+    border-radius: 0.75rem;
+    background-color: color-mix(in srgb, var(--mud-palette-info) 8%, white);
+}
+/* #endregion CompanyMembers.razor */
 
 /* #region breadcrumbs */
 .breadcrumbs1 {
