@@ -1,4 +1,6 @@
 ﻿@* CompanyMembers *@
+@inject ICompanyDTOService CompanyService;
+@inject ISnackbar Snackbar;
 @inherits AuthenticatedComponentBase
 
 <AnimatedCard Index="Index"
@@ -22,12 +24,12 @@
 					{
 						var usersInRole = GetMembersInRole(role);
 
-						<MudPaper Class="p-2 mb-2 role-zone" Outlined ="true">
-							<MudText Typo="Typo.button" 
-							               Color="Color.Primary" 
-										   GutterBottom>
-										   @role.GetDisplayName()
-										   </MudText>
+						<MudPaper Class="p-2 mb-2 role-zone" Outlined="true">
+							<MudText Typo="Typo.button"
+									 Color="Color.Primary"
+									 GutterBottom>
+								@role.GetDisplayName()
+							</MudText>
 							<div class="d-flex flex-wrap">
 								@if (usersInRole.Any())
 								{
@@ -72,7 +74,7 @@
 						<MudText Typo="Typo.subtitle1"
 								 Color="Color.Info"
 								 Class="fw-semibold mb-0">
-							Drag and drop members 
+							Drag and drop members
 						</MudText>
 						<MudText Typo="Typo.caption"
 								 Color="Color.Secondary">
@@ -84,10 +86,10 @@
 								  Items="MemberItems"
 								  ItemsSelector="SelectMemberByZone"
 								  ItemDropped="HandleUserDropped"
-				                  CanDropClass="bg-secondary-subtle">
+								  CanDropClass="bg-secondary-subtle">
 					<ItemRenderer>
 						<MembersByRoleChip User="context"
-										    Value="User.Id"/>
+										   Value="User.Id" />
 					</ItemRenderer>
 					<ChildContent>
 						<div class="vstack gap-3">
@@ -95,7 +97,7 @@
 							{
 								var usersInRole = GetMembersInRole(role);
 
-								<MudPaper Class="p-2 mb-2 role-zone" Outlined ="true">
+								<MudPaper Class="p-2 mb-2 role-zone" Outlined="true">
 									<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
 									<MudDropZone T="AppUserDTO"
 												 Identifier="@Enum.GetName(role)"
@@ -114,10 +116,11 @@
 					</ChildContent>
 				</MudDropContainer>
 
-				
+
 				<div class="mt-2">
 					<CancelBtn OnClick="HandleCancelChanges" />
-					<SubmitBtn OnClick="() => editing = false"
+					
+					<SubmitBtn OnClick="HandleSaveChanges"
 							   DisplayText="Save Changes" />
 
 				</div>
@@ -134,7 +137,7 @@
 	[Parameter, EditorRequired]
 	public IEnumerable<AppUserDTO> Members { get; set; } = [];
 	[Parameter]
-	public EventCallback OnChange{ get; set; }
+	public EventCallback OnChange { get; set; }
 	#endregion
 
 	#region STATE
@@ -182,9 +185,49 @@
 		await OnChange.InvokeAsync();
 		editing = false;
 	}
+	private async Task HandleSaveChanges()
+	{
+		if (IsAdmin)
+		{
+			try
+			{
+				var currentMembers = await CompanyService.GetUsersAsync(UserInfo!);
+				//check if user role(s) have changed
+				foreach (AppUserDTO member in Members)
+				{
+					if (member.Id == UserInfo!.UserId)
+					{
+						continue;
+					}
+					var currentRole = currentMembers.FirstOrDefault(m => m.Id == member.Id)?.Role;
+					if (currentRole.HasValue 
+						   && member.Role.HasValue 
+						   && currentRole != member.Role)
+					{
+						//assign new role
+						await CompanyService.AssignUserRoleAsync(member.Id,
+																 member.Role.Value,
+																 UserInfo!);
+					}
+				}
+				Snackbar.Add("Member roles updated successfully.", Severity.Success);
+				
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				Snackbar.Add($"Error updating member roles: {ex.Message}", Severity.Error);
+			}
+		}
+		editing = false;
+
+		await OnChange.InvokeAsync();
+	}
+
+
 	//get message for empty role
 	private static string GetEmptyRoleMessage(Role role) =>
-	$"No members in the role of {role.GetDisplayName()} found.";
+	$"No {role.GetDisplayName()}s found.";
 	#endregion
 
 

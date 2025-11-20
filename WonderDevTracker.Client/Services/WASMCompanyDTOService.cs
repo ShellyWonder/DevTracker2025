@@ -7,6 +7,7 @@ namespace WonderDevTracker.Client.Services
 {
     public class WASMCompanyDTOService(HttpClient http) : ICompanyDTOService
     {
+        
         public async Task<IEnumerable<AppUserDTO>> GetUsersAsync(UserInfo userInfo)
         {
             try
@@ -34,6 +35,21 @@ namespace WonderDevTracker.Client.Services
                 Console.WriteLine(ex);
                 return [];
             }
+        }
+
+        public async Task UpdateCompanyAsync(CompanyDTO company, UserInfo userInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<CompanyDTO> GetCompanyAsync(UserInfo userInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AssignUserRoleAsync(string userId, Role role, UserInfo userInfo)
+        {
+            throw new NotImplementedException();
         }
     }
 }
