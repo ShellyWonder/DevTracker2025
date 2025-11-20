@@ -10,7 +10,7 @@ using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services
 {
-    public class CompanyDTOService(ICompanyRepository repository, 
+    public class CompanyDTOService(ICompanyRepository repository,
                                    IServiceScopeFactory scopeFactory,
                                     UserManager<ApplicationUser> userManager) : ICompanyDTOService
     {
@@ -52,13 +52,12 @@ namespace WonderDevTracker.Services
 
                     Console.WriteLine(ex);
                 }
-               
+
             }
 
             await repository.UpdateCompanyAsync(dbCompany, userInfo);
 
         }
-
         public async Task<IEnumerable<AppUserDTO>> GetUsersAsync(UserInfo userInfo)
         {
             IEnumerable<ApplicationUser> users = await repository.GetUsersAsync(userInfo);
@@ -78,7 +77,7 @@ namespace WonderDevTracker.Services
         }
         public async Task<IReadOnlyList<AppUserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
-            var usersInRole =  await repository.GetUsersInRoleAsync(role, userInfo);
+            var usersInRole = await repository.GetUsersInRoleAsync(role, userInfo);
             List<AppUserDTO> dtos = [];
 
             foreach (ApplicationUser user in usersInRole)
@@ -90,6 +89,12 @@ namespace WonderDevTracker.Services
             return dtos;
         }
 
-        
+        public async Task AssignUserRoleAsync(string userId, Role role, UserInfo userInfo)
+        {
+            if (userInfo.IsInRole(Role.Admin))
+            { 
+                await repository.AssignUserRoleAsync(userId, role, userInfo);
+            }
+        }
     }
 }
