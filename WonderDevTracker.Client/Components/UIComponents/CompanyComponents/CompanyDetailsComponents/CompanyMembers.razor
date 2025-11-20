@@ -22,8 +22,12 @@
 					{
 						var usersInRole = GetMembersInRole(role);
 
-						<div>
-							<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
+						<MudPaper Class="p-2 mb-2 role-zone" Outlined ="true">
+							<MudText Typo="Typo.button" 
+							               Color="Color.Primary" 
+										   GutterBottom>
+										   @role.GetDisplayName()
+										   </MudText>
 							<div class="d-flex flex-wrap">
 								@if (usersInRole.Any())
 								{
@@ -42,7 +46,7 @@
 								}
 
 							</div>
-						</div>
+						</MudPaper>
 					}
 					@if (IsAdmin)
 					{
@@ -91,7 +95,7 @@
 							{
 								var usersInRole = GetMembersInRole(role);
 
-								<div>
+								<MudPaper Class="p-2 mb-2 role-zone" Outlined ="true">
 									<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
 									<MudDropZone T="AppUserDTO"
 												 Identifier="@Enum.GetName(role)"
@@ -103,7 +107,7 @@
 										}
 
 									</MudDropZone>
-								</div>
+								</MudPaper>
 							}
 						</div>
 
@@ -113,11 +117,8 @@
 				
 				<div class="mt-2">
 					<CancelBtn OnClick="HandleCancelChanges" />
-
-
 					<SubmitBtn OnClick="() => editing = false"
 							   DisplayText="Save Changes" />
-
 
 				</div>
 			}
