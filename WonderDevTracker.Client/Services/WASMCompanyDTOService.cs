@@ -39,17 +39,28 @@ namespace WonderDevTracker.Client.Services
 
         public async Task UpdateCompanyAsync(CompanyDTO company, UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            var response = await http.PutAsJsonAsync("api/company", company);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<CompanyDTO> GetCompanyAsync(UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            CompanyDTO? company = await http.GetFromJsonAsync<CompanyDTO>("api/company")
+                                  ?? throw new HttpIOException(HttpRequestError.InvalidResponse);
+            return company;
         }
 
-        public Task AssignUserRoleAsync(string userId, Role role, UserInfo userInfo)
+        public async Task AssignUserRoleAsync(string userId, Role newRole, UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            AppUserDTO userRoleUpdate = new()
+            {
+                Id = userId,
+                FirstName = "firstName",
+                LastName = "lastName",
+                Role = newRole
+            };
+            var response = await http.PutAsJsonAsync("api/company/users/{userId}", userRoleUpdate);
+            response.EnsureSuccessStatusCode();
         }
     }
 }
