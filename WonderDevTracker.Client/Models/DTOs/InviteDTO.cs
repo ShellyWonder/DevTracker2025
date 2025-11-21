@@ -9,6 +9,7 @@ namespace WonderDevTracker.Client.Models.DTOs
         private DateTimeOffset _inviteDate;
         private DateTimeOffset? _joinDate;
 
+       
         [Description("Unique identifier for the invite")]
         public int Id { get; set; }
 
@@ -20,6 +21,7 @@ namespace WonderDevTracker.Client.Models.DTOs
         }
 
         [Description("Date the invite was accepted in UTC")]
+        [Display(Name = "Join Date")]
         public DateTimeOffset? JoinDate
         {
             get => _joinDate;
@@ -27,19 +29,23 @@ namespace WonderDevTracker.Client.Models.DTOs
         }
        
 
-        [Required, EmailAddress]
+        [Required(ErrorMessage ="Invitee Email Address is required")]
+        [EmailAddress]
         [Description("Invitee email address")]
+        [Display(Name = "Invitee Email")]
         public string? InviteeEmail { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Invitee First Name is required")]
         [Description("Invitee first name")]
+        [Display(Name = "Invitee First Name")]
         public string? InviteeFirstName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Invitee Last Name is required")]
         [Description("Invitee last name")]
+        [Display(Name = "Invitee Last Name")]
         public string? InviteeLastName { get; set; }
 
-        [Required]
+     
         [Description("Optional message in email body")]
         public string? Message { get; set; }
 
@@ -50,8 +56,9 @@ namespace WonderDevTracker.Client.Models.DTOs
         [Description("The project on whose behalf the Company Administration is sending the invite")]
         public ProjectDTO? Project { get; set; }
 
-        [Description("The  Id of the project on whose behalf the Company Administration is sending the invite")]
-        public int ProjectId { get; set; }
+        [Required(ErrorMessage = "Project selection is required")]
+        [Description("The  Id of the project on whose behalf the Company Administration is sending the invite.")]
+        public int? ProjectId { get; set; } //the id is null until selection is made in the UI
 
         [Required]
         [Description("Id of the Company Administration sending the invite")]
