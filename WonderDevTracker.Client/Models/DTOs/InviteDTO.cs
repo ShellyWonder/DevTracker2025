@@ -53,6 +53,8 @@ namespace WonderDevTracker.Client.Models.DTOs
         public bool IsValid { get; set; } = false;
 
         //navigation properties
+        [Description("Company Id of the Admin sending the invite.")]
+        public int CompanyId { get; set; }
         [Description("The project on whose behalf the Company Administration is sending the invite")]
         public ProjectDTO? Project { get; set; }
 

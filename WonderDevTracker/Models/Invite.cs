@@ -66,6 +66,7 @@ namespace WonderDevTracker.Models
                 IsValid = invite.IsValid,
                 ProjectId = invite.ProjectId,
                 Project = invite.Project?.ToDTO(),
+                CompanyId = invite.CompanyId,
                 InvitorId = invite.InvitorId,
                 InviteeId = invite.InviteeId,
                 Invitor = invite.Invitor?.ToDTO(),

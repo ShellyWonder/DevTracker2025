@@ -5,7 +5,7 @@
 			  Class="p-3 mb-3">
 	<MudCardHeader>
 		<CardHeaderContent>
-			<MudText Typo="Typo.h2" Color="Color.Primary">Pending Invitations</MudText>
+			<MudText Typo="Typo.h2" Color="Color.Primary">Invitations</MudText>
 		</CardHeaderContent>
 	</MudCardHeader>
 	<MudCardContent>
@@ -15,11 +15,43 @@
 		}
 		else
 		{
-			//TODO : implement Invitee List Item component via a foreach loop
+			@* <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+				<MudTabPanel Text="Open Tickets">
+					@if (Project.Archived)
+					{
+
+						<ProjectTicketTable Tickets="@OpenWhenArchivedTickets" />
+					}
+					else
+					{
+						<ProjectTicketTable Tickets="@OpenTickets" />
+
+					}
+				</MudTabPanel>
+				<MudTabPanel Text="Resolved Tickets">
+					<ProjectTicketTable Tickets="@ResolvedTickets" />
+				</MudTabPanel>
+				<MudTabPanel Text="Archived Tickets">
+					<ProjectTicketTable Tickets="@ArchivedTickets" />
+
+				</MudTabPanel>
+			</MudTabs> *@
+		}
+		@if (IsAdmin)
+		{
+			<SafeNavButton Valid="true"
+						   Color="Color.Tertiary"
+						   Variant="Variant.Text"
+						   Size="Size.Small"
+						   Class="project-details-link me-auto"
+						   StartIcon="@Icons.Material.Filled.PersonAdd"
+						   TypeText="Invite New Members"
+						   Href="/company/invite" />
 		}
 	</MudCardContent>
 </AnimatedCard>
 	@code {
+	#region PARAMETERS
 	[Parameter, EditorRequired]
 	public int Index { get; set; }
 
@@ -28,4 +60,9 @@
 
 	[Parameter]
 	public IEnumerable<AppUserDTO> Invitees { get; set; } = [];
+	#endregion
+
+	#region STATE
+	
+	#endregion
 }

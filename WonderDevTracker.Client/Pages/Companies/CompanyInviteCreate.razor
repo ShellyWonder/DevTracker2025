@@ -1,8 +1,10 @@
 ﻿@* CompanyInviteCreate *@
 @page "/company/invite"
+@using WonderDevTracker.Services.Interfaces
 @attribute [Authorize(Roles = nameof(Role.Admin))]
 
 @inject IProjectDTOService ProjectService
+@inject IInviteDTOService InviteService
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
 
@@ -20,7 +22,8 @@
 			</MudText>
 		</AnimatedBlock>
 		<EditForm Model="invite"
-				  Class="vstack gap-3">
+				  class="vstack gap-3"
+				  OnValidSubmit="HandleValidSubmit">
 			<DataAnnotationsValidator />
 			<AnimatedBlock Index="@Index.Next()">
 
@@ -63,7 +66,7 @@
 							  For="() => invite.InviteeEmail"
 							  Label="Invitee Email Address"
 							  Variant="Variant.Outlined"
-							  Required="true" 
+							  Required="true"
 							  OnlyValidateIfDirty="true" />
 			</AnimatedBlock>
 
@@ -95,13 +98,22 @@
 	private IEnumerable<ProjectDTO> projects = [];
 	private InviteDTO invite = new() { JoinDate = DateTimeOffset.UtcNow };
 	private readonly IndexTrackerHelper Index = new();
-
+	private string? InviteeFullName => $"{invite.InviteeFirstName} {invite.InviteeLastName}";
 	protected override void OnParametersSet() => Index.Reset();
 
 	protected override async Task OnInitializedWithAuthAsync()
 	{
+		try
+		{
+			projects = await ProjectService.GetAllProjectsAsync(UserInfo!);
 
-		projects = await ProjectService.GetAllProjectsAsync(UserInfo!);
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error loading data: {ex.Message}");
+			Snackbar.Add("Unable to load data. Please try again later.", Severity.Error);
+		}
+
 		invite.InviteDate = DateTimeOffset.UtcNow;
 		invite.InvitorId = UserInfo!.UserId;
 	}
@@ -114,20 +126,28 @@
 	   new BreadcrumbItem("Invite a New Member", href:null, disabled: true ),
 
 	};
-	// private async Task HandleValidSubmit()
-	// {
-	// 	try
-	// 	{
-	// 		project = await ProjectService.CreateProjectAsync(project, UserInfo!);
-	// 		Snackbar.Add($"{project.Name} created successfully!", Severity.Success);
-	// 	}
-	// 	catch (Exception ex)
-	// 	{
-	// 		// Handle error, e.g., show a message to the user
-	// 		Console.Error.WriteLine($"Error creating project: {ex.Message}");
-	// 		Snackbar.Add("Unable to create project. Please try again.", Severity.Error);
-	// 		return;
-	// 	}
-	// 	NavManager.NavigateTo($"/projects/{project.Id}");
-	// }
+
+	private async Task HandleValidSubmit()
+	{
+		bool success = false;
+
+		try
+		{
+			await InviteService.CreateInviteAsync(invite, UserInfo!);
+			success = true;
+
+		}
+		catch (Exception ex)
+		{
+
+			Console.Error.WriteLine($"Error creating project: {ex.Message}");
+			Snackbar.Add("Unable to create invite. Please try again.", Severity.Error);
+			return;
+		}
+		if (success)
+		{
+			Snackbar.Add($"Invite to {InviteeFullName} created successfully!", Severity.Success);
+			NavManager.NavigateTo("/company");
+		}
+	}
 }
