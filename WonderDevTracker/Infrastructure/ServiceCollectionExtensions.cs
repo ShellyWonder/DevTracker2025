@@ -15,10 +15,16 @@ namespace WonderDevTracker.Infrastructure
         {
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();
+
             services.AddScoped<IProjectDTOService, ProjectDTOService>();
             services.AddScoped<ICompanyDTOService, CompanyDTOService>();
+
             services.AddScoped<ITicketDTOService, TicketDTOService>();
             services.AddScoped<ITicketRepository, TicketRepository>();
+
+            services.AddScoped<IInviteRepository, InviteRepository>();
+            services.AddScoped<IInviteDTOService, InviteDTOService>();
+
             // No-op email sender for development purposes, replace with a real implementation in production
             services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
             services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();
