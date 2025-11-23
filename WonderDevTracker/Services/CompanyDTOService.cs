@@ -11,12 +11,15 @@ using WonderDevTracker.Services.Interfaces;
 namespace WonderDevTracker.Services
 {
     public class CompanyDTOService(ICompanyRepository repository,
+                                    IInviteRepository inviteRepository,
                                    IServiceScopeFactory scopeFactory,
                                     UserManager<ApplicationUser> userManager) : ICompanyDTOService
     {
         public async Task<CompanyDTO> GetCompanyAsync(UserInfo userInfo)
         {
             Company company = await repository.GetCompanyAsync(userInfo);
+            //advantage: load invites here to perform validation in one go
+            company.Invites = [.. await inviteRepository.GetInviteAsync(userInfo)];
             CompanyDTO dto = company.ToDTO();
 
             dto.Members?.Clear();

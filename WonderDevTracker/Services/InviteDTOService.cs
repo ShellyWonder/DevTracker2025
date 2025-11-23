@@ -24,5 +24,13 @@ namespace WonderDevTracker.Services
             Invite createdInvite = await repository.CreateInviteAsync(invite, user);
             return createdInvite.ToDTO();
         }
+
+        public async Task<IEnumerable<InviteDTO>> GetInviteAsync(UserInfo user)
+        {
+            IEnumerable<Invite> invites = await repository.GetInviteAsync(user);
+            IEnumerable<InviteDTO> dto = invites.Select(i => i.ToDTO());
+            return dto;
+
+        }
     }
 }

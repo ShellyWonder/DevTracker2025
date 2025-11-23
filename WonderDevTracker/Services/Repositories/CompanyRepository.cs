@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
-using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
@@ -18,8 +17,7 @@ namespace WonderDevTracker.Services.Repositories
             await using var context = contextFactory.CreateDbContext();
             Company company = await context.Companies
                 .Include(c => c.Members)
-                .Include(c => c.Invites)
-                .FirstAsync(c => c.Id == userInfo.CompanyId); //Cannot be null
+                  .FirstAsync(c => c.Id == userInfo.CompanyId); //Cannot be null
             return company;
         }
         public async Task UpdateCompanyAsync(Company company, UserInfo userInfo)

@@ -15,5 +15,16 @@ namespace WonderDevTracker.Services.Interfaces
         ///<param name="invite">The details sent from Company Admin to the invitee to join the sender's company.</param>
         ///<param name="user">The current user's claims</param>
         public Task<InviteDTO> CreateInviteAsync(InviteDTO dto, UserInfo user);
+
+        /// <summary>
+        /// Get Invite (Collection)
+        /// </summary>
+        /// <param name="id">The Invite's id.</param>
+        /// <remarks>Asynchronously retrieves the collection of invites associated 
+        /// with the specified identifier and user. 
+        /// The task result contains a collection of <see cref="InviteDTO"/>
+        /// objects associated with the specified identifier and user. 
+        /// The collection is empty if no invites are found.</remarks>
+        public Task<IEnumerable<InviteDTO>> GetInviteAsync(UserInfo user);
     }
 }

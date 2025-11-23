@@ -28,6 +28,24 @@ namespace WonderDevTracker.Services.Repositories
             return invite;
 
         }
+
+        public async Task<IEnumerable<Invite>> GetInviteAsync(UserInfo user)
+        {
+            await using ApplicationDbContext db = contextFactory.CreateDbContext();
+           List<Invite> invites = await db.Invites
+                .Where(i => i.CompanyId == user.CompanyId)
+                .Include(i => i.Invitor)
+                .Include(i => i.Invitee)
+                .Include(i => i.Project)
+                .ToListAsync();
+            foreach (Invite invite in invites)
+            {
+                invite.IsValid = ValidateInvite(invite);
+            } 
+            await db.SaveChangesAsync();
+            return invites;
+        }
+        #region PRIVATE HELPER METHODS
         private static async Task<bool> EnsureInviteConditionsAreValidAsync(Invite invite, UserInfo user, ApplicationDbContext db)
         {
             // 1. Only Admins may create invites
@@ -57,6 +75,15 @@ namespace WonderDevTracker.Services.Repositories
             return true;
         }
 
+        private bool ValidateInvite(Invite invite)
+        {
+            bool isValid = invite.IsValid
+                && DateTimeOffset.UtcNow < invite.InviteDate.AddDays(7)
+                && invite.JoinDate is null
+                && string.IsNullOrEmpty(invite.InviteeId);
+            return isValid;
+        }
+        #endregion
 
     }
 }
