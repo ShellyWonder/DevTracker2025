@@ -15,12 +15,20 @@
 
     <MudPaper Class="p-3">
         <AnimatedBlock Index="@Index.Next()">
-            <MudText Typo="Typo.h3" GutterBottom>
+            <MudText Typo="Typo.h2" Color="Color.Primary" GutterBottom>
                 Create a New Project
             </MudText>
+            <MudDivider Class="mb-3" />
+        </AnimatedBlock>
+        <AnimatedBlock Index="@Index.Next()" >
+            <Instructions Title="Fill out the form to create a new project."
+                          Message="Tip: Once the project is submitted, you can select team members on the Project Details page."
+                          StartIcon="@Icons.Material.Filled.Create"
+                          Typo1="Typo.subtitle1"
+                          Typo2="Typo.caption"/>
         </AnimatedBlock>
         <EditForm Model="project"
-                  Class="vstack gap-3"
+                  class="vstack gap-3"
                   OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
             <AnimatedBlock Index="@Index.Next()">

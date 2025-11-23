@@ -1,5 +1,6 @@
 ﻿@* CompanyMembers *@
 @inject ICompanyDTOService CompanyService;
+@inject IndexTrackerHelper IndexTracker
 @inject ISnackbar Snackbar;
 @inherits AuthenticatedComponentBase
 
@@ -8,6 +9,7 @@
 	<MudCardHeader>
 		<CardHeaderContent>
 			<MudText Typo="Typo.h2" Color="Color.Primary">Members</MudText>
+			<MudDivider Class="mb-3" />
 		</CardHeaderContent>
 	</MudCardHeader>
 	<MudCardContent>
@@ -65,23 +67,13 @@
 			}
 			else
 			{
-				<MudPaper Class="p-2 mb-3 drag-hint d-flex align-items-center"
-						  Elevation="1">
-					<MudIcon Icon="@Icons.Material.Filled.TouchApp"
-							 Color="Color.Info"
-							 Class="me-2" />
-					<div>
-						<MudText Typo="Typo.subtitle1"
-								 Color="Color.Info"
-								 Class="fw-semibold mb-0">
-							Drag and drop members
-						</MudText>
-						<MudText Typo="Typo.caption"
-								 Color="Color.Secondary">
-							Tip: To reassign roles, move users between role sections below.
-						</MudText>
-					</div>
-				</MudPaper>
+				<AnimatedBlock Index="IndexTracker.Next()">
+					<Instructions Title="Drag and drag and drop members"
+								  Message="Tip: To reassign roles, move users between role sections below."
+								  Typo1="Typo.subtitle1"
+								  Typo2="Typo.caption"
+								  StartIcon="@Icons.Material.Filled.TouchApp" />
+				</AnimatedBlock>
 				<MudDropContainer T="AppUserDTO"
 								  Items="MemberItems"
 								  ItemsSelector="SelectMemberByZone"
@@ -96,20 +88,21 @@
 							@foreach (Role role in VisibleRoles)
 							{
 								var usersInRole = GetMembersInRole(role);
+								<AnimatedBlock Index="IndexTracker.Next()">
+									<MudPaper Class="p-2 mb-2 role-zone" Outlined="true">
+										<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
+										<MudDropZone T="AppUserDTO"
+													 Identifier="@Enum.GetName(role)"
+													 Class="d-flex flex-wrap">
+											@if (!usersInRole.Any())
+											{
+												<NotFoundDisplay Message="@GetEmptyRoleMessage(role)" />
 
-								<MudPaper Class="p-2 mb-2 role-zone" Outlined="true">
-									<MudText Typo="Typo.button" Color="Color.Primary" GutterBottom>@role.GetDisplayName()</MudText>
-									<MudDropZone T="AppUserDTO"
-												 Identifier="@Enum.GetName(role)"
-												 Class="d-flex flex-wrap">
-										@if (!usersInRole.Any())
-										{
-											<NotFoundDisplay Message="@GetEmptyRoleMessage(role)" />
+											}
 
-										}
-
-									</MudDropZone>
-								</MudPaper>
+										</MudDropZone>
+									</MudPaper>
+								</AnimatedBlock>
 							}
 						</div>
 
@@ -119,7 +112,7 @@
 
 				<div class="mt-2">
 					<CancelBtn OnClick="HandleCancelChanges" />
-					
+
 					<SubmitBtn OnClick="HandleSaveChanges"
 							   DisplayText="Save Changes" />
 
@@ -129,7 +122,7 @@
 	</MudCardContent>
 </AnimatedCard>
 
-	@code {
+@code {
 	#region PARAMETERS
 	[Parameter, EditorRequired]
 	public int Index { get; set; }
@@ -200,8 +193,8 @@
 						continue;
 					}
 					var currentRole = currentMembers.FirstOrDefault(m => m.Id == member.Id)?.Role;
-					if (currentRole.HasValue 
-						   && member.Role.HasValue 
+					if (currentRole.HasValue
+						   && member.Role.HasValue
 						   && currentRole != member.Role)
 					{
 						//assign new role
@@ -211,7 +204,7 @@
 					}
 				}
 				Snackbar.Add("Member roles updated successfully.", Severity.Success);
-				
+
 			}
 			catch (Exception ex)
 			{

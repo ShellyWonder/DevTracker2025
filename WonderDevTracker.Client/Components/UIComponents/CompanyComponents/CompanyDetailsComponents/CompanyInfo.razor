@@ -2,7 +2,7 @@
 @inject ISnackbar Snackbar
 @inherits AuthenticatedComponentBase
 
-<AnimatedCard Index="Index"
+<AnimatedCard Index="@Index"
 			  Class="p-3 mb-3">
 
 	@if (Company is not null)
@@ -20,6 +20,7 @@
 						  Elevation="5" />
 				<div>
 					<MudText Typo="Typo.h2" Color="Color.Primary">@Company.Name</MudText>
+					<MudDivider Class="mb-3" />
 					<MudText Typo="Typo.body1">@Company.Description</MudText>
 				</div>
 			</div>

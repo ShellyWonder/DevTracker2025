@@ -5,6 +5,7 @@
 
 @inject IProjectDTOService ProjectService
 @inject IInviteDTOService InviteService
+@inject IndexTrackerHelper IndexTracker
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
 
@@ -17,11 +18,21 @@
 
 	<MudPaper Class="p-3">
 		<AnimatedBlock Index="@Index.Next()">
-			<MudText Typo="Typo.h3" GutterBottom>
+			<MudText Typo="Typo.h2" Color="Color.Primary" GutterBottom>
 				Invite a New Member
 			</MudText>
 		</AnimatedBlock>
-		<EditForm Model="invite"
+
+		<AnimatedBlock Index="@Index.Next()">
+			<MudDivider Class="mb-3" />
+			<Instructions Title="Fill out the form below to invite someone to join your company."
+					  Message="The invitee will receive an email with instructions on how to join." 
+					  StartIcon="@Icons.Material.Filled.Email"
+					  Typo1="Typo.subtitle1"
+					  Typo2="Typo.caption"/>
+		</AnimatedBlock>
+		<AnimatedBlock Index="@Index.Next()">
+					  <EditForm Model="invite"
 				  class="vstack gap-3"
 				  OnValidSubmit="HandleValidSubmit">
 			<DataAnnotationsValidator />
@@ -91,6 +102,7 @@
 				</div>
 			</AnimatedBlock>
 		</EditForm>
+		</AnimatedBlock>
 	</MudPaper>
 </MudContainer>
 
