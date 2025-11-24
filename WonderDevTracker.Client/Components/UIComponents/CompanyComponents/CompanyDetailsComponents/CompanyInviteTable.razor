@@ -10,7 +10,10 @@
 				<NameEmailLink Invite="context.Item" />
 			</CellTemplate>
 		</PropertyColumn>
-		<PropertyColumn Title="Project" Property="@(i => i.Project != null ? i.Project.Name : "Unknown")">
+		<PropertyColumn Title="Project" Property="@(i =>  i.Project!.Name)">
+			<CellTemplate>
+				<ProjectTitleLink Project="context.Item.Project" />
+			</CellTemplate>
 		</PropertyColumn>
 		<PropertyColumn Title="Sent" Property="i => i.InviteDate" Format="g">
 			<CellTemplate>

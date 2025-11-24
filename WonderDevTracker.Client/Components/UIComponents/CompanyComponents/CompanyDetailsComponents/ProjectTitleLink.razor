@@ -1,0 +1,28 @@
+﻿@* ProjectTitleLink.razor *@
+
+@if (Project is null)
+{
+	<MudText Typo="Typo.caption" Color="Color.Secondary">
+		Unknown
+	</MudText>
+}
+else
+{
+	<SafeNavLink Href="@ProjectUrl"
+				 Valid=" ValidProject"
+				 Class="project-details-link">
+		@Project.Name
+	</SafeNavLink>
+}
+
+@code {
+	[Parameter, EditorRequired]
+	public ProjectDTO? Project { get; set; }
+
+	private string ProjectUrl =>
+		Project is null ? "#" : $"/projects/{Project.Id}";
+
+	private bool ValidProject =>
+		 Project?.Id is not null;
+}
+
