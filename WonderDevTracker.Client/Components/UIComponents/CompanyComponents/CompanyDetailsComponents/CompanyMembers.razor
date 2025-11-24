@@ -9,7 +9,7 @@
 	<MudCardHeader>
 		<CardHeaderContent>
 			<MudText Typo="Typo.h2" Color="Color.Primary">Members</MudText>
-			<MudDivider Class="mb-3" />
+			<MudDivider />
 		</CardHeaderContent>
 	</MudCardHeader>
 	<MudCardContent>
@@ -68,10 +68,8 @@
 			else
 			{
 				<AnimatedBlock Index="IndexTracker.Next()">
-					<Instructions Title="Drag and drag and drop members"
+					<Instructions Title="Drag and drop members"
 								  Message="Tip: To reassign roles, move users between role sections below."
-								  Typo1="Typo.subtitle1"
-								  Typo2="Typo.caption"
 								  StartIcon="@Icons.Material.Filled.TouchApp" />
 				</AnimatedBlock>
 				<MudDropContainer T="AppUserDTO"
