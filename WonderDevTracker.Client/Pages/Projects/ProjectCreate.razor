@@ -11,116 +11,117 @@
 <PageTitle>Create Project | Dev Tracker</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large">
-    <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
 
-    <MudPaper Class="p-3">
-        <AnimatedBlock Index="@Index.Next()">
-            <MudText Typo="Typo.h2" Color="Color.Primary" GutterBottom>
-                Create a New Project
-            </MudText>
-            <MudDivider Class="mb-3" />
-        </AnimatedBlock>
-        <AnimatedBlock Index="@Index.Next()" >
-            <Instructions Title="Fill out the form to create a new project."
-                          Message="Tip: Once the project is submitted, you can select team members on the Project Details page."
-                          StartIcon="@Icons.Material.Filled.Create"
-                          Typo1="Typo.subtitle1"
-                          Typo2="Typo.caption"/>
-        </AnimatedBlock>
-        <EditForm Model="project"
-                  class="vstack gap-3"
-                  OnValidSubmit="HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <AnimatedBlock Index="@Index.Next()">
-                <MudTextField @bind-Value="project.Name"
-                              For="() => project.Name"
-                              Label="Name"
-                              Variant="Variant.Outlined"
-                              Required="true" />
-            </AnimatedBlock>
+	<MudPaper Class="p-3">
+		<AnimatedBlock Index="@Index.Next()">
+			<MudText Typo="Typo.h2" Color="Color.Primary" GutterBottom>
+				Create a New Project
+			</MudText>
+			<MudDivider Class="mb-3" />
+		</AnimatedBlock>
+		<AnimatedBlock Index="@Index.Next()">
+			<Instructions Title="Fill out the form to create a new project."
+						  Message="Tip: Once the project is successfully submitted,
+                                   you are directed to the Project Details page 
+                                   where you can assign project team members."
+						  StartIcon="@Icons.Material.Filled.Create"
+						  />
+		</AnimatedBlock>
+		<EditForm Model="project"
+				  class="vstack gap-3"
+				  OnValidSubmit="HandleValidSubmit">
+			<DataAnnotationsValidator />
+			<AnimatedBlock Index="@Index.Next()">
+				<MudTextField @bind-Value="project.Name"
+							  For="() => project.Name"
+							  Label="Name"
+							  Variant="Variant.Outlined"
+							  Required="true" />
+			</AnimatedBlock>
 
-            <AnimatedBlock Index="@Index.Next()">
-                <MudTextField @bind-Value="project.Description"
-                              For="() => project.Description"
-                              Label="Description"
-                              Variant="Variant.Outlined"
-                              Lines="5"
-                              MaxLines="15"
-                              AutoGrow="true"
-                              Required="true" />
-            </AnimatedBlock>
-            <AnimatedBlock Index="@Index.Next()">
-                <div class="hstack gap-3 align-items-start flex-wrap">
-                    <MudDatePicker @bind-Date="project.StartDateTime"
-                                   For="@(() => project.StartDateTime)"
-                                   Required="true"
-                                   Label="Planned Start Date"
-                                   Variant="Variant.Outlined" />
-                    <ValidationMessage For="@(() => project.StartDateTime)" />
+			<AnimatedBlock Index="@Index.Next()">
+				<MudTextField @bind-Value="project.Description"
+							  For="() => project.Description"
+							  Label="Description"
+							  Variant="Variant.Outlined"
+							  Lines="5"
+							  MaxLines="15"
+							  AutoGrow="true"
+							  Required="true" />
+			</AnimatedBlock>
+			<AnimatedBlock Index="@Index.Next()">
+				<div class="hstack gap-3 align-items-start flex-wrap">
+					<MudDatePicker @bind-Date="project.StartDateTime"
+								   For="@(() => project.StartDateTime)"
+								   Required="true"
+								   Label="Planned Start Date"
+								   Variant="Variant.Outlined" />
+					<ValidationMessage For="@(() => project.StartDateTime)" />
 
 
-                    <MudDatePicker @bind-Date="project.EndDateTime"
-                                   For="@(() => project.EndDateTime)"
-                                   Required="true"
-                                   Label="Planned End Date"
-                                   Variant="Variant.Outlined" />
-                    <ValidationMessage For="@(() => project.EndDateTime)" />
-                </div>
-            </AnimatedBlock>
+					<MudDatePicker @bind-Date="project.EndDateTime"
+								   For="@(() => project.EndDateTime)"
+								   Required="true"
+								   Label="Planned End Date"
+								   Variant="Variant.Outlined" />
+					<ValidationMessage For="@(() => project.EndDateTime)" />
+				</div>
+			</AnimatedBlock>
 
-            <AnimatedBlock Index="@Index.Next()">
-                <MudField Label="Project Priority"
-                          Variant="Variant.Outlined">
+			<AnimatedBlock Index="@Index.Next()">
+				<MudField Label="Project Priority"
+						  Variant="Variant.Outlined">
 
-                    <PriorityChipSelector TEnum="ProjectPriority"
-                                          @bind-Selected="project.Priority" />
+					<PriorityChipSelector TEnum="ProjectPriority"
+										  @bind-Selected="project.Priority" />
 
-                </MudField>
-                <ValidationMessage For="() => project.Priority" />
-            </AnimatedBlock>
+				</MudField>
+				<ValidationMessage For="() => project.Priority" />
+			</AnimatedBlock>
 
-            <AnimatedBlock Index="@Index.Next()">
-                <ValidationSummary />
-                <div class="d-flex">
-                    <BackToBtn Href="/projects" Text="Back to Projects" />
+			<AnimatedBlock Index="@Index.Next()">
+				<ValidationSummary />
+				<div class="d-flex">
+					<BackToBtn Href="/projects" Text="Back to Projects" />
 
-                    <SubmitBtn DisplayText="Submit"
-                               ButtonType="ButtonType.Submit" />
-                    
-                </div>
-            </AnimatedBlock>
-        </EditForm>
-    </MudPaper>
+					<SubmitBtn DisplayText="Submit"
+							   ButtonType="ButtonType.Submit" />
+
+				</div>
+			</AnimatedBlock>
+		</EditForm>
+	</MudPaper>
 </MudContainer>
 
 @code {
-    private ProjectDTO project = new() { Created = DateTimeOffset.UtcNow };
-    private readonly IndexTrackerHelper Index = new();
+	private ProjectDTO project = new() { Created = DateTimeOffset.UtcNow };
+	private readonly IndexTrackerHelper Index = new();
 
-    protected override void OnParametersSet() => Index.Reset();
+	protected override void OnParametersSet() => Index.Reset();
 
 
-    private static readonly List<BreadcrumbItem> breadcrumbs = new()
-    {
-       new BreadcrumbItem("Home", href:"/" ),
-       new BreadcrumbItem("Projects", href:"/projects" ),
-       new BreadcrumbItem("Create a New Project", href:null, disabled: true ),
+	private static readonly List<BreadcrumbItem> breadcrumbs = new()
+	{
+	   new BreadcrumbItem("Home", href:"/" ),
+	   new BreadcrumbItem("Projects", href:"/projects" ),
+	   new BreadcrumbItem("Create a New Project", href:null, disabled: true ),
 
-    };
-    private async Task HandleValidSubmit()
-    {
-        try
-        {
-            project = await ProjectService.CreateProjectAsync(project, UserInfo!);
-            Snackbar.Add($"{project.Name} created successfully!", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            // Handle error, e.g., show a message to the user
-            Console.Error.WriteLine($"Error creating project: {ex.Message}");
-            Snackbar.Add("Unable to create project. Please try again.", Severity.Error);
-            return;
-        }
-        NavManager.NavigateTo($"/projects/{project.Id}");
-    }
+	};
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			project = await ProjectService.CreateProjectAsync(project, UserInfo!);
+			Snackbar.Add($"{project.Name} created successfully!", Severity.Success);
+		}
+		catch (Exception ex)
+		{
+			// Handle error, e.g., show a message to the user
+			Console.Error.WriteLine($"Error creating project: {ex.Message}");
+			Snackbar.Add("Unable to create project. Please try again.", Severity.Error);
+			return;
+		}
+		NavManager.NavigateTo($"/projects/{project.Id}");
+	}
 }
