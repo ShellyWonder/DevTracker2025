@@ -1,0 +1,43 @@
+﻿@* CompanyTicketTable *@
+
+<MudDataGrid Items="Invites"
+			 Elevation="0"
+			 Dense="true"
+			 ColumnResizeMode="ResizeMode.Container"
+			 DragDropColumnReordering
+			 Hideable
+			 ShowMenuIcon
+			 RowsPerPage="10">
+	<Columns>
+		<PropertyColumn Title="Name" Property="i => i.InviteeFullName">
+			<CellTemplate>
+				<MudText Typo="Typo.body1">@context.Item.InviteeFullName</MudText>
+			<MudText Typo="Typo.caption" Color="Color.Primary">@context.Item.InviteeEmail</MudText>
+			</CellTemplate>
+			</PropertyColumn>
+		<PropertyColumn Title="Project" Property="@(i => i.Project != null ? i.Project.Name : "Unknown")">
+		</PropertyColumn>
+		<PropertyColumn Title="Sent"  Property="i => i.InviteDate" Format="g">
+			
+		</PropertyColumn>
+	</Columns>
+	<PagerContent>
+		<MudDataGridPager />
+	</PagerContent>
+	<NoRecordsContent>
+		<NotFoundDisplay Message="No Invitations available" />
+	</NoRecordsContent>
+</MudDataGrid>
+
+
+
+@code {
+	[Parameter]
+	public IEnumerable<InviteDTO> Invitees { get; set; } = [];
+
+	[Parameter, EditorRequired]
+	public IEnumerable<InviteDTO> Invites { get; set; } = [];
+
+
+
+}

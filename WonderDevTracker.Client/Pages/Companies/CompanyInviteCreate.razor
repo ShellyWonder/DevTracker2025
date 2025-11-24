@@ -11,7 +11,7 @@
 
 @inherits AuthenticatedComponentBase
 
-<PageTitle>Create Invite Email | Dev Tracker</PageTitle>
+<PageTitle>Create Invitee Email | Dev Tracker</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large">
 	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
@@ -25,11 +25,10 @@
 
 		<AnimatedBlock Index="@Index.Next()">
 			<MudDivider Class="mb-3" />
-			<Instructions Title="Fill out the form below to invite someone to join your company."
-					  Message="The invitee will receive an email with instructions on how to join." 
+			<Instructions Title="Fill out the form below to invite someone to join the company."
+					  Message="Tip: The invitee will receive an email with instructions on how to join." 
 					  StartIcon="@Icons.Material.Filled.Email"
-					  Typo1="Typo.subtitle1"
-					  Typo2="Typo.caption"/>
+					   />
 		</AnimatedBlock>
 		<AnimatedBlock Index="@Index.Next()">
 					  <EditForm Model="invite"

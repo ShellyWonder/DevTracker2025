@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace WonderDevTracker.Client.Models.DTOs
 {
@@ -45,7 +47,13 @@ namespace WonderDevTracker.Client.Models.DTOs
         [Display(Name = "Invitee Last Name")]
         public string? InviteeLastName { get; set; }
 
-     
+        [Description("Invitee full name")]
+        [Display(Name = "Invitee Full Name")]
+        [NotMapped, JsonIgnore]
+        public string? InviteeFullName => $"{InviteeFirstName} {InviteeLastName}";
+        
+
+
         [Description("Optional message in email body")]
         public string? Message { get; set; }
 
