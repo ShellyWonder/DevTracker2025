@@ -2,46 +2,46 @@
 @inherits AuthenticatedComponentBase
 
 <AnimatedCard Index="Index"
-			  Class="p-3 mb-3">
-	<MudCardHeader>
-		<CardHeaderContent>
-			<MudText Typo="Typo.h2" Color="Color.Primary">Invitations</MudText>
-			<MudDivider Class="mb-3" />
-		</CardHeaderContent>
-	</MudCardHeader>
-	<MudCardContent>
-		@if (!Invites.Any())
-		{
+			  Class="p-3 mb-3 w-100">
+	@if (!Invites.Any())
+	{
+		<MudCardHeader>
+			<CardHeaderContent>
+				<MudText Typo="Typo.h2" Color="Color.Primary">Invitations</MudText>
+				<MudDivider />
+			</CardHeaderContent>
+		</MudCardHeader>
+		<MudCardContent>
 			<NotFoundDisplay Message="No invitations found for this company." />
-		}
-		else
-		{
-			<MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-				<MudTabPanel Text="Pending Invites">
-					<CompanyInviteTable Invites="@PendingInvites" />
-				</MudTabPanel>
-				<MudTabPanel Text="Accepted Invites">
-					<CompanyInviteTable Invites="@AcceptedInvites" />
-				</MudTabPanel>
-				<MudTabPanel Text="Cancelled/Expired Invites">
-					<CompanyInviteTable Invites="@CancelledInvites" />
+		</MudCardContent>
+	}
+	else
+	{
+		<MudTabs Elevation="0" Rounded="true" >
+			<MudTabPanel Text="Pending Invites">
+				<CompanyInviteTable Invites="@PendingInvites" />
+			</MudTabPanel>
+			<MudTabPanel Text="Accepted Invites">
+				<CompanyInviteTable Invites="@AcceptedInvites" />
+			</MudTabPanel>
+			<MudTabPanel Text="Cancelled/Expired Invites">
+				<CompanyInviteTable Invites="@CancelledInvites" />
 
-				</MudTabPanel>
-			</MudTabs>
-		}
-		@if (IsAdmin)
-		{
-			<SafeNavButton Valid="true"
-						   Color="Color.Tertiary"
-						   Variant="Variant.Text"
-						   Size="Size.Small"
-						   Class="project-details-link me-auto mt-2"
-						   StartIcon="@Icons.Material.Filled.PersonAdd"
-						   TypeText="Invite New Member"
-						   Href="/company/invite" />
-		}
-	</MudCardContent>
-</AnimatedCard>
+			</MudTabPanel>
+		</MudTabs>
+	}
+	@if (IsAdmin)
+	{
+		<SafeNavButton Valid="true"
+					   Color="Color.Tertiary"
+					   Variant="Variant.Text"
+					   Size="Size.Medium"
+					   Class="project-details-link me-auto mt-2"
+					   StartIcon="@Icons.Material.Filled.PersonAdd"
+					   TypeText="Invite New Member"
+					   Href="/company/invite" />
+	}
+	</AnimatedCard>
 @code {
 	#region PARAMETERS
 	[Parameter, EditorRequired]
@@ -50,8 +50,8 @@
 	[Parameter]
 	public CompanyDTO? Company { get; set; }
 
-	
-	[Parameter,EditorRequired]
+
+	[Parameter, EditorRequired]
 	public IEnumerable<InviteDTO> Invites { get; set; } = [];
 	#endregion
 
@@ -59,8 +59,12 @@
 
 	#endregion
 	#region COMPUTED PROPERTIES
-	private IEnumerable<InviteDTO> PendingInvites => Invites.Where(i => i.IsValid == true);
-	private IEnumerable<InviteDTO> AcceptedInvites => Invites.Where(i => i.JoinDate.HasValue || !string.IsNullOrEmpty(i.InviteeId));
-	private IEnumerable<InviteDTO> CancelledInvites => Invites.Where(i => i.IsValid == false && !i.JoinDate.HasValue);
+	private IEnumerable<InviteDTO> PendingInvites => Invites.Where(i => i.IsValid == true
+															 && !i.JoinDate.HasValue
+															 && string.IsNullOrEmpty(i.InviteeId));
+	private IEnumerable<InviteDTO> AcceptedInvites => Invites.Where(i => i.JoinDate.HasValue
+															  || !string.IsNullOrEmpty(i.InviteeId));
+	private IEnumerable<InviteDTO> CancelledInvites => Invites.Where(i => i.IsValid == false
+															  && !i.JoinDate.HasValue);
 	#endregion
 }
