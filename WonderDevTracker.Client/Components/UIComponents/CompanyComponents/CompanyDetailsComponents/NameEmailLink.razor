@@ -1,0 +1,20 @@
+﻿@* NameEmailLink.razor *@
+
+<div class="d-flex flex-column">
+    <MudText Typo="Typo.body1" Class="fw-semibold">
+        @Invite.InviteeFullName
+    </MudText>
+
+    <MudLink Href="@($"mailto:{Invite.InviteeEmail}")"
+             Typo="Typo.caption"
+             Color="Color.Primary"
+             Class="mt-n1">
+        @Invite.InviteeEmail
+    </MudLink>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public InviteDTO Invite { get; set; } = default!;
+}
+
