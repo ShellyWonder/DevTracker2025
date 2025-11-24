@@ -1,16 +1,39 @@
 ﻿@* CompanyInviteTable *@
 
+@inherits AuthenticatedComponentBase
+
 <MudDataGrid Items="Invites"
 			 Elevation="0"
 			 Dense="true"
 			 RowsPerPage="10">
 	<Columns>
+		@if (Status == InviteStatusEnum.Pending)
+		{
+			@if (IsAdmin)
+			{
+				<TemplateColumn Title="Actions">
+					<CellTemplate>
+						<MudMenu Icon="@Icons.Material.Filled.MoreVert"
+								 Dense
+								 Size="Size.Small">
+							<MudMenuItem Icon="@Icons.Material.Filled.Send"
+										 IconSize="Size.Small">
+								Resend
+							</MudMenuItem>
+							<MudMenuItem>
+								Cancel
+							</MudMenuItem>
+						</MudMenu>
+					</CellTemplate>
+			    </TemplateColumn>
+			}
+		}
 		<PropertyColumn Title="Name" Property="i => i.InviteeFullName">
 			<CellTemplate>
 				<NameEmailLink Invite="context.Item" />
 			</CellTemplate>
 		</PropertyColumn>
-		<PropertyColumn Title="Project" Property="@(i =>  i.Project!.Name)">
+		<PropertyColumn Title="Project" Property="@(i => i.Project!.Name)">
 			<CellTemplate>
 				<ProjectTitleLink Project="context.Item.Project" />
 			</CellTemplate>
@@ -25,15 +48,24 @@
 		<MudDataGridPager />
 	</PagerContent>
 	<NoRecordsContent>
-		<NotFoundDisplay Message="No Invitations available" />
+		<NotFoundDisplay Message="@GetEmptyMessage()" />
 	</NoRecordsContent>
 </MudDataGrid>
 
 @code {
-	
+
 	[Parameter, EditorRequired]
 	public IEnumerable<InviteDTO> Invites { get; set; } = [];
 
+	[Parameter, EditorRequired]
+	public InviteStatusEnum Status { get; set; }
 
+	private string GetEmptyMessage() => Status switch
+	{
+		InviteStatusEnum.Pending => "No pending invitations available.",
+		InviteStatusEnum.Accepted => "No accepted invitations yet.",
+		InviteStatusEnum.Cancelled => "No cancelled or expired invitations.",
+		_ => "No invitations available."
+	};
 
 }

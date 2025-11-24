@@ -19,13 +19,16 @@
 	{
 		<MudTabs Elevation="0" Rounded="true" >
 			<MudTabPanel Text="Pending Invites">
-				<CompanyInviteTable Invites="@PendingInvites" />
+				<CompanyInviteTable Invites="@PendingInvites"
+					                 Status="InviteStatusEnum.Pending"/>
 			</MudTabPanel>
 			<MudTabPanel Text="Accepted Invites">
-				<CompanyInviteTable Invites="@AcceptedInvites" />
+				<CompanyInviteTable Invites="@AcceptedInvites"
+					                Status="InviteStatusEnum.Accepted"/>
 			</MudTabPanel>
 			<MudTabPanel Text="Cancelled/Expired Invites">
-				<CompanyInviteTable Invites="@CancelledInvites" />
+				<CompanyInviteTable Invites="@CancelledInvites"
+					                Status="InviteStatusEnum.Cancelled"/>
 
 			</MudTabPanel>
 		</MudTabs>
