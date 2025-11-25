@@ -27,5 +27,15 @@ namespace WonderDevTracker.Services.Interfaces
         /// objects associated with the specified identifier and user. 
         /// The collection is empty if no invites are found.</remarks>
         public Task<IEnumerable<Invite>> GetInviteAsync(UserInfo user);
+
+        /// <summary>
+        /// Cancel Invite
+        /// </summary>
+        /// <param name="inviteId">Id of the invite to cancel. Must correspond to an existing, pending invite.</param>
+        /// <param name="user">The user's claims.</param>
+        /// <remarks>Cancels a pending invite identified by the specified invite ID on behalf of the given user. 
+        /// Only the invite's company admin may cancel the invite
+        /// </remarks>
+        public Task CancelInviteAsync(int inviteId, UserInfo user);
     }
 }

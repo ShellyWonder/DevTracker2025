@@ -11,7 +11,7 @@ namespace WonderDevTracker.Services.Repositories
     {
         public async Task<Invite> CreateInviteAsync(Invite invite, UserInfo user)
         {
-             await using ApplicationDbContext db = contextFactory.CreateDbContext();
+            await using ApplicationDbContext db = contextFactory.CreateDbContext();
 
             await EnsureInviteConditionsAreValidAsync(invite, user, db);
 
@@ -32,18 +32,33 @@ namespace WonderDevTracker.Services.Repositories
         public async Task<IEnumerable<Invite>> GetInviteAsync(UserInfo user)
         {
             await using ApplicationDbContext db = contextFactory.CreateDbContext();
-           List<Invite> invites = await db.Invites
-                .Where(i => i.CompanyId == user.CompanyId)
-                .Include(i => i.Invitor)
-                .Include(i => i.Invitee)
-                .Include(i => i.Project)
-                .ToListAsync();
+            List<Invite> invites = await db.Invites
+                 .Where(i => i.CompanyId == user.CompanyId)
+                 .Include(i => i.Invitor)
+                 .Include(i => i.Invitee)
+                 .Include(i => i.Project)
+                 .ToListAsync();
             foreach (Invite invite in invites)
             {
                 invite.IsValid = ValidateInvite(invite);
-            } 
+            }
             await db.SaveChangesAsync();
             return invites;
+        }
+
+        public async Task CancelInviteAsync(int inviteId, UserInfo user)
+        {
+            if (!user.IsInRole(Role.Admin))
+                throw new ApplicationException($"{user.Email} is not authorized to cancel invites.");
+            await using ApplicationDbContext db = contextFactory.CreateDbContext();
+            Invite? invite = await db.Invites
+                .FirstOrDefaultAsync(i => i.Id == inviteId && i.CompanyId == user.CompanyId
+                                                                  && i.IsValid == true);
+            if (invite != null)
+            {
+                invite.IsValid = false;
+                await db.SaveChangesAsync();
+            }
         }
         #region PRIVATE HELPER METHODS
         private static async Task<bool> EnsureInviteConditionsAreValidAsync(Invite invite, UserInfo user, ApplicationDbContext db)
@@ -52,7 +67,7 @@ namespace WonderDevTracker.Services.Repositories
             if (!user.IsInRole(Role.Admin))
                 throw new ApplicationException($"{user.Email} is not authorized to create invites.");
 
-            
+
             // 2. Ensure invite is sent only to NEW users
             bool emailExists = await db.Users.AnyAsync(u =>
                 u.Email == invite.InviteeEmail &&
@@ -83,6 +98,8 @@ namespace WonderDevTracker.Services.Repositories
                 && string.IsNullOrEmpty(invite.InviteeId);
             return isValid;
         }
+
+
         #endregion
 
     }

@@ -1,5 +1,6 @@
 ﻿using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
 
@@ -7,6 +8,7 @@ namespace WonderDevTracker.Services
 {
     public class InviteDTOService(IInviteRepository repository) : IInviteDTOService
     {
+
         public async Task<InviteDTO> CreateInviteAsync(InviteDTO dto, UserInfo user)
         {
             Invite invite = new()
@@ -31,6 +33,14 @@ namespace WonderDevTracker.Services
             IEnumerable<InviteDTO> dto = invites.Select(i => i.ToDTO());
             return dto;
 
+        }
+
+        public async Task CancelInviteAsync(int inviteId, UserInfo user)
+        {
+            if (user.IsInRole(Role.Admin))
+            {
+                await repository.CancelInviteAsync(inviteId, user);
+            }
         }
     }
 }
