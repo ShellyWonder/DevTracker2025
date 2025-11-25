@@ -1,6 +1,7 @@
 ﻿@*CompanyDetails *@
 @page "/company"
 @using WonderDevTracker.Client.Components.UIComponents.CompanyComponents.CompanyDetailsComponents
+@using WonderDevTracker.Services.Interfaces
 @attribute [Authorize]
 
 @inject IProjectDTOService ProjectService
@@ -8,6 +9,7 @@
 @inject IAppAuthorizationService AuthService
 @inject IndexTrackerHelper IndexTracker
 @inject NavigationManager NavManager
+@inject IInviteDTOService InviteService
 @inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
@@ -30,10 +32,11 @@
 						 Company="_company"
 						 OnSave="HandleUpdateCompany" />
 			<CompanyMembers Index="IndexTracker.Next()"
-							Members="_company.Members" 
-							OnChange="HandleRefreshMembers"/>
-			<CompanyInvites Invites="_company.Invites" 
-			                Index="IndexTracker.Next()" />
+							Members="_company.Members"
+							OnChange="HandleRefreshMembers" />
+			<CompanyInvites Invites="_company.Invites"
+							Index="IndexTracker.Next()"
+							OnChange="HandleRefreshInvites" />
 
 		</div>
 	}
@@ -48,7 +51,7 @@
 	}
 </MudContainer>
 
-	@code {
+@code {
 
 	#region STATE
 	private static readonly List<BreadcrumbItem> breadcrumbs = new()
@@ -96,25 +99,38 @@
 			Snackbar.Add("Failed to update company details. Please try again.", Severity.Error);
 
 		}
-
-
-
 	}
 
 	private async Task HandleRefreshMembers()
 	{
 		if (_company is null || UserInfo is null) return;
-		
-			try
-			{
-				_company.Members = [.. await CompanyService.GetUsersAsync(UserInfo)];
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex);
-				Snackbar.Add("Failed to fetch company members", Severity.Error);
-			}
 
-		
+		try
+		{
+			//using collection expression with spread operator to create new list instance to trigger UI updates
+			//converting from IEnumerable to ICollection
+			_company.Members = [.. await CompanyService.GetUsersAsync(UserInfo)];
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Failed to fetch company members", Severity.Error);
+		}
+	}
+
+	private async Task HandleRefreshInvites()
+	{
+		if (_company is null || UserInfo is null) return;
+
+		try
+		{
+			
+			_company.Invites = [.. await InviteService.GetInviteAsync(UserInfo)];
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Failed to fetch updated company invites", Severity.Error);
+		}
 	}
 }

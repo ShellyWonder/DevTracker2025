@@ -1,4 +1,7 @@
 ﻿@* CompanyInviteTable *@
+@using WonderDevTracker.Services.Interfaces
+@inject IInviteDTOService InviteService
+@inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
 
@@ -11,21 +14,23 @@
 		{
 			@if (IsAdmin)
 			{
-				<TemplateColumn Title="Actions">
+				<TemplateColumn >
 					<CellTemplate>
 						<MudMenu Icon="@Icons.Material.Filled.MoreVert"
 								 Dense
 								 Size="Size.Small">
-							<MudMenuItem Icon="@Icons.Material.Filled.Send"
-										 IconSize="Size.Small">
+							<MudMenuItem Icon="@Icons.Material.Filled.Mail"
+										 IconColor="Color.Dark">
 								Resend
 							</MudMenuItem>
-							<MudMenuItem>
+							<MudMenuItem Icon="@Icons.Material.Filled.Cancel"
+										 IconColor="Color.Error"
+										 OnClick="async () => await HandleCancelInvite(context.Item.Id)">
 								Cancel
 							</MudMenuItem>
 						</MudMenu>
 					</CellTemplate>
-			    </TemplateColumn>
+				</TemplateColumn>
 			}
 		}
 		<PropertyColumn Title="Name" Property="i => i.InviteeFullName">
@@ -53,12 +58,16 @@
 </MudDataGrid>
 
 @code {
-
+	#region PARAMETERS
 	[Parameter, EditorRequired]
 	public IEnumerable<InviteDTO> Invites { get; set; } = [];
 
 	[Parameter, EditorRequired]
 	public InviteStatusEnum Status { get; set; }
+
+	[Parameter]
+	public EventCallback OnChange { get; set; }
+	#endregion
 
 	private string GetEmptyMessage() => Status switch
 	{
@@ -68,4 +77,23 @@
 		_ => "No invitations available."
 	};
 
+	#region PRIVATE HELPER METHODS
+	private async Task HandleCancelInvite(int inviteId)
+	{
+		if (UserInfo is null || !IsAdmin) return;
+
+		try
+		{
+			await InviteService.CancelInviteAsync(inviteId, UserInfo);
+			Snackbar.Add("Invite cancelled successfully.", Severity.Success);
+			await OnChange.InvokeAsync();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Failed to cancel invite. Please try again.", Severity.Error);
+
+		}
+	}
+	#endregion
 }

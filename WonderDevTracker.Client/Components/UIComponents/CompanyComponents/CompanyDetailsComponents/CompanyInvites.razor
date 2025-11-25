@@ -20,15 +20,18 @@
 		<MudTabs Elevation="0" Rounded="true" >
 			<MudTabPanel Text="Pending Invites">
 				<CompanyInviteTable Invites="@PendingInvites"
-					                 Status="InviteStatusEnum.Pending"/>
+					                 Status="InviteStatusEnum.Pending"
+									 OnChange="OnChange"/>
 			</MudTabPanel>
 			<MudTabPanel Text="Accepted Invites">
 				<CompanyInviteTable Invites="@AcceptedInvites"
-					                Status="InviteStatusEnum.Accepted"/>
+					                Status="InviteStatusEnum.Accepted"
+									OnChange="OnChange" />
 			</MudTabPanel>
 			<MudTabPanel Text="Cancelled/Expired Invites">
 				<CompanyInviteTable Invites="@CancelledInvites"
-					                Status="InviteStatusEnum.Cancelled"/>
+					                Status="InviteStatusEnum.Cancelled"
+									OnChange="OnChange" />
 
 			</MudTabPanel>
 		</MudTabs>
@@ -56,6 +59,9 @@
 
 	[Parameter, EditorRequired]
 	public IEnumerable<InviteDTO> Invites { get; set; } = [];
+
+	[Parameter]
+	public EventCallback OnChange { get; set; }
 	#endregion
 
 	#region STATE
