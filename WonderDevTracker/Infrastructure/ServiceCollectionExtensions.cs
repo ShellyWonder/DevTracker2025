@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using WonderDevTracker.Client.Services;
 using WonderDevTracker.Client.Services.Interfaces;
-using WonderDevTracker.Components.Account;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services;
 using WonderDevTracker.Services.Interfaces;
@@ -25,8 +25,10 @@ namespace WonderDevTracker.Infrastructure
             services.AddScoped<IInviteRepository, InviteRepository>();
             services.AddScoped<IInviteDTOService, InviteDTOService>();
 
-            // No-op email sender for development purposes, replace with a real implementation in production
-            services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+            // MailGun for development purposes, replace with a real implementation in production
+            services.AddSingleton<IEmailSender<ApplicationUser>, MailGunEmailService>();  //use in identity pages
+            services.AddSingleton<IEmailSender, MailGunEmailService>();// use for application contact emails
+
             services.AddSingleton<IProjectPatchBuilder, ProjectPatchBuilder>();
             return services;
         }
