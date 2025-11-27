@@ -1,6 +1,7 @@
 ﻿@* CompanyInviteTable *@
 @using WonderDevTracker.Services.Interfaces
 @inject IInviteDTOService InviteService
+@inject NavigationManager NavManager
 @inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
@@ -20,7 +21,8 @@
 								 Dense
 								 Size="Size.Small">
 							<MudMenuItem Icon="@Icons.Material.Filled.Mail"
-										 IconColor="Color.Dark">
+										 IconColor="Color.Dark"
+										 OnClick="async () => await HandleResendInvite(context.Item.Id)">
 								Resend
 							</MudMenuItem>
 							<MudMenuItem Icon="@Icons.Material.Filled.Cancel"
@@ -93,6 +95,28 @@
 			Console.WriteLine(ex);
 			Snackbar.Add("Failed to cancel invite. Please try again.", Severity.Error);
 
+		}
+	}
+
+	private async Task HandleResendInvite(int inviteId)
+	{
+		if (UserInfo is null || !IsAdmin) return;
+		try
+		{
+			bool sent = await InviteService.SendInviteAsync(new Uri(NavManager.BaseUri), inviteId, UserInfo);
+			if (sent)
+			{
+				Snackbar.Add("Invite resent successfully.", Severity.Success);
+			}
+			else
+			{
+				Snackbar.Add("Failed to resend invite. Please try again.", Severity.Error);
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Failed to resend invite. Please try again.", Severity.Error);
 		}
 	}
 	#endregion
