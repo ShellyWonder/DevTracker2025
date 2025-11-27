@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
@@ -7,11 +9,29 @@ using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services.Repositories
 {
-    public class InviteRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : IInviteRepository
+    public class InviteRepository : IInviteRepository
     {
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        private readonly IEmailSender _emailSender;
+        private readonly IDataProtector _protector;
+
+        public InviteRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
+                                IEmailSender emailSender,
+                                IDataProtector protectionProvider,
+                                IConfiguration config)
+        {
+            _contextFactory = contextFactory;
+            _emailSender = emailSender;
+            _protector = protectionProvider;
+
+            string protectionPurpose = config["InviteProtectionKey"]
+                ?? throw new ApplicationException("InviteProtectionKey found in configuration");
+            _protector = protectionProvider.CreateProtector(protectionPurpose);
+        }
+
         public async Task<Invite> CreateInviteAsync(Invite invite, UserInfo user)
         {
-            await using ApplicationDbContext db = contextFactory.CreateDbContext();
+            await using ApplicationDbContext db = _contextFactory.CreateDbContext();
 
             await EnsureInviteConditionsAreValidAsync(invite, user, db);
 
@@ -29,9 +49,89 @@ namespace WonderDevTracker.Services.Repositories
 
         }
 
+        public async Task<bool> SendInviteAsync(Uri baseUri, int inviteId, UserInfo user)
+        {
+            //validate user is admin
+            if (!user.IsInRole(Role.Admin)) return false;
+
+            try
+            {
+                await using ApplicationDbContext context = _contextFactory.CreateDbContext();
+                //validate invite belongs to company
+                Invite? invite = await context.Invites
+                                       .Include(i => i.Company)
+                                       .Include(i => i.Invitor)
+                                       .Include(i => i.Invitee)
+                                       .Include(i => i.Project)
+                                       .FirstOrDefaultAsync(i => i.Id == inviteId
+                                       && i.CompanyId == user.CompanyId
+                                       && i.IsValid);
+                //validate invite exists and is valid
+                if (invite is null || ValidateInvite(invite) == false)
+                {
+                    if (invite is not null)
+                    {
+                        invite.IsValid = false;
+                        await context.SaveChangesAsync();
+                    }
+
+                    return false;
+                }
+
+                //generate invite link:
+                //encrypt company token
+                string protectedToken = _protector.Protect(invite.CompanyToken.ToString());
+                //encrypt invite's company id
+                string protectedCompanyId = _protector.Protect(invite.CompanyId.ToString());
+                //encrypt invitee email 
+                string protectedEmail = _protector.Protect(invite.InviteeEmail!);
+                string baseUrl = baseUri.GetLeftPart(UriPartial.Authority);
+                string inviteUrl = $"(baseUrl)/Account/Register/Invite?token={protectedToken}&email={protectedEmail}&company={protectedCompanyId}";
+
+                //Construct the email
+                string subject = $"Please join {invite.Company!.Name} on DevTracker.";
+                string message = string.IsNullOrEmpty(invite.Message)
+                                 ? string.Empty
+                                 : $""" 
+                                    <hr />
+                                    <p>Message from {invite.Invitor!.FirstName} {invite.Invitor!.LastName}:</p>
+                                    <blockquote>{invite.Message}</blockquote>
+                                    <hr />
+                                    """; 
+                 string body = $""" 
+                                <h1>Welcome to Dev Tracker, {invite.Invitee!.FirstName}!</h1>
+                                <p> {invite.Invitor!.FirstName} {invite.Invitor!.LastName} has invited you to join the
+                                {invite.Company!.Name} team to work on the company's {invite.Project!.Name} project.
+                                </p>
+                                <p>
+                                {message}
+                                </p>
+                                <p>
+                                To accept this invitation, please <a href="{inviteUrl}">click here</a> to register a new account.
+                                </p>
+                                <p>
+                                <strong>NOTE:</strong> This invitation expires on {invite.InviteDate.AddDays(7):d}
+                                </p>
+                                <small>
+                                <br>
+                                {inviteUrl}
+                                </small>
+                                """;
+
+                await _emailSender.SendEmailAsync(invite.InviteeEmail!,subject, body);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return false;
+        }
+
+
         public async Task<IEnumerable<Invite>> GetInviteAsync(UserInfo user)
         {
-            await using ApplicationDbContext db = contextFactory.CreateDbContext();
+            await using ApplicationDbContext db = _contextFactory.CreateDbContext();
             List<Invite> invites = await db.Invites
                  .Where(i => i.CompanyId == user.CompanyId)
                  .Include(i => i.Invitor)
@@ -50,7 +150,7 @@ namespace WonderDevTracker.Services.Repositories
         {
             if (!user.IsInRole(Role.Admin))
                 throw new ApplicationException($"{user.Email} is not authorized to cancel invites.");
-            await using ApplicationDbContext db = contextFactory.CreateDbContext();
+            await using ApplicationDbContext db = _contextFactory.CreateDbContext();
             Invite? invite = await db.Invites
                 .FirstOrDefaultAsync(i => i.Id == inviteId && i.CompanyId == user.CompanyId
                                                                   && i.IsValid == true);
@@ -60,6 +160,7 @@ namespace WonderDevTracker.Services.Repositories
                 await db.SaveChangesAsync();
             }
         }
+
         #region PRIVATE HELPER METHODS
         private static async Task<bool> EnsureInviteConditionsAreValidAsync(Invite invite, UserInfo user, ApplicationDbContext db)
         {
@@ -90,7 +191,7 @@ namespace WonderDevTracker.Services.Repositories
             return true;
         }
 
-        private bool ValidateInvite(Invite invite)
+        private static bool ValidateInvite(Invite invite)
         {
             bool isValid = invite.IsValid
                 && DateTimeOffset.UtcNow < invite.InviteDate.AddDays(7)
@@ -98,6 +199,7 @@ namespace WonderDevTracker.Services.Repositories
                 && string.IsNullOrEmpty(invite.InviteeId);
             return isValid;
         }
+
 
 
         #endregion

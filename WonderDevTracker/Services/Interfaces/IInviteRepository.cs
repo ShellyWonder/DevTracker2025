@@ -37,5 +37,16 @@ namespace WonderDevTracker.Services.Interfaces
         /// Only the invite's company admin may cancel the invite
         /// </remarks>
         public Task CancelInviteAsync(int inviteId, UserInfo user);
+        /// <summary>
+        /// Send Invite to New User
+        /// </summary>
+        /// <param name="baseUri">The base URI of the service endpoint to which the invitation request will be sent. Cannot be null.</param>
+        /// <param name="inviteId">Id of the invitation to be sent.</param>
+        /// <param name="user">Current user's claims.</param>
+        /// <remarks>Sends an invitation to the specified user asynchronously
+        /// using the provided base URI and invite identifier. 
+        /// The task result is <see langword="true"/> if the
+        /// invitation was sent successfully; otherwise, <see langword="false"/>.</remarks>
+        public Task<bool> SendInviteAsync(Uri baseUri, int inviteId, UserInfo user);
     }
 }
