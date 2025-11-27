@@ -42,5 +42,14 @@ namespace WonderDevTracker.Services
                 await repository.CancelInviteAsync(inviteId, user);
             }
         }
+
+        public async Task<bool> SendInviteAsync(Uri baseUri, int inviteId, UserInfo user)
+        {
+            if (user.IsInRole(Role.Admin))
+            {
+                return await repository.SendInviteAsync(baseUri, inviteId, user);
+            }
+            return false;
+        }
     }
 }
