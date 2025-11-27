@@ -7,7 +7,7 @@ using WonderDevTracker.Models;
 
 namespace WonderDevTracker.Services
 {
-    public partial class MailGunEmailService(IConfiguration config) : IEmailSender, IEmailSender<ApplicationUser>
+    public partial class MailGunEmailSender(IConfiguration config) : IEmailSender, IEmailSender<ApplicationUser>
     {
 
         private readonly string _apiKey = config["MailGunKey"]
