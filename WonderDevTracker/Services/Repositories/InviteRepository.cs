@@ -17,16 +17,16 @@ namespace WonderDevTracker.Services.Repositories
 
         public InviteRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
                                 IEmailSender emailSender,
-                                IDataProtector protectionProvider,
+                                IDataProtectionProvider dataProtectionProvider,
                                 IConfiguration config)
         {
             _contextFactory = contextFactory;
             _emailSender = emailSender;
-            _protector = protectionProvider;
+            _protector = dataProtectionProvider.CreateProtector("InviteProtectionKey"); 
 
             string protectionPurpose = config["InviteProtectionKey"]
-                ?? throw new ApplicationException("InviteProtectionKey found in configuration");
-            _protector = protectionProvider.CreateProtector(protectionPurpose);
+                ?? throw new ApplicationException("InviteProtectionKey not found in configuration");
+            
         }
 
         public async Task<Invite> CreateInviteAsync(Invite invite, UserInfo user)
@@ -86,8 +86,10 @@ namespace WonderDevTracker.Services.Repositories
                 //encrypt invitee email 
                 string protectedEmail = _protector.Protect(invite.InviteeEmail!);
                 string baseUrl = baseUri.GetLeftPart(UriPartial.Authority);
-                string inviteUrl = $"(baseUrl)/Account/Register/Invite?token={protectedToken}&email={protectedEmail}&company={protectedCompanyId}";
+                string inviteUrl = $"{baseUrl}/Account/Register/Invite?token={protectedToken}&email={protectedEmail}&company={protectedCompanyId}";
 
+                var inviteeFirstName = invite.Invitee?.FirstName ?? invite.InviteeFirstName ?? "friend";
+                var inviteeLastName = invite.Invitee?.LastName ?? invite.InviteeLastName ?? string.Empty;
                 //Construct the email
                 string subject = $"Please join {invite.Company!.Name} on DevTracker.";
                 string message = string.IsNullOrEmpty(invite.Message)
@@ -99,7 +101,7 @@ namespace WonderDevTracker.Services.Repositories
                                     <hr />
                                     """; 
                  string body = $""" 
-                                <h1>Welcome to Dev Tracker, {invite.Invitee!.FirstName}!</h1>
+                                <h1>Welcome to Dev Tracker, {inviteeFirstName} {inviteeLastName}!</h1>
                                 <p> {invite.Invitor!.FirstName} {invite.Invitor!.LastName} has invited you to join the
                                 {invite.Company!.Name} team to work on the company's {invite.Project!.Name} project.
                                 </p>
@@ -113,6 +115,7 @@ namespace WonderDevTracker.Services.Repositories
                                 <strong>NOTE:</strong> This invitation expires on {invite.InviteDate.AddDays(7):d}
                                 </p>
                                 <small>
+                                <p>If you are unable to click the link above, please copy and paste the following URL into your browser's address bar.</p>
                                 <br>
                                 {inviteUrl}
                                 </small>
