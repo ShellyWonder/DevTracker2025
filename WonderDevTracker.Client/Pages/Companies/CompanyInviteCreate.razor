@@ -108,8 +108,17 @@
 @code {
 	private IEnumerable<ProjectDTO> projects = [];
 	private InviteDTO invite = new() { JoinDate = DateTimeOffset.UtcNow };
+	private static readonly List<BreadcrumbItem> breadcrumbs = new()
+	{
+	   new BreadcrumbItem("Home", href:"/" ),
+	   new BreadcrumbItem("Company", href:"/company" ),
+	   new BreadcrumbItem("Invite a New Member", href:null, disabled: true ),
+
+	};
 	private readonly IndexTrackerHelper Index = new();
 	private string? InviteeFullName => $"{invite.InviteeFirstName} {invite.InviteeLastName}";
+
+	#region LIFECYCLE METHODS
 	protected override void OnParametersSet() => Index.Reset();
 
 	protected override async Task OnInitializedWithAuthAsync()
@@ -128,25 +137,20 @@
 		invite.InviteDate = DateTimeOffset.UtcNow;
 		invite.InvitorId = UserInfo!.UserId;
 	}
+	#endregion
 
-
-	private static readonly List<BreadcrumbItem> breadcrumbs = new()
-	{
-	   new BreadcrumbItem("Home", href:"/" ),
-	   new BreadcrumbItem("Company", href:"/company" ),
-	   new BreadcrumbItem("Invite a New Member", href:null, disabled: true ),
-
-	};
 
 	private async Task HandleValidSubmit()
 	{
-		bool success = false;
+		bool created = false;
+		bool sent = false;
 
 		try
 		{
-			await InviteService.CreateInviteAsync(invite, UserInfo!);
-			success = true;
+			InviteDTO createdInvite = await InviteService.CreateInviteAsync(invite, UserInfo!);
+			created = true;
 
+			sent = await InviteService.SendInviteAsync(new Uri(NavManager.BaseUri), createdInvite.Id, UserInfo!);
 		}
 		catch (Exception ex)
 		{
@@ -155,10 +159,12 @@
 			Snackbar.Add("Unable to create invite. Please try again.", Severity.Error);
 			return;
 		}
-		if (success)
-		{
-			Snackbar.Add($"Invite to {InviteeFullName} created successfully!", Severity.Success);
-			NavManager.NavigateTo("/company");
-		}
+		//invite was created AND successfully sent
+		if(sent) Snackbar.Add($"Invite email sent to {InviteeFullName}!", Severity.Success);
+
+		//invite was created but email not successfully sent
+		else if (created) Snackbar.Add($"Invite to {InviteeFullName} created but could not be sent at this time. Please try again.", Severity.Warning);
+		
+		if (sent || created) NavManager.NavigateTo("/company");
 	}
 }
