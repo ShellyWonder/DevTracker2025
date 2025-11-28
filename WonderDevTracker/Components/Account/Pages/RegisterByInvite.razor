@@ -1,0 +1,233 @@
+﻿@page "/Account/Register/Invite"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using WonderDevTracker.Client.Components.SharedComponents
+@using WonderDevTracker.Client.Helpers.Animation
+@using WonderDevTracker.Helpers
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using WonderDevTracker.Data
+
+@inject IndexTrackerHelper IndexTracker
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+@inject ApplicationDbContext _context
+
+@*Instructions for adding new data fields to the registration form 
+    are available at RegisterInstruction.razor.cs
+  *@
+<PageTitle>Register | DevTracker</PageTitle>
+
+<div class="d-flex align-items-center justify-content-center min-vh-100">
+	<AnimatedCard Index="@IndexTracker.Peek()">
+		<div class="p-3">
+			<StatusMessage Message="@Message" />
+			<EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register" enctype="multipart/form-data">
+				<DataAnnotationsValidator />
+				<MudText Typo="Typo.h2" 
+				         Color="Color.Primary" 
+						 Class="mt-2"
+						 GutterBottom>
+					Welcome to <strong>{COMPANY NAME}</strong>, <strong>{InviteeFirstName}</strong>!
+				</MudText>
+				<hr />
+				<Instructions Title="Create Your Account"
+							  Message="You've been invited by<strong>{iNVITOR NAME}</strong>. To join, please register here."
+							  StartIcon="@Icons.Material.Filled.PersonAdd"
+							  Class="mb-3" />
+				<AnimatedBlock Index="@Index.Next()">
+					<div class="form-floating mb-3">
+						<InputText @bind-Value="Input.FirstName" class="form-control" aria-required="true" placeholder="First Name" />
+						<label for="firstName">First Name</label>
+						<ValidationMessage For="() => Input.FirstName" class="text-danger" />
+					</div>
+				</AnimatedBlock>
+				<AnimatedBlock Index="@Index.Next()">
+					<div class="form-floating mb-3">
+						<InputText @bind-Value="Input.LastName" class="form-control" aria-required="true" placeholder="Last Name" />
+						<label for="lastName">Last Name</label>
+						<ValidationMessage For="() => Input.LastName" class="text-danger" />
+					</div>
+				</AnimatedBlock>
+				<AnimatedBlock Index="@Index.Next()">
+					<div class="form-floating mb-3">
+						<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+						<label for="email">Email</label>
+						<ValidationMessage For="() => Input.Email" class="text-danger" />
+					</div>
+				</AnimatedBlock>
+				<AnimatedBlock Index="@Index.Next()">
+					<div class="form-floating mb-3">
+						<InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<label for="password">Password</label>
+						<ValidationMessage For="() => Input.Password" class="text-danger" />
+					</div>
+				</AnimatedBlock>
+				<AnimatedBlock Index="@Index.Next()">
+					<div class="form-floating mb-3">
+						<InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+						<label for="confirm-password">Confirm Password</label>
+						<ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+					</div>
+				</AnimatedBlock>
+				<AnimatedBlock Index="@Index.Next()">
+					<div class="mb-3 row">
+						<div class="col-lg-4">
+							<img src="@UploadHelper.DefaultProfilePictureUrl" class="img-fluid" id="profilePicPreview" />
+						</div>
+						<div class="col-lg-8">
+							<label class="form-label" for="Input.ProfilePicture">Profile Image</label>
+							<input type="file" class="form-control"
+								   name="Input.ProfilePicture" accept=".jpg, .jpeg, .png .svg .gif"
+								   onchange="document.getElementById('profilePicPreview').src = window.URL.createObjectURL(this.files[0])" />
+						</div>
+					</div>
+				</AnimatedBlock>
+				<AnimatedBlock Index="@Index.Next()">
+					<SubmitBtn ButtonType="ButtonType.Submit"
+							   Size="Size.Large"
+							   Class="my-3 w-100"
+							   Title="Register"
+							   DisplayText="Register" />
+				</AnimatedBlock>
+			</EditForm>
+		</div>
+	</AnimatedCard>
+	</div>
+
+
+@code {
+	private IEnumerable<IdentityError>? identityErrors;
+
+	[SupplyParameterFromForm]
+	private InputModel Input { get; set; } = new();
+
+	[SupplyParameterFromQuery]
+	private string? ReturnUrl { get; set; }
+
+	private IndexTrackerHelper Index = new();
+
+	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+	private void ResetIndex() => IndexTracker.Reset();
+
+	protected override void OnParametersSet()
+	{
+		ResetIndex();
+	}
+
+	public async Task RegisterUser(EditContext editContext)
+	{
+		var user = CreateUser();
+		user.FirstName = Input.FirstName;
+		user.LastName = Input.LastName;
+
+
+		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+		var emailStore = GetEmailStore();
+		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+		var result = await UserManager.CreateAsync(user, Input.Password);
+
+		if (!result.Succeeded)
+		{
+			identityErrors = result.Errors;
+			return;
+		}
+
+		Logger.LogInformation("User created a new account with password.");
+
+		if (Input.ProfilePicture is not null)
+		{
+			try
+			{
+				FileUpload profilePic = await UploadHelper.GetFileUploadAsync(Input.ProfilePicture);
+				user.ProfilePicture = profilePic;
+				_context.Uploads.Add(profilePic);
+				_context.Users.Update(user);
+				await _context.SaveChangesAsync();
+			}
+			catch (Exception ex)
+			{
+				//register the user with default image if upload fails; user can update it later
+				Console.WriteLine($"Error uploading image: {ex.Message}");
+			}
+		}
+		var userId = await UserManager.GetUserIdAsync(user);
+		var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+		code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+		var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+			NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+			new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+
+		await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+
+		if (UserManager.Options.SignIn.RequireConfirmedAccount)
+		{
+			RedirectManager.RedirectTo(
+				"Account/RegisterConfirmation",
+				new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+		}
+
+		await SignInManager.SignInAsync(user, isPersistent: false);
+		RedirectManager.RedirectTo(ReturnUrl);
+	}
+
+	private ApplicationUser CreateUser()
+	{
+		try
+		{
+			return Activator.CreateInstance<ApplicationUser>();
+		}
+		catch
+		{
+			throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+				$"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+		}
+	}
+
+	private IUserEmailStore<ApplicationUser> GetEmailStore()
+	{
+		if (!UserManager.SupportsUserEmail)
+		{
+			throw new NotSupportedException("The default UI requires a user store with email support.");
+		}
+		return (IUserEmailStore<ApplicationUser>)UserStore;
+	}
+
+	private sealed class InputModel
+	{
+		[Required]
+		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
+		[Display(Name = "First Name")]
+		public string FirstName { get; set; } = "";
+
+		[Required]
+		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
+		[Display(Name = "Last Name")]
+		public string LastName { get; set; } = "";
+
+		[Required]
+		[EmailAddress]
+		[Display(Name = "Email")]
+		public string Email { get; set; } = "";
+
+		[Required]
+		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+		[DataType(DataType.Password)]
+		[Display(Name = "Password")]
+		public string Password { get; set; } = "";
+
+		[DataType(DataType.Password)]
+		[Display(Name = "Confirm password")]
+		[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+		public string ConfirmPassword { get; set; } = "";
+
+		public IFormFile? ProfilePicture { get; set; }
+	}
+}
