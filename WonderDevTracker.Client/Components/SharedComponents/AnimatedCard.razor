@@ -1,6 +1,6 @@
 ﻿@* AnimatedCard *@
 @* card component wrapper with animation delay based on index. *@
-<MudCard Elevation="5"
+<MudCard Elevation="@Elevation"
          Class="@($"h-100 project-card elevated-hover fade-in {Class}")"
          style="@GetCardAnimationStyle()"
          @onclick="@OnClick">
@@ -13,6 +13,9 @@
 
     [Parameter, EditorRequired]
     public int Index { get; set; } = 0;
+
+    [Parameter]
+    public int Elevation { get; set; } = 5;
 
     [Parameter]
     public EventCallback OnClick { get; set; }
