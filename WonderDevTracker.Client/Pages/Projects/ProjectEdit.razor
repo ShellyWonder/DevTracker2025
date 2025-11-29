@@ -30,9 +30,7 @@
 
         <MudPaper Class="p-3">
             <AnimatedBlock Index="@Index.Next()">
-                <MudText Typo="Typo.h3" GutterBottom>
-                    Edit @project?.Name
-                </MudText>
+				<TitleComponentPage Title=@($"Edit <em>{project?.Name}</em>") />
             </AnimatedBlock>
             <EditForm Model="project"
                       Class="vstack gap-3"

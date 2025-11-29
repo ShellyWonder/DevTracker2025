@@ -16,7 +16,7 @@
     }
     else if (projects.Any())
     {
-        <MudText Typo="Typo.h3" GutterBottom>My Projects </MudText>
+        <TitleComponentPage Title="My Projects" />
         <div class=" row row-cols-1  row-cols-md-2 row-cols-xl-3 g-3">
             @* for more information see Helpers/Animation/AnimationHelper.cs *@
             @foreach (var item in animationHelper.GetProjectsWithIndex())

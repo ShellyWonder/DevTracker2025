@@ -15,9 +15,7 @@
 	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
 	<MudPaper Class="p-3">
 		<AnimatedBlock Index="@Index.Next()">
-			<MudText Typo="Typo.h3" GutterBottom>
-				Submit a New Ticket
-			</MudText>
+			<TitleComponentPage Title="Submit a New Ticket" />
 		</AnimatedBlock>
 		<EditForm Model="ticket"
 				  class="vstack gap-3"
