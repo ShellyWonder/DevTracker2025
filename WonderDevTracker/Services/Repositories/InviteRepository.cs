@@ -22,11 +22,11 @@ namespace WonderDevTracker.Services.Repositories
         {
             _contextFactory = contextFactory;
             _emailSender = emailSender;
-            _protector = dataProtectionProvider.CreateProtector("InviteProtectionKey"); 
 
             string protectionPurpose = config["InviteProtectionKey"]
                 ?? throw new ApplicationException("InviteProtectionKey not found in configuration");
-            
+
+            _protector = dataProtectionProvider.CreateProtector(protectionPurpose);
         }
 
         public async Task<Invite> CreateInviteAsync(Invite invite, UserInfo user)
@@ -99,8 +99,8 @@ namespace WonderDevTracker.Services.Repositories
                                     <p>Message from {invite.Invitor!.FirstName} {invite.Invitor!.LastName}:</p>
                                     <blockquote>{invite.Message}</blockquote>
                                     <hr />
-                                    """; 
-                 string body = $""" 
+                                    """;
+                string body = $""" 
                                 <h1>Welcome to Dev Tracker, {inviteeFirstName} {inviteeLastName}!</h1>
                                 <p> {invite.Invitor!.FirstName} {invite.Invitor!.LastName} has invited you to join the
                                 {invite.Company!.Name} team to work on the company's {invite.Project!.Name} project.
@@ -121,7 +121,7 @@ namespace WonderDevTracker.Services.Repositories
                                 </small>
                                 """;
 
-                await _emailSender.SendEmailAsync(invite.InviteeEmail!,subject, body);
+                await _emailSender.SendEmailAsync(invite.InviteeEmail!, subject, body);
                 return true;
             }
             catch (Exception ex)
@@ -130,7 +130,6 @@ namespace WonderDevTracker.Services.Repositories
             }
             return false;
         }
-
 
         public async Task<IEnumerable<Invite>> GetInviteAsync(UserInfo user)
         {
@@ -147,6 +146,51 @@ namespace WonderDevTracker.Services.Repositories
             }
             await db.SaveChangesAsync();
             return invites;
+        }
+
+        public async Task<Invite?> GetValidInviteAsync(string protectedToken, string protectedEmail, string protectedCompanyId)
+        {
+            try
+            {
+                //decrypt the token
+                string? strToken = _protector.Unprotect(protectedToken);
+                Guid token = Guid.Parse(strToken);
+                //decrypt the email
+                string? email = _protector.Unprotect(protectedEmail);
+                //decrypt the company id
+                string? strCompanyId = _protector.Unprotect(protectedCompanyId);
+                int CompanyId = int.Parse(strCompanyId);
+
+                await using ApplicationDbContext db = _contextFactory.CreateDbContext();
+                //query for the invite
+                Invite? invite = await db.Invites
+                    .Include(i => i.Invitor)
+                    .Include(i => i.Company)
+                    .Include(i => i.Project)
+                    .FirstOrDefaultAsync(i => i.CompanyToken == token
+                                           && i.InviteeEmail == email
+                                           && i.CompanyId == CompanyId
+                                            && i.IsValid == true);
+
+                if (invite is null) return null;
+
+                bool isValid = ValidateInvite(invite);
+                if (!isValid)
+                {
+                    invite.IsValid = false;
+                    //update db the invite is no longer valid
+                    await db.SaveChangesAsync();
+                    return null;
+                }
+
+                return invite;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+            }
+            return null!;
         }
 
         public async Task CancelInviteAsync(int inviteId, UserInfo user)
@@ -202,6 +246,8 @@ namespace WonderDevTracker.Services.Repositories
                 && string.IsNullOrEmpty(invite.InviteeId);
             return isValid;
         }
+
+
 
 
 

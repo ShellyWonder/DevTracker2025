@@ -48,5 +48,15 @@ namespace WonderDevTracker.Services.Interfaces
         /// The task result is <see langword="true"/> if the
         /// invitation was sent successfully; otherwise, <see langword="false"/>.</remarks>
         public Task<bool> SendInviteAsync(Uri baseUri, int inviteId, UserInfo user);
+        /// <summary>
+        /// Get Valid Invite
+        /// </summary>
+        /// <param name="protectedToken">A protected string representing the invite token to validate. Cannot be null or empty.</param>
+        /// <param name="protectedEmail">A protected string representing the email address associated with the invite. Cannot be null or empty.</param>
+        /// <param name="protectedCompanyId">A protected string representing the company identifier associated with the invite. Cannot be null or empty.</param>
+        /// <remarks>Asynchronously retrieves a valid invite that matches the specified protected token, email, and company
+        /// identifier.A task that represents the asynchronous operation. The task result contains the matching valid invite if
+        /// found; otherwise, null.</remarks>
+        public Task<Invite?> GetValidInviteAsync(string protectedToken, string protectedEmail, string protectedCompanyId);
     }
 }
