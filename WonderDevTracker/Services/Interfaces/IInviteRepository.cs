@@ -58,5 +58,15 @@ namespace WonderDevTracker.Services.Interfaces
         /// identifier.A task that represents the asynchronous operation. The task result contains the matching valid invite if
         /// found; otherwise, null.</remarks>
         public Task<Invite?> GetValidInviteAsync(string protectedToken, string protectedEmail, string protectedCompanyId);
+
+        /// <summary>
+        /// Accept Invite
+        /// </summary>
+        /// <param name="inviteId">The unique identifier of the invitation to accept. Must correspond to a valid, pending invitation.</param>
+        /// <param name="invitee">The user who is accepting the invitation. Cannot be null.</param>
+        /// <remarks>Accepts an invitation identified by the specified invite ID on behalf of the given user
+        /// and invalidates invite so it may not be used again.
+        /// </remarks>
+        public Task AcceptInviteAsync(int inviteId, ApplicationUser invitee);
     }
 }

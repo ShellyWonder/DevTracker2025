@@ -193,6 +193,24 @@ namespace WonderDevTracker.Services.Repositories
             return null!;
         }
 
+        public async Task AcceptInviteAsync(int inviteId, ApplicationUser invitee)
+        {
+            await using ApplicationDbContext db = _contextFactory.CreateDbContext();
+            Invite? invite = await db.Invites
+                .FirstOrDefaultAsync(i => i.Id == inviteId
+                                     && i.CompanyId == invitee.CompanyId);
+
+            if (invite is not null && ValidateInvite(invite))
+            {
+                invite.JoinDate = DateTime.Now;
+                invite.InviteeId = invitee.Id;
+                invite.IsValid = false;
+
+                await db.SaveChangesAsync();
+
+            }                       
+        }
+
         public async Task CancelInviteAsync(int inviteId, UserInfo user)
         {
             if (!user.IsInRole(Role.Admin))
