@@ -11,6 +11,7 @@
 @using WonderDevTracker.Data
 
 @inject IndexTrackerHelper IndexTracker
+@inject IInviteRepository InviteRepository
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
 @inject SignInManager<ApplicationUser> SignInManager
@@ -27,139 +28,190 @@
 
 <div class="d-flex align-items-center justify-content-center min-vh-100">
 	<AnimatedCard Index="@IndexTracker.Peek()">
-		<div class="p-3">
-			<StatusMessage Message="@Message" />
-			<EditForm Model="Input"
-					  asp-route-returnUrl="@ReturnUrl"
-					  method="post"
-					  OnValidSubmit="RegisterUser"
-					  FormName="register"
-					  enctype="multipart/form-data">
-				<DataAnnotationsValidator />
-				<MudText Typo="Typo.h2"
-						 Color="Color.Primary"
-						 Class="mt-2"
-						 GutterBottom>
-					Welcome to <strong>{COMPANY NAME}</strong>, <strong>{InviteeFirstName}</strong>!
-				</MudText>
-				<hr />
-				<div class="mb-5">
-				<Instructions Title="Create Your Account"
-							  Message="You've been invited by<strong>{iNVITOR NAME}</strong>. To join, please register here."
-							  StartIcon="@Icons.Material.Filled.PersonAdd"
-							 />
-				</div>
-				<AnimatedBlock Index="@Index.Next()">
-					<div class="mb-3">
-						<MudTextField id="firstName"
-									  @bind-Value="Input.FirstName"
-									  aria-required="true"
-									  For="() => Input.FirstName"
-									  Label="First Name"
-									  Variant="Variant.Outlined"
-									  ShrinkLabel />
+		@if (inviteError)
+		{
+			<div class="p-3">
+				<InviteErrorDisplay />
+			</div>
+		}
+		else if (invite is not null && Input is not null)
+		{
+
+			<div class="p-3">
+				<StatusMessage Message="@Message" />
+				<EditForm Model="Input"
+						  asp-route-returnUrl="@ReturnUrl"
+						  method="post"
+						  OnValidSubmit="RegisterUser"
+						  FormName="register"
+						  enctype="multipart/form-data">
+					<DataAnnotationsValidator />
+					<MudText Typo="Typo.h2"
+							 Color="Color.Primary"
+							 Class="mt-2"
+							 GutterBottom>
+						Welcome to <strong>@invite?.Company!.Name</strong>, <strong>@invite?.InviteeFirstName</strong>!
+					</MudText>
+					<hr />
+					<div class="mb-5">
+						<Instructions Title="Create Your Account"
+									  Message=@($"You've been invited by {invite!.Invitor!.FirstName} {invite!.Invitor!.LastName}. To join, please register here.")
+									  StartIcon="@Icons.Material.Filled.PersonAdd" />
 					</div>
-				</AnimatedBlock>
-				<AnimatedBlock Index="@Index.Next()">
-					<div class="mb-3">
-						<MudTextField id="lastName"
-									  @bind-Value="Input.LastName"
-									  aria-required="true"
-									  For="() => Input.LastName"
-									  Label="Last Name"
-									  Variant="Variant.Outlined"
-									  ShrinkLabel />
-					</div>
-				</AnimatedBlock>
-				<AnimatedBlock Index="@Index.Next()">
-					<div class="mb-3">
-						<MudTextField id="email"
-									  @bind-Value="Input.Email"
-									  aria-required="true"
-									  For="() => Input.Email"
-									  Label="Email"
-									  autocomplete="username"
-									  Variant="Variant.Outlined"
-									  ShrinkLabel />
-					</div>
-				</AnimatedBlock>
-				<AnimatedBlock Index="@Index.Next()">
-					<div class="mb-3">
-						<MudTextField id="password"
-									  @bind-Value="Input.Password"
-									  aria-required="true"
-									  For="() => Input.Password"
-									  Label="Password"
-									  autocomplete="new-password"
-									  Variant="Variant.Outlined"
-									  InputType="InputType.Password"
-									  ShrinkLabel />
-					</div>
-				</AnimatedBlock>
-				<AnimatedBlock Index="@Index.Next()">
-					<div class="mb-3">
-						<MudTextField id="password"
-									  @bind-Value="Input.ConfirmPassword"
-									  aria-required="true"
-									  For="() => Input.ConfirmPassword"
-									  Label="Confirm Password"
-									  autocomplete="new-password"
-									  Variant="Variant.Outlined"
-									  InputType="InputType.Password"
-									  ShrinkLabel />
-					</div>
-				</AnimatedBlock>
-				<AnimatedBlock Index="@Index.Next()">
-					<MudField Class="mb-3"Label="Profile Picture" Variant="Variant.Outlined">
-						<div class="h-stack gap-3">
-							<img src="@UploadHelper.DefaultProfilePictureUrl" 
-							      id="profilePicPreview"
-								  style="object-fit: cover; height: 48px; width: 48px; border-radius: 50%"/>
-							<div>
-								<input type="file" class="form-control"
-									   name="Input.ProfilePicture" accept=".jpg, .jpeg, .png .svg .gif"
-									   onchange="document.getElementById('profilePicPreview').src = window.URL.createObjectURL(this.files[0])" />
-							</div>
+					<AnimatedBlock Index="@Index.Next()">
+						<div class="mb-3">
+							<MudTextField id="firstName"
+										  @bind-Value="Input?.FirstName"
+										  aria-required="true"
+										  For="() => Input!.FirstName"
+										  Label="First Name"
+										  Variant="Variant.Outlined"
+										  ShrinkLabel />
 						</div>
-					</MudField>
-				</AnimatedBlock>
-				<AnimatedBlock Index="@Index.Next()">
-					<SubmitBtn ButtonType="ButtonType.Submit"
-							   Size="Size.Large"
-							   Class="my-3 w-100"
-							   Title="Register"
-							   Color="Color.Secondary"
-							   DisplayText="Register" />
-				</AnimatedBlock>
-			</EditForm>
-		</div>
+					</AnimatedBlock>
+					<AnimatedBlock Index="@Index.Next()">
+						<div class="mb-3">
+							<MudTextField id="lastName"
+										  @bind-Value="Input?.LastName"
+										  aria-required="true"
+										  For="() => Input!.LastName"
+										  Label="Last Name"
+										  Variant="Variant.Outlined"
+										  ShrinkLabel />
+						</div>
+					</AnimatedBlock>
+					<AnimatedBlock Index="@Index.Next()">
+						<div class="mb-3">
+							<MudTextField id="email"
+										  @bind-Value="Input?.Email"
+										  aria-required="true"
+										  For="() => Input!.Email"
+										  Label="Email"
+										  autocomplete="username"
+										  Variant="Variant.Outlined"
+										  ShrinkLabel />
+						</div>
+					</AnimatedBlock>
+					<AnimatedBlock Index="@Index.Next()">
+						<div class="mb-3">
+							<MudTextField id="password"
+										  @bind-Value="Input?.Password"
+										  aria-required="true"
+										  For="() => Input!.Password"
+										  Label="Password"
+										  autocomplete="new-password"
+										  Variant="Variant.Outlined"
+										  InputType="InputType.Password"
+										  ShrinkLabel />
+						</div>
+					</AnimatedBlock>
+					<AnimatedBlock Index="@Index.Next()">
+						<div class="mb-3">
+							<MudTextField id="password"
+										  @bind-Value="Input?.ConfirmPassword"
+										  aria-required="true"
+										  For="() => Input!.ConfirmPassword"
+										  Label="Confirm Password"
+										  autocomplete="new-password"
+										  Variant="Variant.Outlined"
+										  InputType="InputType.Password"
+										  ShrinkLabel />
+						</div>
+					</AnimatedBlock>
+					<AnimatedBlock Index="@Index.Next()">
+						<MudField Class="mb-3" Label="Profile Picture" Variant="Variant.Outlined">
+							<div class="h-stack gap-3">
+								<img src="@UploadHelper.DefaultProfilePictureUrl"
+									 id="profilePicPreview"
+									 style="object-fit: cover; height: 48px; width: 48px; border-radius: 50%" />
+								<div>
+									<input type="file" class="form-control"
+										   name="Input.ProfilePicture" accept=".jpg, .jpeg, .png .svg .gif"
+										   onchange="document.getElementById('profilePicPreview').src = window.URL.createObjectURL(this.files[0])" />
+								</div>
+							</div>
+						</MudField>
+					</AnimatedBlock>
+					<AnimatedBlock Index="@Index.Next()">
+						<SubmitBtn ButtonType="ButtonType.Submit"
+								   Size="Size.Large"
+								   Class="my-3 w-100"
+								   Title="Register"
+								   Color="Color.Secondary"
+								   DisplayText="Register" />
+					</AnimatedBlock>
+				</EditForm>
+			</div>
+		}
 	</AnimatedCard>
 </div>
 
 
 @code {
 	private IEnumerable<IdentityError>? identityErrors;
+	private Invite? invite;
 
 	[SupplyParameterFromForm]
-	private InputModel Input { get; set; } = new();
+	private InputModel? Input { get; set; }
 
 	[SupplyParameterFromQuery]
 	private string? ReturnUrl { get; set; }
 
+	[SupplyParameterFromQuery]
+	private string? Token { get; set; }
+	[SupplyParameterFromQuery]
+	private string? Email { get; set; }
+	[SupplyParameterFromQuery]
+	private string? Company { get; set; }
+
 	private IndexTrackerHelper Index = new();
+	private bool inviteError;
 
 	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 	private void ResetIndex() => IndexTracker.Reset();
 
-	protected override void OnParametersSet()
+	protected override async Task OnInitializedAsync()
 	{
 		ResetIndex();
+
+		try
+		{
+			//check for valid query parameters
+			if (string.IsNullOrEmpty(Token)
+						|| string.IsNullOrEmpty(Email)
+						|| string.IsNullOrEmpty(Company))
+			{
+				inviteError = true;
+				return;
+			}
+			invite = await InviteRepository.GetValidInviteAsync(Token, Email, Company);
+
+			if (invite is null)
+			{
+				inviteError = true;
+				return;
+			}
+			//pre-fill form fields with invitee data
+			//only if Input is null (i.e., first time loading the form)
+			Input ??= new InputModel()
+			{
+				Email = invite.InviteeEmail!,
+				FirstName = invite.InviteeFirstName!,
+				LastName = invite.InviteeLastName!
+			};
+
+
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+		}
 	}
 
 	public async Task RegisterUser(EditContext editContext)
 	{
 		var user = CreateUser();
-		user.FirstName = Input.FirstName;
+		user.FirstName = Input!.FirstName;
 		user.LastName = Input.LastName;
 
 
