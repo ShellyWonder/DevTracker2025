@@ -3,6 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using System.Text.Encodings.Web
+@using System.Security.Claims
 @using WonderDevTracker.Client.Components.SharedComponents
 @using WonderDevTracker.Client.Helpers.Animation
 @using WonderDevTracker.Helpers
@@ -12,6 +13,7 @@
 
 @inject IndexTrackerHelper IndexTracker
 @inject IInviteRepository InviteRepository
+@inject IProjectRepository ProjectRepository
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
 @inject SignInManager<ApplicationUser> SignInManager
@@ -20,6 +22,7 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 @inject ApplicationDbContext _context
+@inject IUserClaimsPrincipalFactory<ApplicationUser> ClaimsFactory
 
 @*Instructions for adding new data fields to the registration form 
     are available at RegisterInstruction.razor.cs
@@ -61,7 +64,8 @@
 					<AnimatedBlock Index="@Index.Next()">
 						<div class="mb-3">
 							<MudTextField id="firstName"
-										  @bind-Value="Input?.FirstName"
+										  Value="Input.FirstName"
+										  name="Input.FirstName"
 										  aria-required="true"
 										  For="() => Input!.FirstName"
 										  Label="First Name"
@@ -72,7 +76,8 @@
 					<AnimatedBlock Index="@Index.Next()">
 						<div class="mb-3">
 							<MudTextField id="lastName"
-										  @bind-Value="Input?.LastName"
+										  Value="Input.LastName"
+										  name="Input.LastName"
 										  aria-required="true"
 										  For="() => Input!.LastName"
 										  Label="Last Name"
@@ -83,7 +88,8 @@
 					<AnimatedBlock Index="@Index.Next()">
 						<div class="mb-3">
 							<MudTextField id="email"
-										  @bind-Value="Input?.Email"
+										  Value="Input.Email"
+										  name="Input.Email"
 										  aria-required="true"
 										  For="() => Input!.Email"
 										  Label="Email"
@@ -95,7 +101,8 @@
 					<AnimatedBlock Index="@Index.Next()">
 						<div class="mb-3">
 							<MudTextField id="password"
-										  @bind-Value="Input?.Password"
+										  Value="Input.Password"
+										  name="Input.Password"
 										  aria-required="true"
 										  For="() => Input!.Password"
 										  Label="Password"
@@ -108,7 +115,8 @@
 					<AnimatedBlock Index="@Index.Next()">
 						<div class="mb-3">
 							<MudTextField id="password"
-										  @bind-Value="Input?.ConfirmPassword"
+										  Value="Input.ConfirmPassword"
+										  name="Input.ConfirmPassword"
 										  aria-required="true"
 										  For="() => Input!.ConfirmPassword"
 										  Label="Confirm Password"
@@ -126,7 +134,8 @@
 									 style="object-fit: cover; height: 48px; width: 48px; border-radius: 50%" />
 								<div>
 									<input type="file" class="form-control"
-										   name="Input.ProfilePicture" accept=".jpg, .jpeg, .png .svg .gif"
+										   name="Input.ProfilePicture" 
+										   accept=".jpg, .jpeg, .png .svg .gif"
 										   onchange="document.getElementById('profilePicPreview').src = window.URL.createObjectURL(this.files[0])" />
 								</div>
 							</div>
@@ -210,14 +219,23 @@
 
 	public async Task RegisterUser(EditContext editContext)
 	{
+		if(invite is null)
+		{
+			inviteError = true;
+			return;
+		}
+
 		var user = CreateUser();
 		user.FirstName = Input!.FirstName;
 		user.LastName = Input.LastName;
+		//assign the user to the company from the invite
+		user.CompanyId = invite!.CompanyId;
 
 
 		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
 		var emailStore = GetEmailStore();
 		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+		//attempt to create the user
 		var result = await UserManager.CreateAsync(user, Input.Password);
 
 		if (!result.Succeeded)
@@ -225,9 +243,13 @@
 			identityErrors = result.Errors;
 			return;
 		}
+		//by default, assign the new user the "Submitter" role
+		//additional roles can be assigned later by an admin
+		await UserManager.AddToRoleAsync(user, nameof(Role.Submitter));
 
 		Logger.LogInformation("User created a new account with password.");
 
+		//handle profile picture upload if provided
 		if (Input.ProfilePicture is not null)
 		{
 			try
@@ -244,6 +266,7 @@
 				Console.WriteLine($"Error uploading image: {ex.Message}");
 			}
 		}
+		//send email confirmation
 		var userId = await UserManager.GetUserIdAsync(user);
 		var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
 		code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -252,6 +275,15 @@
 			new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
 
 		await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+
+		//assign user to invited project
+		ApplicationUser? admin = (invite.Invitor ?? await UserManager.FindByIdAsync(invite.InvitorId!));
+		ClaimsPrincipal adminClaims  = await ClaimsFactory.CreateAsync(admin!); //ensure admin claims are loaded
+		UserInfo adminUserInfo = UserInfoHelper.GetUserInfo(adminClaims)!;
+		await ProjectRepository.AddProjectMemberAsync(invite.ProjectId, userId, adminUserInfo);
+
+		//invalidate the used invite, marking it as 'accepted'
+		await InviteRepository.AcceptInviteAsync(invite.Id, user);
 
 		if (UserManager.Options.SignIn.RequireConfirmedAccount)
 		{
