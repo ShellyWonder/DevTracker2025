@@ -1,0 +1,61 @@
+﻿@* InviteErrorDisplay.razor *@
+
+<MudPaper Class="p-4 p-md-5 rounded-4 shadow-sm bg-gradient-invite-error">
+    <div class="d-flex flex-column flex-md-row align-items-start gap-3">
+
+        <MudAvatar Icon="@Icons.Material.Filled.LinkOff"
+                   Color="Color.Error"
+                   Variant="Variant.Filled"
+                   Size="Size.Large"
+                   Class="flex-shrink-0" />
+
+        <div class="flex-grow-1">
+
+            <MudText Typo="Typo.overline"
+                     Class="text-uppercase text-muted mb-1">
+                Invite link issue
+            </MudText>
+
+            <MudText Typo="Typo.h4"
+                     Color="Color.Primary"
+                     GutterBottom>
+                We couldn’t use this invite link
+            </MudText>
+
+            <MudText Typo="Typo.body1"
+                     Class="mb-2">
+                It looks like this invitation link is invalid or has expired.
+            </MudText>
+
+            <MudText Typo="Typo.body2"
+                     Class="mb-3">
+                If you intended to join an existing company on DevTracker,
+                please contact the person who invited you and ask them to send
+                a fresh invite link.
+            </MudText>
+
+            <MudDivider Class="my-3" />
+
+            <MudText Typo="Typo.subtitle2"
+                     Class="mb-2">
+                Want to start your own DevTracker workspace instead?
+            </MudText>
+
+            <MudStack Row="true" Spacing="2">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Href="/Account/Register"
+                           StartIcon="@Icons.Material.Filled.Apartment">
+                    Register a new company
+                </MudButton>
+
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Secondary"
+                           Href="/">
+                    Back to home
+                </MudButton>
+            </MudStack>
+
+        </div>
+    </div>
+</MudPaper>
