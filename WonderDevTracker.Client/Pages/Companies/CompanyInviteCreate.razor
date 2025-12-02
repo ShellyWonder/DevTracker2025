@@ -25,81 +25,80 @@
 		<AnimatedBlock Index="@Index.Next()">
 			<MudDivider Class="mb-3" />
 			<Instructions Title="Fill out the form below to invite someone to join the company."
-					  Message="Tip: The invitee will receive an email with instructions on how to join." 
-					  StartIcon="@Icons.Material.Filled.Email"
-					   />
+						  Message="Tip: The invitee will receive an email with instructions on how to join."
+						  StartIcon="@Icons.Material.Filled.Email" />
 		</AnimatedBlock>
 		<AnimatedBlock Index="@Index.Next()">
-					  <EditForm Model="invite"
-				  class="vstack gap-3"
-				  OnValidSubmit="HandleValidSubmit">
-			<DataAnnotationsValidator />
-			<AnimatedBlock Index="@Index.Next()">
+			<EditForm Model="invite"
+					  class="vstack gap-3"
+					  OnValidSubmit="HandleValidSubmit">
+				<DataAnnotationsValidator />
+				<AnimatedBlock Index="@Index.Next()">
 
-				<MudTextField @bind-Value="invite.InviteeFirstName"
-							  For="() => invite.InviteeFirstName"
-							  Label="Invitee First Name"
-							  Variant="Variant.Outlined"
-							  Required="true"
-							  OnlyValidateIfDirty="true" />
+					<MudTextField @bind-Value="invite.InviteeFirstName"
+								  For="() => invite.InviteeFirstName"
+								  Label="Invitee First Name"
+								  Variant="Variant.Outlined"
+								  Required="true"
+								  OnlyValidateIfDirty="true" />
 
-				<MudTextField @bind-Value="invite.InviteeLastName"
-							  For="() => invite.InviteeLastName"
-							  Label="Invitee Last Name"
-							  Variant="Variant.Outlined"
-							  Required="true"
-							  OnlyValidateIfDirty="true" />
-			</AnimatedBlock>
+					<MudTextField @bind-Value="invite.InviteeLastName"
+								  For="() => invite.InviteeLastName"
+								  Label="Invitee Last Name"
+								  Variant="Variant.Outlined"
+								  Required="true"
+								  OnlyValidateIfDirty="true" />
+				</AnimatedBlock>
 
-			@* projectId(dropdown) *@
-			<AnimatedBlock Index="@Index.Next()">
-				<MudSelect @bind-Value="invite.ProjectId"
-						   For="() => invite.ProjectId"
-						   Label="Project"
-						   Variant="Variant.Outlined"
-						   Required="true"
-						   OnlyValidateIfDirty="true"
-						   Placeholder="Select a project . . .">
-					@foreach (ProjectDTO project in projects)
-					{
-						//nullable int needed here in order for the property to remain null until a dropdown value was selected.
-						<MudSelectItem T="int?" Value="@project.Id"> @project.Name </MudSelectItem>
-					}
-				</MudSelect>
+				@* projectId(dropdown) *@
+				<AnimatedBlock Index="@Index.Next()">
+					<MudSelect @bind-Value="invite.ProjectId"
+							   For="() => invite.ProjectId"
+							   Label="Project"
+							   Variant="Variant.Outlined"
+							   Required="true"
+							   OnlyValidateIfDirty="true"
+							   Placeholder="Select a project . . .">
+						@foreach (ProjectDTO project in projects)
+						{
+							//nullable int needed here in order for the property to remain null until a dropdown value was selected.
+							<MudSelectItem T="int?" Value="@project.Id"> @project.Name </MudSelectItem>
+						}
+					</MudSelect>
 
-				<ValidationMessage For="() => invite.ProjectId" />
-			</AnimatedBlock>
+					<ValidationMessage For="() => invite.ProjectId" />
+				</AnimatedBlock>
 
-			<AnimatedBlock Index="@Index.Next()">
-				<MudTextField @bind-Value="invite.InviteeEmail"
-							  For="() => invite.InviteeEmail"
-							  Label="Invitee Email Address"
-							  Variant="Variant.Outlined"
-							  Required="true"
-							  OnlyValidateIfDirty="true" />
-			</AnimatedBlock>
+				<AnimatedBlock Index="@Index.Next()">
+					<MudTextField @bind-Value="invite.InviteeEmail"
+								  For="() => invite.InviteeEmail"
+								  Label="Invitee Email Address"
+								  Variant="Variant.Outlined"
+								  Required="true"
+								  OnlyValidateIfDirty="true" />
+				</AnimatedBlock>
 
-			<AnimatedBlock Index="@Index.Next()">
-				<MudTextField @bind-Value="invite.Message"
-							  For="() => invite.Message"
-							  Label="Message(Optional)"
-							  Variant="Variant.Outlined"
-							  Lines="5"
-							  MaxLines="15"
-							  AutoGrow="true" />
-			</AnimatedBlock>
+				<AnimatedBlock Index="@Index.Next()">
+					<MudTextField @bind-Value="invite.Message"
+								  For="() => invite.Message"
+								  Label="Message(Optional)"
+								  Variant="Variant.Outlined"
+								  Lines="5"
+								  MaxLines="15"
+								  AutoGrow="true" />
+				</AnimatedBlock>
 
-			<AnimatedBlock Index="@Index.Next()">
-				<div class="d-flex justify-content-between">
-					<BackToBtn Href="/company" Text="Back to Company" />
+				<AnimatedBlock Index="@Index.Next()">
+					<div class="d-flex justify-content-between">
+						<BackToBtn Href="/company" Text="Back to Company" />
 
-					<SubmitBtn DisplayText="Send Invite"
-							   StartIcon="@Icons.Material.Filled.Send"
-							   ButtonType="ButtonType.Submit" />
+						<SubmitBtn DisplayText="Send Invite"
+								   StartIcon="@Icons.Material.Filled.Send"
+								   ButtonType="ButtonType.Submit" />
 
-				</div>
-			</AnimatedBlock>
-		</EditForm>
+					</div>
+				</AnimatedBlock>
+			</EditForm>
 		</AnimatedBlock>
 	</MudPaper>
 </MudContainer>
@@ -143,27 +142,49 @@
 	{
 		bool created = false;
 		bool sent = false;
+		InviteDTO? createdInvite = null;
 
 		try
 		{
-			InviteDTO createdInvite = await InviteService.CreateInviteAsync(invite, UserInfo!);
+			//1.try to create invite
+			createdInvite = await InviteService.CreateInviteAsync(invite, UserInfo!);
 			created = true;
 
-			sent = await InviteService.SendInviteAsync(new Uri(NavManager.BaseUri), createdInvite.Id, UserInfo!);
 		}
 		catch (Exception ex)
 		{
 
-			Console.Error.WriteLine($"Error creating project: {ex.Message}");
-			Snackbar.Add("Unable to create invite. Please try again.", Severity.Error);
+			Console.Error.WriteLine($"Error creating invite: {ex.Message}");
+			Snackbar.Add("Unable to create invitation. Please try again.", Severity.Error);
 			return;
 		}
+
+		try
+		{
+			//2.try to send invite
+			sent = await InviteService.SendInviteAsync(new Uri(NavManager.BaseUri), createdInvite.Id, UserInfo!);
+
+		}
+		catch (Exception ex)
+		{
+
+			Console.Error.WriteLine($"Error sending invite: {ex.Message}");
+			
+
+		}
+
+		//3. display appropriate message
+
 		//invite was created AND successfully sent
-		if(sent) Snackbar.Add($"Invite email sent to {InviteeFullName}!", Severity.Success);
+		if (sent) Snackbar.Add($"Invite email sent to {InviteeFullName}!", Severity.Success);
 
 		//invite was created but email not successfully sent
-		else if (created) Snackbar.Add($"Invite to {InviteeFullName} created but could not be sent at this time. Please try again.", Severity.Warning);
-		
+		else if (created && !sent)
+		{
+			Snackbar.Add($"Invite to {InviteeFullName} created but could not be sent now. Please try again.", 
+			             Severity.Warning);
+		}
+
 		if (sent || created) NavManager.NavigateTo("/company");
 	}
 }

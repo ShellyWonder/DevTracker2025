@@ -1,16 +1,22 @@
-﻿using WonderDevTracker.Client.Models.DTOs;
+﻿using System.Net.Http.Json;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Client.Services
 {
-    public class WASMInviteDTOService : IInviteDTOService
+    public class WASMInviteDTOService(HttpClient http) : IInviteDTOService
     {
-        public Task CancelInviteAsync(int inviteId, UserInfo user)
+
+        public async Task<InviteDTO> CreateInviteAsync(InviteDTO invite, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.PostAsJsonAsync("api/invites", invite);
+            InviteDTO createdInvite = await response.Content.ReadFromJsonAsync<InviteDTO>()
+                ?? throw new HttpIOException(HttpRequestError.InvalidResponse);
+            return createdInvite;
         }
 
-        public Task<InviteDTO> CreateInviteAsync(InviteDTO invite, UserInfo user)
+
+        public Task<bool> SendInviteAsync(Uri baseUri, int inviteId, UserInfo user)
         {
             throw new NotImplementedException();
         }
@@ -20,7 +26,7 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> SendInviteAsync(Uri baseUri, int inviteId, UserInfo user)
+        public Task CancelInviteAsync(int inviteId, UserInfo user)
         {
             throw new NotImplementedException();
         }
