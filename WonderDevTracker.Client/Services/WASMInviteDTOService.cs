@@ -16,9 +16,20 @@ namespace WonderDevTracker.Client.Services
         }
 
 
-        public Task<bool> SendInviteAsync(Uri baseUri, int inviteId, UserInfo user)
+        public async Task<bool> SendInviteAsync(Uri baseUri, int inviteId, UserInfo user)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await http.PostAsync($"api/invites/{inviteId}/send", null);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return false;
+            }
+            
         }
 
         public Task<IEnumerable<InviteDTO>> GetInviteAsync(UserInfo user)
