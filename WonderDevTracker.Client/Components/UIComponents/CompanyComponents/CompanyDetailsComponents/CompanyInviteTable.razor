@@ -15,7 +15,7 @@
 		{
 			@if (IsAdmin)
 			{
-				<TemplateColumn >
+				<TemplateColumn>
 					<CellTemplate>
 						<MudMenu Icon="@Icons.Material.Filled.MoreVert"
 								 Dense
@@ -45,11 +45,25 @@
 				<ProjectTitleLink Project="context.Item.Project" />
 			</CellTemplate>
 		</PropertyColumn>
-		<PropertyColumn Title="Sent" Property="i => i.InviteDate" Format="g">
-			<CellTemplate>
-				<MudText Typo="Typo.caption">@context.Item.InviteDate.ToLocalTime().ToString("g")</MudText>
-			</CellTemplate>
-		</PropertyColumn>
+
+		@if (Status == InviteStatusEnum.Accepted)
+		{
+			<PropertyColumn Title="Accepted" 
+				Property="i => i.JoinDate"
+				Format="g">
+				<CellTemplate>
+					<MudText Typo="Typo.caption">@context.Item.JoinDate!.Value.ToLocalTime().ToString("g")</MudText>
+				</CellTemplate>
+			</PropertyColumn>
+		}
+		else
+		{
+			<PropertyColumn Title="Sent" Property="i => i.InviteDate" Format="g">
+				<CellTemplate>
+					<MudText Typo="Typo.caption">@context.Item.InviteDate.ToLocalTime().ToString("g")</MudText>
+				</CellTemplate>
+			</PropertyColumn>
+		}
 	</Columns>
 	<PagerContent>
 		<MudDataGridPager />

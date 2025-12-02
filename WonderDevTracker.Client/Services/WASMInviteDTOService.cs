@@ -32,9 +32,11 @@ namespace WonderDevTracker.Client.Services
             
         }
 
-        public Task<IEnumerable<InviteDTO>> GetInviteAsync(UserInfo user)
+        public async Task<IEnumerable<InviteDTO>> GetInviteAsync(UserInfo user)
         {
-            throw new NotImplementedException();
+            IEnumerable<InviteDTO> invites = await http.GetFromJsonAsync <List<InviteDTO>>($"api/invites")
+                  ?? throw new HttpIOException(HttpRequestError.InvalidResponse);
+            return invites;
         }
 
         public async Task CancelInviteAsync(int inviteId, UserInfo user)

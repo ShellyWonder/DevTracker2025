@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using WonderDevTracker.Client;
@@ -17,6 +16,18 @@ namespace WonderDevTracker.Controllers
     {
         private UserInfo UserInfo => UserInfoHelper.GetUserInfo(User)!;
 
+        /// <summary>
+        /// Get Invites
+        /// </summary>
+        /// <remarks>An <see cref="ActionResult{T}"/> containing a collection of <see cref="InviteDTO"/> objects for the current
+        /// user. Returns an empty collection if no invites are found.
+        /// Retrieves all invites associated with the current user.</remarks>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<InviteDTO>>> GetInvites()
+        {
+            IEnumerable<InviteDTO> invites = await InviteService.GetInviteAsync(UserInfo);
+            return Ok(invites);
+        }
         /// <summary>
         ///Create Invitation 
         /// </summary>
