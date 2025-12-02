@@ -1,0 +1,25 @@
+﻿@* AppLogoLight.razor
+   Logo optimized for white / light card backgrounds *@
+
+<div class="logo-container logo-on-white">
+    <a href="/">
+        @* Use the blue/dark icon so it has contrast on white *@
+        <img src="/img/DT_BlueNoTextLogo.png"
+             alt="DevTracker Logo"
+             class="logo-image" />
+    </a>
+
+    <span class="logo-text">
+        <span class="logo-dev">Dev</span><span class="logo-tracker">Tracker</span>
+    </span>
+
+    @if (!string.IsNullOrWhiteSpace(Tagline))
+    {
+        <blockquote class="logo-tagline">@Tagline</blockquote>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? Tagline { get; set; }
+}
