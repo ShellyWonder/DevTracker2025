@@ -37,9 +37,10 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task CancelInviteAsync(int inviteId, UserInfo user)
+        public async Task CancelInviteAsync(int inviteId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.DeleteAsync($"api/invites/{inviteId}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }

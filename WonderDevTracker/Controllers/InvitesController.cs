@@ -37,11 +37,11 @@ namespace WonderDevTracker.Controllers
         {
             try
             {
-                InviteDTO createdInvite = await InviteService.CreateInviteAsync(invite,UserInfo);
+                InviteDTO createdInvite = await InviteService.CreateInviteAsync(invite, UserInfo);
                 return Ok(createdInvite);
             }
-            catch(ApplicationException validationEx) 
-            { 
+            catch (ApplicationException validationEx)
+            {
                 //user error
                 Console.WriteLine(validationEx.Message);
                 return BadRequest();
@@ -49,7 +49,7 @@ namespace WonderDevTracker.Controllers
             catch (Exception ex)
             {
                 //App error
-               Console.WriteLine(ex);
+                Console.WriteLine(ex);
                 return Problem();
             }
         }
@@ -69,8 +69,27 @@ namespace WonderDevTracker.Controllers
         {
             Uri requestUri = new Uri(Request.GetEncodedUrl());
             Uri baseUri = new Uri(requestUri.GetLeftPart(UriPartial.Authority));
-            bool sent =await InviteService.SendInviteAsync(baseUri, inviteId,UserInfo);
+            bool sent = await InviteService.SendInviteAsync(baseUri, inviteId, UserInfo);
             return sent ? NoContent() : BadRequest();
         }
+
+        /// <summary>
+        /// Cancel Invite
+        /// </summary>
+        /// <remarks>Cancels a pending invite identified by the specified invite ID.Used as a "soft"
+        /// delete where the record remains in the db.
+        /// Only users with the Admin role are authorized to perform this operation. If the
+        /// invite does not exist or has already been processed, no action is taken.</remarks>
+        /// <param name="inviteId">The unique identifier of the invite to cancel.
+        /// Must correspond to an existing pending invite.</param>
+        
+        [HttpDelete("{inviteId:int}")]
+        [Authorize(Roles = nameof(Role.Admin))]
+        public async Task<IActionResult> CancelInvite([FromRoute] int inviteId)
+        {
+            await InviteService.CancelInviteAsync(inviteId, UserInfo);
+            return NoContent();
+        }
+
     }
 }
