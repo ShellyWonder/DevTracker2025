@@ -232,8 +232,6 @@
 	[SupplyParameterFromQuery]
 	private string? ReturnUrl { get; set; }
 
-	private InviteDTO? invite;//delete when no longer necessary
-
 	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 	private IndexTrackerHelper Index = new();
 	private void ResetIndex() => IndexTracker.Reset();
@@ -245,11 +243,31 @@
 
 	public async Task RegisterUser(EditContext editContext)
 	{
-		var user = CreateUser();
+		ApplicationUser user = CreateUser();
 		user.FirstName = Input.FirstName;
 		user.LastName = Input.LastName;
 
+		//create the company
+		user.Company = new Company
+			{
+				Name = Input.CompanyName,
+				Description = Input.CompanyDescription
 
+			};
+
+		if(Input.CompanyImage is not null)
+		{
+			try
+			{
+				FileUpload image = await UploadHelper.GetFileUploadAsync(Input.CompanyImage);
+				user.Company.Image = image;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw;
+			}
+		}
 		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
 		var emailStore = GetEmailStore();
 		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -260,7 +278,8 @@
 			identityErrors = result.Errors;
 			return;
 		}
-
+		//assign user as Admin
+		await UserManager.AddToRoleAsync(user, nameof(Role.Admin));
 		Logger.LogInformation("User created a new account with password.");
 
 		if (Input.ProfilePicture is not null)
@@ -360,7 +379,7 @@
 		public string? CompanyName { get; set; }
 
 		[Display(Name = "Company Description")]
-		public string? CompanyDescription { get; set; }
+		public string CompanyDescription { get; set; } = string.Empty;
 
 
 	}
