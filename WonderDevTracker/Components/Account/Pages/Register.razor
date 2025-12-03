@@ -7,7 +7,10 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using WonderDevTracker.Data
+@using WonderDevTracker.Client.Components.SharedComponents
+@using WonderDevTracker.Client.Helpers.Animation
 
+@inject IndexTrackerHelper IndexTracker
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
 @inject SignInManager<ApplicationUser> SignInManager
@@ -21,185 +24,344 @@
     are available at RegisterInstruction.razor.cs
   *@
 
-<PageTitle>Register</PageTitle>
+<PageTitle>Register Your Company | DevTracker</PageTitle>
 
-<h1>Register</h1>
+<MudContainer MaxWidth="MaxWidth.Large" Class="d-flex align-items-center justify-content-center h-100 pt-3">
+	<div class="vstack gap-3">
+		<AboutDevTracker Index="@IndexTracker.Next()" />
+		<CompanyRegisterInstructions Index="@IndexTracker.Next()" />
+		<AnimatedCard Index="@IndexTracker.Next()">
+			<div class="p-3">
+				<StatusMessage Message="@Message" />
+				<EditForm Model="Input"
+						  asp-route-returnUrl="@ReturnUrl"
+						  method="post"
+						  OnValidSubmit="RegisterUser"
+						  FormName="register"
+						  enctype="multipart/form-data">
+					<DataAnnotationsValidator />
+					<MudText Typo="Typo.h2"
+							 Color="Color.Primary"
+							 Class="mt-2"
+							 GutterBottom>
+						Let's Register Your Company!
+					</MudText>
+					<hr />
+					<div class="mb-5">
+						<Instructions Title="Helpful Hints"
+									  StartIcon="@Icons.Material.Filled.Lightbulb"
+									  Color1="Color.Primary"
+									  Color2="Color.Dark"
+						              >
+							<MessageContent>
+								<ul class="mb-0 register-list">
+									<li>Your email must be <strong>unique within your company</strong>.</li>
+									<li>Your account is secured using <strong>DevTracker’s identity system</strong>; passwords are never stored in plain text.</li>
+									<li>Admins can manage other users’ roles later, but cannot change their own role.</li>
+								</ul>
+							</MessageContent>
+						</Instructions>
+					</div>
 
-<div class="row">
-    <div class="col-md-4">
-        <StatusMessage Message="@Message" />
-        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register" enctype="multipart/form-data">
-            <DataAnnotationsValidator />
-            <h2>Create a new account.</h2>
-            <hr />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.FirstName" class="form-control" aria-required="true" placeholder="First Name" />
-                <label for="firstName">First Name</label>
-                <ValidationMessage For="() => Input.FirstName" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.LastName" class="form-control" aria-required="true" placeholder="Last Name" />
-                <label for="lastName">Last Name</label>
-                <ValidationMessage For="() => Input.LastName" class="text-danger" />
-            </div>
+					<div class="row">
+						@*admin info*@
+						<div class="col-md-6">
+							<AnimatedBlock Index="@Index.Next()">
+							<MudText Typo="Typo.h4" Color="Color.Primary">Create Your Administrator Account</MudText>
+							</AnimatedBlock>
+							<AnimatedBlock Index="@Index.Next()">
+								<div class="mb-3">
+									<MudTextField id="firstName"
+												  Value="Input.FirstName"
+												  name="Input.FirstName"
+												  aria-required="true"
+												  For="() => Input!.FirstName"
+												  Label="First Name"
+												  Variant="Variant.Outlined"
+												  ShrinkLabel />
+								</div>
+							</AnimatedBlock>
+							<AnimatedBlock Index="@Index.Next()">
+								<div class="mb-3">
+									<MudTextField id="lastName"
+												  Value="Input.LastName"
+												  name="Input.LastName"
+												  aria-required="true"
+												  For="() => Input!.LastName"
+												  Label="Last Name"
+												  Variant="Variant.Outlined"
+												  ShrinkLabel />
+								</div>
+							</AnimatedBlock>
+							<AnimatedBlock Index="@Index.Next()">
+								<div class="mb-3">
+									<MudTextField id="email"
+												  Value="Input.Email"
+												  name="Input.Email"
+												  aria-required="true"
+												  For="() => Input!.Email"
+												  Label="Email"
+												  autocomplete="username"
+												  Variant="Variant.Outlined"
+												  ShrinkLabel />
+								</div>
+							</AnimatedBlock>
+							<AnimatedBlock Index="@Index.Next()">
+								<div class="mb-3">
+									<MudTextField id="password"
+												  Value="Input.Password"
+												  name="Input.Password"
+												  aria-required="true"
+												  For="() => Input!.Password"
+												  Label="Password"
+												  autocomplete="new-password"
+												  Variant="Variant.Outlined"
+												  InputType="InputType.Password"
+												  ShrinkLabel />
+								</div>
+							</AnimatedBlock>
+							<AnimatedBlock Index="@Index.Next()">
+								<div class="mb-3">
+									<MudTextField id="password"
+												  Value="Input.ConfirmPassword"
+												  name="Input.ConfirmPassword"
+												  aria-required="true"
+												  For="() => Input!.ConfirmPassword"
+												  Label="Confirm Password"
+												  autocomplete="new-password"
+												  Variant="Variant.Outlined"
+												  InputType="InputType.Password"
+												  ShrinkLabel />
+								</div>
+							</AnimatedBlock>
+							<AnimatedBlock Index="@Index.Next()">
+								<MudField Class="mb-3" Label="Profile Picture" Variant="Variant.Outlined">
+									<div class="h-stack gap-3">
+										<img src="@UploadHelper.DefaultProfilePictureUrl"
+											 id="profilePicPreview"
+											 style="object-fit: cover; height: 48px; width: 48px; border-radius: 50%" />
+										<div>
+											<input type="file" class="form-control"
+												   name="Input.ProfilePicture"
+												   accept=".jpg, .jpeg, .png .svg .gif"
+												   onchange="document.getElementById('profilePicPreview').src = window.URL.createObjectURL(this.files[0])" />
+										</div>
+									</div>
+								</MudField>
+							</AnimatedBlock>
+						</div>
+						@*company info*@
+						<div class="col-md-6">
+							<AnimatedBlock Index="@Index.Next()">
+							<MudText Typo="Typo.h4" Color="Color.Primary">Create Your Company Account</MudText>
+							</AnimatedBlock>
+							<AnimatedBlock Index="@Index.Next()">
+								<div class="mb-3">
+									<MudTextField id="companyName"
+												  Value="Input.CompanyName"
+												  name="Input.CompanyName"
+												  aria-required="true"
+												  For="() => Input!.CompanyName"
+												  Label="Company Name"
+												  Variant="Variant.Outlined"
+												  ShrinkLabel />
+								</div>
+							</AnimatedBlock>
+							<AnimatedBlock Index="@Index.Next()">
+								<div class="mb-3">
+									<MudTextField id="companyDescription"
+												  Value="Input.CompanyDescription"
+												  name="Input.CompanyDescription"
+												  aria-required="true"
+												  For="() => Input!.CompanyDescription"
+												  Label="Company Description"
+												  Variant="Variant.Outlined"
+												  ShrinkLabel
+												  Lines="5" />
+								</div>
+							</AnimatedBlock>
+							<AnimatedBlock Index="@Index.Next()">
+								<div class="mb-3">
+									<MudField Class="mb-3" Label="Company Image" Variant="Variant.Outlined">
+										<div class="h-stack gap-3">
+											<img src="@UploadHelper.DefaultProfilePictureUrl"
+												 id="companyImagePreview"
+												 style="object-fit: cover; height: 48px; width: 48px; border-radius: 50%" />
+											<div>
+												<input type="file" class="form-control"
+													   name="Input.CompanyImage"
+													   accept=".jpg, .jpeg, .png .svg .gif"
+													   onchange="document.getElementById('companyImagePreview').src = window.URL.createObjectURL(this.files[0])" />
+											</div>
+										</div>
+									</MudField>
+								</div>
+							</AnimatedBlock>
+						</div>
+						<MudDivider DividerType="DividerType.FullWidth" Light Class="my-3" />
+								@*SubmitBtn*@
+								<AnimatedBlock Index="@Index.Next()">
+									<div class="text-center">
+										<SubmitBtn ButtonType="ButtonType.Submit"
+												   Size="Size.Large"
+												   Class="my-3"
+												   Title="Register"
+												   Color="Color.Secondary"
+												   StartIcon="@Icons.Material.Filled.SupervisorAccount"
+												   DisplayText="Register" />
+									</div>
+								</AnimatedBlock>
 
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label for="email">Email</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="password">Password</label>
-                <ValidationMessage For="() => Input.Password" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="confirm-password">Confirm Password</label>
-                <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
-            </div>
-            <div class="mb-3 row">
-                <div class="col-lg-4">
-                    <img src="@UploadHelper.DefaultProfilePictureUrl" class="img-fluid" id="profilePicPreview" />
-                </div>
-                <div class="col-lg-8">
-                    <label class="form-label" for="Input.ProfilePicture">Profile Image</label>
-                    <input type="file" class="form-control"
-                           name="Input.ProfilePicture" accept=".jpg, .jpeg, .png .svg .gif"
-                           onchange="document.getElementById('profilePicPreview').src = window.URL.createObjectURL(this.files[0])" />
-                </div>
-            </div>
+					</div>
+				</EditForm>
+			</div>
+		</AnimatedCard>
 
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </EditForm>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
-    </div>
-</div>
-
+		<div class="vstack text-center">
+			<MudText Typo="Typo.caption">Already have an account?</MudText>
+			<MudLink Href="/Account/Login">Click here to login</MudLink>
+		</div>
+	</div>
+</MudContainer>
 @code {
-    private IEnumerable<IdentityError>? identityErrors;
+	private IEnumerable<IdentityError>? identityErrors;
 
-    [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new();
+	[SupplyParameterFromForm]
+	private InputModel Input { get; set; } = new();
 
-    [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
+	[SupplyParameterFromQuery]
+	private string? ReturnUrl { get; set; }
 
-    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+	private InviteDTO? invite;//delete when no longer necessary
 
-    public async Task RegisterUser(EditContext editContext)
-    {
-        var user = CreateUser();
-        user.FirstName = Input.FirstName;
-        user.LastName = Input.LastName;
+	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+	private IndexTrackerHelper Index = new();
+	private void ResetIndex() => IndexTracker.Reset();
+
+	protected override async Task OnInitializedAsync()
+	{
+		ResetIndex();
+	}
+
+	public async Task RegisterUser(EditContext editContext)
+	{
+		var user = CreateUser();
+		user.FirstName = Input.FirstName;
+		user.LastName = Input.LastName;
 
 
-        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-        var emailStore = GetEmailStore();
-        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-        var result = await UserManager.CreateAsync(user, Input.Password);
+		await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+		var emailStore = GetEmailStore();
+		await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+		var result = await UserManager.CreateAsync(user, Input.Password);
 
-        if (!result.Succeeded)
-        {
-            identityErrors = result.Errors;
-            return;
-        }
+		if (!result.Succeeded)
+		{
+			identityErrors = result.Errors;
+			return;
+		}
 
-        Logger.LogInformation("User created a new account with password.");
+		Logger.LogInformation("User created a new account with password.");
 
-        if (Input.ProfilePicture is not null)
-        {
-            try
-            {
-                FileUpload profilePic = await UploadHelper.GetFileUploadAsync(Input.ProfilePicture);
-                user.ProfilePicture = profilePic;
-                _context.Uploads.Add(profilePic);
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                //register the user with default image if upload fails; user can update it later
-                Console.WriteLine($"Error uploading image: {ex.Message}");
-            }
-        }
-        var userId = await UserManager.GetUserIdAsync(user);
-        var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+		if (Input.ProfilePicture is not null)
+		{
+			try
+			{
+				FileUpload profilePic = await UploadHelper.GetFileUploadAsync(Input.ProfilePicture);
+				user.ProfilePicture = profilePic;
+				_context.Uploads.Add(profilePic);
+				_context.Users.Update(user);
+				await _context.SaveChangesAsync();
+			}
+			catch (Exception ex)
+			{
+				//register the user with default image if upload fails; user can update it later
+				Console.WriteLine($"Error uploading image: {ex.Message}");
+			}
+		}
+		var userId = await UserManager.GetUserIdAsync(user);
+		var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+		code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+		var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+			NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+			new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
 
-        await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+		await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
 
-        if (UserManager.Options.SignIn.RequireConfirmedAccount)
-        {
-            RedirectManager.RedirectTo(
-                "Account/RegisterConfirmation",
-                new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
-        }
+		if (UserManager.Options.SignIn.RequireConfirmedAccount)
+		{
+			RedirectManager.RedirectTo(
+				"Account/RegisterConfirmation",
+				new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+		}
 
-        await SignInManager.SignInAsync(user, isPersistent: false);
-        RedirectManager.RedirectTo(ReturnUrl);
-    }
+		await SignInManager.SignInAsync(user, isPersistent: false);
+		RedirectManager.RedirectTo(ReturnUrl);
+	}
 
-    private ApplicationUser CreateUser()
-    {
-        try
-        {
-            return Activator.CreateInstance<ApplicationUser>();
-        }
-        catch
-        {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
-        }
-    }
+	private ApplicationUser CreateUser()
+	{
+		try
+		{
+			return Activator.CreateInstance<ApplicationUser>();
+		}
+		catch
+		{
+			throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+				$"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+		}
+	}
 
-    private IUserEmailStore<ApplicationUser> GetEmailStore()
-    {
-        if (!UserManager.SupportsUserEmail)
-        {
-            throw new NotSupportedException("The default UI requires a user store with email support.");
-        }
-        return (IUserEmailStore<ApplicationUser>)UserStore;
-    }
+	private IUserEmailStore<ApplicationUser> GetEmailStore()
+	{
+		if (!UserManager.SupportsUserEmail)
+		{
+			throw new NotSupportedException("The default UI requires a user store with email support.");
+		}
+		return (IUserEmailStore<ApplicationUser>)UserStore;
+	}
 
-    private sealed class InputModel
-    {
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
-        [Display(Name = "First Name")]
-        public string FirstName { get; set; } = "";
+	private sealed class InputModel
+	{
+		[Required]
+		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
+		[Display(Name = "First Name")]
+		public string FirstName { get; set; } = "";
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
-        [Display(Name = "Last Name")]
-        public string LastName { get; set; } = "";
+		[Required]
+		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
+		[Display(Name = "Last Name")]
+		public string LastName { get; set; } = "";
 
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
-        public string Email { get; set; } = "";
+		[Required]
+		[EmailAddress]
+		[Display(Name = "Email")]
+		public string Email { get; set; } = "";
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; } = "";
+		[Required]
+		[StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+		[DataType(DataType.Password)]
+		[Display(Name = "Password")]
+		public string Password { get; set; } = "";
 
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; } = "";
+		[DataType(DataType.Password)]
+		[Display(Name = "Confirm password")]
+		[Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+		public string ConfirmPassword { get; set; } = "";
 
-        public IFormFile? ProfilePicture { get; set; }
-    }
+		[Display(Name = "Profile Picture")]
+		public IFormFile? ProfilePicture { get; set; }
+
+		[Display(Name = "Company Image")]
+		public IFormFile? CompanyImage { get; set; }
+
+		[Required]
+		[Display(Name = "Company Name")]
+		public string? CompanyName { get; set; }
+
+		[Display(Name = "Company Description")]
+		public string? CompanyDescription { get; set; }
+
+
+	}
 }
