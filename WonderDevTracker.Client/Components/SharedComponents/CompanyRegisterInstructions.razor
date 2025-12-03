@@ -1,0 +1,86 @@
+﻿@* CompanyRegisterInstructions.razor
+   Shows guidance for new company registration vs joining an existing one *@
+
+@using WonderDevTracker.Client.Helpers.Animation
+
+<AnimatedCard Index="Index">
+	<MudCardHeader>
+		<CardHeaderContent>
+			<div class="d-flex align-items-center gap-2 pt-2 m-0">
+				<MudIcon Icon="@Icons.Material.Filled.AppRegistration"
+						 Color="Color.Primary"
+						 Size="Size.Medium" />
+				<MudText Typo="Typo.h3" Color="Color.Primary">
+					What To Know Before You Register
+				</MudText>
+			</div>
+		</CardHeaderContent>
+	</MudCardHeader>
+
+	<MudCardContent Class="pt-0">
+		<MudStack Spacing="2">
+
+			@* Section 1: Creating a new company *@
+			<MudPaper Class="p-2 rounded-3 register-section" Elevation="0">
+				<div class="d-flex align-items-start gap-2">
+					<MudIcon Icon="@Icons.Material.Filled.Business"
+							 Color="Color.Info"
+							 Size="Size.Small"
+							 Class="mt-1" />
+					<div>
+						<MudText Typo="Typo.h6" Color="Color.Dark" GutterBottom="true">
+							<strong>This form creates a new company account.</strong>
+						</MudText>
+
+						@* Paragraph mirrors AboutDevTracker style *@
+						<MudText Typo="Typo.body1" Color="Color.Dark">
+							When you complete this form:
+						</MudText>
+
+						@* Bullets get typography via CSS (next section) *@
+						<ul class="mb-0 register-list">
+							<li>You create a <strong>new company workspace</strong> in DevTracker.</li>
+							<li>Your account is registered as that company’s <strong>Administrator</strong>.</li>
+							<li>As an Admin, you’ll be able to invite team members and manage projects, tickets, and roles.</li>
+						</ul>
+					</div>
+				</div>
+			</MudPaper>
+
+			@* Section 2: Joining an existing company *@
+			<MudPaper Class="p-2 rounded-3 register-section" Elevation="0">
+				<div class="d-flex align-items-start gap-2">
+					<MudIcon Icon="@Icons.Material.Filled.GroupAdd"
+							 Color="Color.Secondary"
+							 Size="Size.Small"
+							 Class="mt-1" />
+					@* Section 2: Joining an existing company *@
+					<div>
+						<MudText Typo="Typo.h6" Color="Color.Dark" GutterBottom="true">
+							<strong>Already using DevTracker with your company?</strong>
+						</MudText>
+
+						<MudText Typo="Typo.body1" Color="Color.Dark">
+							If you are an current company member already registered with DevTracker, <MudLink Href="/Account/Login">click here</MudLink> to login.
+						</MudText>
+							<MudText Typo="Typo.body1" Color="Color.Dark">
+							If the company you are attempting to join already has a DevTracker account,<strong> do not</strong> create a new company here.
+							<br/>
+							Instead:
+						</MudText>
+
+						<ul class="mb-0 register-list">
+							<li>Contact your company’s DevTracker Admin and ask for an <strong>invitation link</strong>.</li>
+							<li>The invite ensures your account is linked to the correct company and role.</li>
+						</ul>
+					</div>
+				</div>
+			</MudPaper>
+		</MudStack>
+	</MudCardContent>
+</AnimatedCard>
+
+@code {
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+}

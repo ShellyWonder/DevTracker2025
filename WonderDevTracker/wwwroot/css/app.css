@@ -121,6 +121,27 @@
 
 /* #endregion LabeledCard.razor */
 
+/* #region CompanyRegisterInstructions.razor*/
+.register-section {
+    background-color: #F9FCFE; /* soft blue-tinted background for readability */
+}
+
+.register-list {
+    padding-left: 1.25rem;
+    margin-top: 0.25rem;
+    font-family: var(--mud-typography-body1-family);
+    font-size: var(--mud-typography-body1-size);
+    line-height: var(--mud-typography-body1-lineheight);
+    font-weight: var(--mud-typography-body1-weight);
+    letter-spacing: var(--mud-typography-body1-letterspacing);
+}
+
+    .register-list li {
+        margin-bottom: 0.15rem;
+    }
+
+/* #endregion CompanyRegisterInstructions.razor*/
+
 /* #region TicketHistoryTimeline.razor */
 .timeline {
     max-height: 400px;
