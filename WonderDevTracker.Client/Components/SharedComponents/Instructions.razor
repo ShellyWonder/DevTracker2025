@@ -1,38 +1,63 @@
 ﻿@* Instructions *@
 <MudPaper Class="p-2 mb-3 drag-hint d-flex align-items-center"
-		  Elevation="1">
-	<MudIcon Icon="@StartIcon"
-			 Color="@Color1"
-			 Class="me-2" />
-	<div>
-		<MudText Typo="@Typo1"
-				 Color="@Color1"
-				 Class="fw-semibold mb-0">
-		        @Title
-		</MudText>
-		<MudText Typo="@Typo2"
-				 Color="@Color2">
-			@Message
-		</MudText>
-	</div>
+          Elevation="1">
+    <MudIcon Icon="@StartIcon"
+             Color="@Color1"
+             Class="me-2" />
+
+    <div>
+        <MudText Typo="@Typo1"
+                 Color="@Color1"
+                 Class="fw-semibold mb-0">
+            @Title
+        </MudText>
+
+        @if (MessageContent is not null)
+        {
+            @* Full markup path (bullets, links, etc.) *@
+            <div class="mt-1">
+                @MessageContent
+            </div>
+        }
+        else if (!string.IsNullOrWhiteSpace(Message))
+        {
+            @* Simple text path *@
+            <MudText Typo="@Typo2"
+                     Color="@Color2"
+                     Class="mb-0 mt-1">
+                @Message
+            </MudText>
+        }
+    </div>
 </MudPaper>
 
 @code {
-	[Parameter, EditorRequired]
-	public string Title { get; set; } = string.Empty;
-	[Parameter, EditorRequired]
-	public string Message { get; set; } = string.Empty;
-	[Parameter, EditorRequired]
-	public string StartIcon { get; set; }
-	[Parameter]
-	public Color Color1 { get; set; } = Color.Dark;
-	[Parameter]
-	public Color Color2 { get; set; } = Color.Dark;
-	[Parameter]
-	public Typo Typo1 { get; set; } = Typo.subtitle1;
-	[Parameter]
-	public Typo Typo2 { get; set; } = Typo.caption;
-	[Parameter]
-	public string? Class { get; set; }
-	
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    // Simple text message (no markup)
+    [Parameter]
+    public string? Message { get; set; }
+
+    // Rich/markup message (bullets, links, etc.)
+    [Parameter]
+    public RenderFragment? MessageContent { get; set; }
+
+    [Parameter, EditorRequired]
+    public string StartIcon { get; set; } = string.Empty;
+
+    [Parameter]
+    public Color Color1 { get; set; } = Color.Dark;
+
+    [Parameter]
+    public Color Color2 { get; set; } = Color.Dark;
+
+    [Parameter]
+    public Typo Typo1 { get; set; } = Typo.subtitle1;
+
+    [Parameter]
+    public Typo Typo2 { get; set; } = Typo.caption;
+
+    [Parameter]
+    public string? Class { get; set; }
 }
