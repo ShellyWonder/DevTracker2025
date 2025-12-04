@@ -1,17 +1,22 @@
 ﻿@inherits LayoutComponentBase
 @layout AccountLayout
 
-<h1>Manage your account</h1>
 
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
-            <ManageNavMenu />
-        </div>
-        <div class="col-md-9">
-            @Body
-        </div>
-    </div>
+
+<div class="py-3">
+	<MudPaper>
+		<div class="d-flex">
+			<div>
+				<MudText Typo="Typo.h4" Class="p-3">
+					Account Settings
+				</MudText>
+				<MudDivider Light DividerType="DividerType.FullWidth" Class="pb-3" />
+				<ManageNavMenu />
+			</div>
+			<MudDivider Light DividerType="DividerType.FullWidth" Vertical FlexItem />
+			<div class="p-3 flex-grow-1">
+				@Body
+			</div>
+		</div>
+	</MudPaper>
 </div>
