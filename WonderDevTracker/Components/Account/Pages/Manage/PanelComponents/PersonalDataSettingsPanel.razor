@@ -1,0 +1,51 @@
+﻿@* PersonalDataSettingsPanel *@
+@inject IdentityUserAccessor UserAccessor
+
+@inherits ServerAuthenticatedComponentBase
+
+
+<MudDivider Light DividerType="DividerType.FullWidth" Class="my-3" />
+<StatusMessage />
+
+<div class="row">
+	<div class="col-md-6">
+		<MudText Typo="Typo.body1" GutterBottom>
+			Your account contains personal data that you have given us.
+			This page allows you to download or delete that data.
+		</MudText>
+		<MudText Typo="Typo.caption" Color="Color.Error" GutterBottom>
+			<strong>Deleting this data will permanently remove your account and cannot be recovered.</strong>
+		</MudText>
+		<div class="hstack gap-2 my-2">
+			<form action="Account/Manage/DownloadPersonalData" method="post">
+				<AntiforgeryToken />
+				<MudButton ButtonType="ButtonType.Submit"
+						   Color="Color.Secondary"
+						   Size="Size.Medium"
+						   Variant="Variant.Filled"
+						   StartIcon="@Icons.Material.Filled.Download">
+					Download
+				</MudButton>
+			</form>
+			<div>
+				<MudButton ButtonType="ButtonType.Button"
+						   Href="Account/Manage/DeletePersonalData"
+						   Color="Color.Error"
+						   Size="Size.Medium"
+						   Variant="Variant.Filled"
+						   StartIcon="@Icons.Material.Filled.DeleteForever">
+					Delete Account
+				</MudButton>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+		if (AuthUser is null) throw new InvalidOperationException("AuthUser is not available.");
+		_ = await UserAccessor.GetRequiredUserAsync(AuthUser);
+	}
+}
