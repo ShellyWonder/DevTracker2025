@@ -81,12 +81,12 @@
 	private InputModel Input { get; set; } = new();
 
 	[CascadingParameter]
-	HttpContext? HttpContext { get; set; }
+	private HttpContext? HttpContext { get; set; }
 
 	protected override async Task OnInitializedWithAuthAsync()
 	{
 		if (AuthUser is null) throw new InvalidOperationException("AuthUser is not available.");
-		user = await UserAccessor.GetRequiredUserAsync(AuthUser!);
+		user = await UserAccessor.GetRequiredUserAsync(AuthUser);
 		username = await UserManager.GetUserNameAsync(user);
 		firstName = user.FirstName;
 		lastName = user.LastName;
