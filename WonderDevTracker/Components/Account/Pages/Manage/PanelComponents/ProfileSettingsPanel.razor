@@ -1,0 +1,179 @@
+﻿@using WonderDevTracker.Components.Base
+@* ProfileSettingsPanel.razor *@
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+@inject ApplicationDbContext _context
+
+@inherits ServerAuthenticatedComponentBase
+
+<TitleComponentPage Title="Profile" />
+<MudDivider Light DividerType="DividerType.FullWidth" Class="my-3" />
+<StatusMessage Message="@LocalStatusMessage" />
+
+<EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post" enctype="multipart/form-data">
+	<DataAnnotationsValidator />
+	<div class="row">
+		<div class="col-md-6">
+			<div class="vstack gap-3">
+
+				<ValidationSummary class="text-danger" role="alert" />
+				<MudTextField Value="@username"
+							  Placeholder="Please enter your email."
+							  Variant="Variant.Outlined"
+							  Label="Email"
+							  ShrinkLabel
+							  Disabled />
+				<MudTextField id=firstName
+							  @bind-Value="Input.FirstName"
+							  name="Input.FirstName"
+							  Label="First Name"
+							  Variant="Variant.Outlined"
+							  ShrinkLabel
+							  Placeholder="Please enter your first name." />
+
+				<MudTextField id=lastName
+							  @bind-Value="Input.LastName"
+							  name="Input.LastName"
+							  Label="Last Name"
+							  Variant="Variant.Outlined"
+							  ShrinkLabel
+							  Placeholder="Please enter your last name." />
+
+				<MudButton ButtonType="ButtonType.Submit"
+						   StartIcon="@Icons.Material.Filled.Save"
+						   Variant="Variant.Filled"
+						   Size="Size.Large"
+						   Color="Color.Primary"
+						   FullWidth>
+					Save
+				</MudButton>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<MudField Label="Profile Picture"
+					  Variant="Variant.Outlined">
+				<div class="d-flex vstack gap-3 align-items-center">
+					<img src="@profilePictureUrl"
+						 id="profilePic"
+						 style="height:96px; width: 96px; object-fit: cover; object-position: center; border-radius:.5rem;" />
+					<input type="file" class="form-control" name="Input.ProfilePicture" accept=".jpg, .jpeg, .png .svg .gif"
+						   onchange="document.getElementById('profilePic').src = window.URL.createObjectURL(this.files[0])" />
+				</div>
+			</MudField>
+		</div>
+	</div>
+</EditForm>
+
+
+@code {
+	private ApplicationUser user = default!;
+	private string firstName = string.Empty;
+	private string lastName = string.Empty;
+	private string? username;
+	private string? phoneNumber;
+	private string? profilePictureUrl;
+	private string? LocalStatusMessage;
+
+	[SupplyParameterFromForm]
+	private InputModel Input { get; set; } = new();
+
+	[CascadingParameter]
+	HttpContext? HttpContext { get; set; }
+
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+		if (AuthUser is null) throw new InvalidOperationException("AuthUser is not available.");
+		user = await UserAccessor.GetRequiredUserAsync(AuthUser!);
+		username = await UserManager.GetUserNameAsync(user);
+		firstName = user.FirstName;
+		lastName = user.LastName;
+
+		Input.FirstName ??= firstName;
+		Input.LastName ??= lastName;
+		profilePictureUrl = user.ProfilePictureId.HasValue 
+		                    ? $"api/uploads/{user.ProfilePictureId}"
+						    : UploadHelper.DefaultProfilePictureUrl;
+	}
+
+	private async Task OnValidSubmitAsync()
+	{
+		await UpdateProfilePictureAsync();
+
+		await UpdateNamesAsync();
+
+		await SignInManager.RefreshSignInAsync(user);
+		if (HttpContext is not null)
+		{
+
+			RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
+		}
+		else
+		{
+			LocalStatusMessage = "Your profile has been updated.";
+		}
+	}
+
+	#region HELPER METHODS
+	private async Task UpdateProfilePictureAsync()
+	{
+		if (Input.ProfilePicture is null) return;
+
+		try
+		{
+			//save the new profile picture
+			FileUpload newProfilePic = await UploadHelper.GetFileUploadAsync(Input.ProfilePicture);
+			_context.Add(newProfilePic);
+
+			//delete previous profile image
+			FileUpload? oldProfilePic = await _context.Uploads.FirstOrDefaultAsync(i => i.Id == user.ProfilePictureId);
+
+			if (oldProfilePic is not null) _context.Uploads.Remove(oldProfilePic);
+
+			user.ProfilePictureId = newProfilePic.Id;
+			_context.Users.Update(user);
+
+			//save the new profile image to the database
+			await _context.SaveChangesAsync();
+		}
+		catch (Exception)
+		{
+			if (HttpContext is not null)
+
+			{
+				RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update profile image.", HttpContext);
+			}
+		}
+
+	}
+
+	private async Task UpdateNamesAsync()
+	{
+		if (firstName == Input.FirstName && lastName == Input.LastName) return; // No change in names
+
+		user.FirstName = Input.FirstName!;
+		user.LastName = Input.LastName!;
+		var updateResult = await UserManager.UpdateAsync(user);
+
+		if (!updateResult.Succeeded && HttpContext is not null) RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update profile.", HttpContext);
+
+	}
+	#endregion
+
+	#region INPUT MODEL
+	private sealed class InputModel
+	{
+		[Required]
+		[Display(Name = "First Name")]
+		public string? FirstName { get; set; }
+
+		[Required]
+		[Display(Name = "Last Name")]
+		public string? LastName { get; set; }
+
+		public IFormFile ProfilePicture { get; set; } = default!;
+	}
+	#endregion
+}
