@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using WonderDevTracker.Models;
 
 namespace WonderDevTracker.Components.Account
@@ -12,6 +13,20 @@ namespace WonderDevTracker.Components.Account
             if (user is null)
             {
                 redirectManager.RedirectToWithStatus("Account/InvalidUser", $"Error: Unable to load user with ID '{userManager.GetUserId(context.User)}'.", context);
+            }
+
+            return user;
+        }
+
+        // ClaimsPrincipal-based overload for interactive components
+        public async Task<ApplicationUser> GetRequiredUserAsync(ClaimsPrincipal principal)
+        {
+            ApplicationUser? user = await userManager.GetUserAsync(principal);
+
+            if (user is null)
+            {
+                var userId = userManager.GetUserId(principal);
+                throw new InvalidOperationException($"Unable to load user with ID '{userId}'.");
             }
 
             return user;
