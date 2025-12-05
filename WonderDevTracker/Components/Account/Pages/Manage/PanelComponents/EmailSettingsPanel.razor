@@ -1,0 +1,129 @@
+﻿@using WonderDevTracker.Components.Base
+@* EmailSettingsPanel.razor *@
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject IdentityUserAccessor UserAccessor
+@inject NavigationManager NavigationManager
+
+@inherits ServerAuthenticatedComponentBase
+
+<TitleComponentPage Title="Manage Email Address" />
+<MudDivider Light DividerType="DividerType.FullWidth" Class="mb-2" />
+	<StatusMessage Message="@message" />
+	<div class="row">
+		<div class="col-md-6">
+			<form @onsubmit="OnSendEmailVerificationAsync" @formname="send-verification" id="send-verification-form" method="post">
+				<AntiforgeryToken />
+			</form>
+			<EditForm Model="Input" FormName="change-email" OnValidSubmit="OnValidSubmitAsync" method="post" class="vstack gap-3">
+				<DataAnnotationsValidator />
+				<ValidationSummary class="text-danger" role="alert" />
+				<MudTextField value="@email"
+							  Placeholder="Please enter your email."
+							  Label="Current Email"
+							  disabled
+							  Adornment="Adornment.End"
+							  AdornmentIcon="@Icons.Material.Filled.Check"
+							  AdornmentColor="Color.Tertiary"
+							  Variant="Variant.Outlined" />
+
+				<div>
+					<MudTextField @bind-Value="Input.NewEmail"
+								  name="Input.NewEmail"
+								  Placeholder="Please enter your new email."
+								  Label="New Email"
+								  autocomplete="email"
+								  aria-required="true"
+								  For="() => Input.NewEmail" class="text-danger"
+								  Variant="Variant.Outlined"
+								  ShrinkLabel />
+
+				</div>
+
+				<div>
+					<MudButton ButtonType="ButtonType.Submit"
+							   Color="Color.Primary"
+							   Size="Size.Large"
+							   Variant="Variant.Filled"
+							   StartIcon="@Icons.Material.Filled.Email"
+							   FullWidth>
+						Update email
+					</MudButton>
+				</div>
+
+			</EditForm>
+		</div>
+	</div>
+	
+@code {
+	private string? message;
+	private ApplicationUser user = default!;
+	private string? email;
+	private bool isEmailConfirmed;
+
+	[CascadingParameter]
+	private HttpContext? HttpContext { get; set; } 
+
+	[SupplyParameterFromForm(FormName = "change-email")]
+	private InputModel Input { get; set; } = new();
+
+
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+		if (AuthUser is null) throw new InvalidOperationException("AuthUser is not available.");
+		user = await UserAccessor.GetRequiredUserAsync(AuthUser);
+		email = await UserManager.GetEmailAsync(user);
+		isEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user);
+
+		Input.NewEmail ??= email;
+	}
+
+	private async Task OnValidSubmitAsync()
+	{
+		if (Input.NewEmail is null || Input.NewEmail == email)
+		{
+			message = "Your email is unchanged.";
+			return;
+		}
+
+		var userId = await UserManager.GetUserIdAsync(user);
+		var code = await UserManager.GenerateChangeEmailTokenAsync(user, Input.NewEmail);
+		code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+		var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+			NavigationManager.ToAbsoluteUri("Account/ConfirmEmailChange").AbsoluteUri,
+			new Dictionary<string, object?> { ["userId"] = userId, ["email"] = Input.NewEmail, ["code"] = code });
+
+		await EmailSender.SendConfirmationLinkAsync(user, Input.NewEmail, HtmlEncoder.Default.Encode(callbackUrl));
+
+		message = "Confirmation link to change email sent. Please check your email.";
+	}
+
+	private async Task OnSendEmailVerificationAsync()
+	{
+		if (email is null)
+		{
+			return;
+		}
+
+		var userId = await UserManager.GetUserIdAsync(user);
+		var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+		code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+		var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+			NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+			new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
+
+		await EmailSender.SendConfirmationLinkAsync(user, email, HtmlEncoder.Default.Encode(callbackUrl));
+
+		message = "Verification email sent. Please check your email.";
+	}
+
+	private sealed class InputModel
+	{
+		[Required]
+		[EmailAddress]
+		[Display(Name = "New email")]
+		public string? NewEmail { get; set; }
+	}
+}
+
