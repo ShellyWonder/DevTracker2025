@@ -1,29 +1,49 @@
-﻿@if (!string.IsNullOrEmpty(DisplayMessage))
+﻿@* StatusMessage.razor *@
+
+@*This component is modified to accomodate Account/Pages/Manage/Index.razor 
+	(requiring a ClaimsPrincipal-based overload for interactive components)
+	that uses local messages, not messages from cookies*@
+
+@if (!string.IsNullOrEmpty(DisplayMessage))
 {
-    var statusMessageClass = DisplayMessage.StartsWith("Error") ? "danger" : "success";
-    <div class="alert alert-@statusMessageClass" role="alert">
-        @DisplayMessage
-    </div>
+	var statusMessageClass = DisplayMessage.StartsWith("Error") ? "danger" : "success";
+
+	<div class="alert alert-@statusMessageClass" role="alert">
+		@DisplayMessage
+	</div>
 }
 
 @code {
-    private string? messageFromCookie;
+	private string? messageFromCookie;
 
-    [Parameter]
-    public string? Message { get; set; }
+	[Parameter]
+	public string? Message { get; set; }
 
-    [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
+	[CascadingParameter]
+	private HttpContext? HttpContext { get; set; }
 
-    private string? DisplayMessage => Message ?? messageFromCookie;
+	private string? DisplayMessage => Message ?? messageFromCookie;
 
-    protected override void OnInitialized()
-    {
-        messageFromCookie = HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+	protected override void OnInitialized()
+	{
+		//if a message parameter is supplied don't bother with cookies
+		if (!string.IsNullOrEmpty(Message)) return;
 
-        if (messageFromCookie is not null)
-        {
-            HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
-        }
-    }
+		// In interactive/tab contexts HttpContext may be null.
+		if (HttpContext is null)
+		{
+			messageFromCookie = null;
+			return;
+		}
+		else
+		{
+			messageFromCookie = HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+
+			if (messageFromCookie is not null)
+			{
+				HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+			}
+
+		}
+	}
 }
