@@ -58,6 +58,7 @@ namespace WonderDevTracker.Infrastructure
 
             // Add additional endpoints required by the Identity /Account Razor components.
             app.MapAdditionalIdentityEndpoints();
+            app.MapAccountEndpoints();
             app.MapControllers();
 
             // Scalar UI (now mapped here, not in UseApiDocumentation)
