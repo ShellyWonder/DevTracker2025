@@ -11,7 +11,6 @@
 @inherits ServerAuthenticatedComponentBase
 
 <MudDivider Light DividerType="DividerType.FullWidth" Class="my-3" />
-<StatusMessage Message="@LocalStatusMessage" />
 
 <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post" enctype="multipart/form-data">
 	<DataAnnotationsValidator />
@@ -73,9 +72,8 @@
 	private string firstName = string.Empty;
 	private string lastName = string.Empty;
 	private string? username;
-	private string? phoneNumber;
 	private string? profilePictureUrl;
-	private string? LocalStatusMessage;
+
 
 	[SupplyParameterFromForm]
 	private InputModel Input { get; set; } = new();
