@@ -1,6 +1,7 @@
 ﻿@using WonderDevTracker.Components.Base
 @* ProfileSettingsPanel.razor *@
 
+@inject NavigationManager NavigationManager
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityUserAccessor UserAccessor
@@ -103,16 +104,10 @@
 
 		await UpdateNamesAsync();
 
-		await SignInManager.RefreshSignInAsync(user);
-		if (HttpContext is not null)
-		{
-
-			RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
-		}
-		else
-		{
-			LocalStatusMessage = "Your profile has been updated.";
-		}
+		// use the refresh endpoint from the interactive UI found in AccountEndpointsExtensions.cs:
+		NavigationManager.NavigateTo("/Account/RefreshSignin", forceLoad: true);
+		
+		
 	}
 
 	#region HELPER METHODS
