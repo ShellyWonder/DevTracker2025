@@ -106,32 +106,43 @@
 												  ShrinkLabel />
 								</div>
 							</AnimatedBlock>
+
 							<AnimatedBlock Index="@Index.Next()">
 								<div class="mb-3">
-									<MudTextField id="password"
-												  Value="Input.Password"
-												  name="Input.Password"
-												  aria-required="true"
-												  For="() => Input!.Password"
-												  Label="Password"
-												  autocomplete="new-password"
-												  Variant="Variant.Outlined"
-												  InputType="InputType.Password"
-												  ShrinkLabel />
+									<label class="form-label" for="invitePassword">Password</label>
+									<div class="input-group">
+										<input type="password"
+											   id="invitePassword"
+											   name="Input.Password"
+											   class="form-control"
+											   autocomplete="new-password"
+											   required />
+
+										<button type="button"
+												class="btn btn-outline-secondary"
+												onclick="togglePassword('invitePassword', this)">
+											<span class="material-icons">visibility</span>
+										</button>
+									</div>
 								</div>
 							</AnimatedBlock>
 							<AnimatedBlock Index="@Index.Next()">
 								<div class="mb-3">
-									<MudTextField id="password"
-												  Value="Input.ConfirmPassword"
-												  name="Input.ConfirmPassword"
-												  aria-required="true"
-												  For="() => Input!.ConfirmPassword"
-												  Label="Confirm Password"
-												  autocomplete="new-password"
-												  Variant="Variant.Outlined"
-												  InputType="InputType.Password"
-												  ShrinkLabel />
+									<label class="form-label" for="inviteConfirmPassword">Confirm Password</label>
+									<div class="input-group">
+										<input type="password"
+											   id="inviteConfirmPassword"
+											   name="Input.ConfirmPassword"
+											   class="form-control"
+											   autocomplete="new-password"
+											   required />
+
+										<button type="button"
+												class="btn btn-outline-secondary"
+												onclick="togglePassword('inviteConfirmPassword', this)">
+											<span class="material-icons">visibility</span>
+										</button>
+									</div>
 								</div>
 							</AnimatedBlock>
 							<AnimatedBlock Index="@Index.Next()">
