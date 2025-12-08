@@ -1,18 +1,21 @@
-﻿@inherits LayoutComponentBase
+﻿@inject NavigationManager Nav
+@inherits LayoutComponentBase
 @layout AccountLayout
-
-
 
 <div class="py-3">
 	<MudPaper>
 		<div class="d-flex">
-			<div>
-				<MudText Typo="Typo.h4" Class="p-3">
-					Account Settings
-				</MudText>
-				<MudDivider Light DividerType="DividerType.FullWidth" Class="pb-3" />
-				<ManageNavMenu />
-			</div>
+			
+			@if (!IsIndexPage)
+			{
+				<div>
+					<MudText Typo="Typo.h4" Class="p-3">
+						Account Settings
+					</MudText>
+					<MudDivider Light DividerType="DividerType.FullWidth" Class="pb-3" />
+					<ManageNavMenu />
+				</div>
+			}
 			<MudDivider Light DividerType="DividerType.FullWidth" Vertical FlexItem />
 			<div class="p-3 flex-grow-1">
 				@Body
@@ -20,3 +23,20 @@
 		</div>
 	</MudPaper>
 </div>
+
+@code {
+	private bool IsIndexPage
+	{
+		get
+		{
+			// e.g. "Account/Manage?tab=0" or "Account/Manage"
+			var relative = Nav.ToBaseRelativePath(Nav.Uri);
+
+			// strip off query / fragment
+			var path = relative.Split('?', '#')[0];
+
+			// treat any /Account/Manage (with or without ?tab=) as the hub
+			return string.Equals(path, "Account/Manage", StringComparison.OrdinalIgnoreCase);
+		}
+	}
+}

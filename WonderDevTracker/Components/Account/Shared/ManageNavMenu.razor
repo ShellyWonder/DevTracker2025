@@ -4,28 +4,31 @@
 @inject SignInManager<ApplicationUser> SignInManager
 
 <MudNavMenu >
-	<MudNavLink Href="Account/Manage" 
+	<MudNavLink Href="Account/Manage?tab=0" 
                 Match="NavLinkMatch.All"
 	            Icon="@Icons.Material.Filled.AccountCircle">
 				Profile
 			</MudNavLink>
-	<MudNavLink Href="Account/Manage/Email"
+	<MudNavLink Href="Account/Manage?tab=1"
 				Icon="@Icons.Material.Filled.Email">
 				Email
 			</MudNavLink>
-	<MudNavLink Href="Account/Manage/ChangePassword"
-				Icon="@Icons.Material.Filled.Password">Password</MudNavLink>
+	<MudNavLink Href="Account/Manage?tab=2"
+				Icon="@Icons.Material.Filled.Lock">
+				Password
+			</MudNavLink>
 	@*TODO: remove if not used*@
 	@if (hasExternalLogins)
 	{
 		<MudNavLink Href="Account/Manage/ExternalLogins"
 				>External logins</MudNavLink>
 	}
-	<MudNavLink Href="Account/Manage/TwoFactorAuthentication"
+	@*TODO: remove if not used*@
+	@* <MudNavLink Href="Account/Manage/TwoFactorAuthentication"
 				Icon="@Icons.Material.Filled.AddLink">
 				Two-Factor Authentication
-			</MudNavLink>
-		<MudNavLink Href="Account/Manage/PersonalData"
+			</MudNavLink> *@
+	<MudNavLink Href="Account/Manage?tab=3" 
 				Icon="@Icons.Material.Filled.PersonOutline">
 				Personal Data</MudNavLink>
 
