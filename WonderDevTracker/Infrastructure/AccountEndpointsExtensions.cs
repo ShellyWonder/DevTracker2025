@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using WonderDevTracker.Components.Account;
 using WonderDevTracker.Models;
 
 namespace WonderDevTracker.Infrastructure
@@ -16,7 +17,7 @@ namespace WonderDevTracker.Infrastructure
         {
             var account = endpoints.MapGroup("/Account");
 
-            account.MapPost("/RefreshSignin", async (
+            account.MapGet("/RefreshSignin", async (
                HttpContext httpContext,
                UserManager<ApplicationUser> userManager,
                SignInManager<ApplicationUser> signInManager) =>
@@ -28,7 +29,7 @@ namespace WonderDevTracker.Infrastructure
                 await signInManager.RefreshSignInAsync(user);
 
                 // navigate back to Manage page after cookie refresh
-                return Results.LocalRedirect("/Account/Manage");
+                return Results.LocalRedirect("/Account/Manage?updated=profile");
             })
                .RequireAuthorization(); // user must be logged in
 
