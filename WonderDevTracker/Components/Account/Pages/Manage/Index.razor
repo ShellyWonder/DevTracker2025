@@ -1,186 +1,88 @@
 ﻿@page "/Account/Manage"
+@rendermode InteractiveServer
+@using WonderDevTracker.Components.Account.Pages.Manage.PanelComponents
+@using Microsoft.AspNetCore.WebUtilities
 
-@using System.ComponentModel.DataAnnotations
-@using WonderDevTracker.Client.Components.SharedComponents
-@using WonderDevTracker.Helpers
-@using Microsoft.AspNetCore.Identity
-@using WonderDevTracker.Data
-@using Microsoft.EntityFrameworkCore
 
-@inject UserManager<ApplicationUser> UserManager
-@inject SignInManager<ApplicationUser> SignInManager
-@inject IdentityUserAccessor UserAccessor
-@inject IdentityRedirectManager RedirectManager
-@inject ApplicationDbContext _context
+@inject NavigationManager NavManager
 
-<PageTitle>Profile | DevTracker</PageTitle>
-<TitleComponentPage Title="Profile" />
+<PageTitle>Account Settings | DevTracker</PageTitle>
+
+
+<TitleComponentPage Title="Account Settings" />
 <MudDivider Light DividerType="DividerType.FullWidth" Class="my-3" />
-<StatusMessage />
-<EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post" enctype="multipart/form-data">
-	<DataAnnotationsValidator />
-	<div class="row">
-		<div class="col-md-6">
-			<div class="vstack gap-3">
+@if (ShowMessage)
+{
+	<StatusMessage Message="@MessageText" />
+}
+<MudTabs @bind-ActivePanelIndex="activeTabIndex"
+		 Rounded="true"
+		 Elevation="0"
+		 Class="dt-settings-tabs">
 
-				<ValidationSummary class="text-danger" role="alert" />
-				<MudTextField Value="@username"
-							  Placeholder="Please enter your email."
-							  Variant="Variant.Outlined"
-							  Label="Email"
-							  ShrinkLabel
-							  Disabled />
-				<MudTextField id=firstName
-							  @bind-Value="Input.FirstName"
-							  name="Input.FirstName"
-							  Label="First Name"
-							  Variant="Variant.Outlined"
-							  ShrinkLabel
-							  Placeholder="Please enter your first name." />
+	<MudTabPanel Text="Profile"
+				 Icon="@Icons.Material.Filled.Person">
+		<ProfileSettingsPanel />
+	</MudTabPanel>
 
-				<MudTextField id=lastName
-							  @bind-Value="Input.LastName"
-							  name="Input.LastName"
-							  Label="Last Name"
-							  Variant="Variant.Outlined"
-							  ShrinkLabel
-							  Placeholder="Please enter your last name." />
+	<MudTabPanel Text="Email"
+				 Icon="@Icons.Material.Filled.Email">
+		<EmailSettingsPanel />
+	</MudTabPanel>
 
-				<MudButton ButtonType="ButtonType.Submit"
-						   StartIcon="@Icons.Material.Filled.Save"
-						   Variant="Variant.Filled"
-						   Size="Size.Large"
-						   Color="Color.Primary"
-						   FullWidth>
-					Save
-				</MudButton>
-			</div>
-		</div>
-		<div class="col-md-6">
-			<MudField Label="Profile Picture"
-					  Variant="Variant.Outlined">
-				<div class="d-flex vstack gap-3 align-items-center">
-					<img src="@profilePictureUrl"
-						 id="profilePic"
-						 style="height:96px; width: 96px; object-fit: cover; object-position: center; border-radius:.5rem;" />
-					<input type="file" class="form-control" name="Input.ProfilePicture" accept=".jpg, .jpeg, .png .svg .gif"
-						   onchange="document.getElementById('profilePic').src = window.URL.createObjectURL(this.files[0])" />
-				</div>
-			</MudField>
-		</div>
-	</div>
-</EditForm>
+	<MudTabPanel Text="Password"
+				 Icon="@Icons.Material.Filled.Lock">
+		<PasswordSettingsPanel />
+	</MudTabPanel>
+	@*TODO: Implement Two-Factor Auth*@
+	@*TODO: Implement TabIndex to 3;*@
+	@*TODO: Change PersonalData TabIndex to 4;*@
+	@* <MudTabPanel Text="Two-Factor Authentication"
+                     Icon="@Icons.Material.Filled.VerifiedUser">
+            <TwoFactorSettingsPanel />
+        </MudTabPanel> *@
+
+	<MudTabPanel Text="Personal Data"
+				 Icon="@Icons.Material.Filled.ManageAccounts">
+		<PersonalDataSettingsPanel />
+	</MudTabPanel>
+
+</MudTabs>
+
 
 @code {
-	private ApplicationUser user = default!;
-	private string firstName = string.Empty;
-	private string lastName = string.Empty;
-	private string? username;
-	private string? phoneNumber;
-	private string? profilePictureUrl;
-
-	[CascadingParameter]
-	private HttpContext HttpContext { get; set; } = default!;
-
-	[SupplyParameterFromForm]
-	private InputModel Input { get; set; } = new();
+	private bool ShowMessage { get; set; }
+	private string? MessageText { get; set; }
+	private int activeTabIndex = 0;
 
 	protected override async Task OnInitializedAsync()
 	{
-		user = await UserAccessor.GetRequiredUserAsync(HttpContext);
-		username = await UserManager.GetUserNameAsync(user);
-		phoneNumber = await UserManager.GetPhoneNumberAsync(user);
-		firstName = user.FirstName;
-		lastName = user.LastName;
+		var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+		var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
-		Input.FirstName ??= firstName;
-		Input.LastName ??= lastName;
-		Input.PhoneNumber ??= phoneNumber;
-
-		profilePictureUrl = user.ProfilePictureId.HasValue ? $"api/uploads/{user.ProfilePictureId}" 
-		                                                   : UploadHelper.DefaultProfilePictureUrl;
-	}
-
-	private async Task OnValidSubmitAsync()
-	{
-		await UpdateProfilePictureAsync();
-
-		await UpdatePhoneNumberAsync();
-
-		await UpdateNamesAsync();
-
-		await SignInManager.RefreshSignInAsync(user);
-		RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
-	}
-
-	#region HELPER METHODS
-	private async Task UpdateProfilePictureAsync()
-	{
-		if (Input.ProfilePicture is null) return;
-
-		try
+		if (query["updated"] == "profile")
 		{
-			//save the new profile picture
-			FileUpload newProfilePic = await UploadHelper.GetFileUploadAsync(Input.ProfilePicture);
-			_context.Add(newProfilePic);
+			MessageText = "Your profile has been updated.";
+			ShowMessage = true;
 
-			//delete previous profile image
-			FileUpload? oldProfilePic = await _context.Uploads.FirstOrDefaultAsync(i => i.Id == user.ProfilePictureId);
-
-			if (oldProfilePic is not null) _context.Uploads.Remove(oldProfilePic);
-
-			user.ProfilePictureId = newProfilePic.Id;
-			_context.Users.Update(user);
-
-			//save the new profile image to the database
-			await _context.SaveChangesAsync();
-		}
-		catch (Exception)
-		{
-
-			RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update profile image.", HttpContext);
+			// Auto-dismiss after 4 seconds (adjust as desired)
+			_ = DismissAfterDelay(4000);
 		}
 
+		//tab selection
+		var tabValue = query["tab"];
+		if (int.TryParse(tabValue, out var index))
+		{
+			activeTabIndex = index;
+		}
+
+
 	}
 
-	private async Task UpdatePhoneNumberAsync()
+	private async Task DismissAfterDelay(int milliseconds)
 	{
-		if (Input.PhoneNumber == phoneNumber) return; // No change in phone number
-
-		var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-		if (!setPhoneResult.Succeeded) RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update phone number.", HttpContext);
-
+		await Task.Delay(milliseconds);
+		ShowMessage = false;
+		StateHasChanged();
 	}
-
-	private async Task UpdateNamesAsync()
-	{
-		if (firstName == Input.FirstName && lastName == Input.LastName) return; // No change in names
-
-		user.FirstName = Input.FirstName!;
-		user.LastName = Input.LastName!;
-		var updateResult = await UserManager.UpdateAsync(user);
-
-		if (!updateResult.Succeeded) RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update profile.", HttpContext);
-
-	}
-	#endregion
-
-	#region INPUT MODEL
-	private sealed class InputModel
-	{
-		[Required]
-		[Display(Name = "First Name")]
-		public string? FirstName { get; set; }
-
-		[Required]
-		[Display(Name = "Last Name")]
-		public string? LastName { get; set; }
-
-		[Phone]
-		[Display(Name = "Phone number")]
-		public string? PhoneNumber { get; set; }
-
-		public IFormFile ProfilePicture { get; set; } = default!;
-	}
-	#endregion
 }

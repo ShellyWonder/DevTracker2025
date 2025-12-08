@@ -1,56 +1,5 @@
 ﻿@page "/Account/Manage/PersonalData"
-@using WonderDevTracker.Client.Components.SharedComponents
-
-@inject IdentityUserAccessor UserAccessor
-
-<PageTitle>Personal Data | DevTracker</PageTitle>
-
-<TitleComponentPage Title="Personal Data" />
-<MudDivider Light DividerType="DividerType.FullWidth" Class="my-3" />
-<StatusMessage />
-
-<div class="row">
-	<div class="col-md-6">
-		<MudText Typo="Typo.body1" GutterBottom>
-			Your account contains personal data that you have given us.
-			This page allows you to download or delete that data.
-		</MudText>
-		<MudText Typo="Typo.caption" Color="Color.Error" GutterBottom>
-			<strong>Deleting this data will permanently remove your account and cannot be recovered.</strong>
-		</MudText>
-		<div class="hstack gap-2 my-2">
-			<form action="Account/Manage/DownloadPersonalData" method="post">
-				<AntiforgeryToken />
-				<MudButton ButtonType="ButtonType.Submit"
-						   Color="Color.Secondary"
-						   Size="Size.Medium"
-						   Variant="Variant.Filled"
-						   StartIcon="@Icons.Material.Filled.Download"
-						   >
-					Download
-				</MudButton>
-			</form>
-			<div>
-				<MudButton ButtonType="ButtonType.Button"
-						   Href="Account/Manage/DeletePersonalData"
-						   Color="Color.Error"
-						   Size="Size.Medium"
-						   Variant="Variant.Filled"
-						   StartIcon="@Icons.Material.Filled.DeleteForever"
-						   >
-					Delete Account
-				</MudButton>
-			</div>
-		</div>
-	</div>
-</div>
-
+@inherits RedirectToManageTabBase
 @code {
-	[CascadingParameter]
-	private HttpContext HttpContext { get; set; } = default!;
-
-	protected override async Task OnInitializedAsync()
-	{
-		_ = await UserAccessor.GetRequiredUserAsync(HttpContext);
-	}
+	protected override int TargetTabIndex => 3;
 }
