@@ -1,0 +1,69 @@
+﻿@using WonderDevTracker.Client.Components.UIComponents.GeneralComponents
+@* PanelBtnGroup *@
+
+<div class="d-flex justify-content-between">
+	<BackToBtn Href="@BackHref"
+			   Text="@BackDisplayText"/>
+	<div class="ms-auto">
+		<CancelBtn Href="@CxlHref"
+			       Class="@CxlClass"
+				   DisplayText="@CancelDisplayText" />
+
+		<MudButton ButtonType="@ButtonType"
+				   StartIcon="@SaveStartIcon"
+				   Variant="@SaveVariant"
+				   Size="@SaveSize"
+				   Color="@SaveColor">
+			@SaveDisplayText
+		</MudButton>
+
+	</div>
+</div>
+@code {
+	#region BACK TO BTN PARAMETERS
+	[Parameter]
+	public string BackHref { get; set; } = "/";
+
+	[Parameter]
+	public string? BackDisplayText { get; set; } = "Back to Home";
+	#endregion
+
+	#region CXL BTN PARAMETERS
+	[Parameter]
+	public string CxlHref { get; set; } = "/";
+
+	[Parameter]
+	public string? CxlClass { get; set; }
+
+	[Parameter]
+	public string? CancelDisplayText { get; set; } = "Cancel";
+	#endregion
+
+	#region SAVE BTN PARAMETERS
+	[Parameter]
+	public ButtonType ButtonType { get; set; } = ButtonType.Submit;
+
+	[Parameter]
+	public string? SaveClass { get; set; }
+
+	[Parameter]
+	public string? SaveDisplayText { get; set; } = "Save";
+
+	[Parameter]
+	public string SaveStartIcon { get; set; } = Icons.Material.Filled.Save;
+
+	[Parameter]
+	public Variant SaveVariant { get; set; } = Variant.Filled;
+
+	[Parameter]
+	public Size SaveSize { get; set; } = Size.Large;
+
+	[Parameter]
+	public Color SaveColor { get; set; } = Color.Primary;
+
+
+
+
+	#endregion
+
+}
