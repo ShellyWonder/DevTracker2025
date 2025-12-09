@@ -1,4 +1,5 @@
-﻿@* PersonalDataSettingsPanel *@
+﻿@using WonderDevTracker.Client.Components.UIComponents.GeneralComponents
+@* PersonalDataSettingsPanel *@
 @inject IdentityUserAccessor UserAccessor
 
 @inherits ServerAuthenticatedComponentBase
@@ -16,14 +17,17 @@
 		<MudText Typo="Typo.caption" Color="Color.Error" GutterBottom>
 			<strong>Deleting this data will permanently remove your account and cannot be recovered.</strong>
 		</MudText>
+		<div class="d-flex justify-content-between">
+			<BackToBtn Text="Back to Home"
+						Href="/"/>
 		<div class="hstack gap-2 my-2">
 			<form action="Account/Manage/DownloadPersonalData" method="post">
 				<AntiforgeryToken />
-				<MudButton ButtonType="ButtonType.Submit"
-						   Color="Color.Secondary"
-						   Size="Size.Medium"
-						   Variant="Variant.Filled"
-						   StartIcon="@Icons.Material.Filled.Download">
+					<MudButton ButtonType="ButtonType.Submit"
+							   Color="Color.Secondary"
+							   Size="Size.Medium"
+							   Variant="Variant.Filled"
+							   StartIcon="@Icons.Material.Filled.Download">
 					Download
 				</MudButton>
 			</form>
@@ -37,6 +41,7 @@
 					Delete Account
 				</MudButton>
 			</div>
+		</div>
 		</div>
 	</div>
 </div>
