@@ -1,106 +1,113 @@
 ﻿@* SubmitBtn *@
 
 <MudButton Href="@Href"
-           Color="@Color"
-           Class="@Class"
-           Variant="@Variant"
-           Size="@Size"
-           ButtonType="@ButtonType"
-           aria-label="@AriaLabel"
-           aria-busy="@AriaBusy"
-           title="@(Title ?? DisplayText)"
+		   Color="@Color"
+		   Class="@Class"
+		   Variant="@Variant"
+		   Size="@Size"
+		   ButtonType="@ButtonType"
+		   aria-label="@AriaLabel"
+		   aria-busy="@AriaBusy"
+		   title="@(Title ?? DisplayText)"
 		   StartIcon="@StartIcon"
-           Disabled="@(Disabled || (_processing && DisableWhileExecuting))"
-           OnClick="HandleClick">
-    @if (_processing && ShowBusyVisual)
-    {
-        <span class="d-inline-flex align-items-center">
-            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="me-1" />
-            <MudText>@(BusyText ?? "Saving…")</MudText>
-        </span>
-    }
-    else
-    {
-        <span class="d-inline-flex align-items-center">
-           <MudText>@DisplayText</MudText>
-        </span>
-    }
+		   Disabled="@(Disabled || (_processing && DisableWhileExecuting))"
+		   OnClick="HandleClick"
+           FullWidth="@FullWidth">
+	@if (_processing && ShowBusyVisual)
+	{
+		<span class="d-inline-flex align-items-center">
+			<MudProgressCircular Size="Size.Small" Indeterminate="true" Class="me-1" />
+			<MudText>@(BusyText ?? "Saving…")</MudText>
+		</span>
+	}
+	else
+	{
+		<span class="d-inline-flex align-items-center">
+			<MudText>@DisplayText</MudText>
+		</span>
+	}
 </MudButton>
 @code {
 
-    // ---- Public API ----
-    //Text to display on the button
-    [Parameter]
+	// ---- Public API ----
+	//Text to display on the button
+	[Parameter]
 	public string DisplayText { get; set; } = "Save";
 
-    [Parameter] 
-    public string? BusyText { get; set; } = "Saving…";
+	[Parameter]
+	public string? BusyText { get; set; } = "Saving…";
 
-    [Parameter]
-    public EventCallback OnClick { get; set; }
-    // ---- End Public API ----
+	[Parameter]
+	public EventCallback OnClick { get; set; }
+	// ---- End Public API ----
 
-    // --Behavior toggles
-    [Parameter] 
-    public bool DisableWhileExecuting { get; set; } = true;
-    [Parameter] 
-    public bool ShowBusyVisual { get; set; } = true;
+	// --Behavior toggles
+	[Parameter]
+	public bool DisableWhileExecuting { get; set; } = true;
+	[Parameter]
+	public bool ShowBusyVisual { get; set; } = true;
 
-    // -- End Behavior toggles
+	// -- End Behavior toggles
 
-    //--Standard button parameters
-    //Icon shown when not busy
-    [Parameter] 
-    public string? StartIcon { get; set; } = MudBlazor.Icons.Material.Filled.Save;
+	//--Standard button parameters
+	//Icon shown when not busy
+	[Parameter]
+	public string? StartIcon { get; set; } = Icons.Material.Filled.Save;
 
-    [Parameter] 
-    public ButtonType ButtonType { get; set; } = ButtonType.Button;
+	[Parameter]
+	public ButtonType ButtonType { get; set; } = ButtonType.Button;
 
-    [Parameter]
-    public Color Color { get; set; } = Color.Primary;
+	[Parameter]
+	public Color Color { get; set; } = Color.Primary;
 
-    [Parameter]
-    public Variant Variant { get; set; } = Variant.Filled;
+	[Parameter]
+	public Variant Variant { get; set; } = Variant.Filled;
 
-    [Parameter] public Size Size { get; set; } = Size.Medium;
+	[Parameter]
+	public Size Size { get; set; } = Size.Medium;
 
-    [Parameter]
-    public string? Class { get; set; } = "ms-auto mt-2";
+	[Parameter]
+	public bool FullWidth { get; set; } = false;
 
-    [Parameter]
-    public string? Title { get; set; }
+	[Parameter]
+	public string? Class { get; set; } = "ms-auto mt-2";
 
-    [Parameter]
-    public string? Href { get; set; }
+	[Parameter]
+	public string? Title { get; set; }
 
-    [Parameter]
-    public string? AriaLabel { get; set; }
+	[Parameter]
+	public string? Href { get; set; }
 
-    // external disable hook
-    [Parameter] 
-    public bool Disabled { get; set; }             
+	[Parameter]
+	public string? AriaLabel { get; set; }
 
-    //--End Standard button parameters
+	// external disable hook
+	[Parameter]
+	public bool Disabled { get; set; }
 
-    // ---- Internal state ----
-    private bool _processing;
-    private string AriaBusy => _processing ? "true" : "false";
-    // ---- End Internal state ----
-	
-    // ---- Event handlers ----
-    private async Task HandleClick()
-    {
-        if (_processing && DisableWhileExecuting) return;
+	//--End Standard button parameters
 
-        try
-        {
-            if (DisableWhileExecuting) _processing = true;
-            await OnClick.InvokeAsync(); // parent should implement async Task
-        }
-        finally
-        {
-            if (DisableWhileExecuting) _processing = false;
-            StateHasChanged(); // refresh spinner/disabled state
-        }
-    }
+	// ---- Internal state ----
+	private bool _processing;
+	private string AriaBusy => _processing ? "true" : "false";
+	private string ButtonClasses =>
+	$"{Class} {(FullWidth ? "w-100" : "")}".Trim();
+	// ---- End Internal state ----
+
+	// ---- Event handlers ----
+	private async Task HandleClick()
+	{
+		if (_processing && DisableWhileExecuting) return;
+
+		try
+		{
+			if (DisableWhileExecuting) _processing = true;
+			await OnClick.InvokeAsync(); // parent should implement async Task
+		}
+		finally
+		{
+			if (DisableWhileExecuting) _processing = false;
+			StateHasChanged(); // refresh spinner/disabled state
+		}
+	}
 }
