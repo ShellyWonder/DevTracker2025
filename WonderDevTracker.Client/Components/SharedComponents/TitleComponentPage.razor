@@ -1,6 +1,17 @@
 ﻿@* TitleComponentPage *@
 @* Created to ensure consistency among pages *@
 
+@if (!string.IsNullOrWhiteSpace(Subtitle))
+{
+    <MudText Typo="@SubtitleTypo"
+             Color="@SubtitleColor"
+             Class="@SubtitleClass"
+             GutterBottom="false">
+        @SubtitleContent
+    </MudText>
+}
+
+
 <MudText Typo="@Typo"
          Color="@Color"
          Class="@Class"
@@ -9,6 +20,7 @@
 </MudText>
 
 @code {
+    #region TITLE
     [Parameter, EditorRequired]
     public String Title { get; set; } 
 
@@ -26,4 +38,24 @@
 
     [Parameter]
     public string? Class { get; set; }
+  #endregion
+
+  #region SUBTITLE
+    [Parameter]
+    public string? Subtitle { get; set; }
+
+    private MarkupString SubtitleContent =>
+        string.IsNullOrWhiteSpace(Subtitle)
+            ? default
+            : (MarkupString)Subtitle;
+
+    [Parameter]
+    public Color SubtitleColor { get; set; } = Color.Dark;
+
+    [Parameter]
+    public Typo SubtitleTypo { get; set; } = Typo.subtitle1;
+
+    [Parameter]
+    public string? SubtitleClass { get; set; } = "mb-1";
+    #endregion
 }
