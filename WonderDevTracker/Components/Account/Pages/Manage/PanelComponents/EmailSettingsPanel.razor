@@ -1,5 +1,5 @@
-﻿@using WonderDevTracker.Components.Base
-@* EmailSettingsPanel.razor *@
+﻿@* EmailSettingsPanel.razor *@
+@using WonderDevTracker.Components.Base
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IEmailSender<ApplicationUser> EmailSender
@@ -9,52 +9,41 @@
 @inherits ServerAuthenticatedComponentBase
 
 <MudDivider Light DividerType="DividerType.FullWidth" Class="mb-2" />
-	<StatusMessage Message="@message" />
-	<div class="row">
-		<div class="col-md-6">
-			<form @onsubmit="OnSendEmailVerificationAsync" @formname="send-verification" id="send-verification-form" method="post">
-				<AntiforgeryToken />
-			</form>
-			<EditForm Model="Input" FormName="change-email" OnValidSubmit="OnValidSubmitAsync" method="post" class="vstack gap-3">
-				<DataAnnotationsValidator />
-				<ValidationSummary class="text-danger" role="alert" />
-				<MudTextField value="@email"
-							  Placeholder="Please enter your email."
-							  Label="Current Email"
-							  disabled
-							  Adornment="Adornment.End"
-							  AdornmentIcon="@Icons.Material.Filled.Check"
-							  AdornmentColor="Color.Tertiary"
-							  Variant="Variant.Outlined" />
+<StatusMessage Message="@message" />
+<div class="row">
+	<div class="col-md-6">
+		<form @onsubmit="OnSendEmailVerificationAsync" @formname="send-verification" id="send-verification-form" method="post">
+			<AntiforgeryToken />
+		</form>
+		<EditForm Model="Input" FormName="change-email" OnValidSubmit="OnValidSubmitAsync" method="post" class="vstack gap-3">
+			<DataAnnotationsValidator />
+			<ValidationSummary class="text-danger" role="alert" />
+			<MudTextField value="@email"
+						  Placeholder="Please enter your email."
+						  Label="Current Email"
+						  disabled
+						  Adornment="Adornment.End"
+						  AdornmentIcon="@Icons.Material.Filled.Check"
+						  AdornmentColor="Color.Tertiary"
+						  Variant="Variant.Outlined" />
 
-				<div>
-					<MudTextField @bind-Value="Input.NewEmail"
-								  name="Input.NewEmail"
-								  Placeholder="Please enter your new email."
-								  Label="New Email"
-								  autocomplete="email"
-								  aria-required="true"
-								  For="() => Input.NewEmail" class="text-danger"
-								  Variant="Variant.Outlined"
-								  ShrinkLabel />
-
-				</div>
-
-				<div>
-					<MudButton ButtonType="ButtonType.Submit"
-							   Color="Color.Primary"
-							   Size="Size.Large"
-							   Variant="Variant.Filled"
-							   StartIcon="@Icons.Material.Filled.Email"
-							   FullWidth>
-						Update email
-					</MudButton>
-				</div>
-
-			</EditForm>
-		</div>
+			<div>
+				<MudTextField @bind-Value="Input.NewEmail"
+							  name="Input.NewEmail"
+							  Placeholder="Please enter your new email."
+							  Label="New Email"
+							  autocomplete="email"
+							  aria-required="true"
+							  For="() => Input.NewEmail" class="text-danger"
+							  Variant="Variant.Outlined"
+							  ShrinkLabel />
+			</div>
+			<PanelBtnGroup SaveDisplayText="Update Email"
+				           SaveStartIcon="@Icons.Material.Filled.Email"/>
+		</EditForm>
 	</div>
-	
+</div>
+
 @code {
 	private string? message;
 	private ApplicationUser user = default!;
@@ -62,7 +51,7 @@
 	private bool isEmailConfirmed;
 
 	[CascadingParameter]
-	private HttpContext? HttpContext { get; set; } 
+	private HttpContext? HttpContext { get; set; }
 
 	[SupplyParameterFromForm(FormName = "change-email")]
 	private InputModel Input { get; set; } = new();
