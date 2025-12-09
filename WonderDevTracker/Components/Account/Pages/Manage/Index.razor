@@ -1,15 +1,19 @@
 ﻿@page "/Account/Manage"
 @rendermode InteractiveServer
+@using WonderDevTracker.Client.Components.UIComponents.GeneralComponents
 @using WonderDevTracker.Components.Account.Pages.Manage.PanelComponents
 @using Microsoft.AspNetCore.WebUtilities
 
 
 @inject NavigationManager NavManager
 
-<PageTitle>Account Settings | DevTracker</PageTitle>
+<PageTitle>Account Settings | Dev Tracker</PageTitle>
 
 
-<TitleComponentPage Title="Account Hub" />
+<TitleComponentPage Title="Account Hub"
+					Subtitle="Welcome!"
+					SubtitleColor="Color.Secondary"
+					SubtitleTypo="Typo.h4" />
 <MudDivider Light DividerType="DividerType.FullWidth" Class="my-3" />
 @if (ShowMessage)
 {
@@ -48,7 +52,6 @@
 	</MudTabPanel>
 
 </MudTabs>
-
 
 @code {
 	private bool ShowMessage { get; set; }
