@@ -15,77 +15,108 @@
 
 <PageTitle>Log in | Dev Tracker</PageTitle>
 
-<AnimatedCard Elevation="0"
-			  Index="@IndexTracker.Peek()">
-	<div class="d-flex align-items-center justify-content-center">
-		<div class="vstack p-3">
-			<TitleComponentPage Subtitle="Login"
-								SubtitleTypo="Typo.h4"
-								SubtitleColor="Color.Secondary"
-								Title="Welcome to DevTracker!" />
-			<StatusMessage Message="@errorMessage" />
-			<EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-				<DataAnnotationsValidator />
-				<hr />
-				<ValidationSummary class="text-danger" role="alert" />
-				<div class="form-floating mb-3">
-					<InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-					<label for="email" class="form-label">Email</label>
-					<ValidationMessage For="() => Input.Email" class="text-danger" />
-				</div>
-				<div class="mb-3">
-					<label for="password" class="form-label">Password</label>
-					<div class="input-group">
-						<InputText type="password" id="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-						<ValidationMessage For="() => Input.Password" class="text-danger" />
-						<button type="button"
-								class="btn btn-outline-secondary"
-								onclick="togglePassword('password', this)">
-							<span class="material-icons">visibility</span>
-						</button>
-					</div>
-				</div>
-				<div class="checkbox mb-3">
-					<label class="form-label">
-						<InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
-						Remember me
-					</label>
-				</div>
-				      <!------ Login Button Group ------>
-				<div>
-					<SubmitBtn Size="Size.Large"
-							   Color="Color.Primary"
-							   StartIcon="@Icons.Material.Filled.Login"
-							   ButtonType="ButtonType.Submit"
-							   DisplayText="Login"
-							   FullWidth="true" />
-					<SubmitBtn Href="Account/ForgotPassword"
-							   Size="Size.Large"
-							   Color="Color.Warning"
-							   StartIcon="@Icons.Material.Filled.LockReset"
-							   ButtonType="ButtonType.Button"
-							   DisplayText="Forgot your password?"
-							   FullWidth="true" />
-					<SubmitBtn Href="Account/ResendEmailConfirmation"
-							   Size="Size.Large"
-							   Color="Color.Secondary"
-							   StartIcon="@Icons.Material.Filled.Mail"
-							   ButtonType="ButtonType.Button"
-							   DisplayText="Resend email confirmation"
-							   FullWidth="true" />
-					<SubmitBtn Href="@NewUserRegister"
-							   Size="Size.Large"
-							   Color="Color.Success"
-							   StartIcon="@Icons.Material.Filled.PersonAdd"
-							   ButtonType="ButtonType.Button"
-							   DisplayText="Register as a new user"
-							   FullWidth="true" />
-				</div>
-			</EditForm>
-		</div>
-	</div>
-</AnimatedCard>
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+	<AnimatedCard Elevation="1"
+				  Index="@IndexTracker.Peek()">
+		<div class="d-flex align-items-center justify-content-center">
+			<div class="vstack p-3">
+				<TitleComponentPage Subtitle="Login"
+									SubtitleTypo="Typo.h4"
+									SubtitleColor="Color.Secondary"
+									Title="Welcome to DevTracker!" />
+				<StatusMessage Message="@errorMessage" />
+				<EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+					<DataAnnotationsValidator />
+					<hr />
+					<ValidationSummary class="text-danger" role="alert" />
+					<AnimatedBlock Index="IndexTracker.Next()">
+						<div class="mb-3">
+							<MudTextField id="Email"
+										  @bind-Value="Input.Email"
+										  name="Input.Email"
+										  Label="Email"
+										  For="() => Input.Email"
+										  autocomplete="username"
+										  aria-required="true"
+										  aria-label="Email Sign-in"
+										  Placeholder="name@example.com"
+										  Variant="Variant.Outlined"
+										  ShrinkLabel />
+						</div>
+					</AnimatedBlock>
+					<AnimatedBlock Index="IndexTracker.Next()">
+						<div class="mb-3">
+							<div class="input-group">
+								<MudTextField id="password"
+											  @bind-Value="Input.Password"
+											  For="() => Input.Password"
+											  Label="Password"
+											  name="Input.Password"
+											  autocomplete="current-password"
+											  aria-required="true"
+											  aria-label="Password"
+											  Placeholder="password"
+											  Variant="Variant.Outlined"
+											  ShrinkLabel />
 
+								<button type="button"
+										class="btn btn-outline-secondary"
+										onclick="togglePassword('password', this)">
+									<span class="material-icons">visibility</span>
+								</button>
+							</div>
+						</div>
+					</AnimatedBlock>
+					<div class="checkbox mb-3">
+						<label class="form-label">
+							<InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
+							Remember me
+						</label>
+					</div>
+					<!------ Login Button Group ------>
+					<AnimatedBlock Index="IndexTracker.Next()">
+						<SubmitBtn Size="Size.Large"
+								   Color="Color.Primary"
+								   StartIcon="@Icons.Material.Filled.Login"
+								   ButtonType="ButtonType.Submit"
+								   DisplayText="Login"
+								   FullWidth="true" />
+					</AnimatedBlock>
+
+					<AnimatedBlock Index="IndexTracker.Next()">
+						<SubmitBtn Href="Account/ForgotPassword"
+								   Size="Size.Large"
+								   Color="Color.Warning"
+								   StartIcon="@Icons.Material.Filled.LockReset"
+								   ButtonType="ButtonType.Button"
+								   DisplayText="Forgot your password?"
+								   FullWidth="true" />
+					</AnimatedBlock>
+
+					<AnimatedBlock Index="IndexTracker.Next()">
+						<SubmitBtn Href="Account/ResendEmailConfirmation"
+								   Size="Size.Large"
+								   Color="Color.Secondary"
+								   StartIcon="@Icons.Material.Filled.Mail"
+								   ButtonType="ButtonType.Button"
+								   DisplayText="Resend email confirmation"
+								   FullWidth="true" />
+					</AnimatedBlock>
+
+					<AnimatedBlock>
+						<SubmitBtn Href="@NewUserRegister"
+								   Size="Size.Large"
+								   Color="Color.Success"
+								   StartIcon="@Icons.Material.Filled.PersonAdd"
+								   ButtonType="ButtonType.Button"
+								   DisplayText="Register as a new user"
+								   FullWidth="true" />
+					</AnimatedBlock>
+				</EditForm>
+			</div>
+		</div>
+	</AnimatedCard>
+</div>
 @code {
 	private string? errorMessage;
 
