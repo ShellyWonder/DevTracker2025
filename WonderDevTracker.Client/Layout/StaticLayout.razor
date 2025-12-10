@@ -1,5 +1,6 @@
 ﻿@*Static layout for non-interactive pages*@
 
+@inject NavigationManager NavigationManager
 @inject ThemeManagerService themeService
 @implements IDisposable
 @inherits LayoutComponentBase
@@ -10,45 +11,48 @@
 	<MudAppBar Elevation="1">
 		<div class="d-flex justify-content-between align-items-center w-100">
 			<a href="/">
-				<img src="img\dt_whitenotextlogo.png" height="40"/>
+				<img src="img\dt_whitenotextlogo.png" height="40" />
 			</a>
-			<div>
-				<AuthorizeView>
-					<Authorized>
-						@*TODO: Link to Dashboard*@
-						<MudButton Variant="Variant.Text"
-								   Color="Color.Inherit"
-								   StartIcon="@Icons.Material.Filled.Dashboard"
-								   Href="/">
-							Dashboard
-						</MudButton>
-						<form action="Account/Logout" method="post" id="logoutForm" class="d-inline">
-							<AntiforgeryToken />
-							<input type="hidden" name="ReturnUrl" value="" />
-						<MudButton Variant="Variant.Text"
-								   Color="Color.Inherit"
-								   StartIcon="@Icons.Material.Filled.Logout"
-								   ButtonType="ButtonType.Submit">
-							Logout
-						</MudButton>
-						</form>
-					</Authorized>
-					<NotAuthorized>
-				<MudButton Variant="Variant.Text"
-				           Color="Color.Inherit"
-					StartIcon="@Icons.Material.Filled.Login"
-					Href="Account/Login">
-				Login
-				</MudButton>
-				<MudButton Variant="Variant.Text"
-				           Color="Color.Inherit"
-					StartIcon="@Icons.Material.Filled.PersonAdd"
-					Href="Account/Register">
-					Register
-				</MudButton>
-					</NotAuthorized>
-				</AuthorizeView>
-			</div>
+			@if (!isLoginPage)
+			{
+				<div>
+					<AuthorizeView>
+						<Authorized>
+							@*TODO: Link to Dashboard*@
+							<MudButton Variant="Variant.Text"
+									   Color="Color.Inherit"
+									   StartIcon="@Icons.Material.Filled.Dashboard"
+									   Href="/">
+								Dashboard
+							</MudButton>
+							<form action="Account/Logout" method="post" id="logoutForm" class="d-inline">
+								<AntiforgeryToken />
+								<input type="hidden" name="ReturnUrl" value="" />
+								<MudButton Variant="Variant.Text"
+										   Color="Color.Inherit"
+										   StartIcon="@Icons.Material.Filled.Logout"
+										   ButtonType="ButtonType.Submit">
+									Logout
+								</MudButton>
+							</form>
+						</Authorized>
+						<NotAuthorized>
+							<MudButton Variant="Variant.Text"
+									   Color="Color.Inherit"
+									   StartIcon="@Icons.Material.Filled.Login"
+									   Href="Account/Login">
+								Login
+							</MudButton>
+							<MudButton Variant="Variant.Text"
+									   Color="Color.Inherit"
+									   StartIcon="@Icons.Material.Filled.PersonAdd"
+									   Href="Account/Register">
+								Register
+							</MudButton>
+						</NotAuthorized>
+					</AuthorizeView>
+				</div>
+			}
 		</div>
 	</MudAppBar>
 
@@ -70,11 +74,10 @@
 </MudLayout>
 <script src="/js/passwordToggle.js"></script>
 
-
-
 @code {
 
 	private bool _initialized = false;
+	private bool isLoginPage => NavigationManager.Uri.Contains("/account/login", StringComparison.OrdinalIgnoreCase);
 
 	public void Dispose()
 	{
