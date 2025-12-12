@@ -16,13 +16,23 @@
          Color="@Color"
          Class="@Class"
          GutterBottom>
-    @TitleContent
+    @if (TitleTemplate is not null)
+    {
+        @TitleTemplate
+    }
+    else
+    {
+        @TitleContent
+    }
 </MudText>
 
-@code {
+    @code {
     #region TITLE
-    [Parameter, EditorRequired]
-    public String Title { get; set; } 
+    [Parameter]
+    public String Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public RenderFragment? TitleTemplate { get; set; }
 
     // Internally we treat it as markup (so <em> etc. works)
     private MarkupString TitleContent =>

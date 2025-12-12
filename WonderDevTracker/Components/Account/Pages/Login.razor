@@ -3,6 +3,7 @@
 
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authentication
+@using WonderDevTracker.Client.Components.UIComponents.GeneralComponents
 @using WonderDevTracker.Client.Helpers.Animation
 @using Microsoft.AspNetCore.Identity
 @using WonderDevTracker.Client.Components.SharedComponents
@@ -22,8 +23,12 @@
 			<div class="vstack p-3">
 				<TitleComponentPage Subtitle="Login"
 									SubtitleTypo="Typo.h4"
-									SubtitleColor="Color.Secondary"
-									Title="Welcome to DevTracker!" />
+									SubtitleColor="Color.Warning"
+				                    Color="Color.Primary">
+					<TitleTemplate>
+						Welcome to <AppLogoText />
+					</TitleTemplate>
+				</TitleComponentPage>
 				<StatusMessage Message="@errorMessage" />
 				<EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
 					<DataAnnotationsValidator />
@@ -75,7 +80,7 @@
 								   Color="Color.Warning"
 								   StartIcon="@Icons.Material.Filled.LockReset"
 								   ButtonType="ButtonType.Button"
-								   DisplayText="Forgot your password?"
+								   DisplayText="Forgot your Password?"
 								   FullWidth="true" />
 					</AnimatedBlock>
 
@@ -85,7 +90,7 @@
 								   Color="Color.Secondary"
 								   StartIcon="@Icons.Material.Filled.Mail"
 								   ButtonType="ButtonType.Button"
-								   DisplayText="Resend email confirmation"
+								   DisplayText="Resend Email Confirmation"
 								   FullWidth="true" />
 					</AnimatedBlock>
 
@@ -95,7 +100,7 @@
 								   Color="Color.Success"
 								   StartIcon="@Icons.Material.Filled.PersonAdd"
 								   ButtonType="ButtonType.Button"
-								   DisplayText="Register as a new user"
+								   DisplayText="Register as a New User"
 								   FullWidth="true" />
 					</AnimatedBlock>
 				</EditForm>

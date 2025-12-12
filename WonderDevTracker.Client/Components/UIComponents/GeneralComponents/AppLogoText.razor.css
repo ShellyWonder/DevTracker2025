@@ -1,0 +1,16 @@
+﻿.logo-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    line-height: 1;
+    display: inline;
+}
+
+.logo-dev {
+    color: #00C2F5;
+}
+
+.logo-tracker {
+    color: #0077B6;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+}
