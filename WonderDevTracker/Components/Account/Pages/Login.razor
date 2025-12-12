@@ -46,25 +46,11 @@
 					</AnimatedBlock>
 					<AnimatedBlock Index="IndexTracker.Next()">
 						<div class="mb-3">
-							<div class="input-group">
-								<MudTextField id="password"
-											  @bind-Value="Input.Password"
-											  For="() => Input.Password"
-											  Label="Password"
-											  name="Input.Password"
-											  autocomplete="current-password"
-											  aria-required="true"
-											  aria-label="Password"
-											  Placeholder="password"
-											  Variant="Variant.Outlined"
-											  ShrinkLabel />
-
-								<button type="button"
-										class="btn btn-outline-secondary"
-										onclick="togglePassword('password', this)">
-									<span class="material-icons">visibility</span>
-								</button>
-							</div>
+							<PasswordField @bind-Value="Input.Password"
+										   Label="Password"
+										   Name="Input.Password"
+										   Autocomplete="current-password" />
+							<ValidationMessage For="() => Input.Password" />
 						</div>
 					</AnimatedBlock>
 					<div class="checkbox mb-3">

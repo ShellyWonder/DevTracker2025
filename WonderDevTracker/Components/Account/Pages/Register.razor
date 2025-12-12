@@ -51,8 +51,7 @@
 						<Instructions Title="Helpful Hints"
 									  StartIcon="@Icons.Material.Filled.Lightbulb"
 									  Color1="Color.Primary"
-									  Color2="Color.Dark"
-						              >
+									  Color2="Color.Dark">
 							<MessageContent>
 								<ul class="mb-0 register-list">
 									<li>Your email must be <strong>unique within your company</strong>.</li>
@@ -67,14 +66,14 @@
 						@*admin info*@
 						<div class="col-md-6">
 							<AnimatedBlock Index="@Index.Next()">
-							<MudText Typo="Typo.h4" Color="Color.Primary">Create Your Administrator Account</MudText>
+								<MudText Typo="Typo.h4" Color="Color.Primary">Create Your Administrator Account</MudText>
 							</AnimatedBlock>
 							<AnimatedBlock Index="@Index.Next()">
 								<div class="mb-3">
 									<MudTextField id="firstName"
 												  Value="Input.FirstName"
 												  name="Input.FirstName"
-												  aria-required="true"
+												  Required="true"
 												  For="() => Input!.FirstName"
 												  Label="First Name"
 												  Variant="Variant.Outlined"
@@ -84,9 +83,9 @@
 							<AnimatedBlock Index="@Index.Next()">
 								<div class="mb-3">
 									<MudTextField id="lastName"
-												  Value="Input.LastName"
+												  @bind-Value="Input.LastName"
 												  name="Input.LastName"
-												  aria-required="true"
+												  Required="true"
 												  For="() => Input!.LastName"
 												  Label="Last Name"
 												  Variant="Variant.Outlined"
@@ -96,9 +95,9 @@
 							<AnimatedBlock Index="@Index.Next()">
 								<div class="mb-3">
 									<MudTextField id="email"
-												  Value="Input.Email"
+												  @bind-Value="Input.Email"
 												  name="Input.Email"
-												  aria-required="true"
+												  Required="true"
 												  For="() => Input!.Email"
 												  Label="Email"
 												  autocomplete="username"
@@ -109,40 +108,18 @@
 
 							<AnimatedBlock Index="@Index.Next()">
 								<div class="mb-3">
-									<label class="form-label" for="invitePassword">Password</label>
-									<div class="input-group">
-										<input type="password"
-											   id="invitePassword"
-											   name="Input.Password"
-											   class="form-control"
-											   autocomplete="new-password"
-											   required />
-
-										<button type="button"
-												class="btn btn-outline-secondary"
-												onclick="togglePassword('invitePassword', this)">
-											<span class="material-icons">visibility</span>
-										</button>
-									</div>
+									<PasswordField @bind-Value="Input.Password"
+												   name="Input.Password"
+												   Label="Password" />
+									<ValidationMessage For="() => Input.Password" />
 								</div>
 							</AnimatedBlock>
 							<AnimatedBlock Index="@Index.Next()">
 								<div class="mb-3">
-									<label class="form-label" for="inviteConfirmPassword">Confirm Password</label>
-									<div class="input-group">
-										<input type="password"
-											   id="inviteConfirmPassword"
-											   name="Input.ConfirmPassword"
-											   class="form-control"
-											   autocomplete="new-password"
-											   required />
-
-										<button type="button"
-												class="btn btn-outline-secondary"
-												onclick="togglePassword('inviteConfirmPassword', this)">
-											<span class="material-icons">visibility</span>
-										</button>
-									</div>
+									<PasswordField @bind-Value="Input.ConfirmPassword"
+												   name="Input.ConfirmPassword"
+												   Label="Confirm Password" />
+									<ValidationMessage For="() => Input.ConfirmPassword" />
 								</div>
 							</AnimatedBlock>
 							<AnimatedBlock Index="@Index.Next()">
@@ -164,7 +141,7 @@
 						@*company info*@
 						<div class="col-md-6">
 							<AnimatedBlock Index="@Index.Next()">
-							<MudText Typo="Typo.h4" Color="Color.Primary">Create Your Company Account</MudText>
+								<MudText Typo="Typo.h4" Color="Color.Primary">Create Your Company Account</MudText>
 							</AnimatedBlock>
 							<AnimatedBlock Index="@Index.Next()">
 								<div class="mb-3">
@@ -210,18 +187,18 @@
 							</AnimatedBlock>
 						</div>
 						<MudDivider DividerType="DividerType.FullWidth" Light Class="my-3" />
-								@*SubmitBtn*@
-								<AnimatedBlock Index="@Index.Next()">
-									<div class="text-center">
-										<SubmitBtn ButtonType="ButtonType.Submit"
-												   Size="Size.Large"
-												   Class="my-3"
-												   Title="Register"
-												   Color="Color.Secondary"
-												   StartIcon="@Icons.Material.Filled.SupervisorAccount"
-												   DisplayText="Register" />
-									</div>
-								</AnimatedBlock>
+						@*SubmitBtn*@
+						<AnimatedBlock Index="@Index.Next()">
+							<div class="text-center">
+								<SubmitBtn ButtonType="ButtonType.Submit"
+										   Size="Size.Large"
+										   Class="my-3"
+										   Title="Register"
+										   Color="Color.Secondary"
+										   StartIcon="@Icons.Material.Filled.SupervisorAccount"
+										   DisplayText="Register" />
+							</div>
+						</AnimatedBlock>
 
 					</div>
 				</EditForm>
@@ -245,6 +222,7 @@
 
 	private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 	private IndexTrackerHelper Index = new();
+
 	private void ResetIndex() => IndexTracker.Reset();
 
 	protected override async Task OnInitializedAsync()
@@ -260,13 +238,13 @@
 
 		//create the company
 		user.Company = new Company
-			{
-				Name = Input.CompanyName,
-				Description = Input.CompanyDescription
+		{
+			Name = Input.CompanyName,
+			Description = Input.CompanyDescription
 
-			};
+		};
 
-		if(Input.CompanyImage is not null)
+		if (Input.CompanyImage is not null)
 		{
 			try
 			{
