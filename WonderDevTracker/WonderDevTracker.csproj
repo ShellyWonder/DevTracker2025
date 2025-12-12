@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <Folder Include="AIAgentMDs\" />
+    <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
 </Project>
