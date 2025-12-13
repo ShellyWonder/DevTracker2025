@@ -71,8 +71,6 @@
 										  ShrinkLabel />
 						</div>
 					</AnimatedBlock>
-
-					<!--LAST NAME TEXT FIELD-->
 					<AnimatedBlock Index="@Index.Next()">
 						<div class="mb-3">
 							<MudTextField id="lastName"
@@ -98,43 +96,20 @@
 										  ShrinkLabel />
 						</div>
 					</AnimatedBlock>
-					
 					<AnimatedBlock Index="@Index.Next()">
 						<div class="mb-3">
-							<label class="form-label" for="invitePassword">Password</label>
-							<div class="input-group">
-								<input type="password"
-									   id="invitePassword"
-									   name="Input.Password"
-									   class="form-control"
-									   autocomplete="new-password"
-									   required />
-
-								<button type="button"
-										class="btn btn-outline-secondary"
-										onclick="togglePassword('invitePassword', this)">
-									<span class="material-icons">visibility</span>
-								</button>
-							</div>
+							<PasswordField @bind-Value="Input.Password"
+										   name="Input.Password"
+										   Label="Password" />
+							<ValidationMessage For="() => Input.Password" />
 						</div>
 					</AnimatedBlock>
 					<AnimatedBlock Index="@Index.Next()">
 						<div class="mb-3">
-							<label class="form-label" for="inviteConfirmPassword">Confirm Password</label>
-							<div class="input-group">
-								<input type="password"
-									   id="inviteConfirmPassword"
-									   name="Input.ConfirmPassword"
-									   class="form-control"
-									   autocomplete="new-password"
-									   required />
-
-								<button type="button"
-										class="btn btn-outline-secondary"
-										onclick="togglePassword('inviteConfirmPassword', this)">
-									<span class="material-icons">visibility</span>
-								</button>
-							</div>
+							<PasswordField @bind-Value="Input.ConfirmPassword"
+										   name="Input.ConfirmPassword"
+										   Label="Confirm Password" />
+							<ValidationMessage For="() => Input.ConfirmPassword" />
 						</div>
 					</AnimatedBlock>
 
@@ -330,7 +305,7 @@
 		return (IUserEmailStore<ApplicationUser>)UserStore;
 	}
 
-	
+
 	private sealed class InputModel
 	{
 		[Required]
