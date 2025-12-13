@@ -25,6 +25,9 @@ namespace WonderDevTracker.Infrastructure
             services.AddScoped<IInviteRepository, InviteRepository>();
             services.AddScoped<IInviteDTOService, InviteDTOService>();
 
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<INotificationDTOService, NotificationDTOService>();
+
             // MailGun for development purposes, replace with a real implementation in production
             services.AddSingleton<IEmailSender<ApplicationUser>, MailGunEmailSender>();  //use in identity pages
             services.AddSingleton<IEmailSender, MailGunEmailSender>();// use for application contact emails
