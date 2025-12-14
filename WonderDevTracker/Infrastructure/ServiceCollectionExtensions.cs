@@ -5,6 +5,7 @@ using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services;
 using WonderDevTracker.Services.Interfaces;
+using WonderDevTracker.Services.Notifications;
 using WonderDevTracker.Services.Repositories;
 
 namespace WonderDevTracker.Infrastructure
@@ -27,6 +28,10 @@ namespace WonderDevTracker.Infrastructure
 
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<INotificationDTOService, NotificationDTOService>();
+
+            //coordinates notifications throughout app
+            services.AddScoped<ITicketNotificationRecipient, TicketNotificationRecipientService>();
+            services.AddScoped<INotificationOrchestrator, NotificationOrchestrator>();
 
             // MailGun for development purposes, replace with a real implementation in production
             services.AddSingleton<IEmailSender<ApplicationUser>, MailGunEmailSender>();  //use in identity pages
