@@ -6,8 +6,9 @@ namespace WonderDevTracker.Models
 {
     public class Notification
     {
-        //backing field for Created to ensure it is stored in UTC
+        //backing field for Created & ArchivedAt to ensure they are stored in UTC
         private DateTimeOffset _created;
+        private DateTimeOffset _archivedAt;
 
         public int Id { get; set; }
 
@@ -26,6 +27,13 @@ namespace WonderDevTracker.Models
 
         public bool HasBeenViewed { get; set; } = false;
 
+        public bool IsArchived { get; set; } = false;
+       
+        public DateTimeOffset ArchivedAt
+        {
+            get => _archivedAt;
+            set => _archivedAt = value.ToUniversalTime();
+        }
 
         // Navigation properties
         public int? TicketId { get; set; }
@@ -50,8 +58,10 @@ namespace WonderDevTracker.Models
                 Title = notification.Title,
                 Message = notification.Message,
                 Created = notification.Created,
+                ArchivedAt = notification.ArchivedAt,
                 Type = notification.Type,
                 HasBeenViewed = notification.HasBeenViewed,
+                IsArchived = notification.IsArchived,
                 TicketId = notification.TicketId,
                 ProjectId = notification.ProjectId,
                 SenderId = notification.SenderId,
