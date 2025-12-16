@@ -1,36 +1,101 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services.Repositories
 {
-    public class NotificationRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : INotificationRepository
+    public class NotificationRepository(IDbContextFactory<ApplicationDbContext> context) : INotificationRepository
     {
-        
-        public Task AddRangeAsync(IEnumerable<Notification> notifications)
+        public async Task AddNotificationAsync(Notification notification)
         {
-            throw new NotImplementedException();
+            await using var db = await context.CreateDbContextAsync();
+            db.Notifications.Add(notification);
+            await db.SaveChangesAsync();
         }
 
-        public Task<List<Notification>> GetByRecipientAsync(string recipientId)
+        public async Task AddRangeAsync(IEnumerable<Notification> notifications)
         {
-            throw new NotImplementedException();
+            await using var db = await context.CreateDbContextAsync();
+            db.Notifications.AddRange(notifications);
+            await db.SaveChangesAsync();
         }
 
-        public Task<Notification?> GetNotificationById(int id)
+        public async Task ArchiveNotificationAsync(int notificationId, string userId, bool isAdmin)
+              => await SetNotificationArchivedStateAsync(notificationId, userId, isAdmin, archived: true);
+
+        public async Task<List<Notification>> GetByRecipientAsync(string recipientId, int take = 20)
         {
-            throw new NotImplementedException();
+            await using var db = await context.CreateDbContextAsync();
+            return await db.Notifications
+               .Where(n => n.RecipientId == recipientId && !n.IsArchived)
+               .OrderByDescending(n => n.Created)
+               .Take(take)
+               .ToListAsync();
         }
 
-        public Task<int> GetUnreadCountAsync(string recipientId)
+        public async Task<Notification?> GetNotificationById(int id)
         {
-            throw new NotImplementedException();
+            await using var db = await context.CreateDbContextAsync();
+            return await db.Notifications
+                .FirstOrDefaultAsync(n => n.Id == id);
         }
 
-        public Task MarkViewedAsync(int notificationId, string recipientId)
+        public async Task<int> GetUnreadCountAsync(string recipientId)
         {
-            throw new NotImplementedException();
+            await using var db = await context.CreateDbContextAsync();
+            return await db.Notifications
+                .Where(n => n.RecipientId == recipientId && !n.HasBeenViewed && !n.IsArchived)
+                .CountAsync();
         }
+
+        public async Task MarkViewedAsync(int notificationId, string recipientId)
+        {
+            await using var db = await context.CreateDbContextAsync();
+            var notification = await db.Notifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId && n.RecipientId == recipientId);
+            if (notification is null) return;
+            notification.HasBeenViewed = true;
+
+            await db.SaveChangesAsync();
+        }
+
+        public async Task RestoreNotificationAsync(int notificationId, string userId, bool isAdmin)
+            => await SetNotificationArchivedStateAsync(notificationId, userId, isAdmin, archived: false);
+
+        #region PRIVATE METHODS
+        private async Task SetNotificationArchivedStateAsync(int notificationId,
+                                                                string userId,
+                                                                bool isAdmin,
+                                                                bool archived)
+        {
+            await using var db = await context.CreateDbContextAsync();
+
+            var notification = await db.Notifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId);
+
+            if (notification is null) return;
+
+            bool isRecipient = notification.RecipientId == userId;
+
+            if (!isRecipient && !isAdmin)
+                throw new UnauthorizedAccessException(
+                    archived
+                        ? "User not authorized to archive this notification."
+                        : "User not authorized to restore this notification.");
+
+            // Optional no-op guard
+            if (notification.IsArchived == archived)
+                return;
+
+            notification.IsArchived = archived;
+            notification.ArchivedAt = DateTimeOffset.UtcNow;
+
+            await db.SaveChangesAsync();
+        }
+
+        #endregion
     }
 }
