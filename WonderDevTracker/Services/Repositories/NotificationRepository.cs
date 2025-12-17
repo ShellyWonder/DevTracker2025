@@ -55,8 +55,9 @@ namespace WonderDevTracker.Services.Repositories
         {
             await using var db = await context.CreateDbContextAsync();
             var notification = await db.Notifications
-                .FirstOrDefaultAsync(n => n.Id == notificationId && n.RecipientId == recipientId);
-            if (notification is null) return;
+                .FirstOrDefaultAsync(n => n.Id == notificationId && n.RecipientId == recipientId) 
+                                     ?? throw new UnauthorizedAccessException(
+                                      "Notification does not exist or does not belong to the current user.");
             notification.HasBeenViewed = true;
 
             await db.SaveChangesAsync();
