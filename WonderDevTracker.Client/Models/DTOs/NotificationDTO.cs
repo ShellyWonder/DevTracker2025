@@ -6,7 +6,7 @@ namespace WonderDevTracker.Client.Models.DTOs
     public class NotificationDTO
     {
         private DateTimeOffset _created;
-        private DateTimeOffset _archivedAt;
+        private DateTimeOffset? _archivedAt;
 
         public int Id { get; set; }
 
@@ -23,10 +23,10 @@ namespace WonderDevTracker.Client.Models.DTOs
         }
         public bool IsArchived { get; set; } = false;
 
-        public DateTimeOffset ArchivedAt
+        public DateTimeOffset? ArchivedAt
         {
             get => _archivedAt;
-            set => _archivedAt = value.ToUniversalTime();
+            set => _archivedAt = value?.ToUniversalTime();
         }
 
         public NotificationType Type { get; set; }

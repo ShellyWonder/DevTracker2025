@@ -8,7 +8,7 @@ namespace WonderDevTracker.Models
     {
         //backing field for Created & ArchivedAt to ensure they are stored in UTC
         private DateTimeOffset _created;
-        private DateTimeOffset _archivedAt;
+        private DateTimeOffset? _archivedAt;
 
         public int Id { get; set; }
 
@@ -29,10 +29,10 @@ namespace WonderDevTracker.Models
 
         public bool IsArchived { get; set; } = false;
        
-        public DateTimeOffset ArchivedAt
+        public DateTimeOffset? ArchivedAt
         {
             get => _archivedAt;
-            set => _archivedAt = value.ToUniversalTime();
+            set => _archivedAt = value?.ToUniversalTime();
         }
 
         // Navigation properties
