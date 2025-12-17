@@ -87,12 +87,14 @@ namespace WonderDevTracker.Services.Repositories
                         ? "User not authorized to archive this notification."
                         : "User not authorized to restore this notification.");
 
-            // Optional no-op guard
+            // no-op guard
             if (notification.IsArchived == archived)
                 return;
 
             notification.IsArchived = archived;
-            notification.ArchivedAt = DateTimeOffset.UtcNow;
+
+            // Set or clear the ArchivedAt timestamp
+            notification.ArchivedAt = archived ? DateTimeOffset.UtcNow : null;
 
             await db.SaveChangesAsync();
         }
