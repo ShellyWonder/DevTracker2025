@@ -12,14 +12,14 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <remarks>Asynchronously creates a new notification based on the specified data transfer object. </remarks>
         public Task CreateNotificationAsync(NotificationDTO notificationDTO);
 
-       /// <summary>
-       /// Asynchronously retrieves a list of notifications for the specified user.
-       /// </summary>
-       /// <param name="userInfo">The user information identifying the current user for whom notifications are to be retrieved. Cannot be null.</param>
-       /// <param name="take">The maximum number of notifications to return. Must be a positive integer. The default value is 20.</param>
-       /// <returns>A task that represents the asynchronous operation. The task result contains a list of notifications for the
-       /// specified user. The list will be empty if no notifications are found.</returns>
-        public Task<List<NotificationDTO>> GetForCurrentUserAsync(UserInfo userInfo, int take = 20);
+        /// <summary>
+        /// Asynchronously retrieves a list of notifications for the specified user.
+        /// </summary>
+        /// <param name="currentUserId">The user information identifying the current user for whom notifications are to be retrieved. Cannot be null.</param>
+        /// <param name="take">The maximum number of notifications to return. Must be a positive integer. The default value is 20.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of notifications for the
+        /// specified user. The list will be empty if no notifications are found.</returns>
+        public Task<List<NotificationDTO>> GetForCurrentUserAsync(string currentUserId, int take = 20);
 
 
         /// <summary>
@@ -34,10 +34,10 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <summary>
         /// Marks the specified notification as viewed by the given user asynchronously.
         /// </summary>
-        /// <param name="notificationId">The unique identifier of the notification to mark as viewed.</param>
-        /// <param name="userInfo">The user for whom the notification is being marked as viewed. Cannot be null.</param>
+        /// <param name="currentUserId">The unique identifier of the notification to mark as viewed.</param>
+        /// <param name="recipentId">The user for whom the notification is being marked as viewed. Cannot be null.</param>
         /// <remarks>A task that represents the asynchronous operation.</remarks>
-        public Task MarkViewedAsync(int notificationId, UserInfo userInfo);
+        public Task MarkViewedAsync(int notificationId, string currentUserId);
 
         /// <summary>
         /// Archive Notification
@@ -45,7 +45,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="notificationId">Notification id to archive.</param>
         /// <param name="recipientId">Recipient id for whom the notification will be archived. Cannot be null or empty.</param>
         /// <remarks> Asynchronously archives(soft delete) a notification for a specified recipient. May be restored by the recepient or company admin.</remarks>
-        public Task ArchiveNotificationAsync(int notificationId, string recipientId);
+        public Task ArchiveNotificationAsync(int notificationId, string currentUserId, bool isAdmin);
 
         /// <summary>
         /// Restore Archived Notification
@@ -53,7 +53,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="notificationId">Id of the notification to restore.</param>
         /// <param name="recipientId">Recipient id for whom the notification will be restored. Cannot be null or empty.</param>
         /// <remarks>Restores a previously archived(soft delete) notification for the specified recipient asynchronously.</remarks>
-        public Task RestoreNotificationAsync(int notificationId, string recipientId);
+        public Task RestoreNotificationAsync(int notificationId, string currentUserId, bool isAdmin);
 
 
         /// <summary>
