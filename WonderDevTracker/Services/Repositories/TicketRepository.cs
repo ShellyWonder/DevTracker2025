@@ -5,12 +5,14 @@ using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Helpers;
 using WonderDevTracker.Models;
+using WonderDevTracker.Models.Records;
 using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services.Repositories
 {
     public class TicketRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
-                                   UserManager<ApplicationUser> userManager) : ITicketRepository
+                                   UserManager<ApplicationUser> userManager,
+                                   IProjectRepository projectRepository) : ITicketRepository
     {
         public async Task<Ticket?> AddTicketAsync(Ticket ticket, UserInfo userInfo)
         {
@@ -71,8 +73,10 @@ namespace WonderDevTracker.Services.Repositories
                     };
                     ticket.History.Add(assignmentEvent);
                 }
-                #endregion
             }
+            #endregion
+
+
 
             await db.SaveChangesAsync();
 
@@ -198,6 +202,23 @@ namespace WonderDevTracker.Services.Repositories
                     .ToListAsync();
             }
             return tickets;
+        }
+
+        public async Task<TicketForNotification?> GetTicketForNotificationsAsync(int ticketId, int companyId)
+        {
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
+            return await db.Tickets
+        .Where(t =>
+            t.Id == ticketId &&
+            t.Project!.CompanyId == companyId)
+        .Select(t => new TicketForNotification(
+            t.Id,
+            t.Title!,
+            t.ProjectId,
+            t.SubmitterUserId,
+            t.DeveloperUserId))
+        .FirstOrDefaultAsync();
+            
         }
 
         public async Task ArchiveTicketAsync(int ticketId, UserInfo user)
