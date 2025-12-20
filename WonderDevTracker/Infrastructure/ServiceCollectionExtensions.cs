@@ -30,7 +30,7 @@ namespace WonderDevTracker.Infrastructure
             services.AddScoped<INotificationDTOService, NotificationDTOService>();
 
             //coordinates notifications throughout app
-            services.AddScoped<ITicketNotificationRecipient, TicketNotificationRecipientService>();
+            services.AddScoped<ITicketNotificationRecipientService, TicketNotificationRecipientService>();
             services.AddScoped<INotificationOrchestrator, NotificationOrchestrator>();
 
             // MailGun for development purposes, replace with a real implementation in production
