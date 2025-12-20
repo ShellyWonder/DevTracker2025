@@ -11,8 +11,7 @@ using WonderDevTracker.Services.Interfaces;
 namespace WonderDevTracker.Services.Repositories
 {
     public class TicketRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
-                                   UserManager<ApplicationUser> userManager,
-                                   IProjectRepository projectRepository) : ITicketRepository
+                                   UserManager<ApplicationUser> userManager) : ITicketRepository
     {
         public async Task<Ticket?> AddTicketAsync(Ticket ticket, UserInfo userInfo)
         {
@@ -75,8 +74,6 @@ namespace WonderDevTracker.Services.Repositories
                 }
             }
             #endregion
-
-
 
             await db.SaveChangesAsync();
 

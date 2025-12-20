@@ -1,5 +1,6 @@
 ﻿using WonderDevTracker.Client;
 using WonderDevTracker.Models;
+using WonderDevTracker.Models.Records;
 
 namespace WonderDevTracker.Services.Interfaces
 {
@@ -61,6 +62,8 @@ namespace WonderDevTracker.Services.Interfaces
         /// Admins will see tickets they submitted.
         /// </remarks>
         Task<IEnumerable<Ticket>> GetTicketsAssignedToUserAsync(UserInfo userInfo);
+
+        Task<TicketForNotification?>GetTicketForNotificationsAsync(int ticketId, int companyId);
         #endregion
 
         #region CREATE METHODS
