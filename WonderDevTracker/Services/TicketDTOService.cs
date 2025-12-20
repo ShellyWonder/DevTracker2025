@@ -10,6 +10,7 @@ namespace WonderDevTracker.Services
 {
     public class TicketDTOService(ITicketRepository ticketRepository,
                                   IProjectRepository projectRepository,
+                                  INotificationOrchestrator notificationOrchestrator,
                                    UserManager<ApplicationUser> userManager) : ITicketDTOService
     {
         #region CREATE METHODS
@@ -28,7 +29,11 @@ namespace WonderDevTracker.Services
                 DeveloperUserId = ticket.DeveloperUserId
             };
             dbTicket = await ticketRepository.AddTicketAsync(dbTicket, userInfo)
-                ?? throw new InvalidOperationException("Ticket creation failed.");
+                ?? throw new InvalidOperationException("Ticket creation failed."); 
+            if (!string.IsNullOrWhiteSpace(dbTicket.DeveloperUserId))
+            {
+                await notificationOrchestrator.TicketAssignedAsync(dbTicket.Id, dbTicket.DeveloperUserId, userInfo);
+            }
             return dbTicket.ToDTO();
         }
         public async Task<TicketCommentDTO> CreateCommentAsync(TicketCommentDTO comment, UserInfo userInfo)
@@ -200,6 +205,7 @@ namespace WonderDevTracker.Services
                     dbTicket.DeveloperUser = null;
 
                     await ticketRepository.UpdateTicketAsync(dbTicket, user);
+                   
                     return;
                 }
 
@@ -215,6 +221,7 @@ namespace WonderDevTracker.Services
                 dbTicket.DeveloperUser = developer;
 
                 await ticketRepository.UpdateTicketAsync(dbTicket, user);
+                await notificationOrchestrator.TicketAssignedAsync(dbTicket.Id, newDevId, user);
                 return;
             }
 
