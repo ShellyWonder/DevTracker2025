@@ -3,16 +3,34 @@ using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services.Notifications
 {
-    public class TicketNotificationRecipientService : ITicketNotificationRecipient
+    public class TicketNotificationRecipientService(IProjectRepository projectRepository) : ITicketNotificationRecipientService
     {
-        public Task<string?> GetAssignedDeveloperRecipientAsync(int projectId, string assignedUserId, UserInfo actor)
+        public Task<string?> GetAssignedDeveloperRecipient(int projectId, string assignedUserId, UserInfo actor)
         {
-            throw new NotImplementedException();
+            if (string.Equals(assignedUserId, actor.UserId, StringComparison.Ordinal))
+                return Task.FromResult<string?>(null);
+
+            return Task.FromResult<string?>(assignedUserId);
         }
 
-        public Task<string?> GetProjectManagerRecipientAsync(int projectId, UserInfo actor)
+        public async Task<string?> GetProjectManagerRecipientAsync(int projectId, UserInfo actor)
         {
-            throw new NotImplementedException();
+            var pmId = await projectRepository.GetProjectManagerIdAsync(projectId, actor);
+
+            if (string.IsNullOrWhiteSpace(pmId)) return null;
+
+            if (string.Equals(pmId, actor.UserId, StringComparison.Ordinal)) return null;
+
+            return pmId;
+        }
+
+        public  string? GetSubmitterRecipient(string? submitterUserId, UserInfo actor)
+        {
+            if (string.IsNullOrWhiteSpace(submitterUserId)) return null;
+
+            if (string.Equals(submitterUserId, actor.UserId, StringComparison.Ordinal)) return null;
+
+            return submitterUserId;
         }
     }
 }
