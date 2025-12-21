@@ -54,9 +54,33 @@ namespace WonderDevTracker.Services
 
         }
 
-        public Task TicketCreatedAsync(int ticketId, UserInfo user)
+        public async Task TicketCreatedAsync(int ticketId, UserInfo user)
         {
-            throw new NotImplementedException();
+            //Loads ticket projection
+            var ticket = await ticketRepository.GetTicketForNotificationsAsync(ticketId, user.CompanyId)
+                                ?? throw new InvalidOperationException($"Ticket with ID {ticketId} not found for company {user.CompanyId}.");
+
+            // if already assigned → TicketAssignedAsync handled notifications
+            //prevent duplicate notifications when ticket is created with an assigned dev
+            if (!string.IsNullOrWhiteSpace(ticket.DeveloperUserId)) return;
+
+            var notifications = new List<Notification>();
+            var recipients = CreateRecipientSet();
+            //Retrieves PM and submitter
+            var pmId = await ticketRecipientService.GetProjectManagerRecipientAsync(ticket.ProjectId, user);
+            var submitterId = ticketRecipientService.GetSubmitterRecipient(ticket.SubmitterUserId, user);
+
+            // PM should always know about new tickets (especially unassigned)
+            //Notifies PM only if PM ≠ submitter
+            if (!string.Equals(pmId, submitterId, StringComparison.Ordinal))
+            {
+                var (pmTitle, pmMsg) = TicketNotificationTemplates.CreatedForProjectManager(ticket);
+                AddNotificationOnce(notifications, recipients, pmId, pmTitle, pmMsg,
+                    NotificationType.Ticket, user.UserId, ticket.Id, ticket.ProjectId);
+            }
+
+            if (notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(notifications);
         }
 
         public Task TicketResolvedAsync(int ticketId, UserInfo user)

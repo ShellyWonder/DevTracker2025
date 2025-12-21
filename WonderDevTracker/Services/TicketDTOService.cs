@@ -29,11 +29,19 @@ namespace WonderDevTracker.Services
                 DeveloperUserId = ticket.DeveloperUserId
             };
             dbTicket = await ticketRepository.AddTicketAsync(dbTicket, userInfo)
-                ?? throw new InvalidOperationException("Ticket creation failed."); 
-            if (!string.IsNullOrWhiteSpace(dbTicket.DeveloperUserId))
+                ?? throw new InvalidOperationException("Ticket creation failed.");
+
+            if (string.IsNullOrWhiteSpace(dbTicket.DeveloperUserId))
             {
+                //If NO dev assigned
+                await notificationOrchestrator.TicketCreatedAsync(dbTicket.Id, userInfo);
+            }
+            else
+            {
+                //If dev  IS assigned
                 await notificationOrchestrator.TicketAssignedAsync(dbTicket.Id, dbTicket.DeveloperUserId, userInfo);
             }
+
             return dbTicket.ToDTO();
         }
         public async Task<TicketCommentDTO> CreateCommentAsync(TicketCommentDTO comment, UserInfo userInfo)
@@ -53,13 +61,13 @@ namespace WonderDevTracker.Services
 
         public async Task<TicketAttachmentDTO> AddTicketAttachmentAsync(TicketAttachmentDTO attachment, byte[] fileData,
                                                                   string contentType, UserInfo userInfo)
-                                                                  
+
         {
             FileUpload upload = new()
             {
                 Data = fileData,
                 Type = contentType,
-                
+
             };
 
             TicketAttachment dbAttachment = new()
@@ -116,7 +124,7 @@ namespace WonderDevTracker.Services
             // 4. Populate roles for key users on the ticket
             await ApplyRoleAsync(dto.SubmitterUser);
             await ApplyRoleAsync(dto.DeveloperUser);
-            
+
 
             // 5. Populate roles for each history entry user
             if (dto.History is not null)
@@ -205,7 +213,7 @@ namespace WonderDevTracker.Services
                     dbTicket.DeveloperUser = null;
 
                     await ticketRepository.UpdateTicketAsync(dbTicket, user);
-                   
+
                     return;
                 }
 

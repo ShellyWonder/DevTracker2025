@@ -18,6 +18,9 @@ namespace WonderDevTracker.Services.Templates
                 $"Your ticket #{t.Id} was assigned to a developer.");
 
         //  Ticket Created 
+        public static (string Title, string Message) CreatedForProjectManager(TicketForNotification t)
+         => ("New ticket created",
+        $"New ticket #{t.Id}: {t.Title} was created.");
 
         // Ticket Resolved 
 
