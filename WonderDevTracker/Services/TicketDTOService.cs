@@ -173,11 +173,13 @@ namespace WonderDevTracker.Services
         public async Task RestoreTicketByIdAsync(int ticketId, UserInfo user)
         {
             await ticketRepository.RestoreTicketByIdAsync(ticketId, user);
+            await notificationOrchestrator.TicketRestoredAsync(ticketId, user);
         }
 
         public async Task ArchiveTicketAsync(int ticketId, UserInfo user)
         {
             await ticketRepository.ArchiveTicketAsync(ticketId, user);
+            await notificationOrchestrator.TicketArchivedAsync(ticketId, user);
         }
         #endregion
 

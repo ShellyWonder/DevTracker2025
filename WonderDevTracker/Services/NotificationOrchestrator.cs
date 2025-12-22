@@ -147,15 +147,78 @@ namespace WonderDevTracker.Services
                 await notificationRepository.AddRangeAsync(notifications);
         }
 
-        public Task TicketArchivedAsync(int ticketId, UserInfo user)
+        public async Task TicketArchivedAsync(int ticketId, UserInfo actor)
         {
-            throw new NotImplementedException();
+            var ticket = await ticketRepository.GetTicketForNotificationsAsync(ticketId, actor.CompanyId)
+                ?? throw new InvalidOperationException($"Ticket with ID {ticketId} not found for company {actor.CompanyId}.");
+
+            var notifications = new List<Notification>();
+            var recipients = CreateRecipientSet();
+
+            // Recipients
+            var pmId = await ticketRecipientService.GetProjectManagerRecipientAsync(ticket.ProjectId, actor);
+
+            string? devId = null;
+            if (!string.IsNullOrWhiteSpace(ticket.DeveloperUserId))
+            {
+                devId = await ticketRecipientService.GetAssignedDeveloperRecipient(ticket.ProjectId, ticket.DeveloperUserId, actor);
+            }
+
+            var submitterId = ticketRecipientService.GetSubmitterRecipient(ticket.SubmitterUserId, actor);
+
+            // Templates
+            var (devTitle, devMsg) = TicketNotificationTemplates.ArchivedForDeveloper(ticket);
+            AddNotificationOnce(notifications, recipients, devId, devTitle, devMsg,
+                NotificationType.Ticket, actor.UserId, ticket.Id, ticket.ProjectId);
+
+            var (pmTitle, pmMsg) = TicketNotificationTemplates.ArchivedForProjectManager(ticket);
+            AddNotificationOnce(notifications, recipients, pmId, pmTitle, pmMsg,
+                NotificationType.Ticket, actor.UserId, ticket.Id, ticket.ProjectId);
+
+            var (subTitle, subMsg) = TicketNotificationTemplates.ArchivedForSubmitter(ticket);
+            AddNotificationOnce(notifications, recipients, submitterId, subTitle, subMsg,
+                NotificationType.Ticket, actor.UserId, ticket.Id, ticket.ProjectId);
+
+            if (notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(notifications);
         }
 
-        public Task TicketRestoredAsync(int ticketId, UserInfo user)
+        public async Task TicketRestoredAsync(int ticketId, UserInfo actor)
         {
-            throw new NotImplementedException();
+            var ticket = await ticketRepository.GetTicketForNotificationsAsync(ticketId, actor.CompanyId)
+                ?? throw new InvalidOperationException($"Ticket with ID {ticketId} not found for company {actor.CompanyId}.");
+
+            var notifications = new List<Notification>();
+            var recipients = CreateRecipientSet();
+
+            // Recipients
+            var pmId = await ticketRecipientService.GetProjectManagerRecipientAsync(ticket.ProjectId, actor);
+
+            string? devId = null;
+            if (!string.IsNullOrWhiteSpace(ticket.DeveloperUserId))
+            {
+                devId = await ticketRecipientService.GetAssignedDeveloperRecipient(ticket.ProjectId, ticket.DeveloperUserId, actor);
+            }
+
+            var submitterId = ticketRecipientService.GetSubmitterRecipient(ticket.SubmitterUserId, actor);
+
+            // Templates
+            var (devTitle, devMsg) = TicketNotificationTemplates.RestoredForDeveloper(ticket);
+            AddNotificationOnce(notifications, recipients, devId, devTitle, devMsg,
+                NotificationType.Ticket, actor.UserId, ticket.Id, ticket.ProjectId);
+
+            var (pmTitle, pmMsg) = TicketNotificationTemplates.RestoredForProjectManager(ticket);
+            AddNotificationOnce(notifications, recipients, pmId, pmTitle, pmMsg,
+                NotificationType.Ticket, actor.UserId, ticket.Id, ticket.ProjectId);
+
+            var (subTitle, subMsg) = TicketNotificationTemplates.RestoredForSubmitter(ticket);
+            AddNotificationOnce(notifications, recipients, submitterId, subTitle, subMsg,
+                NotificationType.Ticket, actor.UserId, ticket.Id, ticket.ProjectId);
+
+            if (notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(notifications);
         }
+
 
         #region PRIVATE HELPERS
         private static HashSet<string> CreateRecipientSet()

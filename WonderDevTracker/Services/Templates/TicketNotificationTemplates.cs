@@ -35,8 +35,8 @@ namespace WonderDevTracker.Services.Templates
 
         #region Ticket Resolved
         public static (string Title, string Message) ResolvedForSubmitter(TicketForNotification t)
-    => ("Ticket resolved",
-        $"Your ticket #{t.Id}: {t.Title} was marked as resolved.");
+                => ("Ticket resolved",
+                    $"Your ticket #{t.Id}: {t.Title} was marked as resolved.");
 
         public static (string Title, string Message) ResolvedForProjectManager(TicketForNotification t)
             => ("Ticket resolved",
@@ -48,11 +48,31 @@ namespace WonderDevTracker.Services.Templates
         #endregion
 
         #region Ticket Archived
+        public static (string Title, string Message) ArchivedForDeveloper(TicketForNotification t)
+    => ("Ticket archived",
+        $"Ticket #{t.Id}: {t.Title} was archived.");
 
+        public static (string Title, string Message) ArchivedForProjectManager(TicketForNotification t)
+            => ("Ticket archived",
+                $"Ticket #{t.Id}: {t.Title} was archived.");
+
+        public static (string Title, string Message) ArchivedForSubmitter(TicketForNotification t)
+            => ("Ticket archived",
+                $"Your ticket #{t.Id}: {t.Title} was archived.");
         #endregion
 
         #region Ticket Restored
+        public static (string Title, string Message) RestoredForDeveloper(TicketForNotification t)
+    => ("Ticket restored",
+        $"Ticket #{t.Id}: {t.Title} was restored.");
 
+        public static (string Title, string Message) RestoredForProjectManager(TicketForNotification t)
+            => ("Ticket restored",
+                $"Ticket #{t.Id}: {t.Title} was restored.");
+
+        public static (string Title, string Message) RestoredForSubmitter(TicketForNotification t)
+            => ("Ticket restored",
+                $"Your ticket #{t.Id}: {t.Title} was restored.");
         #endregion
     }
 }
