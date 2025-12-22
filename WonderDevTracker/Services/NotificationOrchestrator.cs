@@ -54,6 +54,32 @@ namespace WonderDevTracker.Services
 
         }
 
+        public async Task TicketUnassignedAsync(int ticketId, string previousDevId, UserInfo actor)
+        {
+            // Load ticket projection
+            var ticket = await ticketRepository.GetTicketForNotificationsAsync(ticketId, actor.CompanyId)
+                ?? throw new InvalidOperationException($"Ticket with ID {ticketId} not found for company {actor.CompanyId}.");
+
+            var notifications = new List<Notification>();
+            var recipients = CreateRecipientSet();
+
+            // Recipients
+            var pmId = await ticketRecipientService.GetProjectManagerRecipientAsync(ticket.ProjectId, actor);
+            string? oldDevRecipientId = await ticketRecipientService
+                .GetAssignedDeveloperRecipient(ticket.ProjectId, previousDevId, actor);
+
+
+            var (devTitle, devMsg) = TicketNotificationTemplates.UnassignedForDeveloper(ticket);
+            AddNotificationOnce(notifications, recipients, oldDevRecipientId, devTitle, devMsg,
+                NotificationType.Ticket, actor.UserId, ticket.Id, ticket.ProjectId);
+
+            var (pmTitle, pmMsg) = TicketNotificationTemplates.UnassignedForProjectManager(ticket);
+            AddNotificationOnce(notifications, recipients, pmId, pmTitle, pmMsg,
+                NotificationType.Ticket, actor.UserId, ticket.Id, ticket.ProjectId);
+
+            if (notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(notifications);
+        }
         public async Task TicketCreatedAsync(int ticketId, UserInfo user)
         {
             //Loads ticket projection
@@ -83,12 +109,50 @@ namespace WonderDevTracker.Services
                 await notificationRepository.AddRangeAsync(notifications);
         }
 
-        public Task TicketResolvedAsync(int ticketId, UserInfo user)
+        public async Task TicketResolvedAsync(int ticketId, UserInfo user)
+        {
+            // Load ticket projection
+            var ticket = await ticketRepository.GetTicketForNotificationsAsync(ticketId, user.CompanyId)
+                ?? throw new InvalidOperationException($"Ticket with ID {ticketId} not found for company {user.CompanyId}.");
+
+            var notifications = new List<Notification>();
+            var recipients = CreateRecipientSet();
+
+            // Recipients
+            var pmId = await ticketRecipientService.GetProjectManagerRecipientAsync(ticket.ProjectId, user);
+            var submitterId = ticketRecipientService.GetSubmitterRecipient(ticket.SubmitterUserId, user);
+
+            // Dev recipient only if ticket is assigned
+            string? devId = null;
+            if (!string.IsNullOrWhiteSpace(ticket.DeveloperUserId))
+            {
+                devId = await ticketRecipientService.GetAssignedDeveloperRecipient(ticket.ProjectId, ticket.DeveloperUserId, user);
+            }
+
+            // Templates
+            var (submitterTitle, submitterMsg) = TicketNotificationTemplates.ResolvedForSubmitter(ticket);
+            AddNotificationOnce(notifications, recipients, submitterId, submitterTitle, submitterMsg,
+                NotificationType.Ticket, user.UserId, ticket.Id, ticket.ProjectId);
+
+            var (pmTitle, pmMsg) = TicketNotificationTemplates.ResolvedForProjectManager(ticket);
+            AddNotificationOnce(notifications, recipients, pmId, pmTitle, pmMsg,
+                NotificationType.Ticket, user.UserId, ticket.Id, ticket.ProjectId);
+
+            // notify dev (if not actor + not duplicate)
+            var (devTitle, devMsg) = TicketNotificationTemplates.ResolvedForDeveloper(ticket);
+            AddNotificationOnce(notifications, recipients, devId, devTitle, devMsg,
+                NotificationType.Ticket, user.UserId, ticket.Id, ticket.ProjectId);
+
+            if (notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(notifications);
+        }
+
+        public Task TicketArchivedAsync(int ticketId, UserInfo user)
         {
             throw new NotImplementedException();
         }
 
-        public Task TicketArchivedAsync(int ticketId, UserInfo user)
+        public Task TicketRestoredAsync(int ticketId, UserInfo user)
         {
             throw new NotImplementedException();
         }
@@ -124,6 +188,7 @@ namespace WonderDevTracker.Services
                 Created = DateTimeOffset.UtcNow
             });
         }
+
         #endregion
 
     }
