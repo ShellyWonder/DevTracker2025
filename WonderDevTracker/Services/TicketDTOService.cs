@@ -187,7 +187,10 @@ namespace WonderDevTracker.Services
         {
             Ticket dbTicket = await ticketRepository.GetTicketByIdAsync(ticket.Id, user)
                   ?? throw new KeyNotFoundException("Ticket not found or access denied.");
-            if (dbTicket is null) return;
+
+            //needed for notification feature
+            var previousStatus = dbTicket.Status;
+            var previousDevId = dbTicket.DeveloperUserId;
 
             dbTicket.Title = ticket.Title;
             dbTicket.Description = ticket.Description;
@@ -214,7 +217,17 @@ namespace WonderDevTracker.Services
 
                     await ticketRepository.UpdateTicketAsync(dbTicket, user);
 
+                    if (!string.IsNullOrWhiteSpace(previousDevId))
+                    {
+                        await notificationOrchestrator.TicketUnassignedAsync(dbTicket.Id, previousDevId, user);
+                    }
+                    //unlikely but possible to unassign then resolve a ticket
+                    if (previousStatus != TicketStatus.Resolved && dbTicket.Status == TicketStatus.Resolved)
+                    {
+                        await notificationOrchestrator.TicketResolvedAsync(dbTicket.Id, user);
+                    }
                     return;
+
                 }
 
                 // Assign request: must be a project member AND in Developer role
@@ -223,17 +236,28 @@ namespace WonderDevTracker.Services
                     ?? throw new InvalidOperationException("Developer must be a member of the project.");
 
                 if (!await userManager.IsInRoleAsync(developer, nameof(Role.Developer)))
-                    throw new InvalidOperationException("Selected user is not a Developer.");
+                    throw new InvalidOperationException("Selected user is not a developer.");
 
                 dbTicket.DeveloperUserId = newDevId;
                 dbTicket.DeveloperUser = developer;
 
                 await ticketRepository.UpdateTicketAsync(dbTicket, user);
                 await notificationOrchestrator.TicketAssignedAsync(dbTicket.Id, newDevId, user);
+                if (!string.IsNullOrWhiteSpace(previousDevId) && !string.Equals(previousDevId,
+                                                                  newDevId, StringComparison.Ordinal))
+                {
+                    await notificationOrchestrator.TicketUnassignedAsync(dbTicket.Id, previousDevId, user);
+                }
+
                 return;
             }
 
             await ticketRepository.UpdateTicketAsync(dbTicket, user);
+            //trigger only when transitioning to Resolved
+            if (previousStatus != TicketStatus.Resolved && dbTicket.Status == TicketStatus.Resolved)
+            {
+                await notificationOrchestrator.TicketResolvedAsync(dbTicket.Id, user);
+            }
             return;
         }
 
