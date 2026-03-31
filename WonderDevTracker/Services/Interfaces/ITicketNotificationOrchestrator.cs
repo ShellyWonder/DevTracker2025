@@ -2,7 +2,7 @@
 
 namespace WonderDevTracker.Services.Interfaces
 {
-    public interface INotificationOrchestrator
+    public interface ITicketNotificationOrchestrator
     {
         /// <summary>
         /// Ticket Created Notification
