@@ -7,7 +7,7 @@ namespace WonderDevTracker.Services.Notifications
     {
         public string? GetAssignedDeveloperRecipient(string? assignedUserId, UserInfo actor)
         {
-            if (assignedUserId ==actor.UserId) return null;
+            if (string.IsNullOrWhiteSpace(assignedUserId) || assignedUserId == actor.UserId) return null;
 
             return assignedUserId;
 

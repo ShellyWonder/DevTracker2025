@@ -13,9 +13,10 @@ namespace WonderDevTracker.Services.Interfaces
         /// <returns>A task that represents the asynchronous operation. The task result contains the recipient identifier as a
         /// string, or null if no project manager is found.</returns>
         public Task<string?> GetProjectManagerRecipientAsync(int projectId, UserInfo actor);
-        
+
         /// <summary>
-        /// Retrieves the recipient identifier for the developer assigned to the specified project. In store memory; no repo call.    
+        /// Retrieves the recipient identifier for the assigned developer,
+        /// excluding the current actor. In-memory only; no repository call.
         /// </summary>
         /// <param name="assignedUserId">The unique identifier of the assigned developer.</param>
         /// <param name="actor">The user requesting the recipient information. Cannot be null.</param>

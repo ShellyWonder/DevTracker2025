@@ -10,7 +10,7 @@ namespace WonderDevTracker.Services
 {
     public class TicketDTOService(ITicketRepository ticketRepository,
                                   IProjectRepository projectRepository,
-                                  INotificationOrchestrator notificationOrchestrator,
+                                  ITicketNotificationOrchestrator notificationOrchestrator,
                                    UserManager<ApplicationUser> userManager) : ITicketDTOService
     {
         #region CREATE METHODS
@@ -202,7 +202,7 @@ namespace WonderDevTracker.Services
             dbTicket.Updated = DateTimeOffset.UtcNow;
 
             // Only handle developer changes if the value actually changed
-            if (dbTicket.DeveloperUserId != ticket.DeveloperUserId)
+            if (previousDevId != ticket.DeveloperUserId)
             {
                 // Permission check (PM on this project OR Admin)
                 var pm = await projectRepository.GetProjectManagerAsync(dbTicket.ProjectId, user);
