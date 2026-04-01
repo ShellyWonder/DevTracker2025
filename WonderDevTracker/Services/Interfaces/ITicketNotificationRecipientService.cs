@@ -17,11 +17,10 @@ namespace WonderDevTracker.Services.Interfaces
         /// <summary>
         /// Retrieves the recipient identifier for the developer assigned to the specified project. In store memory; no repo call.    
         /// </summary>
-        /// <param name="projectId">The unique identifier of the project for which to retrieve the assigned developer recipient.</param>
         /// <param name="assignedUserId">The unique identifier of the assigned developer.</param>
         /// <param name="actor">The user requesting the recipient information. Cannot be null.</param>
         /// <returns>The recipient identifier as a string, or null if no assigned developer is found.</returns>
-        public string? GetAssignedDeveloperRecipient(int projectId, string assignedUserId, UserInfo actor);
+        public string? GetAssignedDeveloperRecipient(string? assignedUserId, UserInfo actor);
         
         /// <summary>
         /// Retrieves the recipient identifier for the submitter of a ticket.

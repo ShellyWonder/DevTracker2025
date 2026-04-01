@@ -5,7 +5,7 @@ namespace WonderDevTracker.Services.Notifications
 {
     public class TicketNotificationRecipientService(IProjectRepository projectRepository) : ITicketNotificationRecipientService
     {
-        public string? GetAssignedDeveloperRecipient(int projectId, string assignedUserId, UserInfo actor)
+        public string? GetAssignedDeveloperRecipient(string? assignedUserId, UserInfo actor)
         {
             if (assignedUserId ==actor.UserId) return null;
 
