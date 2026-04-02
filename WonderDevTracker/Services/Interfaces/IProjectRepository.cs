@@ -1,5 +1,6 @@
 ﻿using WonderDevTracker.Client;
 using WonderDevTracker.Models;
+using WonderDevTracker.Models.Records;
 
 namespace WonderDevTracker.Services.Interfaces
 {
@@ -46,9 +47,35 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="projectId">queried project's id</param>
         /// <param name="user">Current user's claims</param>
         /// <returns>ProjectManager id to the client</returns>
-        Task<string?> GetProjectManagerIdAsync(int projectId, UserInfo user);
+        public Task<string?> GetProjectManagerIdAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Asynchronously retrieves the collection of developers assigned to the specified project.
+        /// </summary>
+        /// <param name="projectId">The unique identifier of the project for which to retrieve developers.</param>
+        /// <param name="user">The user context used to authorize and filter the results. Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of
+        /// developers assigned to the project. The collection is empty if no developers are assigned.</returns>
         public Task<IEnumerable<ApplicationUser>> GetProjectDevelopersAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Asynchronously retrieves the collection of users who have submitted items to the specified project.
+        /// </summary>
+        /// <param name="projectId">The unique identifier of the project for which to retrieve submitters.</param>
+        /// <param name="user">The user context used to determine access permissions for the operation. Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of
+        /// users who have submitted items to the specified project. The collection is empty if there are no submitters.</returns>
         public Task<IEnumerable<ApplicationUser>> GetProjectSubmittersAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Asynchronously retrieves the collection of project members assigned to roles that are accessible to the
+        /// specified user within the given project.
+        /// </summary>
+        /// <param name="projectId">The unique identifier of the project for which to retrieve members.</param>
+        /// <param name="user">The user context used to determine accessible roles and permissions. Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of
+        /// users who are members of the project and match the accessible roles. The collection is empty if no such
+        /// members are found.</returns>
         public Task<IEnumerable<ApplicationUser>> GetProjectMembersByRoleAsync(int projectId, UserInfo user);
 
         /// <summary>
@@ -56,9 +83,19 @@ namespace WonderDevTracker.Services.Interfaces
         /// </summary>
         /// <param name="projectId">Project Id</param>
         /// <param name="user">Current user's claims</param>
-        /// <remarks>Retrieves all project members (except the Project Manager) assigned to project.</remarks>
+        /// <remarks>Retrieves all project members assigned to project.</remarks>
         /// <returns>A collection of users</returns>
-        public Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, UserInfo user);
+         public Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Retrieves the project information required for sending notifications for the specified project and company.
+        /// </summary>
+        /// <param name="projectId">The unique identifier of the project for which notification information is requested.</param>
+        /// <param name="companyId">The unique identifier of the company that owns the project.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a <see
+        /// cref="ProjectForNotification"/> record with notification details for the project, or <see langword="null"/>
+        /// if the project is not found or notifications are not applicable.</returns>
+        Task<ProjectForNotification?> GetProjectForNotificationsAsync(int projectId, int companyId);
 
         /// <summary>
         /// Get Assigned Projects
@@ -67,6 +104,15 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>A collection of user's assigned projects</returns>
         public Task<IEnumerable<Project>> GetAssignedProjectsAsync(UserInfo user);
+
+        /// <summary>
+        /// Asynchronously retrieves a collection of users who are not assigned to the same project as the specified
+        /// user.
+        /// </summary>
+        /// <param name="user">The user whose project membership is used to determine which users are not on the same project. Cannot be
+        /// null.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of
+        /// users not assigned to the specified user's project.</returns>
         public Task<IEnumerable<ApplicationUser>> GetUsersNotOnProjectAsync(UserInfo user);
 
         /// <summary>
@@ -78,7 +124,7 @@ namespace WonderDevTracker.Services.Interfaces
         public Task<IEnumerable<Project>> GetAllArchivedProjectsAsync(UserInfo user);
         #endregion
 
-        #region Create Methods
+        #region CREATE METHODS
         /// <summary>
         /// Creates a new company project in the database asynchronously.
         /// </summary>
@@ -91,16 +137,15 @@ namespace WonderDevTracker.Services.Interfaces
         public Task<Project?> CreateProjectAsync(Project project, UserInfo user);
         #endregion
 
-        #region Update (& Add/Remove) Methods
+        #region UPDATE (& ADD/REMOVE) METHODS
         /// <summary>
         /// Updates an existing project's details; Roles: User must be assigned ProjectManager or Admin.
         /// </summary>
         /// <param name="project"></param>
         /// <param name="user"></param>
-
         public Task UpdateProjectAsync(Project project, UserInfo user);
 
-        #region Project Manager(PM) & Project Members
+        #region PROJECT MANAGER(PM) & PROJECT MEMBERS
         /// <summary>
         /// Set Project Manager 
         /// </summary>
@@ -139,7 +184,7 @@ namespace WonderDevTracker.Services.Interfaces
         #endregion
         #endregion
 
-        #region Archive (Delete) Methods
+        #region ARCHIVE (DELETE) METHODS
         /// <summary>
         /// Archives a project (and  all  related tickets) by its ID asynchronously 
         /// </summary>
