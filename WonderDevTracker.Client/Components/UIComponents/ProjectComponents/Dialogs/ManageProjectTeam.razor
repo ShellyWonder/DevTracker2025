@@ -71,7 +71,6 @@
 	private IEnumerable<AppUserDTO> _developers = [];
 	private IEnumerable<AppUserDTO> _submitters = [];
 	private IEnumerable<string> existingMemberIds = [];
-	// private AppUserDTO? _projectManager;
 
 	//selected members -- bind to chip sets (IReadOnlyCollection is only option for chip sets)
 	private IReadOnlyCollection<string> selectedDeveloperIds = [];
@@ -86,7 +85,6 @@
 		try
 		{
 			//Get all available users in roles
-			// _projectManager = await CompanyService.GetProjectManagerAsync(Project.Id);
 			_developers = await CompanyService.GetUsersInRoleAsync(Role.Developer, UserInfo!);
 			_submitters = await CompanyService.GetUsersInRoleAsync(Role.Submitter, UserInfo!);
 
