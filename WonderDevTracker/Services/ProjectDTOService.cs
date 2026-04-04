@@ -9,6 +9,7 @@ using WonderDevTracker.Services.Interfaces;
 namespace WonderDevTracker.Services
 {
     public class ProjectDTOService(IProjectRepository projectRepository,
+                                   IProjectNotificationOrchestrator notificationOrchestrator,
                                     UserManager<ApplicationUser> userManager) : IProjectDTOService
     {
         #region CREATE METHODS

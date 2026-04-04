@@ -4,6 +4,7 @@ using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
+using WonderDevTracker.Models.Records;
 using WonderDevTracker.Services.Interfaces;
 
 
@@ -52,6 +53,19 @@ namespace WonderDevTracker.Services.Repositories
 
         }
 
+        public async Task<ProjectForNotification?> GetProjectForNotificationsAsync(int projectId, int companyId)
+        {
+            await using var db = await contextFactory.CreateDbContextAsync();
+
+            return await db.Projects
+                .AsNoTracking()
+                .Where(p => p.Id == projectId && p.CompanyId == companyId)
+                .Select(p => new ProjectForNotification(
+                    p.Id,
+                    p.Name
+                ))
+                .FirstOrDefaultAsync();
+        }
         public async Task<Project?> GetProjectByIdAsync(int projectId, UserInfo user)
         {
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
@@ -70,7 +84,7 @@ namespace WonderDevTracker.Services.Repositories
         {
             IEnumerable<ApplicationUser> members = await GetProjectMembersAsync(projectId, user);
 
-           var developers = new List<ApplicationUser>();
+            var developers = new List<ApplicationUser>();
             foreach (var member in members)
             {
                 if (await userManager.IsInRoleAsync(member, nameof(Role.Developer)) == true)
@@ -81,7 +95,10 @@ namespace WonderDevTracker.Services.Repositories
             return developers.AsEnumerable();
 
         }
-
+        //Assumes only one PM per project.
+        //If future business rules allow multiple PMs per project,
+        //is is recommended to create a GetProjectManagersAsync() method
+        //that returns IEnumerable<ApplicationUser>
         public async Task<string?> GetProjectManagerIdAsync(int projectId, UserInfo user)
         {
             IEnumerable<ApplicationUser> members = await GetProjectMembersAsync(projectId, user);
@@ -156,8 +173,7 @@ namespace WonderDevTracker.Services.Repositories
             throw new NotImplementedException();
         }
 
-        
-
+      
         public Task<IEnumerable<ApplicationUser>> GetUsersNotOnProjectAsync(UserInfo user)
         {
             throw new NotImplementedException();
