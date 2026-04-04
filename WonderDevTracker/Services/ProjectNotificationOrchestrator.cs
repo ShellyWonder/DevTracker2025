@@ -17,15 +17,127 @@ namespace WonderDevTracker.Services
                                           IProjectNotificationRecipientService projectRecipientService) : IProjectNotificationOrchestrator
     {
 
-      
-        public Task ProjectMemberAddedAsync(int projectId, string addedUserId, UserInfo actor)
+
+        public async Task ProjectMemberAddedAsync(int projectId, string addedUserId, UserInfo actor)
         {
-            throw new NotImplementedException();
+            var project = await projectRepository.GetProjectForNotificationsAsync(projectId, actor.CompanyId)
+                ?? throw new KeyNotFoundException("Project not found or access denied.");
+
+            var notifications = new List<Notification>();
+            var recipients = CreateRecipientSet();
+
+            // 1. Added user
+            var addedUserRecipient = projectRecipientService.GetAffectedMemberRecipient(addedUserId, actor);
+
+            var (titleAdded, messageAdded) = ProjectNotificationTemplates.MemberAddedForAddedUser(project);
+
+            AddNotificationOnce(notifications, recipients,
+                addedUserRecipient,
+                titleAdded,
+                messageAdded,
+                NotificationType.Project,
+                actor.UserId,
+                0, // ticketId (not used)
+                projectId);
+
+            // 2. Project Manager
+            var pmRecipient = await projectRecipientService.GetProjectManagerRecipientAsync(projectId, actor);
+
+            var (titlePm, messagePm) = ProjectNotificationTemplates.MemberAddedForProjectManager(project);
+
+            AddNotificationOnce(notifications, recipients,
+                pmRecipient,
+                titlePm,
+                messagePm,
+                NotificationType.Project,
+                actor.UserId,
+                0,
+                projectId);
+
+            // 3. Other members (excluding actor + added user + PM handled via dedupe)
+            var memberRecipients = await projectRecipientService
+                .GetProjectMemberRecipientsExcludingAsync(projectId, actor, addedUserId, pmRecipient);
+
+            var (titleMembers, messageMembers) = ProjectNotificationTemplates.MemberAddedForProjectMembers(project);
+
+            foreach (var memberId in memberRecipients)
+            {
+                AddNotificationOnce(notifications, recipients,
+                    memberId,
+                    titleMembers,
+                    messageMembers,
+                    NotificationType.Project,
+                    actor.UserId,
+                    0,
+                    projectId);
+            }
+
+            if (notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(notifications);
         }
 
-        public Task ProjectMemberRemovedAsync(int projectId, string removedUserId, UserInfo actor)
+        public async Task ProjectMemberRemovedAsync(int projectId, string removedUserId, UserInfo actor)
         {
-            throw new NotImplementedException();
+            var project = await projectRepository.GetProjectForNotificationsAsync(projectId, actor.CompanyId)
+                ?? throw new KeyNotFoundException("Project not found or access denied.");
+
+            var notifications = new List<Notification>();
+            var recipients = CreateRecipientSet();
+
+            // 1. Removed user
+            var removedUserRecipient = projectRecipientService.GetAffectedMemberRecipient(removedUserId, actor);
+
+            var (titleRemoved, messageRemoved) = ProjectNotificationTemplates.MemberRemovedForRemovedUser(project);
+
+            AddNotificationOnce(
+                notifications,
+                recipients,
+                removedUserRecipient,
+                titleRemoved,
+                messageRemoved,
+                NotificationType.Project,
+                actor.UserId,
+                0,
+                projectId);
+
+            // 2. Project Manager
+            var pmRecipient = await projectRecipientService.GetProjectManagerRecipientAsync(projectId, actor);
+
+            var (titlePm, messagePm) = ProjectNotificationTemplates.MemberRemovedForProjectManager(project);
+
+            AddNotificationOnce(
+                notifications,
+                recipients,
+                pmRecipient,
+                titlePm,
+                messagePm,
+                NotificationType.Project,
+                actor.UserId,
+                0,
+                projectId);
+
+            // 3. Remaining project members
+            var memberRecipients = await projectRecipientService
+                .GetProjectMemberRecipientsExcludingAsync(projectId, actor, removedUserId, pmRecipient);
+
+            var (titleMembers, messageMembers) = ProjectNotificationTemplates.MemberRemovedForProjectMembers(project);
+
+            foreach (var memberId in memberRecipients)
+            {
+                AddNotificationOnce(
+                    notifications,
+                    recipients,
+                    memberId,
+                    titleMembers,
+                    messageMembers,
+                    NotificationType.Project,
+                    actor.UserId,
+                    0,
+                    projectId);
+            }
+
+            if (notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(notifications);
         }
 
         public Task ProjectManagerAssignedAsync(int projectId, string pmUserId, UserInfo actor)
