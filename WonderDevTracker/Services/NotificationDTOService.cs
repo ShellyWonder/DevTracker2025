@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
-using WonderDevTracker.Client;
+﻿using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
-using WonderDevTracker.Services.Repositories;
 
 namespace WonderDevTracker.Services
 {
-    public class NotificationDTOService(UserManager<ApplicationUser> userManager,
-                                    INotificationRepository notificationRepository) : INotificationDTOService
+    public class NotificationDTOService(INotificationRepository notificationRepository) : INotificationDTOService
     {
         public async Task CreateNotificationAsync(NotificationDTO dto)
         {
