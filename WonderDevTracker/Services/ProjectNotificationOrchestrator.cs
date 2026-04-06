@@ -37,7 +37,6 @@ namespace WonderDevTracker.Services
                 messageAdded,
                 NotificationType.Project,
                 actor.UserId,
-                0, // ticketId (not used)
                 projectId);
 
             // 2. Project Manager
@@ -51,7 +50,6 @@ namespace WonderDevTracker.Services
                 messagePm,
                 NotificationType.Project,
                 actor.UserId,
-                0,
                 projectId);
 
             // 3. Other members (excluding actor + added user + PM handled via dedupe)
@@ -68,12 +66,11 @@ namespace WonderDevTracker.Services
                     messageMembers,
                     NotificationType.Project,
                     actor.UserId,
-                    0,
                     projectId);
             }
 
             if (notifications.Count > 0)
-                await notificationRepository.AddRangeAsync(notifications);
+                await notificationRepository.AddRangeAsync([.. notifications]);
         }
 
         public async Task ProjectMemberRemovedAsync(int projectId, string removedUserId, UserInfo actor)
@@ -97,7 +94,6 @@ namespace WonderDevTracker.Services
                 messageRemoved,
                 NotificationType.Project,
                 actor.UserId,
-                0,
                 projectId);
 
             // 2. Project Manager
@@ -113,8 +109,7 @@ namespace WonderDevTracker.Services
                 messagePm,
                 NotificationType.Project,
                 actor.UserId,
-                0,
-                projectId);
+               projectId);
 
             // 3. Remaining project members
             var memberRecipients = await projectRecipientService
@@ -132,7 +127,6 @@ namespace WonderDevTracker.Services
                     messageMembers,
                     NotificationType.Project,
                     actor.UserId,
-                    0,
                     projectId);
             }
 
@@ -140,14 +134,92 @@ namespace WonderDevTracker.Services
                 await notificationRepository.AddRangeAsync(notifications);
         }
 
-        public Task ProjectManagerAssignedAsync(int projectId, string pmUserId, UserInfo actor)
+        public async Task ProjectManagerAssignedAsync(int projectId, string pmUserId, UserInfo actor)
         {
-            throw new NotImplementedException();
+            var project = await projectRepository.GetProjectForNotificationsAsync(projectId, actor.CompanyId)
+                ?? throw new KeyNotFoundException("Project not found or access denied.");
+            var notifications = new List<Notification>();
+            var recipients = CreateRecipientSet();
+            // 1. Notify Assigned PM
+            var pmRecipient = projectRecipientService.GetAffectedMemberRecipient(pmUserId, actor);
+            var (titlePm, messagePm) = ProjectNotificationTemplates.ProjectManagerAssignedForAssignedPm(project);
+            
+                AddNotificationOnce(
+                    notifications,
+                    recipients,
+                    pmRecipient,
+                    titlePm,
+                    messagePm,
+                    NotificationType.Project,
+                    actor.UserId,
+                    projectId);
+
+            //2. Notify the rest of the project members 
+            var memberRecipients = await projectRecipientService
+                .GetProjectMemberRecipientsExcludingAsync(projectId, actor, pmUserId);
+
+            var (memberTitle, memberMessage) = ProjectNotificationTemplates.ProjectManagerAssignedForProjectMembers(project);
+
+            foreach (var memberId in memberRecipients)
+            {
+                AddNotificationOnce(
+                    notifications,
+                    recipients,
+                    memberId,
+                    memberTitle,
+                    memberMessage,
+                    NotificationType.Project,
+                    actor.UserId,
+                    projectId);
+            }
+            if (notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(notifications);
         }
 
-        public Task ProjectManagerRemovedAsync(int projectId, string previousPmUserId, UserInfo actor)
+        public async Task ProjectManagerRemovedAsync(int projectId, string previousPmUserId, UserInfo actor)
         {
-            throw new NotImplementedException();
+            var project = await projectRepository.GetProjectForNotificationsAsync(projectId, actor.CompanyId)
+        ?? throw new KeyNotFoundException("Project not found or access denied.");
+
+            var notifications = new List<Notification>();
+            var recipients = CreateRecipientSet();
+
+            // 1. Notify the previous PM directly
+            var previousPmRecipient = projectRecipientService.GetAffectedMemberRecipient(previousPmUserId, actor);
+
+            var (pmTitle, pmMessage) = ProjectNotificationTemplates.ProjectManagerRemovedForPreviousPm(project);
+
+            AddNotificationOnce(
+                notifications,
+                recipients,
+                previousPmRecipient,
+                pmTitle,
+                pmMessage,
+                NotificationType.Project,
+                actor.UserId,
+                projectId);
+
+            // 2. Notify remaining project members
+            var memberRecipients = await projectRecipientService
+                .GetProjectMemberRecipientsExcludingAsync(projectId, actor, previousPmUserId);
+
+            var (memberTitle, memberMessage) = ProjectNotificationTemplates.ProjectManagerRemovedForProjectMembers(project);
+
+            foreach (var memberId in memberRecipients)
+            {
+                AddNotificationOnce(
+                    notifications,
+                    recipients,
+                    memberId,
+                    memberTitle,
+                    memberMessage,
+                    NotificationType.Project,
+                    actor.UserId,
+                    projectId);
+            }
+
+            if (notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(notifications);
         }
 
         public Task ProjectArchivedAsync(int projectId, UserInfo user)
@@ -171,7 +243,6 @@ namespace WonderDevTracker.Services
             string message,
             NotificationType type,
             string senderId,
-            int ticketId,
             int projectId)
         {
             if (string.IsNullOrWhiteSpace(recipientId)) return;
@@ -186,7 +257,6 @@ namespace WonderDevTracker.Services
                 Type = type,
                 SenderId = senderId,
                 RecipientId = recipientId,
-                TicketId = ticketId,
                 ProjectId = projectId,
                 Created = DateTimeOffset.UtcNow
             });
