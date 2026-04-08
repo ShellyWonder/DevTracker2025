@@ -31,8 +31,11 @@ namespace WonderDevTracker.Infrastructure
 
             //coordinates notifications throughout app
             services.AddScoped<ITicketNotificationRecipientService, TicketNotificationRecipientService>();
-            services.AddScoped<INotificationOrchestrator, NotificationOrchestrator>();
+            services.AddScoped<ITicketNotificationOrchestrator, TicketNotificationOrchestrator>();
 
+            services.AddScoped<IProjectNotificationRecipientService, ProjectNotificationRecipientService>();
+            services.AddScoped<IProjectNotificationOrchestrator, ProjectNotificationOrchestrator>();
+                
             // MailGun for development purposes, replace with a real implementation in production
             services.AddSingleton<IEmailSender<ApplicationUser>, MailGunEmailSender>();  //use in identity pages
             services.AddSingleton<IEmailSender, MailGunEmailSender>();// use for application contact emails
