@@ -15,6 +15,14 @@ namespace WonderDevTracker.Services.Interfaces
         Task<string?> GetProjectManagerRecipientAsync(int projectId, UserInfo actor);
 
         /// <summary>
+        /// Asynchronously retrieves the recipient identifier for the company administrator.
+        /// </summary>
+        /// <param name="actor">The user requesting the recipient information. Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the recipient identifier as a
+        /// string, or null if no company administrator is found(should not happen under normal conditions).</returns>
+        Task<string?> GetCompanyAdminRecipientAsync(UserInfo actor);
+
+        /// <summary>
         /// Gets the recipient identifier for the affected member based on the specified user ID and actor information 
         /// Relies on in-memory logic - no repository call.
         /// </summary>
@@ -46,5 +54,13 @@ namespace WonderDevTracker.Services.Interfaces
             int projectId,
             UserInfo actor,
             params string?[] excludedUserIds);
+
+        /// <summary>
+        /// Asynchronously retrieves the display name associated with the specified user identifier.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user whose display name is to be retrieved. Cannot be null or empty.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the display name of the user if
+        /// found; otherwise, null.</returns>
+        Task<string?> GetUserDisplayNameAsync(string userId);
     }
 }
