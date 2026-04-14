@@ -14,11 +14,11 @@ namespace WonderDevTracker.Services.Notifications
     public class ProjectNotificationRecipientService(IProjectRepository projectRepository,
                                                      UserManager<ApplicationUser> userManager) : IProjectNotificationRecipientService
     {
-       
+
         public string? GetAffectedMemberRecipient(string? userId, UserInfo actor)
         {
             if (userId == actor.UserId || string.IsNullOrWhiteSpace(userId)) return null;
-            
+
             return userId;
         }
 
@@ -44,7 +44,7 @@ namespace WonderDevTracker.Services.Notifications
         }
         public async Task<List<string>> GetProjectMemberRecipientsAsync(int projectId, UserInfo actor)
         {
-           var projectMembers = await projectRepository.GetProjectMembersAsync(projectId, actor);
+            var projectMembers = await projectRepository.GetProjectMembersAsync(projectId, actor);
             if (projectMembers is null || !projectMembers.Any()) return [];
             return [.. projectMembers
                .Where(m => !string.IsNullOrWhiteSpace(m.Id))
@@ -73,10 +73,10 @@ namespace WonderDevTracker.Services.Notifications
 
         public async Task<string?> GetUserDisplayNameAsync(string userId)
         {
-            if(string.IsNullOrWhiteSpace(userId)) return null;
+            if (string.IsNullOrWhiteSpace(userId)) return null;
             var user = await userManager.FindByIdAsync(userId);
-            if(user == null) return null;
-            return $"{user.FirstName} {user.LastName}"; 
+            if (user == null) return null;
+            return $"{user.FirstName} {user.LastName}";
         }
     }
    

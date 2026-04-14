@@ -22,7 +22,7 @@ namespace WonderDevTracker.Services.Templates
         #region Project Member Removed
         public static (string Title, string Message) MemberRemovedForRemovedUser(ProjectForNotification p)
             => ("Removed from project",
-                $"You were removed from project #{p.Id}: {p.Name}");
+                $"You were removed from project #{p.Id}: {p.Name}. If you think this is a mistake, please contact your project manager.");
 
         public static (string Title, string Message) MemberRemovedForProjectManager(ProjectForNotification p)
             => ("Project team updated",
@@ -36,25 +36,36 @@ namespace WonderDevTracker.Services.Templates
         #region Project Manager Assigned
         public static (string Title, string Message) ProjectManagerAssignedForAssignedPm(ProjectForNotification p)
             => ("Project manager assigned",
-                $"You were assigned as project manager for project #{p.Id}: {p.Name}");
+                $"You were assigned as project manager for project #{p.Id}: {p.Name}. " +
+            $"If you think this is a mistake, please contact the company administrator.");
 
-        public static (string Title, string Message) ProjectManagerAssignedForProjectMembers(ProjectForNotification p)
+        public static (string Title, string Message) ProjectManagerAssignedForProjectMembers(ProjectForNotification p, string? pmName)
             => ("Project manager assigned",
-                $"A project manager was assigned to project #{p.Id}: {p.Name}");
+                $"{ResolveName(pmName)}, was assigned to project #{p.Id}: {p.Name} as project manager.");
+        public static (string Title, string Message) ProjectManagerAssignedForAdmins(ProjectForNotification p, string? pmName)
+            => ("Project manager assigned",
+                $"{ResolveName(pmName)}, was assigned to project #{p.Id}: {p.Name} as project manager.");
         #endregion
 
         #region Project Manager Removed
         public static (string Title, string Message) ProjectManagerRemovedForPreviousPm(ProjectForNotification p)
             => ("Project manager removed",
-                $"You were removed as project manager for project #{p.Id}: {p.Name}");
+                $"You were removed as project manager for project #{p.Id}: {p.Name}. " +
+            $"If you think this is a mistake, please contact the company administrator.");
 
-        public static (string Title, string Message) ProjectManagerRemovedForProjectMembers(ProjectForNotification p)
+        public static (string Title, string Message) ProjectManagerRemovedForProjectMembers(ProjectForNotification p, string? previousPmName)
             => ("Project manager removed",
-                $"The project manager was removed from project #{p.Id}: {p.Name}");
+                $"{ResolveName(previousPmName)} was removed from project # {p.Id} :  {p.Name}  as project manager.");
+        public static (string Title, string Message) ProjectManagerRemovedForAdmins(ProjectForNotification p, string? previousPmName)
+            => ("Project manager removed",
+                $"{ResolveName(previousPmName)}, was removed from project #{p.Id}: {p.Name} as project manager.");
         #endregion
 
         #region Project Archived
         public static (string Title, string Message) ArchivedForProjectManager(ProjectForNotification p)
+            => ("Project archived",
+                $"Project #{p.Id}: {p.Name} was archived.");
+        public static (string Title, string Message) ArchivedForAdmins(ProjectForNotification p)
             => ("Project archived",
                 $"Project #{p.Id}: {p.Name} was archived.");
 
@@ -71,6 +82,13 @@ namespace WonderDevTracker.Services.Templates
         public static (string Title, string Message) RestoredForProjectMembers(ProjectForNotification p)
             => ("Project restored",
                 $"Project #{p.Id}: {p.Name} was restored.");
+        public static (string Title, string Message) RestoredForAdmins(ProjectForNotification p)
+            => ("Project restored",
+                $"Project #{p.Id}: {p.Name} was restored.");
         #endregion
+
+        private static string ResolveName(string? name)
+    => string.IsNullOrWhiteSpace(name) ? "Unknown user" : name;
     }
 }
+
