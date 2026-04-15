@@ -18,6 +18,19 @@ namespace WonderDevTracker.Services
                                           IProjectNotificationRecipientService projectRecipientService) : IProjectNotificationOrchestrator
     {
 
+        public async Task ProjectCreatedAsync(int projectId, UserInfo creator)
+        {
+            var context = await InitializeNotificationContextAsync(projectId, creator);
+
+            var adminRecipient = await projectRecipientService.GetCompanyAdminRecipientAsync(creator);
+            var(adminTitle, adminMessage) = ProjectNotificationTemplates.ProjectCreationForAdmin(context.Project);
+
+            AddNotificationOnce(context.Notifications, context.Recipients, adminRecipient, adminTitle, adminMessage,
+                NotificationType.Project, creator.UserId, projectId);
+            if (context.Notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(context.Notifications);
+        }
+
         public async Task ProjectMemberAddedAsync(int projectId, string addedUserId, UserInfo actor)
         {
             var context = await InitializeNotificationContextAsync(projectId, actor);
@@ -32,8 +45,10 @@ namespace WonderDevTracker.Services
 
             // 2. Project Manager
             var pmRecipient = await projectRecipientService.GetProjectManagerRecipientAsync(projectId, actor);
+            var userName = await projectRecipientService.GetUserDisplayNameAsync(addedUserId);
 
-            var (titlePm, messagePm) = ProjectNotificationTemplates.MemberAddedForProjectManager(context.Project);
+
+            var (titlePm, messagePm) = ProjectNotificationTemplates.MemberAddedForProjectManager(context.Project, userName);
 
             AddNotificationOnce(context.Notifications, context.Recipients, pmRecipient, titlePm, messagePm,
                 NotificationType.Project, actor.UserId, projectId);
@@ -42,7 +57,7 @@ namespace WonderDevTracker.Services
             var memberRecipients = await projectRecipientService
                 .GetProjectMemberRecipientsExcludingAsync(projectId, actor, addedUserId, pmRecipient);
 
-            var (titleMembers, messageMembers) = ProjectNotificationTemplates.MemberAddedForProjectMembers(context.Project);
+            var (titleMembers, messageMembers) = ProjectNotificationTemplates.MemberAddedForProjectMembers(context.Project, userName);
 
             foreach (var memberId in memberRecipients)
             {
@@ -68,8 +83,9 @@ namespace WonderDevTracker.Services
 
             // 2. Project Manager
             var pmRecipient = await projectRecipientService.GetProjectManagerRecipientAsync(projectId, actor);
+            var removedUserName = await projectRecipientService.GetUserDisplayNameAsync(removedUserId);
 
-            var (titlePm, messagePm) = ProjectNotificationTemplates.MemberRemovedForProjectManager(context.Project);
+            var (titlePm, messagePm) = ProjectNotificationTemplates.MemberRemovedForProjectManager(context.Project, removedUserName);
 
             AddNotificationOnce(context.Notifications, context.Recipients, pmRecipient, titlePm, messagePm,
                 NotificationType.Project, actor.UserId, projectId);
@@ -78,7 +94,7 @@ namespace WonderDevTracker.Services
             var memberRecipients = await projectRecipientService
                 .GetProjectMemberRecipientsExcludingAsync(projectId, actor, removedUserId, pmRecipient);
 
-            var (titleMembers, messageMembers) = ProjectNotificationTemplates.MemberRemovedForProjectMembers(context.Project);
+            var (titleMembers, messageMembers) = ProjectNotificationTemplates.MemberRemovedForProjectMembers(context.Project, removedUserName);
 
             foreach (var memberId in memberRecipients)
             {
@@ -101,6 +117,8 @@ namespace WonderDevTracker.Services
                 AddNotificationOnce(context.Notifications, context.Recipients, pmRecipient, titlePm, messagePm,
                     NotificationType.Project, actor.UserId,
                     projectId);
+
+
 
             // 2. Notify Admin(s) - if admin is not the actor 
             var adminRecipient = await projectRecipientService.GetCompanyAdminRecipientAsync(actor);
@@ -241,6 +259,8 @@ namespace WonderDevTracker.Services
                 Notifications: [],
                 Recipients: CreateRecipientSet());
         }
+
+       
 
         private sealed record ProjectNotificationContext(
         ProjectForNotification Project,

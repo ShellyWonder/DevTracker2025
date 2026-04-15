@@ -5,6 +5,14 @@ namespace WonderDevTracker.Services.Interfaces
     public interface IProjectNotificationOrchestrator
     {
         /// <summary>
+        /// Newly Created Project Notification
+        /// </summary>
+        /// <param name="projectId">Id of new project</param>
+        /// <param name="creator">Information about the user who created the project. Cannot be null.</param>
+        /// <returns>Handles company admin notification when a project is created if admin is not the creator.</returns>
+        Task ProjectCreatedAsync(int projectId, UserInfo creator);
+
+        /// <summary>
         /// Project Member Added Notification
         /// </summary>
         /// <param name="projectId">The project id.</param>
