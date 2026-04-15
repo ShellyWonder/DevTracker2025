@@ -30,6 +30,9 @@ namespace WonderDevTracker.Services
             dbProject = await projectRepository.CreateProjectAsync(dbProject, user)
                          ?? throw new InvalidOperationException("Project creation failed.");
 
+            //Notify company admin(if not the project creator)
+            await notificationOrchestrator.ProjectCreatedAsync(dbProject.Id, user);
+
             return dbProject.ToDTO();
         }
         #endregion
@@ -141,6 +144,9 @@ namespace WonderDevTracker.Services
         {
             await projectRepository.ArchiveProjectAsync(projectId, user);
 
+            //Notify company admin(if not the project archiver), project members, and project manager(if not the project archiver)
+            await notificationOrchestrator.ProjectArchivedAsync(projectId, user);
+
         }
 
         public async Task<IEnumerable<ProjectDTO>> GetAllArchivedProjectsAsync(UserInfo user)
@@ -154,6 +160,9 @@ namespace WonderDevTracker.Services
         public async Task RestoreProjectByIdAsync(int projectId, UserInfo user)
         {
             await projectRepository.RestoreProjectAsync(projectId, user);
+
+            //Notify company admin(if not the project restorer), project members, and project manager(if not the project restorer)
+            await notificationOrchestrator.ProjectRestoredAsync(projectId, user);
         }
         #endregion
 
@@ -188,11 +197,17 @@ namespace WonderDevTracker.Services
         public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
             await projectRepository.AddProjectMemberAsync(projectId, userId, user);
+
+            //Notify all team members (including the new member) and pm(if not the actor)
+            await notificationOrchestrator.ProjectMemberAddedAsync(projectId, userId, user);
         }
 
         public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
             await projectRepository.RemoveProjectMemberAsync(projectId, userId, user);
+
+            //Notify all team members (including the removed member) and pm(if not the actor)
+            await notificationOrchestrator.ProjectMemberRemovedAsync(projectId, userId, user);
         }
 
         public async Task AssignProjectManagerAsync(int projectId, string userId, UserInfo user)
@@ -206,8 +221,35 @@ namespace WonderDevTracker.Services
 
         public async Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user)
         {
+            var previousPmId = await projectRepository.GetProjectManagerIdAsync(projectId, user);
             // Use the unified setter to avoid legacy paths
             await projectRepository.SetProjectManagerAsync(projectId, managerId, user);
+
+            // No previous PM -> new assignment
+            if (string.IsNullOrWhiteSpace(previousPmId) && !string.IsNullOrWhiteSpace(managerId))
+            {
+                await notificationOrchestrator.ProjectManagerAssignedAsync(projectId, managerId, user);
+                return;
+            }
+
+            // Previous PM removed, no replacement
+            if (!string.IsNullOrWhiteSpace(previousPmId) && string.IsNullOrWhiteSpace(managerId))
+            {
+                await notificationOrchestrator.ProjectManagerRemovedAsync(projectId, previousPmId, user);
+                return;
+            }
+
+            // Previous PM replaced with a different PM
+            if (!string.IsNullOrWhiteSpace(previousPmId) &&
+                !string.IsNullOrWhiteSpace(managerId) &&
+                !string.Equals(previousPmId, managerId, StringComparison.Ordinal))
+            {
+                await notificationOrchestrator.ProjectManagerRemovedAsync(projectId, previousPmId, user);
+                await notificationOrchestrator.ProjectManagerAssignedAsync(projectId, managerId, user);
+                return;
+            }
+
+            // If previousPmId == managerId, no actual PM change occurred -> no notification
         }
 
         #endregion
