@@ -212,11 +212,11 @@ namespace WonderDevTracker.Services
 
         public async Task AssignProjectManagerAsync(int projectId, string userId, UserInfo user)
         {
-            await projectRepository.SetProjectManagerAsync(projectId, userId, user);
+            await SetProjectManagerAsync(projectId, userId, user);
         }
         public async Task RemoveProjectManagerAsync(int projectId, UserInfo user)
         {
-            await projectRepository.SetProjectManagerAsync(projectId, null, user);
+            await SetProjectManagerAsync(projectId, null, user);
         }
 
         public async Task SetProjectManagerAsync(int projectId, string? managerId, UserInfo user)
