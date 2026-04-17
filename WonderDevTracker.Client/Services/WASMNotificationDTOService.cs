@@ -6,9 +6,19 @@ namespace WonderDevTracker.Client.Services
 {
     public class WASMNotificationDTOService(HttpClient http) : INotificationDTOService
     {
-        public Task ArchiveNotificationAsync(int notificationId, string currentUserId, bool isAdmin)
+        public async Task ArchiveNotificationAsync(int notificationId, string currentUserId, bool isAdmin)
         {
-            throw new NotImplementedException();
+            try
+            {
+               var response = await http.DeleteAsync($"api/notifications/{notificationId}");
+                if(!response.IsSuccessStatusCode)
+                    throw new Exception($"Failed to archive notification {notificationId}. Status: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+            }
         }
 
         public Task CreateNotificationAsync(NotificationDTO notificationDTO)
@@ -16,9 +26,20 @@ namespace WonderDevTracker.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task<List<NotificationDTO>> GetForCurrentUserAsync(UserInfo userInfo, int take = 20)
+        public async Task<List<NotificationDTO>> GetForCurrentUserAsync(UserInfo userInfo, int take = 20)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var notifications = await http.GetFromJsonAsync<List<NotificationDTO>>($"api/notifications?take={take}")
+                    ?? throw new Exception("Failed to fetch notifications.");
+                return notifications;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return [];
+            }
         }
 
         public async Task<List<NotificationDTO>> GetArchivedForCurrentUserAsync(string currentUserId, int take = 20)
@@ -42,19 +63,57 @@ namespace WonderDevTracker.Client.Services
 
         }
 
-        public Task<List<NotificationDTO>> GetForUserAsAdminAsync(string targetUserId, UserInfo adminUserInfo, int take = 20)
+        public async Task<List<NotificationDTO>> GetForUserAsAdminAsync(string targetUserId, UserInfo adminUserInfo, int take = 20)
         {
-            throw new NotImplementedException();
+            try
+            {
+                // adminUserInfo not used — API derives admin identity/authorization from claims
+                var adminNotifications = await http.GetFromJsonAsync<List<NotificationDTO>>($"api/notifications/user/{targetUserId}?take={take}")
+                        ?? throw new Exception($"Failed to fetch notifications for user {targetUserId}.");
+                return adminNotifications;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return [];
+            }
         }
 
-        public Task<int> GetUnreadCountForCurrentUserAsync(UserInfo userInfo)
+        public async Task<int> GetUnreadCountForCurrentUserAsync(UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            try
+            {
+                int UnreadCount = await http.GetFromJsonAsync<int?>("api/notifications/unreadCount") 
+                    ?? throw new Exception("Failed to fetch unread count.");
+                if (UnreadCount < 0) throw new Exception("Unread count cannot be negative.");
+                
+                return UnreadCount;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return 0;
+            }
         }
 
-        public Task MarkViewedAsync(int notificationId, string currentUserId)
+        public async Task MarkViewedAsync(int notificationId, string currentUserId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                // currentUserId not used — server derives user from auth context
+                var response = await http.PutAsync($"api/notifications/{notificationId}/viewed", null);
+                if(!response.IsSuccessStatusCode)             
+                    throw new Exception($"Failed to mark notification {notificationId} as viewed. Status: {response.StatusCode}");
+                
+            }
+
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"Error marking notification {notificationId} as viewed: {ex.Message}");
+            }
         }
 
         public Task RestoreNotificationAsync(int notificationId, string currentUserId, bool isAdmin)

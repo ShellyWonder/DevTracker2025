@@ -45,7 +45,7 @@ namespace WonderDevTracker.Controllers
         
         [HttpGet("user/{userId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetForUser([FromRoute] string userId, [FromQuery] int take = 20)
+        public async Task<IActionResult> GetForUserAsAdmin([FromRoute] string userId, [FromQuery] int take = 20)
         {
 
             if (UserInfo is null) return Unauthorized();
@@ -86,7 +86,7 @@ namespace WonderDevTracker.Controllers
         }
 
         [HttpPut("{id:int}/viewed")]
-        public async Task<IActionResult> MarkViewed([FromRoute] int id)
+        public async Task<IActionResult> MarkViewedAsync([FromRoute] int id)
         {
             if (UserInfo is null) return Unauthorized();
             await notificationService.MarkViewedAsync(id, UserInfo.UserId);

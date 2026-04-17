@@ -72,7 +72,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="isAdmin">A value indicating whether the operation is performed with administrative privileges. If <see
         /// langword="true"/>, the operation may bypass certain user-specific restrictions.</param>
         /// <returns>A task that represents the asynchronous archive operation.</returns>
-        Task ArchiveNotificationAsync(int notificationId, string userId, bool isAdmin);
+        public Task ArchiveNotificationAsync(int notificationId, string userId, bool isAdmin);
 
         /// <summary>
         /// Restores a previously deleted notification for the specified user.
@@ -82,6 +82,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="isAdmin">A value indicating whether the operation is performed with administrative privileges. Set to <see
         /// langword="true"/> to restore notifications as an administrator; otherwise, <see langword="false"/>.</param>
         /// <returns>A task that represents the asynchronous restore operation.</returns>
-        Task RestoreNotificationAsync(int notificationId, string userId, bool isAdmin);
+        public Task RestoreNotificationAsync(int notificationId, string userId, bool isAdmin);
+
     }
 }

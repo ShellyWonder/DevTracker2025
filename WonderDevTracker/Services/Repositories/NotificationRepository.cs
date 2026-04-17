@@ -33,7 +33,7 @@ namespace WonderDevTracker.Services.Repositories
                .Take(take)
                .ToListAsync();
         }
-
+        
         public async Task<List<Notification>> GetArchivedByRecipientAsync(string recipientId, int take = 20)
         {
             await using var db = await context.CreateDbContextAsync();

@@ -1,5 +1,6 @@
 ﻿using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
@@ -67,14 +68,32 @@ namespace WonderDevTracker.Services
             })];
         }
 
-        public Task<List<NotificationDTO>> GetForUserAsAdminAsync(string targetUserId, UserInfo adminUserInfo, int take = 20)
+        public async Task<List<NotificationDTO>> GetForUserAsAdminAsync(string targetUserId, UserInfo adminUserInfo, int take = 20)
         {
-            throw new NotImplementedException();
+            if (!adminUserInfo.IsInRole(Role.Admin))
+                throw new UnauthorizedAccessException("Only admins can access other users' notifications.");
+
+            var notifications = await notificationRepository.GetByRecipientAsync(targetUserId, take);
+            return [.. notifications.Select(n => new NotificationDTO
+            {
+                Id = n.Id,
+                Title = n.Title!,
+                Message = n.Message!,
+                Type = n.Type,
+                Created = n.Created,
+                HasBeenViewed = n.HasBeenViewed,
+        
+                SenderId = n.SenderId!,
+                RecipientId = n.RecipientId!,
+
+                TicketId = n.TicketId,
+                ProjectId = n.ProjectId
+            })];
         }
 
-        public Task<int> GetUnreadCountForCurrentUserAsync(UserInfo userInfo)
+        public async Task<int> GetUnreadCountForCurrentUserAsync(UserInfo userInfo)
         {
-            throw new NotImplementedException();
+           return await notificationRepository.GetUnreadCountAsync(userInfo.UserId);
         }
 
         public async Task MarkViewedAsync(int notificationId, string recipientId)
