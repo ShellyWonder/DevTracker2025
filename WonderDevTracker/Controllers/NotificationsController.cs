@@ -15,11 +15,20 @@ namespace WonderDevTracker.Controllers
         // Check if the user is authenticated
         private UserInfo? UserInfo => UserInfoHelper.GetUserInfo(User);
 
+        #region GET
         [HttpGet]
         public async Task<IActionResult> GetUserNotifications([FromQuery] int take = 20)
         {
             if (UserInfo is null) return Unauthorized();
             var items = await notificationService.GetForCurrentUserAsync(UserInfo.UserId, take);
+            return Ok(items);
+
+        }
+        [HttpGet("archived")]
+        public async Task<IActionResult> GetUserArchivedNotifications([FromQuery] int take = 20)
+        {
+            if (UserInfo is null) return Unauthorized();
+            var items = await notificationService.GetArchivedForCurrentUserAsync(UserInfo.UserId, take);
             return Ok(items);
 
         }
@@ -33,14 +42,7 @@ namespace WonderDevTracker.Controllers
             return Ok(count);
         }
 
-        [HttpPut("{id:int}/viewed")]
-        public async Task<IActionResult> MarkViewed([FromRoute] int id)
-        {
-            if (UserInfo is null) return Unauthorized();
-            await notificationService.MarkViewedAsync(id, UserInfo.UserId);
-            return NoContent();
-        }
-
+        
         [HttpGet("user/{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetForUser([FromRoute] string userId, [FromQuery] int take = 20)
@@ -51,7 +53,9 @@ namespace WonderDevTracker.Controllers
             var items = await notificationService.GetForUserAsAdminAsync(userId, UserInfo, take);
             return Ok(items);
         }
+        #endregion
 
+        #region ARCHIVE/DELETE
         // SOFT DELETE 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> ArchiveNotification([FromRoute] int id)
@@ -66,6 +70,9 @@ namespace WonderDevTracker.Controllers
             await notificationService.ArchiveNotificationAsync(id, currentUserId, isAdmin);
             return NoContent();
         }
+        #endregion
+
+        #region PUT
         [HttpPut("{id:int}/restore")]
         public async Task<IActionResult> RestoreNotification([FromRoute] int id)
         {
@@ -77,5 +84,14 @@ namespace WonderDevTracker.Controllers
             await notificationService.RestoreNotificationAsync(id, currentUserId, isAdmin);
             return NoContent();
         }
+
+        [HttpPut("{id:int}/viewed")]
+        public async Task<IActionResult> MarkViewed([FromRoute] int id)
+        {
+            if (UserInfo is null) return Unauthorized();
+            await notificationService.MarkViewedAsync(id, UserInfo.UserId);
+            return NoContent();
+        }
+        #endregion
     }
 }
