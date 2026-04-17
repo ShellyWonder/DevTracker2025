@@ -45,6 +45,27 @@ namespace WonderDevTracker.Services
                 ProjectId = n.ProjectId
             })];
         }
+        public async Task<List<NotificationDTO>> GetArchivedForCurrentUserAsync(string currentUserId, int take = 20)
+        {
+            var notifications = await notificationRepository
+                .GetArchivedByRecipientAsync(currentUserId, take);
+            return [.. notifications.Select(n => new NotificationDTO
+            {
+                Id = n.Id,
+                Title = n.Title!,
+                Message = n.Message!,
+                Type = n.Type,
+                Created = n.Created,
+                HasBeenViewed = n.HasBeenViewed,
+                ArchivedAt = n.ArchivedAt,
+
+                SenderId = n.SenderId!,
+                RecipientId = n.RecipientId!,
+
+                TicketId = n.TicketId,
+                ProjectId = n.ProjectId
+            })];
+        }
 
         public Task<List<NotificationDTO>> GetForUserAsAdminAsync(string targetUserId, UserInfo adminUserInfo, int take = 20)
         {
@@ -70,5 +91,6 @@ namespace WonderDevTracker.Services
         {
             await notificationRepository.RestoreNotificationAsync(notificationId, currentUserId, isAdmin);
         }
+
     }
 }

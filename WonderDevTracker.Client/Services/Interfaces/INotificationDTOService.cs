@@ -21,6 +21,14 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// specified user. The list will be empty if no notifications are found.</returns>
         public Task<List<NotificationDTO>> GetForCurrentUserAsync(string currentUserId, int take = 20);
 
+        /// <summary>
+        /// Gets archived notifications for the current user.
+        /// </summary>
+        /// <param name="currentUserId">Current user's identifier.</param>
+        /// <param name="take">Maximum number of notifications to return; defaults to 20.</param>
+        /// <returns>A task that returns a list of archived NotificationDTO objects per specified user.</returns>
+        Task<List<NotificationDTO>> GetArchivedForCurrentUserAsync(string currentUserId, int take = 20);
+
 
         /// <summary>
         /// Asynchronously retrieves the number of unread messages for the specified user.

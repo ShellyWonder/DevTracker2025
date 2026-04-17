@@ -22,6 +22,15 @@ namespace WonderDevTracker.Services.Interfaces
         public Task<List<Notification>> GetByRecipientAsync(string recipientId, int take);
 
         /// <summary>
+        /// Gets archived notifications for the specified recipient asynchronously.
+        /// </summary>
+        /// <param name="recipientId">The recipient identifier.</param>
+        /// <param name="take">The maximum number of notifications to return.</param>
+        /// <returns>A task that returns a list of archived notifications for the specified recipient.</returns>
+        public Task<List<Notification>> GetArchivedByRecipientAsync(string recipientId, int take);
+
+
+        /// <summary>
         /// Asynchronously retrieves the number of unread messages for the specified recipient.
         /// </summary>
         /// <param name="recipientId">The unique identifier of the recipient whose unread message count is to be retrieved. Cannot be null or

@@ -34,6 +34,17 @@ namespace WonderDevTracker.Services.Repositories
                .ToListAsync();
         }
 
+        public async Task<List<Notification>> GetArchivedByRecipientAsync(string recipientId, int take = 20)
+        {
+            await using var db = await context.CreateDbContextAsync();
+
+            return await db.Notifications
+                .Where(n => n.RecipientId == recipientId && n.IsArchived)
+                .OrderByDescending(n => n.Created)
+                .Take(take)
+                .ToListAsync();
+        }
+
         public async Task<Notification?> GetNotificationById(int id)
         {
             await using var db = await context.CreateDbContextAsync();
@@ -73,9 +84,8 @@ namespace WonderDevTracker.Services.Repositories
             await using var db = await context.CreateDbContextAsync();
 
             var notification = await db.Notifications
-                .FirstOrDefaultAsync(n => n.Id == notificationId);
-
-            if (notification is null) return;
+                .FirstOrDefaultAsync(n => n.Id == notificationId) 
+                ?? throw new InvalidOperationException("Notification not found.");
 
             bool isRecipient = notification.RecipientId == userId;
 
@@ -86,8 +96,20 @@ namespace WonderDevTracker.Services.Repositories
                         : "User not authorized to restore this notification.");
 
             // no-op guard
-            if (notification.IsArchived == archived)
-                return;
+            // Guard against redundant operations.
+            // "archived" represents the desired state:
+            //   true  → archive the notification
+            //   false → restore the notification
+            //
+            // If the notification is already in that state (IsArchived == archived),
+            // then this is a no-op (e.g., archiving something already archived,
+            // or restoring something already active), so we throw to prevent
+            // unnecessary updates and incorrect downstream behavior (like notifications).
+            if (notification.IsArchived == archived) throw new InvalidOperationException(
+                archived
+                    ? "Notification is already archived."
+                    : "Notification is not archived.");
+
 
             notification.IsArchived = archived;
 
