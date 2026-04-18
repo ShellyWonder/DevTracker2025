@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Helpers;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 
@@ -55,6 +56,17 @@ namespace WonderDevTracker.Controllers
         }
         #endregion
 
+        #region POST/CREATE
+        [HttpPost]
+        public async Task<IActionResult> CreateNotification([FromBody] NotificationDTO notificationDTO)
+        {
+            if (UserInfo is null) return Unauthorized();
+            await notificationService.CreateNotificationAsync(notificationDTO);
+            return CreatedAtAction(nameof(GetUserNotifications), new { take = 1 }, notificationDTO);
+        }
+
+        #endregion
+
         #region ARCHIVE/DELETE
         // SOFT DELETE 
         [HttpDelete("{id:int}")]
@@ -72,7 +84,7 @@ namespace WonderDevTracker.Controllers
         }
         #endregion
 
-        #region PUT
+        #region PUT/UPDATE/RESTORE
         [HttpPut("{id:int}/restore")]
         public async Task<IActionResult> RestoreNotification([FromRoute] int id)
         {

@@ -21,15 +21,28 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public Task CreateNotificationAsync(NotificationDTO notificationDTO)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<List<NotificationDTO>> GetForCurrentUserAsync(UserInfo userInfo, int take = 20)
+        public async Task CreateNotificationAsync(NotificationDTO notificationDTO)
         {
             try
             {
+                var response = await http.PostAsJsonAsync("api/notifications", notificationDTO);
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Failed to create notification. Status: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+               
+            }
+        }
+
+        public async Task<List<NotificationDTO>> GetForCurrentUserAsync(string currentUserId, int take = 20)
+        {
+            try
+            {
+                // currentUserId is unused on the client.
+                // The API derives the current user from authenticated claims.
                 var notifications = await http.GetFromJsonAsync<List<NotificationDTO>>($"api/notifications?take={take}")
                     ?? throw new Exception("Failed to fetch notifications.");
                 return notifications;
@@ -60,7 +73,6 @@ namespace WonderDevTracker.Client.Services
                 Console.WriteLine($"Error fetching archived notifications: {ex.Message}");
                 return [];
             }
-
         }
 
         public async Task<List<NotificationDTO>> GetForUserAsAdminAsync(string targetUserId, UserInfo adminUserInfo, int take = 20)
@@ -84,7 +96,7 @@ namespace WonderDevTracker.Client.Services
         {
             try
             {
-                int UnreadCount = await http.GetFromJsonAsync<int?>("api/notifications/unreadCount") 
+                int UnreadCount = await http.GetFromJsonAsync<int?>("api/notifications/unread-count") 
                     ?? throw new Exception("Failed to fetch unread count.");
                 if (UnreadCount < 0) throw new Exception("Unread count cannot be negative.");
                 
@@ -116,14 +128,21 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public Task RestoreNotificationAsync(int notificationId, string currentUserId, bool isAdmin)
+        public async Task RestoreNotificationAsync(int notificationId, string currentUserId, bool isAdmin)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await http.PutAsync($"api/notifications/{notificationId}/restore", null);
+                if(!response.IsSuccessStatusCode)
+                    throw new Exception($"Failed to restore notification {notificationId}. Status: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+            }
         }
 
-        public Task<List<NotificationDTO>> GetForCurrentUserAsync(string currentUserId, int take = 20)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }
