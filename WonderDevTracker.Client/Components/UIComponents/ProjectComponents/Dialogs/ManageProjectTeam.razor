@@ -81,7 +81,11 @@
 		if (Project is null) return;
 
 		//Get existing project members
-		existingMemberIds = Project.Members?.Select(m => m.Id) ?? [];
+		existingMemberIds = Project.Members?
+			.Select(m => m.Id)
+			.Where(id => id != Project.ProjectManagerId)
+			?? []; 
+			
 		try
 		{
 			//Get all available users in roles
