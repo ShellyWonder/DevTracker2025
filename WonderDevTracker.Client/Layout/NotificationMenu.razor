@@ -28,7 +28,7 @@
 		@if (IsLoading)
 		{
 			<MudMenuItem Disabled="true">
-				<LoadingSpinner Message="Loading project details..." Color="Color.Primary" Size="Size.Large" />
+				<LoadingSpinner Message="Loading Notifications..." Color="Color.Primary" Size="Size.Large" />
 			</MudMenuItem>
 
 		}
@@ -37,7 +37,7 @@
 
 			<MudMenuItem Disabled="true">
 				<div class="py-5 text-center">
-					<MudText Typo="Typo.button">No New Notifications</MudText>
+					<MudText Typo="Typo.button" Color="Color.Warning">No New Notifications</MudText>
 				</div>
 			</MudMenuItem>
 
@@ -48,7 +48,8 @@
 			{
 
 				<MudMenuItem OnClick="() => OpenNotificationAsync(notification)">
-					<div class="notification-menu-item">
+					<div class="notification-menu-item @(notification.HasBeenViewed ? "read" : "unread")">
+						
 						<MudText Typo="Typo.subtitle2">
 							@notification.Title
 						</MudText>

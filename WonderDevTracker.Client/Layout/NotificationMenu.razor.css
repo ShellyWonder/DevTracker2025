@@ -1,0 +1,14 @@
+﻿/*NotificationMenu.razor.css*/
+.notification-menu-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 0;
+}
+    .notification-menu-item.unread {
+        font-weight: 500;
+    }
+
+    .notification-menu-item.read {
+        opacity: 0.7;
+    }
