@@ -1,0 +1,26 @@
+﻿@* NotificationMenu *@
+
+@inject NavigationManager NavManager
+@inject INotificationDTOService NotificationService
+
+@inherits AuthenticatedComponentBase
+
+<MudMenu Icon="@Icons.Material.Filled.Notifications"
+		Color="Color.Inherit"
+		AnchorOrigin="Origin.BottomLeft"
+		TransformOrigin="Origin.TopRight"
+		Size="Size.Small"
+		Dense
+>
+	<MudMenuItem Disabled>
+		<div class="py-5 text-center">
+			<MudText Typo="Typo.button" Color="Color.Dark">
+				No New Notifications
+				</MudText>
+		</div>
+	</MudMenuItem>
+</MudMenu>
+
+@code {
+
+}

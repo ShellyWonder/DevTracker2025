@@ -15,8 +15,13 @@
 
 <MudLayout>
     <MudAppBar Elevation="1">
+   
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => DrawerToggle())" />
         <AppLogo />
+        <div class="ms-auto">
+            <NotificationMenu />
+             
+        </div>
     </MudAppBar>
 
 
