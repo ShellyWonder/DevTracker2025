@@ -6,21 +6,140 @@
 @inherits AuthenticatedComponentBase
 
 <MudMenu Icon="@Icons.Material.Filled.Notifications"
-		Color="Color.Inherit"
-		AnchorOrigin="Origin.BottomLeft"
-		TransformOrigin="Origin.TopRight"
-		Size="Size.Small"
-		Dense
->
-	<MudMenuItem Disabled>
-		<div class="py-5 text-center">
-			<MudText Typo="Typo.button" Color="Color.Dark">
-				No New Notifications
-				</MudText>
-		</div>
-	</MudMenuItem>
+		 Color="Color.Inherit"
+		 AnchorOrigin="Origin.BottomLeft"
+		 TransformOrigin="Origin.TopRight"
+		 Size="Size.Small"
+		 Dense
+		 OffsetY="true">
+
+	<ActivatorContent>
+		<MudBadge Content="@UnreadCount"
+				  Invisible="@(UnreadCount <= 0)"
+				  Color="Color.Error"
+				  Overlap="true">
+			<MudIconButton Icon="@Icons.Material.Filled.Notifications"
+						   Color="Color.Inherit"
+						   Size="Size.Medium"
+						   AriaLabel="Notifications" />
+		</MudBadge>
+	</ActivatorContent>
+	<ChildContent>
+		@if (IsLoading)
+		{
+			<MudMenuItem Disabled="true">
+				<LoadingSpinner Message="Loading project details..." Color="Color.Primary" Size="Size.Large" />
+			</MudMenuItem>
+
+		}
+		else if (Notifications.Count == 0)
+		{
+
+			<MudMenuItem Disabled="true">
+				<div class="py-5 text-center">
+					<MudText Typo="Typo.button">No New Notifications</MudText>
+				</div>
+			</MudMenuItem>
+
+		}
+		else
+		{
+			@foreach (var notification in Notifications)
+			{
+
+				<MudMenuItem OnClick="() => OpenNotificationAsync(notification)">
+					<div class="notification-menu-item">
+						<MudText Typo="Typo.subtitle2">
+							@notification.Title
+						</MudText>
+						<MudText Typo="Typo.body2" Class="text-truncate">
+							@GetPreviewText(notification.Message)
+						</MudText>
+						<MudText Typo="Typo.caption">
+							@notification.Created.LocalDateTime.ToString("g")
+						</MudText>
+					</div>
+				</MudMenuItem>
+			}
+
+			<MudDivider />
+
+			<MudMenuItem OnClick="GoToNotificationCenter">
+				<MudText Typo="Typo.button">View all notifications</MudText>
+			</MudMenuItem>
+		}
+	</ChildContent>
 </MudMenu>
 
 @code {
 
+	#region Local state variables
+
+	private const int Take = 5;
+	private bool IsLoading = true;
+	private int UnreadCount;
+	private List<NotificationDTO> Notifications = [];
+	#endregion
+
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+		if (!IsAuthenticated || UserInfo is null)
+			return;
+		await LoadMenuAsync();
+	}
+
+	private async Task LoadMenuAsync()
+	{
+		IsLoading = true;
+
+		try
+		{
+			UnreadCount = await NotificationService.GetUnreadCountForCurrentUserAsync(UserInfo!);
+
+			Notifications = await NotificationService
+				.GetForCurrentUserAsync(UserInfo!.UserId, Take);
+		}
+		finally
+		{
+			IsLoading = false;
+		}
+	}
+
+	private async Task OpenNotificationAsync(NotificationDTO notification)
+	{
+		if (!notification.HasBeenViewed)
+		{
+			await NotificationService.MarkViewedAsync(notification.Id, UserInfo!.UserId);
+			notification.HasBeenViewed = true;
+
+			if (UnreadCount > 0)
+				UnreadCount--;
+		}
+
+		NavManager.NavigateTo(GetNotificationTarget(notification));
+	}
+
+	private void GoToNotificationCenter()
+	=> NavManager.NavigateTo("/dashboard");
+
+
+	private static string GetPreviewText(string? text, int maxLength = 70)
+	{
+		if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+		return text.Length <= maxLength ? text : $"{text[..maxLength]}...";
+	}
+
+	private static string GetNotificationTarget(NotificationDTO notification)
+	{
+		if (notification.TicketId is int ticketId)
+			return $"/tickets/{ticketId}";
+
+		if (notification.ProjectId is int projectId)
+			return $"/projects/{projectId}";
+
+		return "/dashboard";
+	}
+
+		
 }
+
