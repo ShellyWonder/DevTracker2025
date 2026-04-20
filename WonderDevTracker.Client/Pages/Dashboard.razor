@@ -1,0 +1,90 @@
+﻿@* dashboard *@
+@page "/dashboard"
+@attribute [Authorize]
+
+@using WonderDevTracker.Client.Helpers
+@using MudBlazor
+
+@inject IProjectDTOService ProjectService
+@inject ITicketDTOService TicketService
+@inject ICompanyDTOService CompanyService
+@inject IAppAuthorizationService AuthService
+@inject IndexTrackerHelper IndexTracker
+@inject NavigationManager NavManager
+@inject INotificationDTOService NotificationService
+@inject ISnackbar Snackbar
+
+@inherits AuthenticatedComponentBase
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
+	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+	@if (!_loadingComplete)
+	{
+		<LoadingSpinner Message="Loading dashboard details..." Color="Color.Primary" Size="Size.Large" />
+	}
+	else if (_user is not null)
+	{
+		@* Reset Index at start of render;
+					controls the index for components that use IndexTracker.*@
+		ResetIndex();
+		<PageTitle>Dashboard | Dev Tracker</PageTitle>
+
+		<div class="vstack gap-3">
+		</div>
+	}
+	else
+	{
+		<PageTitle>Dashboard Details Not Found | Dev Tracker</PageTitle>
+
+		<NotFoundFull Message="Error loading dashboard details."
+					  ReturnUrl="/"
+					  ReturnLabel="Home Page"
+					  ForwardUrl="/account/login"
+					  ForwardLabel="Login Page" />
+
+	}
+	</MudContainer>
+	@code {
+	#region STATE
+
+	private AppUserDTO? _user;
+	private TicketDTO? _ticket;
+	private CompanyDTO? _company;
+	private ProjectDTO? _project;
+	private NotificationDTO? _notification;
+	private List<NotificationDTO> _notifications = [];
+	private List<TicketDTO> _tickets = [];
+	private List<ProjectDTO> _projects = [];
+	private List<BreadcrumbItem> breadcrumbs = [];
+	private bool _loadingComplete = false;
+	#endregion
+	#region UI HELPERS & COMPUTED
+	private void ResetIndex() => IndexTracker.Reset();
+	#endregion
+
+	#region LIFECYCLE
+	protected override async Task OnInitializedWithAuthAsync()
+	{
+		try
+		{
+			throw new NotImplementedException("Dashboard details loading not implemented yet.");
+
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			Snackbar.Add("Error loading dashboard details.", Severity.Error);
+		}
+		_loadingComplete = true;
+
+
+		breadcrumbs = [
+
+					new BreadcrumbItem("Home", href: "/"),
+				new BreadcrumbItem("Dashboard", href: "/dashboard"),
+			];
+		breadcrumbs.Add(new BreadcrumbItem(_user?.FullName ?? "User Not Found", href: null, disabled: true));
+
+	}
+	#endregion
+}
