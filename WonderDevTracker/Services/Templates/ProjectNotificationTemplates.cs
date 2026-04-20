@@ -7,89 +7,89 @@ namespace WonderDevTracker.Services.Templates
     {
         #region PROJECT CREATED
         public static (string Title, string Message) ProjectCreationForAdmin(ProjectForNotification p)
-            => ("Project created",
+            => ("New Project Created",
                 $"Project #{p.Id}: {p.Name} was created.");
         #endregion
 
         #region Project Member Added
         public static (string Title, string Message) MemberAddedForAddedUser(ProjectForNotification p)
-            => ("Added to project",
-                $"You were added to project #{p.Id}: {p.Name}");
+            => ("Project Addition",
+                $"You've been added to project #{p.Id}: {p.Name}. Please contact the project manager with any questions.");
 
         public static (string Title, string Message) MemberAddedForProjectManager(ProjectForNotification p, string? addedUserId)
-            => ("Project team updated",
-                $"Team member {ResolveName(addedUserId)} was added to project #{p.Id}: {p.Name}");
+            => ("Project Team Updated",
+                $"Team member {ResolveName(addedUserId)} is added to project #{p.Id}: {p.Name}.");
 
         public static (string Title, string Message) MemberAddedForProjectMembers(ProjectForNotification p, string? addedUserId)
-            => ("Project team updated",
-                $"Team member {ResolveName(addedUserId)} was added to project #{p.Id}: {p.Name}");
+            => ("Project Team Updated",
+                $"Team member {ResolveName(addedUserId)} is added to project #{p.Id}: {p.Name}.");
         #endregion
 
         #region Project Member Removed
         public static (string Title, string Message) MemberRemovedForRemovedUser(ProjectForNotification p)
-            => ("Removed from project",
+            => ("Removed from Project",
                 $"You were removed from project #{p.Id}: {p.Name}. If you think this is a mistake, please contact your project manager.");
 
         public static (string Title, string Message) MemberRemovedForProjectManager(ProjectForNotification p, string? removedUserName)
-            => ("Project team updated",
+            => ("Project Team Updated",
                 $"Team member {ResolveName(removedUserName)} was removed from project #{p.Id}: {p.Name}");
 
         public static (string Title, string Message) MemberRemovedForProjectMembers(ProjectForNotification p, string? removedUserName)
-            => ("Project team updated",
-                $"Team member {ResolveName(removedUserName)} was removed from project #{p.Id}: {p.Name}");
+            => ("Project Team Updated",
+                $"Team member {ResolveName(removedUserName)} was removed from project #{p.Id}: {p.Name}.");
         #endregion
 
         #region Project Manager Assigned
         public static (string Title, string Message) ProjectManagerAssignedForAssignedPm(ProjectForNotification p)
-            => ("Project manager assigned",
-                $"You were assigned as project manager for project #{p.Id}: {p.Name}. " +
+            => ("Project Manager Assigned",
+                $"You've been assigned project manager for project #{p.Id}: {p.Name}. " +
             $"If you think this is a mistake, please contact the company administrator.");
 
         public static (string Title, string Message) ProjectManagerAssignedForProjectMembers(ProjectForNotification p, string? pmName)
-            => ("Project manager assigned",
+            => ("Project Manager Assigned",
                 $"{ResolveName(pmName)} was assigned to project #{p.Id}: {p.Name} as project manager.");
         public static (string Title, string Message) ProjectManagerAssignedForAdmins(ProjectForNotification p, string? pmName)
-            => ("Project manager assigned",
+            => ("Project Manager Assigned",
                 $"{ResolveName(pmName)} was assigned to project #{p.Id}: {p.Name} as project manager.");
         #endregion
 
         #region Project Manager Removed
         public static (string Title, string Message) ProjectManagerRemovedForPreviousPm(ProjectForNotification p)
-            => ("Project manager removed",
-                $"You were removed as project manager for project #{p.Id}: {p.Name}. " +
+            => ("Project Manager Removed",
+                $"You've been removed as project manager for project #{p.Id}: {p.Name}. " +
             $"If you think this is a mistake, please contact the company administrator.");
 
         public static (string Title, string Message) ProjectManagerRemovedForProjectMembers(ProjectForNotification p, string? previousPmName)
-            => ("Project manager removed",
+            => ("Project Manager Removed",
                 $"{ResolveName(previousPmName)} was removed from project #{p.Id}: {p.Name} as project manager.");
         public static (string Title, string Message) ProjectManagerRemovedForAdmins(ProjectForNotification p, string? previousPmName)
-            => ("Project manager removed",
+            => ("Project Manager Removed",
                 $"{ResolveName(previousPmName)} was removed from project #{p.Id}: {p.Name} as project manager.");
         #endregion
 
         #region Project Archived
         public static (string Title, string Message) ArchivedForProjectManager(ProjectForNotification p)
-            => ("Project archived",
+            => ("Project Archived",
                 $"Project #{p.Id}: {p.Name} was archived.");
         public static (string Title, string Message) ArchivedForAdmins(ProjectForNotification p)
-            => ("Project archived",
+            => ("Project Archived",
                 $"Project #{p.Id}: {p.Name} was archived.");
 
         public static (string Title, string Message) ArchivedForProjectMembers(ProjectForNotification p)
-            => ("Project archived",
+            => ("Project Archived",
                 $"Project #{p.Id}: {p.Name} was archived.");
         #endregion
 
         #region Project Restored
         public static (string Title, string Message) RestoredForProjectManager(ProjectForNotification p)
-            => ("Project restored",
+            => ("Project Restored",
                 $"Project #{p.Id}: {p.Name} was restored.");
 
         public static (string Title, string Message) RestoredForProjectMembers(ProjectForNotification p)
-            => ("Project restored",
+            => ("Project Restored",
                 $"Project #{p.Id}: {p.Name} was restored.");
         public static (string Title, string Message) RestoredForAdmins(ProjectForNotification p)
-            => ("Project restored",
+            => ("Project Restored",
                 $"Project #{p.Id}: {p.Name} was restored.");
         #endregion
 

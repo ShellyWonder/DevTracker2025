@@ -5,6 +5,34 @@
 @inherits AuthenticatedComponentBase
 
 <MudNavMenu>
+	<MudNavGroup Title="Account" Expanded>
+		<AuthorizeView>
+			<Authorized>
+				<MudNavLink Href="/account/manage" Icon="@Icons.Material.Filled.Person">
+					Hello, @UserInfoHelper.GetUserInfo(context)?.FullName!
+				</MudNavLink>
+				<MudNavLink ActiveClass=""
+							Icon="@Icons.Material.Filled.Logout"
+							UserAttributes="@(new() {["onclick"] = "logoutForm.submit()" })">
+					Logout
+				</MudNavLink>
+				<form action="Account/Logout" method="post" id="logoutForm" class="d-none">
+					<AntiforgeryToken />
+					<input type="hidden" name="ReturnUrl" value="@currentUrl" />
+				</form>
+			</Authorized>
+
+			<NotAuthorized>
+				<MudNavLink Href="/account/login" Icon="@Icons.Material.Filled.Login">
+					Login
+				</MudNavLink>
+				<MudNavLink Href="/account/register" Icon="@Icons.Material.Filled.AppRegistration">
+					Register
+				</MudNavLink>
+			</NotAuthorized>
+		</AuthorizeView>
+	</MudNavGroup>
+
 	<AuthorizeView>
 		<MudNavGroup Title="Company" Expanded>
 			<MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">
@@ -56,36 +84,7 @@
 		</MudNavGroup>
 	</AuthorizeView>
 
-	<MudNavGroup Title="Account" Expanded>
 
-		<AuthorizeView>
-
-			<Authorized>
-				<MudNavLink Href="/account/manage" Icon="@Icons.Material.Filled.Person">
-					@UserInfoHelper.GetUserInfo(context)?.FullName
-				</MudNavLink>
-				<MudNavLink ActiveClass=""
-							Icon="@Icons.Material.Filled.Logout"
-							UserAttributes="@(new() {["onclick"] = "logoutForm.submit()" })">
-					Logout
-				</MudNavLink>
-				<form action="Account/Logout" method="post" id="logoutForm" class="d-none">
-					<AntiforgeryToken />
-					<input type="hidden" name="ReturnUrl" value="@currentUrl" />
-				</form>
-			</Authorized>
-
-			<NotAuthorized>
-				<MudNavLink Href="/account/login" Icon="@Icons.Material.Filled.Login">
-					Login
-				</MudNavLink>
-				<MudNavLink Href="/account/register" Icon="@Icons.Material.Filled.AppRegistration">
-					Register
-				</MudNavLink>
-			</NotAuthorized>
-
-		</AuthorizeView>
-	</MudNavGroup>
 </MudNavMenu>
 
 
