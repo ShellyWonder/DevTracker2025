@@ -2,13 +2,50 @@
 .notification-menu-item {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 4px 0;
+    gap: 4px;
+    min-width: 320px;
+    max-width: 420px;
+    padding: 6px 0;
 }
-    .notification-menu-item.unread {
+
+.notification-menu-top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notification-title {
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.notification-message {
+    line-height: 1.35;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-timestamp {
+    opacity: 0.75;
+}
+
+.notification-unread-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex: 0 0 8px;
+    background-color: var(--mud-palette-primary);
+}
+
+.notification-menu-item.read {
+    opacity: 0.78;
+}
+
+    .notification-menu-item.read .notification-title {
         font-weight: 500;
     }
 
-    .notification-menu-item.read {
-        opacity: 0.7;
-    }
+.notification-menu-item.unread {
+    opacity: 1;
+}

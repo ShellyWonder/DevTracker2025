@@ -1,5 +1,7 @@
 ﻿@* NotificationMenu *@
 
+@using WonderDevTracker.Client.Helpers
+
 @inject NavigationManager NavManager
 @inject INotificationDTOService NotificationService
 
@@ -37,7 +39,7 @@
 
 			<MudMenuItem Disabled="true">
 				<div class="py-5 text-center">
-					<MudText Typo="Typo.button" Color="Color.Warning">No New Notifications</MudText>
+					<MudText Typo="Typo.button" Color="Color.Warning">You're all caught up!</MudText>
 				</div>
 			</MudMenuItem>
 
@@ -49,15 +51,22 @@
 
 				<MudMenuItem OnClick="() => OpenNotificationAsync(notification)">
 					<div class="notification-menu-item @(notification.HasBeenViewed ? "read" : "unread")">
-						
-						<MudText Typo="Typo.subtitle2">
-							@notification.Title
-						</MudText>
-						<MudText Typo="Typo.body2" Class="text-truncate">
+
+						<div class="notification-menu-top-row">
+							@if (!notification.HasBeenViewed)
+							{
+								<span class="notification-unread-dot"></span>
+							}
+
+							<MudText Typo="Typo.subtitle2" Class="notification-title">
+								@notification.Title
+							</MudText>
+						</div>
+						<MudText Typo="Typo.body2" Class="notification-message">
 							@GetPreviewText(notification.Message)
 						</MudText>
-						<MudText Typo="Typo.caption">
-							@notification.Created.LocalDateTime.ToString("g")
+						<MudText Typo="Typo.caption" Class="notification-timestamp">
+							@DateTimeHelper.FormatTimestamp(notification.Created)
 						</MudText>
 					</div>
 				</MudMenuItem>
@@ -66,7 +75,7 @@
 			<MudDivider />
 
 			<MudMenuItem OnClick="GoToNotificationCenter">
-				<MudText Typo="Typo.button">View all notifications</MudText>
+				<MudText Typo="Typo.button">View all Notifications</MudText>
 			</MudMenuItem>
 		}
 	</ChildContent>
