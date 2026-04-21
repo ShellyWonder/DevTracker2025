@@ -18,7 +18,7 @@
 				</MudNavLink>
 				<form action="Account/Logout" method="post" id="logoutForm" class="d-none">
 					<AntiforgeryToken />
-					<input type="hidden" name="ReturnUrl" value="@currentUrl" />
+					<input type="hidden" name="ReturnUrl" value="account/login" />
 				</form>
 			</Authorized>
 

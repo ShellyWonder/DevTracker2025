@@ -22,12 +22,12 @@
 							<MudButton Variant="Variant.Text"
 									   Color="Color.Inherit"
 									   StartIcon="@Icons.Material.Filled.Dashboard"
-									   Href="/">
+									   Href="/dashboard">
 								Dashboard
 							</MudButton>
 							<form action="Account/Logout" method="post" id="logoutForm" class="d-inline">
 								<AntiforgeryToken />
-								<input type="hidden" name="ReturnUrl" value="" />
+								<input type="hidden" name="ReturnUrl" value="account/login" />
 								<MudButton Variant="Variant.Text"
 										   Color="Color.Inherit"
 										   StartIcon="@Icons.Material.Filled.Logout"
