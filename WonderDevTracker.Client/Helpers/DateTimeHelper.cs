@@ -1,7 +1,7 @@
-﻿using WonderDevTracker.Client.Models.DTOs;
-
-namespace WonderDevTracker.Client.Helpers
+﻿namespace WonderDevTracker.Client.Helpers
 {
+    // NOTE: Do not call this directly in Razor.
+    // Use TimestampComponent instead.
     public static class DateTimeHelper
     {
         public static DateTimeOffset GetNotificationDisplayTimestamp(

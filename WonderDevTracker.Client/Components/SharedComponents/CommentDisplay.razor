@@ -37,11 +37,13 @@
 				}
 			</MudPaper>
 			<div class="@DateAlignment">
-				<MudText Typo="Typo.caption"
+				@* TODO: Remove this commented-out code after testing *@
+				@* <MudText Typo="Typo.caption"
 						 Color="Color.Default"
 						 Class="ps-3 text-secondary">
 					@Comment.Created.ToLocalTime().ToString("g")
-				</MudText>
+				</MudText> *@
+				<TimestampComponent FallbackTimestamp="@Comment.Created" Class="ps-3" />
 			</div>
 		</div>
 		<div class="vstack gap-1 flex-grow-0">
