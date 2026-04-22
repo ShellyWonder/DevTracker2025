@@ -1,0 +1,18 @@
+﻿@* NotificationTypeChip *@
+@* Notification type chip component used to display 
+the type of a notification (company, project, ticket) 
+with appropriate styling.  *@
+
+<MudChip T="string"
+		 Color="@typeColor"
+		 Class="priority-label">
+	@Type?.GetDisplayName()
+</MudChip>
+@code {
+
+	[Parameter, EditorRequired]
+	public NotificationType? Type { get; set; }
+
+	private Color typeColor => Type.GetColor();
+
+}

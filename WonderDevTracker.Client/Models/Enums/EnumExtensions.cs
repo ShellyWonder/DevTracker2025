@@ -61,7 +61,15 @@ namespace WonderDevTracker.Client.Models.Enums
                     { TicketType.ChangeRequest, Color.Warning },
                     { TicketType.GeneralTask, Color.Tertiary }
                 }
-            }
+            },
+                {
+                    typeof(NotificationType), new()
+                    {
+                        { NotificationType.Company, Color.Secondary },
+                        { NotificationType.Project, Color.Warning },
+                        { NotificationType.Ticket, Color.Success }
+                    }
+                }
         };
         public static Color GetColor<TEnum>(this TEnum? value) where TEnum : struct, Enum
         {
@@ -77,6 +85,6 @@ namespace WonderDevTracker.Client.Models.Enums
         }
         // Overload for non-nullable enums
         public static Color GetColor<TEnum>(this TEnum value) where TEnum : struct, Enum
-    => ((TEnum?)value).GetColor<TEnum>();
+        => ((TEnum?)value).GetColor<TEnum>();
     }
 }
