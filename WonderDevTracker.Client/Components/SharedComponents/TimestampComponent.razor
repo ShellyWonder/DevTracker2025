@@ -1,17 +1,35 @@
-﻿@* TimestampComponent *@
+﻿@* TimestampComponent.razor *@
+@* Generic component used for displaying timestamps *@
+
 @using WonderDevTracker.Client.Helpers
 
-<MudText Typo="Typo.caption">
+<MudText Typo="@Typo" Class="@Class">
     @DisplayTimestamp
 </MudText>
 
 @code {
-    [Parameter, EditorRequired]
-    public NotificationDTO Notification { get; set; } = default!;
+    [Parameter]
+    public DateTimeOffset? PrimaryTimestamp { get; set; }
 
-    private string DisplayTimestamp =>
-        DateTimeHelper.FormatTimestamp(
-            DateTimeHelper.GetNotificationDisplayTimestamp(Notification.Created, Notification.ArchivedAt));
+    [Parameter]
+    public DateTimeOffset? FallbackTimestamp { get; set; }
+
+    [Parameter]
+    public Typo Typo { get; set; } = Typo.caption;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string DisplayTimestamp
+    {
+        get
+        {
+            var timestamp = PrimaryTimestamp ?? FallbackTimestamp;
+
+            if (timestamp is null)
+                return string.Empty;
+
+            return DateTimeHelper.FormatTimestamp(timestamp.Value);
+        }
+    }
 }
-  
-

@@ -28,7 +28,8 @@
 		</PropertyColumn>
 		<TemplateColumn Title="Date">
 			<CellTemplate Context="notification">
-				<TimestampComponent Notification="@notification.Item" />
+				<TimestampComponent PrimaryTimestamp="@notification.Item.ArchivedAt"
+									FallbackTimestamp="@notification.Item.Created"/>
 			</CellTemplate>
 		</TemplateColumn>
 
