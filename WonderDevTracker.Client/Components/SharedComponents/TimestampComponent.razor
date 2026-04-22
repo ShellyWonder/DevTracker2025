@@ -1,0 +1,17 @@
+﻿@* TimestampComponent *@
+@using WonderDevTracker.Client.Helpers
+
+<MudText Typo="Typo.caption">
+    @DisplayTimestamp
+</MudText>
+
+@code {
+    [Parameter, EditorRequired]
+    public NotificationDTO Notification { get; set; } = default!;
+
+    private string DisplayTimestamp =>
+        DateTimeHelper.FormatTimestamp(
+            DateTimeHelper.GetNotificationDisplayTimestamp(Notification.Created, Notification.ArchivedAt));
+}
+  
+
