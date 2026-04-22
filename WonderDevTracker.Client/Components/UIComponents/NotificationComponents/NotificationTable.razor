@@ -1,0 +1,73 @@
+﻿@* NotificationTable *@
+
+<MudDataGrid Items="Notifications"
+			 Elevation="0"
+			 Dense="true"
+			 ColumnResizeMode="ResizeMode.Container"
+			 DragDropColumnReordering
+			 Hideable
+			 ShowMenuIcon
+			 RowsPerPage="20">
+	<Columns>
+		@* enum company/ticket/project *@
+		<PropertyColumn Property="n => n.Type">
+			<CellTemplate>
+				<NotificationTypeChip Type="@context.Item.Type" />
+			</CellTemplate>
+		</PropertyColumn>
+
+		<PropertyColumn Property="n => n.Title">
+			<CellTemplate>
+
+			</CellTemplate>
+		</PropertyColumn>
+		<PropertyColumn Property="n => n.Message">
+			<CellTemplate>
+
+			</CellTemplate>
+		</PropertyColumn>
+		<TemplateColumn Title="Date">
+			<CellTemplate Context="notification">
+				<TimestampComponent Notification="@notification.Item" />
+			</CellTemplate>
+		</TemplateColumn>
+
+		<PropertyColumn Property="n => n.HasBeenViewed">
+
+		</PropertyColumn>
+		@* <PropertyColumn Property="n => n.Title">
+
+		</PropertyColumn> *@
+	</Columns>
+	<PagerContent>
+		<MudDataGridPager />
+	</PagerContent>
+	<NoRecordsContent>
+		<NotFoundDisplay Message="No notifications available" />
+	</NoRecordsContent>
+</MudDataGrid>
+
+@code {
+	#region PARAMETERS
+
+	[Parameter, EditorRequired]
+	public List<NotificationDTO> Notifications { get; set; } = [];
+
+	[Parameter]
+	public bool IsArchived { get; set; } = false;
+
+	[Parameter]
+	public EventCallback<int> OnMarkViewed { get; set; }
+
+	[Parameter]
+	public EventCallback<int> OnArchived { get; set; }
+
+	[Parameter]
+	public EventCallback<int> OnRestored { get; set; }
+
+	[Parameter]
+	public EventCallback<NotificationDTO> OnOpen { get; set; }
+
+
+	#endregion
+}
