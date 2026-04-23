@@ -46,24 +46,15 @@
 			</CellTemplate>
 		</PropertyColumn>
 
-		@if (Status == InviteStatusEnum.Accepted)
-		{
-			<PropertyColumn Title="Accepted" 
-				Property="i => i.JoinDate"
-				Format="g">
-				<CellTemplate>
-					<MudText Typo="Typo.caption">@context.Item.JoinDate!.Value.ToLocalTime().ToString("g")</MudText>
-				</CellTemplate>
-			</PropertyColumn>
-		}
-		else
-		{
-			<PropertyColumn Title="Sent" Property="i => i.InviteDate" Format="g">
-				<CellTemplate>
-					<MudText Typo="Typo.caption">@context.Item.InviteDate.ToLocalTime().ToString("g")</MudText>
-				</CellTemplate>
-			</PropertyColumn>
-		}
+		@*NOTE: If invite is accepted, Column shows Join date
+			and title, "accepted";
+			If invite is pending, column shows Invite date,
+			and title, "sent"*@
+		<TemplateColumn Title="@(Status == InviteStatusEnum.Accepted ? "Accepted" : "Sent")">
+			<CellTemplate Context="invite">
+				<TimestampComponent PrimaryTimestamp="@GetInviteDisplayTimestamp(invite.Item, Status)" />
+			</CellTemplate>
+		</TemplateColumn>
 	</Columns>
 	<PagerContent>
 		<MudDataGridPager />
@@ -133,5 +124,9 @@
 			Snackbar.Add("Failed to resend invite. Please try again.", Severity.Error);
 		}
 	}
+
+	private DateTimeOffset? GetInviteDisplayTimestamp(InviteDTO invite, InviteStatusEnum status) 
+		=> status == InviteStatusEnum.Accepted ? invite.JoinDate : invite.InviteDate;
+	
 	#endregion
 }

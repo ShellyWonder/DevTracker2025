@@ -28,7 +28,9 @@
 							<div class="th-inline-row">
 								<div class="th-inline-band">
 									<MudText Typo="Typo.caption" Class="th-inline-text">
-										@entry.Created.ToLocalTime().ToString("MMM d yyyy h:mm tt") @(" — ") @entry.Description
+										<TimestampComponent FallbackTimestamp="@entry.Created"
+															Class="d-inline" />
+										@(" — ") @entry.Description
 									</MudText>
 								</div>
 							</div>
