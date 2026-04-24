@@ -83,11 +83,30 @@
 						<AssignedToTicket User="context.Item.Ticket.DeveloperUser" />
 					</CellTemplate>
 				</TemplateColumn>
-				<TemplateColumn Title="Updated" Sortable="true" SortBy="t => t.Ticket.Modified" >
+				<TemplateColumn Title="Created"
+								Sortable="true"
+								SortBy="t => t.Ticket.Created">
 					<CellTemplate>
-						<MudText Typo="Typo.caption">
-							@context.Item.Ticket.Modified.ToLocalTime().ToString("g")
-						</MudText>
+						<TimestampComponent PrimaryTimestamp="@context.Item.Ticket.Created"
+											DisplayMode="TimestampDisplayMode.Absolute" />
+					</CellTemplate>
+				</TemplateColumn>
+
+				<TemplateColumn Title="Updated"
+								Sortable="true"
+								SortBy="t => t.Ticket.Updated">
+					<CellTemplate>
+						@if (context.Item.Ticket.Updated is not null)
+						{
+							<TimestampComponent PrimaryTimestamp="@context.Item.Ticket.Updated"
+												DisplayMode="TimestampDisplayMode.Absolute" />
+						}
+						else
+						{
+							<MudText Typo="Typo.caption" Color="Color.Secondary">
+								—
+							</MudText>
+						}
 					</CellTemplate>
 				</TemplateColumn>
 
