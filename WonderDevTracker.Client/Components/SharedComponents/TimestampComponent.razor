@@ -4,24 +4,35 @@
 @using WonderDevTracker.Client.Helpers
 
 <MudText Typo="@Typo" Class="@CombinedClass">
-    @DisplayTimestamp
+	@DisplayTimestamp
 </MudText>
 
 @code {
-    [Parameter] public DateTimeOffset? PrimaryTimestamp { get; set; }
-    [Parameter] public DateTimeOffset? FallbackTimestamp { get; set; }
-    [Parameter] public Typo Typo { get; set; } = Typo.caption;
-    [Parameter] public string? Class { get; set; }
+	[Parameter] public DateTimeOffset? PrimaryTimestamp { get; set; }
 
-    private string CombinedClass =>
-        $"notification-timestamp {Class}".Trim();
+	[Parameter] public DateTimeOffset? FallbackTimestamp { get; set; }
 
-    private string DisplayTimestamp
-    {
-        get
-        {
-            var timestamp = PrimaryTimestamp ?? FallbackTimestamp;
-            return timestamp is null ? string.Empty : DateTimeHelper.FormatTimestamp(timestamp.Value);
-        }
-    }
+	[Parameter] public Typo Typo { get; set; } = Typo.caption;
+
+	[Parameter] public string? Class { get; set; }
+
+	[Parameter]
+	public TimestampDisplayMode DisplayMode { get; set; } = TimestampDisplayMode.Relative;
+
+
+	private string CombinedClass =>
+		$"notification-timestamp {Class}".Trim();
+
+	private string DisplayTimestamp
+	{
+		get
+		{
+			var timestamp = PrimaryTimestamp ?? FallbackTimestamp;
+			if (timestamp is null) return string.Empty;
+
+			return DisplayMode == TimestampDisplayMode.Absolute
+			 ? timestamp.Value.ToLocalTime().ToString("g")
+			 : DateTimeHelper.FormatTimestamp(timestamp.Value);
+		}
+	}
 }

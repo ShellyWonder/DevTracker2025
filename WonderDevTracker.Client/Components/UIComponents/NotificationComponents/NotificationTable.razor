@@ -29,7 +29,8 @@
 		<TemplateColumn Title="Date">
 			<CellTemplate Context="notification">
 				<TimestampComponent PrimaryTimestamp="@notification.Item.ArchivedAt"
-									FallbackTimestamp="@notification.Item.Created"/>
+									FallbackTimestamp="@notification.Item.Created"
+									DisplayMode="TimestampDisplayMode.Absolute"/>
 			</CellTemplate>
 		</TemplateColumn>
 
