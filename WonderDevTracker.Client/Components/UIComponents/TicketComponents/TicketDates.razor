@@ -3,17 +3,25 @@
 
 @* TicketDates *@
 <MudText Typo="Typo.caption" Class="text-secondary">
-    Submitted @SubmittedDate?.ToString("g")
-    @if (UpdatedDate is not null)
-    {
-        <text><span> &bull;</span> Updated @UpdatedDate?.ToString("g")</text>
-    }
+	Submitted
+	<TimestampComponent PrimaryTimestamp="@SubmittedDate"
+						DisplayMode="TimestampDisplayMode.Absolute"
+						Class="d-inline" />
+	@if (UpdatedDate is not null)
+	{
+		<text>
+			<span> &bull;</span>
+			Updated <TimestampComponent PrimaryTimestamp="@UpdatedDate"
+										DisplayMode="TimestampDisplayMode.Absolute"
+										Class="d-inline" />
+		</text>
+	}
 </MudText>
 
 @code {
-    [Parameter, EditorRequired]
-    public DateTimeOffset? SubmittedDate { get; set; }
+	[Parameter, EditorRequired]
+	public DateTimeOffset? SubmittedDate { get; set; }
 
-    [Parameter]
-    public DateTimeOffset? UpdatedDate { get; set; }
+	[Parameter]
+	public DateTimeOffset? UpdatedDate { get; set; }
 }
