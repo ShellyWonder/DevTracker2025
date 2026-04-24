@@ -15,7 +15,9 @@
 				<MudText Typo="Typo.body2" Class="py-2">
 					@Attachment.Description
 				</MudText>
-				<TimestampComponent PrimaryTimestamp="@Attachment.Created" Class="py-2"/>
+				<TimestampComponent PrimaryTimestamp="@Attachment.Created"
+									DisplayMode="TimestampDisplayMode.Absolute"
+									Class="py-2" />
 			</MudCollapse>
 		</MudCardContent>
 		<MudCardActions>

@@ -42,7 +42,8 @@
 		</TemplateColumn>
 		<TemplateColumn Title="Updated">
 			<CellTemplate Context="ticket">
-				<TimestampComponent PrimaryTimestamp="@ticket.Item.Modified" />
+				<TimestampComponent PrimaryTimestamp="@ticket.Item.Modified" 
+									DisplayMode="TimestampDisplayMode.Absolute"/>
 			</CellTemplate>
 		</TemplateColumn>
 	</Columns>

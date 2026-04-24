@@ -52,7 +52,8 @@
 			and title, "sent"*@
 		<TemplateColumn Title="@(Status == InviteStatusEnum.Accepted ? "Accepted" : "Sent")">
 			<CellTemplate Context="invite">
-				<TimestampComponent PrimaryTimestamp="@GetInviteDisplayTimestamp(invite.Item, Status)" />
+				<TimestampComponent PrimaryTimestamp="@GetInviteDisplayTimestamp(invite.Item, Status)" 
+									DisplayMode="TimestampDisplayMode.Absolute"/>
 			</CellTemplate>
 		</TemplateColumn>
 	</Columns>
