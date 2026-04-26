@@ -56,6 +56,9 @@ namespace WonderDevTracker.Services
             };
             dbComment = await ticketRepository.CreateCommentAsync(dbComment, userInfo)
                 ?? throw new InvalidOperationException("Comment creation failed.");
+            
+            await notificationOrchestrator.TicketCommentAddedAsync(dbComment.TicketId, dbComment.Id, userInfo);
+
             return dbComment.ToDTO();
         }
 

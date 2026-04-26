@@ -22,7 +22,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="actor">The user requesting the recipient information. Cannot be null.</param>
         /// <returns>The recipient identifier as a string, or null if no assigned developer is found.</returns>
         public string? GetAssignedDeveloperRecipient(string? assignedUserId, UserInfo actor);
-        
+
         /// <summary>
         /// Retrieves the recipient identifier for the submitter of a ticket.
         /// </summary>
@@ -30,5 +30,13 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="actor">The user requesting the recipient information. Cannot be null.</param>
         /// <returns>The recipient identifier as a string, or null if no submitter is found.</returns>
         public string? GetSubmitterRecipient(string? submitterUserId, UserInfo actor);
-    }
+
+        /// <summary>
+        /// Asynchronously gets the display name for the specified user.    
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the user's display name, or null
+        /// if the user does not exist.</returns>
+        public Task<string?> GetUserDisplayNameAsync(string userId);
+    }   
 }

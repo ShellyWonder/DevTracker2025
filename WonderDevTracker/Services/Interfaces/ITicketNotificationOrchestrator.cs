@@ -31,6 +31,15 @@ namespace WonderDevTracker.Services.Interfaces
         public Task TicketUnassignedAsync(int ticketId, string previousDevId, UserInfo actor);
 
         /// <summary>
+        /// Ticket Comment Added Notification
+        /// </summary>
+        /// <param name="ticketId">The ticket id.</param>
+        /// <param name="commentId">The comment id.</param>
+        /// <param name="user">Current user's claims. Cannot be null.</param>
+        /// <remarks>Handles notification when a comment is added to a ticket.</remarks>
+        public Task TicketCommentAddedAsync(int ticketId, int commentId, UserInfo user);
+
+        /// <summary>
         /// Ticket Resolved Notification
         /// </summary>
         /// <param name="ticketId">Ticket's id.</param>

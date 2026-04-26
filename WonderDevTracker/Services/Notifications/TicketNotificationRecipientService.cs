@@ -1,9 +1,11 @@
-﻿using WonderDevTracker.Client;
+﻿using Microsoft.AspNetCore.Identity;
+using WonderDevTracker.Client;
+using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services.Notifications
 {
-    public class TicketNotificationRecipientService(IProjectRepository projectRepository) : ITicketNotificationRecipientService
+    public class TicketNotificationRecipientService(IProjectRepository projectRepository, UserManager<ApplicationUser> userManager) : ITicketNotificationRecipientService
     {
         public string? GetAssignedDeveloperRecipient(string? assignedUserId, UserInfo actor)
         {
@@ -27,6 +29,13 @@ namespace WonderDevTracker.Services.Notifications
             if (string.IsNullOrWhiteSpace(submitterUserId) || submitterUserId == actor.UserId) return null;
 
             return submitterUserId;
+        }
+        public async Task<string?> GetUserDisplayNameAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId)) return null;
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+            return $"{user.FirstName} {user.LastName}";
         }
     }
 }

@@ -94,7 +94,7 @@ namespace WonderDevTracker.Services.Templates
         #endregion
 
         private static string ResolveName(string? name)
-    => string.IsNullOrWhiteSpace(name) ? "Unknown user" : name;
+        => string.IsNullOrWhiteSpace(name) ? "Unknown user" : name;
     }
 }
 

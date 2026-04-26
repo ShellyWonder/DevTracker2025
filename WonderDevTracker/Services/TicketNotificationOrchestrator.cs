@@ -74,6 +74,27 @@ namespace WonderDevTracker.Services
                 await notificationRepository.AddRangeAsync(context.Notifications);
         }
 
+        public async Task TicketCommentAddedAsync(int ticketId, int commentId, UserInfo user)
+        {
+            var context = await InitializeNotificationContextAsync(ticketId, user);
+            //Retrieves assigned dev, submitter
+            var devId = string.IsNullOrWhiteSpace(context.Ticket.DeveloperUserId)
+                ? null
+                : ticketRecipientService.GetAssignedDeveloperRecipient(context.Ticket.DeveloperUserId, user);
+            var submitterId = ticketRecipientService.GetSubmitterRecipient(context.Ticket.SubmitterUserId, user);
+            var actorDisplayName = await ticketRecipientService.GetUserDisplayNameAsync(user.UserId) ?? "Unknown user";
+              
+            var (devTitle, devMsg) = TicketNotificationTemplates.CommentAddedForDeveloper(context.Ticket, actorDisplayName);
+            AddNotificationOnce(context.Notifications, context.Recipients, devId, devTitle, devMsg,
+                NotificationType.Ticket, user.UserId, context.Ticket.Id, context.Ticket.ProjectId);
+
+            var (subTitle, subMsg) = TicketNotificationTemplates.CommentAddedForSubmitter(context.Ticket, actorDisplayName);
+            AddNotificationOnce(context.Notifications, context.Recipients, submitterId, subTitle, subMsg,
+                NotificationType.Ticket, user.UserId, context.Ticket.Id, context.Ticket.ProjectId);
+            if (context.Notifications.Count > 0)
+                await notificationRepository.AddRangeAsync(context.Notifications);
+        }
+
         public async Task TicketCreatedAsync(int ticketId, UserInfo actor)
         {
             //Loads ticket projection
@@ -241,6 +262,7 @@ namespace WonderDevTracker.Services
          
         }
 
+       
         private sealed record TicketNotificationContext(
             TicketForNotification Ticket,
             List<Notification> Notifications,
