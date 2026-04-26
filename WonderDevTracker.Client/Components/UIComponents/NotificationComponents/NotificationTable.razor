@@ -33,7 +33,10 @@
 				<NotificationTypeChip Type="@context.Item.Type" />
 			</CellTemplate>
 		</PropertyColumn>
-		<TemplateColumn Title="Date">
+		<TemplateColumn Title="Date"
+						Sortable="true"
+						SortBy="n => n.ArchivedAt ?? n.Created">
+
 			<CellTemplate Context="notification">
 				<TimestampComponent PrimaryTimestamp="@notification.Item.ArchivedAt"
 									FallbackTimestamp="@notification.Item.Created"
@@ -76,13 +79,19 @@
 				{
 					<MudIconButton Icon="@Icons.Material.Filled.Archive"
 								   Color="Color.Default"
+								   title="Dismiss"
+								   ariaLabel="Dismiss notification"
 								   OnClick="@(() => OnArchived.InvokeAsync(notification.Id))" />
+								   
 				}
 				else
 				{
 					<MudIconButton Icon="@Icons.Material.Filled.Restore"
 								   Color="Color.Success"
+								   title="Restore"
+								   ariaLabel="Restore notification"
 								   OnClick="@(() => OnRestored.InvokeAsync(notification.Id))" />
+								   
 				}
 			</CellTemplate>
 		</TemplateColumn>
@@ -105,9 +114,6 @@
 	public int Index { get; set; }
 
 	[Parameter]
-	public bool IsArchived { get; set; } = false;
-
-	[Parameter]
 	public EventCallback<int> OnMarkViewed { get; set; }
 
 	[Parameter]
@@ -115,15 +121,9 @@
 
 	[Parameter]
 	public EventCallback<int> OnRestored { get; set; }
-
-	[Parameter]
-	public EventCallback<NotificationDTO> OnOpen { get; set; }
 	#endregion
 
 	private bool _unreadOnly;
-
-	private bool IsActionable(NotificationDTO n) =>
-		         n.TicketId is not null || n.ProjectId is not null;
 
 	private IEnumerable<NotificationDTO> FilteredNotifications => _unreadOnly ?
 							Notifications.Where(n => !n.HasBeenViewed) :
