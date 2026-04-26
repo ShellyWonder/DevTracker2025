@@ -1,6 +1,13 @@
 ﻿@* NotificationTable *@
 
-<MudDataGrid Items="Notifications"
+
+	<MudToolBar>
+		<MudSwitch T="bool" 
+			@bind-Value="_unreadOnly"
+			Color="Color.Error"
+			Label="Unread Only" />
+	</MudToolBar>
+<MudDataGrid Items="FilteredNotifications"
 			 Elevation="0"
 			 Dense="true"
 			 ColumnResizeMode="ResizeMode.Container"
@@ -9,37 +16,77 @@
 			 ShowMenuIcon
 			 RowsPerPage="20">
 	<Columns>
+		<TemplateColumn  Title="Status">
+			<CellTemplate>
+				<MudChip T="string"
+						 Color="@GetViewedChipColor(context.Item)"
+						 Variant="Variant.Filled"
+						 Size="Size.Small">
+					@GetViewedChipLabel(context.Item)
+				</MudChip>
+			</CellTemplate>
+		</TemplateColumn> 
+
 		@* enum company/ticket/project *@
 		<PropertyColumn Property="n => n.Type">
 			<CellTemplate>
 				<NotificationTypeChip Type="@context.Item.Type" />
 			</CellTemplate>
 		</PropertyColumn>
-
-		<PropertyColumn Property="n => n.Title">
-			<CellTemplate>
-
-			</CellTemplate>
-		</PropertyColumn>
-		<PropertyColumn Property="n => n.Message">
-			<CellTemplate>
-
-			</CellTemplate>
-		</PropertyColumn>
 		<TemplateColumn Title="Date">
 			<CellTemplate Context="notification">
 				<TimestampComponent PrimaryTimestamp="@notification.Item.ArchivedAt"
 									FallbackTimestamp="@notification.Item.Created"
-									DisplayMode="TimestampDisplayMode.Absolute"/>
+									DisplayMode="TimestampDisplayMode.Absolute" />
 			</CellTemplate>
 		</TemplateColumn>
 
-		<PropertyColumn Property="n => n.HasBeenViewed">
-
+		<PropertyColumn Property="n => n.Title">
+			<CellTemplate>
+             <MudText Typo="Typo.body2" Color="Color.Dark">
+					@context.Item.Title
+				</MudText>
+			</CellTemplate>
 		</PropertyColumn>
-		@* <PropertyColumn Property="n => n.Title">
+		<PropertyColumn Property="n => n.Message">
+			<CellTemplate>
+				<MudText Class="text-truncate" Style="max-width: 600px;">
+					@context.Item.Message
+				</MudText>
+			</CellTemplate>
+		</PropertyColumn>
+		
 
-		</PropertyColumn> *@
+		<TemplateColumn Title="Actions" >
+			<CellTemplate>
+				@{
+					var notification = context.Item;
+					var link = GetNotificationLink(notification);
+				}
+				@if (link is not null)
+				{
+					<SafeNavButton Href="@link"
+								   Color="Color.Primary"
+								   Variant="Variant.Text"
+								   OnClick="@(() => OnMarkViewed.InvokeAsync(notification.Id))">
+						View Source
+					</SafeNavButton>
+				}
+				@if (!notification.IsArchived)
+				{
+					<MudIconButton Icon="@Icons.Material.Filled.Archive"
+								   Color="Color.Default"
+								   OnClick="@(() => OnArchived.InvokeAsync(notification.Id))" />
+				}
+				else
+				{
+					<MudIconButton Icon="@Icons.Material.Filled.Restore"
+								   Color="Color.Success"
+								   OnClick="@(() => OnRestored.InvokeAsync(notification.Id))" />
+				}
+			</CellTemplate>
+		</TemplateColumn>
+		
 	</Columns>
 	<PagerContent>
 		<MudDataGridPager />
@@ -51,9 +98,11 @@
 
 @code {
 	#region PARAMETERS
-
 	[Parameter, EditorRequired]
 	public List<NotificationDTO> Notifications { get; set; } = [];
+
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
 
 	[Parameter]
 	public bool IsArchived { get; set; } = false;
@@ -69,7 +118,31 @@
 
 	[Parameter]
 	public EventCallback<NotificationDTO> OnOpen { get; set; }
-
-
 	#endregion
+
+	private bool _unreadOnly;
+
+	private bool IsActionable(NotificationDTO n) =>
+		         n.TicketId is not null || n.ProjectId is not null;
+
+	private IEnumerable<NotificationDTO> FilteredNotifications => _unreadOnly ?
+							Notifications.Where(n => !n.HasBeenViewed) :
+							Notifications;
+
+	private string? GetNotificationLink(NotificationDTO n)
+	{
+		if (n.TicketId is not null)
+			return $"/tickets/{n.TicketId}";
+
+		if (n.ProjectId is not null)
+			return $"/projects/{n.ProjectId}";
+
+		return null;
+	}
+
+	private static Color GetViewedChipColor(NotificationDTO notification) =>
+	notification.HasBeenViewed ? Color.Default : Color.Error;
+
+	private static string GetViewedChipLabel(NotificationDTO notification) =>
+	notification.HasBeenViewed ? "Viewed" : "Unread";
 }

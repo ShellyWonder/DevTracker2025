@@ -13,42 +13,54 @@ and provide a consistent layout and styling for the notifications section of the
 		else
 		{
 			<MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-				@if (Notification.IsArchived)
-				{
-					<MudTabPanel Text=" Dismissed Notifications">
-						<NotificationTable Notifications="@DismissedNotifications" Index="@Index" />
-					</MudTabPanel>
 
-				}
-				else
-				{
-					<MudTabPanel Text="Current Notifications">
-						<NotificationTable Notifications="@ActiveNotifications" Index="@Index" />
-					</MudTabPanel>
+				<MudTabPanel Text="Active Notifications">
+					<NotificationTable Notifications="@ActiveNotifications"
+									   Index="@Index"
+									   IsArchived="false"
+									   OnMarkViewed="OnMarkViewed"
+									   OnArchived="OnArchived"
+									   OnOpen="OnOpen" />
+				</MudTabPanel>
 
-				}
+				<MudTabPanel Text="Dismissed Notifications">
+					<NotificationTable Notifications="@DismissedNotifications"
+									   Index="@Index"
+									   IsArchived="true"
+									   OnMarkViewed="OnMarkViewed"
+									   OnArchived="OnRestored"
+									   OnOpen="OnOpen" />
+				</MudTabPanel>
 			</MudTabs>
 		}
 	</MudCardContent>
 </AnimatedCard>
 
 @code {
-    [Parameter]
-    public List<NotificationDTO> Notifications { get; set; } = new();
+	[Parameter]
+	public List<NotificationDTO> Notifications { get; set; } = new();
 
-    [Parameter, EditorRequired]
-    public int Index { get; set; }
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
 
-    [Parameter, EditorRequired]
-    public NotificationDTO Notification { get; set; }
+	[Parameter]
+	public EventCallback<int> OnMarkViewed { get; set; }
 
-    [Parameter]
-    public string RecipientId { get; set; } = string.Empty;
+	[Parameter]
+	public EventCallback<int> OnArchived { get; set; }
 
-    private List<NotificationDTO> ActiveNotifications => Notifications
-								.Where(n => n.RecipientId == RecipientId && !n.IsArchived)
+	[Parameter]
+	public EventCallback<int> OnRestored { get; set; }
+
+	[Parameter]
+	public EventCallback<NotificationDTO> OnOpen { get; set; }
+
+
+	// Note:API already returns current-user notifications
+	private List<NotificationDTO> ActiveNotifications => Notifications
+								.Where(n => !n.IsArchived)
 								.ToList();
-    private List<NotificationDTO> DismissedNotifications => Notifications
-								 .Where(n => n.RecipientId == RecipientId && n.IsArchived)
+	private List<NotificationDTO> DismissedNotifications => Notifications
+								 .Where(n => n.IsArchived)
 								 .ToList();
 }
