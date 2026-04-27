@@ -1,6 +1,11 @@
 ﻿@* NotificationCard *@
 @* This component is used to wrap the NotificationTable component
 and provide a consistent layout and styling for the notifications section of the dashboard. *@
+
+@inject INotificationDTOService NotificationService
+
+@inherits AuthenticatedComponentBase
+
 <AnimatedCard Index="@Index">
 	<MudCardHeader>
 		<MudText Typo="Typo.h3" Color="Color.Primary">Notifications</MudText>
@@ -17,19 +22,18 @@ and provide a consistent layout and styling for the notifications section of the
 				<MudTabPanel Text="Active Notifications">
 					<NotificationTable Notifications="@ActiveNotifications"
 									   Index="@Index"
-									   IsArchived="false"
 									   OnMarkViewed="OnMarkViewed"
 									   OnArchived="OnArchived"
-									   OnOpen="OnOpen" />
+									   OnMarkAllViewed="HandleMarkAllViewedAsync" />
 				</MudTabPanel>
 
 				<MudTabPanel Text="Dismissed Notifications">
 					<NotificationTable Notifications="@DismissedNotifications"
 									   Index="@Index"
-									   IsArchived="true"
 									   OnMarkViewed="OnMarkViewed"
+									   IsArchived="true"
 									   OnRestored="OnRestored"
-									   OnOpen="OnOpen" />
+									   OnMarkAllViewed="HandleMarkAllViewedAsync" />
 				</MudTabPanel>
 			</MudTabs>
 		}
@@ -37,6 +41,8 @@ and provide a consistent layout and styling for the notifications section of the
 </AnimatedCard>
 
 @code {
+
+	#region PARAMETERS
 	[Parameter]
 	public List<NotificationDTO> Notifications { get; set; } = new();
 
@@ -54,8 +60,9 @@ and provide a consistent layout and styling for the notifications section of the
 
 	[Parameter]
 	public EventCallback<NotificationDTO> OnOpen { get; set; }
+#endregion
 
-
+#region PRIVATE PROPERTIES
 	// Note:API already returns current-user notifications
 	private List<NotificationDTO> ActiveNotifications => Notifications
 								.Where(n => !n.IsArchived)
@@ -63,4 +70,18 @@ and provide a consistent layout and styling for the notifications section of the
 	private List<NotificationDTO> DismissedNotifications => Notifications
 								 .Where(n => n.IsArchived)
 								 .ToList();
+
+	private async Task HandleMarkAllViewedAsync()
+	{
+		if (UserInfo is null) return;
+
+		await NotificationService.MarkAllViewedAsync(UserInfo);
+
+		foreach (var notification in Notifications.Where(n => !n.HasBeenViewed && !n.IsArchived))
+		{
+			notification.HasBeenViewed = true;
+		}
+
+	}
+	#endregion
 }

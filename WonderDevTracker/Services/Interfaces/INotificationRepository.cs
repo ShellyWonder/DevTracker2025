@@ -65,6 +65,15 @@ namespace WonderDevTracker.Services.Interfaces
         public Task MarkViewedAsync(int notificationId, string recipientId);
 
         /// <summary>
+        /// Mark All User Notifications As Viewed(Bulk Operation)
+        /// </summary>
+        /// <param name="recipientId">The identifier of the recipient whose notifications will be marked as viewed.</param>
+        /// <remarks>Marks all notifications for the specified recipient as viewed. This method performs a bulk update operation and may involve
+        /// I/O-bound work.</remarks>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public Task MarkAllViewedAsync(string recipientId);
+
+        /// <summary>
         /// Archives the specified notification for the given user asynchronously.
         /// </summary>
         /// <param name="notificationId">The unique identifier of the notification to archive.</param>

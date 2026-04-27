@@ -143,6 +143,18 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        
+        public async Task MarkAllViewedAsync(UserInfo userInfo)
+        {
+            try
+            {
+                var response = await http.PutAsync("api/notifications/mark-all-viewed", null);
+                if(!response.IsSuccessStatusCode)
+                    throw new Exception($"Failed to mark all notifications as viewed. Status: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error marking all notifications as viewed: {ex.Message}");
+            }
+        }
     }
 }

@@ -1,12 +1,22 @@
 ﻿@* NotificationTable *@
 
-
+@if (!IsArchived)
+{
 	<MudToolBar>
 		<MudSwitch T="bool" 
 			@bind-Value="_unreadOnly"
 			Color="Color.Error"
 			Label="Unread Only" />
+	<MudSpacer />
+	<MudButton Color="Color.Warning"
+			   Variant="Variant.Text"
+			   StartIcon="@Icons.Material.Filled.DoneAll"
+			   Disabled="@(!Notifications.Any(n => !n.HasBeenViewed))"
+			   OnClick="OnMarkAllViewed">
+		Mark all as Read
+	</MudButton>
 	</MudToolBar>
+}
 <MudDataGrid Items="FilteredNotifications"
 			 Elevation="0"
 			 Dense="true"
@@ -75,7 +85,7 @@
 						View Source
 					</SafeNavButton>
 				}
-				@if (!notification.IsArchived)
+				@if (!IsArchived)
 				{
 					<MudIconButton Icon="@Icons.Material.Filled.Archive"
 								   Color="Color.Default"
@@ -114,6 +124,9 @@
 	public int Index { get; set; }
 
 	[Parameter]
+	public bool IsArchived { get; set; }
+
+	[Parameter]
 	public EventCallback<int> OnMarkViewed { get; set; }
 
 	[Parameter]
@@ -121,8 +134,12 @@
 
 	[Parameter]
 	public EventCallback<int> OnRestored { get; set; }
+
+	[Parameter]
+	public EventCallback OnMarkAllViewed { get; set; }
 	#endregion
 
+	#region PRIVATE FIELDS
 	private bool _unreadOnly;
 
 	private IEnumerable<NotificationDTO> FilteredNotifications => _unreadOnly ?
@@ -145,4 +162,5 @@
 
 	private static string GetViewedChipLabel(NotificationDTO notification) =>
 	notification.HasBeenViewed ? "Viewed" : "Unread";
+	#endregion
 }

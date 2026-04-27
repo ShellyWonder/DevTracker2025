@@ -111,5 +111,10 @@ namespace WonderDevTracker.Services
             await notificationRepository.RestoreNotificationAsync(notificationId, currentUserId, isAdmin);
         }
 
+        //Bulk process to mark all notifications as viewed for the current user
+        public async Task MarkAllViewedAsync(UserInfo userInfo)
+        {
+            await notificationRepository.MarkAllViewedAsync(userInfo.UserId);
+        }
     }
 }

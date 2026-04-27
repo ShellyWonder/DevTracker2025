@@ -48,6 +48,16 @@ namespace WonderDevTracker.Client.Services.Interfaces
         public Task MarkViewedAsync(int notificationId, string currentUserId);
 
         /// <summary>
+        /// Mark All User Notifications As Viewed
+        /// </summary>
+        /// <remarks>Marks all relevant items(bulk process) as viewed for the specified user.
+        /// Performs I/O-bound work and updates persisted state; exceptions from the underlying
+        /// data store may be propagated to the caller.</remarks>
+        /// <param name="userInfo">The user whose items will be marked as viewed.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task MarkAllViewedAsync(UserInfo userInfo);
+
+        /// <summary>
         /// Archive Notification
         /// </summary>
         /// <param name="notificationId">Notification id to archive.</param>

@@ -71,6 +71,20 @@ namespace WonderDevTracker.Services.Repositories
 
             await db.SaveChangesAsync();
         }
+        //Bulk operation to mark all notifications as viewed for a recipient
+        public async Task MarkAllViewedAsync(string recipientId)
+        {
+            await using var db = await context.CreateDbContextAsync();
+            await db.Notifications
+        .Where(n => n.RecipientId == recipientId
+                    && !n.HasBeenViewed
+                    && !n.IsArchived)
+        //Performs a bulk update without loading entities into memory
+        // This is more efficient than fetching and updating each notification individually
+        // in a foreach loop, especially when there are many notifications.
+        .ExecuteUpdateAsync(setters => setters
+            .SetProperty(n => n.HasBeenViewed, true));
+        }
 
         public async Task RestoreNotificationAsync(int notificationId, string userId, bool isAdmin)
             => await SetNotificationArchivedStateAsync(notificationId, userId, isAdmin, archived: false);

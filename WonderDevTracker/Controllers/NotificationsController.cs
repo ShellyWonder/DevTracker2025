@@ -96,12 +96,21 @@ namespace WonderDevTracker.Controllers
             await notificationService.RestoreNotificationAsync(id, currentUserId, isAdmin);
             return NoContent();
         }
-
+        // Mark a single notification as viewed
         [HttpPut("{id:int}/viewed")]
         public async Task<IActionResult> MarkViewedAsync([FromRoute] int id)
         {
             if (UserInfo is null) return Unauthorized();
             await notificationService.MarkViewedAsync(id, UserInfo.UserId);
+            return NoContent();
+        }
+        // Bulk process to mark all notifications as viewed for the current user
+        [HttpPut("viewed")]
+        public async Task<IActionResult> MarkAllViewedAsync()
+        {
+            if (UserInfo is null) return Unauthorized();
+
+            await notificationService.MarkAllViewedAsync(UserInfo);
             return NoContent();
         }
         #endregion
