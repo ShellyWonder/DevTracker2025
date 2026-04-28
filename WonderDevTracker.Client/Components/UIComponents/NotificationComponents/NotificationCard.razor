@@ -60,6 +60,9 @@ and provide a consistent layout and styling for the notifications section of the
 
 	[Parameter]
 	public EventCallback<NotificationDTO> OnOpen { get; set; }
+
+	[Parameter]
+	public EventCallback OnNotificationsChanged { get; set; }
 #endregion
 
 #region PRIVATE PROPERTIES
@@ -81,7 +84,7 @@ and provide a consistent layout and styling for the notifications section of the
 		{
 			notification.HasBeenViewed = true;
 		}
-
+		await OnNotificationsChanged.InvokeAsync();
 	}
 	#endregion
 }

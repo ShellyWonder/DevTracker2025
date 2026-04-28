@@ -4,6 +4,9 @@
 
 @inject NavigationManager NavManager
 @inject INotificationDTOService NotificationService
+@inject NotificationStateService NotificationState
+
+@implements IDisposable
 
 @inherits AuthenticatedComponentBase
 
@@ -16,8 +19,8 @@
 		 OffsetY="true">
 
 	<ActivatorContent>
-		<MudBadge Content="@UnreadCount"
-				  Invisible="@(UnreadCount <= 0)"
+		<MudBadge Content="@NotificationState.UnreadCount"
+				  Visible="@(NotificationState.UnreadCount >= 0)"
 				  Color="Color.Error"
 				  Overlap="true">
 			<MudIconButton Icon="@Icons.Material.Filled.Notifications"
@@ -87,7 +90,6 @@
 
 	private const int Take = 5;
 	private bool IsLoading = true;
-	private int UnreadCount;
 	private List<NotificationDTO> Notifications = [];
 	#endregion
 
@@ -95,6 +97,7 @@
 	{
 		if (!IsAuthenticated || UserInfo is null)
 			return;
+		NotificationState.OnChange += StateHasChanged;
 		await LoadMenuAsync();
 	}
 
@@ -104,8 +107,7 @@
 
 		try
 		{
-			UnreadCount = await NotificationService.GetUnreadCountForCurrentUserAsync(UserInfo!);
-
+			await NotificationState.RefreshUnreadCountAsync(UserInfo!);
 			Notifications = await NotificationService
 				.GetForCurrentUserAsync(UserInfo!.UserId, Take);
 		}
@@ -122,8 +124,7 @@
 			await NotificationService.MarkViewedAsync(notification.Id, UserInfo!.UserId);
 			notification.HasBeenViewed = true;
 
-			if (UnreadCount > 0)
-				UnreadCount--;
+			await NotificationState.RefreshUnreadCountAsync(UserInfo);
 		}
 
 		NavManager.NavigateTo(GetNotificationTarget(notification));
@@ -150,6 +151,10 @@
 		return "/dashboard";
 	}
 
+	public void Dispose()
+	{
+		NotificationState.OnChange -= StateHasChanged;
+	}
 		
 }
 

@@ -1,6 +1,11 @@
 ﻿@inject ThemeManagerService themeService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NotificationStateService NotificationState
 @implements IDisposable
 @inherits LayoutComponentBase
+
+
+
 <!-- restored and verified -->
 @* Required *@
 <!-- v8: self-closing -->
@@ -51,6 +56,7 @@
 
 
 @code {
+	#region STATE
     bool _drawerOpen = true;
 
     void DrawerToggle() => _drawerOpen = !_drawerOpen;
@@ -61,8 +67,22 @@
     {
         // CRITICAL: unsubscribe to avoid StateHasChanged on a disposed layout
         themeService.OnThemeChanged -= StateHasChanged;
+        
     }
+    #endregion
 
+	#region UI HELPERS & COMPUTED
+    protected override async Task OnInitializedAsync()
+    {
+
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		var userInfo = UserInfoHelper.GetUserInfo(authState.User);
+
+        if (userInfo is not null)
+        {
+            await NotificationState.RefreshUnreadCountAsync(userInfo);
+        }
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !_initialized)
@@ -74,5 +94,6 @@
             StateHasChanged(); // re-render with correct theme
         }
     }
+	#endregion
 
 }
