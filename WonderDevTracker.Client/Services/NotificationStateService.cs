@@ -1,7 +1,6 @@
 ﻿//NotificationStateService
 
 using WonderDevTracker.Client.Services.Interfaces;
-using WonderDevTracker.Client.Models.DTOs;
 
 
 namespace WonderDevTracker.Client.Services
@@ -24,6 +23,19 @@ namespace WonderDevTracker.Client.Services
             UnreadCount = 0;
             NotifyStateChanged();
         }
+        //Note: The following method will be implemented in prod
+        //if needed and if testing proves it is accurate,
+        //Used to increment or decrement
+        //the unread count without refreshing from the server.
+       
+        //public void DecrementUnreadCount()
+        //{
+        //    if (UnreadCount > 0)
+        //    {
+        //        UnreadCount--;
+        //        NotifyStateChanged();
+        //    }
+        //}
 
         public void SetUnreadCount(int count)
         {
