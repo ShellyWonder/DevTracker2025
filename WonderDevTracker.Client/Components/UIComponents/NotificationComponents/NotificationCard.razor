@@ -3,6 +3,7 @@
 and provide a consistent layout and styling for the notifications section of the dashboard. *@
 
 @inject INotificationDTOService NotificationService
+@inject NotificationStateService NotificationState
 
 @inherits AuthenticatedComponentBase
 
@@ -74,16 +75,47 @@ and provide a consistent layout and styling for the notifications section of the
 								 .Where(n => n.IsArchived)
 								 .ToList();
 
+	private async Task HandleMarkViewedAsync(int notificationId)
+	{
+		if (UserInfo is null) return;
+
+		await NotificationService.MarkViewedAsync(notificationId, UserInfo.UserId);
+		await NotificationState.RefreshUnreadCountAsync(UserInfo);
+		await OnNotificationsChanged.InvokeAsync();
+	}
+
+	private async Task HandleArchiveAsync(int notificationId)
+	{
+		if (UserInfo is null) return;
+
+		await NotificationService.ArchiveNotificationAsync(
+			notificationId,
+			UserInfo.UserId,
+			IsAdmin);
+
+		await NotificationState.RefreshUnreadCountAsync(UserInfo);
+		await OnNotificationsChanged.InvokeAsync();
+	}
+
+	private async Task HandleRestoreAsync(int notificationId)
+	{
+		if (UserInfo is null) return;
+
+		await NotificationService.RestoreNotificationAsync(
+			notificationId,
+			UserInfo.UserId,
+			IsAdmin);
+
+		await NotificationState.RefreshUnreadCountAsync(UserInfo);
+		await OnNotificationsChanged.InvokeAsync();
+	}
+
 	private async Task HandleMarkAllViewedAsync()
 	{
 		if (UserInfo is null) return;
 
-		await NotificationService.MarkAllViewedAsync(UserInfo);
+		await NotificationState.MarkAllViewedAsync(UserInfo);
 
-		foreach (var notification in Notifications.Where(n => !n.HasBeenViewed && !n.IsArchived))
-		{
-			notification.HasBeenViewed = true;
-		}
 		await OnNotificationsChanged.InvokeAsync();
 	}
 	#endregion
