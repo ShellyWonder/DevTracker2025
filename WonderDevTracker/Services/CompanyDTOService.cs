@@ -99,5 +99,11 @@ namespace WonderDevTracker.Services
                 await repository.AssignUserRoleAsync(userId, role, userInfo);
             }
         }
+
+        public async Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo)
+        {
+            DashboardDTO data = await repository.GetDashboardDataAsync(userInfo);
+            return data;
+        }
     }
 }

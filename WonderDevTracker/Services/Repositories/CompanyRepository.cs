@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
@@ -19,6 +20,29 @@ namespace WonderDevTracker.Services.Repositories
                 .Include(c => c.Members)
                   .FirstAsync(c => c.Id == userInfo.CompanyId); //Cannot be null
             return company;
+        }
+
+        public async Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo)
+        {
+            await using var context = contextFactory.CreateDbContext();
+            IQueryable<Ticket> allCompanyTickets = context.Tickets.Where(t => t.Project!.CompanyId == userInfo.CompanyId);
+            IQueryable<Project> allCompanyProjects = context.Projects.Where(p => p.CompanyId == userInfo.CompanyId);
+
+            int totalProjectCount = await allCompanyProjects.CountAsync();
+
+            int totalTicketCount = await allCompanyTickets.CountAsync();
+
+            int openTicketCount = await allCompanyTickets.Where(t => t.Status != TicketStatus.Resolved).CountAsync();
+
+            int resolvedTicketCount = await allCompanyTickets.Where(t => t.Status == TicketStatus.Resolved).CountAsync();
+
+            return new DashboardDTO
+            {
+                TotalProjectCount = totalProjectCount,
+                TotalTicketCount = totalTicketCount,
+                OpenTicketCount = openTicketCount,
+                ResolvedTicketCount = resolvedTicketCount
+            };
         }
         public async Task UpdateCompanyAsync(Company company, UserInfo userInfo)
         {
@@ -89,14 +113,14 @@ namespace WonderDevTracker.Services.Repositories
 
             if (userToAssign?.CompanyId != userInfo.CompanyId) return;
             //remove user's current roles
-             var originalRoles = await userManager.GetRolesAsync(userToAssign);
+            var originalRoles = await userManager.GetRolesAsync(userToAssign);
 
             //verify user is not DemoUser or already in target role
-            if (originalRoles.Any(roleName => roleName == nameof(Role.DemoUser) 
+            if (originalRoles.Any(roleName => roleName == nameof(Role.DemoUser)
                              || roleName == Enum.GetName(newRole))) return;
             try
             {
-               var removedResult = await userManager.RemoveFromRolesAsync(userToAssign, originalRoles);
+                var removedResult = await userManager.RemoveFromRolesAsync(userToAssign, originalRoles);
 
                 if (!removedResult.Succeeded)
                 {
@@ -119,6 +143,8 @@ namespace WonderDevTracker.Services.Repositories
                 throw;
             }
         }
+
+
         #endregion
     }
 }

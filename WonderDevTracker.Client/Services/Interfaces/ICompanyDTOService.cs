@@ -46,5 +46,15 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// 3. Admin cannot reassign self to avoid a situation in which no company admin exists on the account
         /// </remarks>
         public Task AssignUserRoleAsync(string userId, Role role, UserInfo userInfo);
+
+        /// <summary>
+        /// Retrieves dashboard data scoped to the specified user asynchronously.   
+        /// </summary>
+        /// <remarks>Performs asynchronous I/O and may throw exceptions for authorization failures or data
+        /// access errors. Await the returned task.</remarks>
+        /// <param name="userInfo">Authenticated user's claims.</param>
+        /// <returns>A Task that yields a DashboardDTO containing the dashboard data for the specified user.</returns>
+        public Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo);
+
     }
 }
