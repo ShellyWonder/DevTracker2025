@@ -1,0 +1,61 @@
+﻿@* DashboardStatCard *@
+
+<MudPaper Class="@Class" Elevation="1">
+	<MudCard Class="h-100">
+		<MudCardHeader>
+			<CardHeaderContent>
+				<MudStack Row="true"
+						  AlignItems="AlignItems.Center"
+						  Justify="Justify.SpaceBetween"
+						  Class="w-100">
+
+					<MudText Typo="@Typo"
+							 Color="@Color"
+							 Align="@Align"
+							 Class="@Class">
+						@Title
+					</MudText>
+
+					@if (!string.IsNullOrWhiteSpace(Icon))
+					{
+						<MudIcon Icon="@Icon" Color="@Color" Size="@Size" />
+					}
+				</MudStack>
+			</CardHeaderContent>
+		</MudCardHeader>
+		<MudCardContent Class="d-flex justify-center">
+
+			<DashboardStatChip StatValue="@StatValue" />
+
+		</MudCardContent>
+	</MudCard>
+</MudPaper>
+
+@code {
+	[Parameter, EditorRequired]
+	public string Title { get; set; } = default!;
+
+	[Parameter, EditorRequired]
+	public int StatValue { get; set; }
+
+	[Parameter]
+	public string? Icon { get; set; } = MudBlazor.Icons.Material.Filled.QueryStats;
+
+	[Parameter]
+	public Color Color { get; set; } = Color.Primary;
+
+	[Parameter]
+	public Typo Typo { get; set; } = Typo.h6;
+
+	[Parameter]
+	public Variant Variant { get; set; } = Variant.Filled;
+
+	[Parameter]
+	public Align Align { get; set; } = Align.Left;
+
+	[Parameter]
+	public string? Class { get; set; } = "pa-3 h-100";
+
+	[Parameter]
+	public Size Size { get; set; } = Size.Medium;
+}
