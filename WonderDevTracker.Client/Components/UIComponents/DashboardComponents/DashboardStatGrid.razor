@@ -1,0 +1,27 @@
+﻿@* DashboardStatGrid *@
+
+@if (Stats.Any())
+{
+    <MudGrid>
+        @foreach (var stat in Stats)
+        {
+            <MudItem xs="12" sm="6" md="@MdColumns" lg="@LgColumns">
+                <DashboardStatCard Title="@stat.Title"
+                                   StatValue="@stat.Value"
+                                   Icon="@stat.Icon"
+                                   Color="@stat.Color" />
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<DashboardStatItem> Stats { get; set; } = [];
+
+    [Parameter]
+    public int MdColumns { get; set; } = 3;
+
+    [Parameter]
+    public int LgColumns { get; set; } = 3;
+}

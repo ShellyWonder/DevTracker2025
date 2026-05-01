@@ -1,0 +1,43 @@
+﻿@* AdminDashboardZone *@
+
+
+	@*Add breakpoints*@
+<MudStack Spacing="4">
+
+	<DashboardStatGrid Stats="Stats" />
+	@* Company-wide stats *@
+	<DashboardChartsGrid Dashboard="Dashboard" />
+
+	@* Recent projects *@
+	<DashboardProjectActivity Projects="Projects"
+							  CanManageProjects="true"
+							  Title="Company Projects" />
+
+	@* Recent tickets *@
+	<DashboardRecentTickets Tickets="Tickets"
+							CanManageTickets="true"
+							Title="Recent Ticket Activity" />
+	@* Team/member panel *@
+	<DashboardTeamPanel Members="Members"
+						CanManageMembers="true" />
+
+	@* Unassigned tickets *@
+
+	@* Archived/restored activity later *@
+</MudStack>
+
+@code {
+	[Parameter, EditorRequired]
+	public DashboardDTO Dashboard { get; set; } = default!;
+
+	[Parameter]
+	public IEnumerable<ProjectDTO> Projects { get; set; } = [];
+
+	[Parameter]
+	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
+
+	[Parameter]
+	public IEnumerable<AppUserDTO> Members { get; set; } = [];
+
+	public IEnumerable<DashboardStatItem> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Admin);
+}
