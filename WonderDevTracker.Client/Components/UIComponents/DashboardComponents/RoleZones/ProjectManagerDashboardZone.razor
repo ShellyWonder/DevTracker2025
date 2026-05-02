@@ -1,0 +1,32 @@
+﻿@* ProjectManagerDashboardZone *@
+
+<MudStack Spacing="4">
+	<DashboardStatGrid Stats="Stats" />
+	
+@* Assigned projects *@
+
+@* Project team activity *@
+	<DashboardTeamPanel Members="Members" 
+						CanManageMembers="true"/>
+@* Unassigned tickets for projects assigned to PM *@
+
+@* Assigned/resolved ticket movement *@
+
+</MudStack>
+
+@code {
+
+	[Parameter, EditorRequired]
+	public DashboardDTO Dashboard { get; set; } = default!;
+
+	[Parameter]
+	public IEnumerable<ProjectDTO> Projects { get; set; } = [];
+
+	[Parameter]
+	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
+
+	[Parameter]
+	public IEnumerable<AppUserDTO> Members { get; set; } = [];
+
+	private IReadOnlyList<DashboardStatItem> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.ProjectManager);
+}

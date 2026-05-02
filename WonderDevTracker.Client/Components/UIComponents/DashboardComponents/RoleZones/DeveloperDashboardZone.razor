@@ -1,0 +1,26 @@
+﻿@* DeveloperDashboardZone *@
+
+@*Add breakpoints*@
+<MudStack Spacing="4">
+
+	<DashboardStatGrid Stats="Stats" />
+
+@* Assigned tickets *@
+@* Recent ticket updates *@
+@* Projects they are assigned to *@
+</MudStack>
+
+@code {
+	[Parameter, EditorRequired]
+	public DashboardDTO Dashboard { get; set; } = default!;
+
+	[Parameter]
+	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
+
+	[Parameter]
+	public IEnumerable<ProjectDTO> Projects { get; set; } = [];
+
+	private IReadOnlyList<DashboardStatItem> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Developer);
+
+	
+}

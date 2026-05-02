@@ -5,6 +5,7 @@
 <MudStack Spacing="4">
 
 	<DashboardStatGrid Stats="Stats" />
+
 	@* Company-wide stats *@
 	<DashboardChartsGrid Dashboard="Dashboard" />
 
@@ -39,5 +40,5 @@
 	[Parameter]
 	public IEnumerable<AppUserDTO> Members { get; set; } = [];
 
-	public IEnumerable<DashboardStatItem> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Admin);
+	private IReadOnlyList<DashboardStatItem> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Admin);
 }
