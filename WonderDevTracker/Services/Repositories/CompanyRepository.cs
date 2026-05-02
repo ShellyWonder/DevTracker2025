@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client;
-using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
@@ -25,9 +25,12 @@ namespace WonderDevTracker.Services.Repositories
         public async Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo)
         {
             await using var context = contextFactory.CreateDbContext();
+
+            //Primarily for admin dashboard consumption, so we will pull all company data.
+            //For user - specific dashboards, we will filter by user assignments in the query to pull only relevant data.
             IQueryable<Ticket> allCompanyTickets = context.Tickets.Where(t => t.Project!.CompanyId == userInfo.CompanyId);
             IQueryable<Project> allCompanyProjects = context.Projects.Where(p => p.CompanyId == userInfo.CompanyId);
-
+           
             int totalProjectCount = await allCompanyProjects.CountAsync();
 
             int totalTicketCount = await allCompanyTickets.CountAsync();
@@ -38,10 +41,13 @@ namespace WonderDevTracker.Services.Repositories
 
             return new DashboardDTO
             {
-                TotalProjectCount = totalProjectCount,
-                TotalTicketCount = totalTicketCount,
-                OpenTicketCount = openTicketCount,
-                ResolvedTicketCount = resolvedTicketCount
+                CompanyStats = new CompanyDashboardStatsDTO
+                {
+                    TotalProjectCount = totalProjectCount,
+                    TotalTicketCount = totalTicketCount,
+                    OpenTicketCount = openTicketCount,
+                    ResolvedTicketCount = resolvedTicketCount
+                }
             };
         }
         public async Task UpdateCompanyAsync(Company company, UserInfo userInfo)

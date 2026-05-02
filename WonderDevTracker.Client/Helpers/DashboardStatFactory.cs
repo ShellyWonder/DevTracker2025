@@ -1,5 +1,5 @@
 ﻿using MudBlazor;
-using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Models.ViewModels;
 
@@ -13,138 +13,157 @@ public static class DashboardStatFactory
     {
         return role switch
         {
-            Role.Admin => BuildAdminStats(dashboard),
-            Role.ProjectManager => BuildProjectManagerStats(dashboard),
-            Role.Developer => BuildDeveloperStats(dashboard),
+            Role.Admin => BuildCompanyStats(dashboard),
+            Role.ProjectManager => BuildPMStats(dashboard),
+            Role.Developer => BuildDevStats(dashboard),
             Role.Submitter => BuildSubmitterStats(dashboard),
             _ => BuildDefaultStats(dashboard)
         };
     }
 
-    private static IReadOnlyList<DashboardStatItem> BuildAdminStats(DashboardDTO dashboard) =>
-    [
-        new()
+    private static IReadOnlyList<DashboardStatItem> BuildCompanyStats(DashboardDTO dashboard)
+    {
+        var stats = dashboard.CompanyStats;
+
+        return
+        [
+            new DashboardStatItem
         {
             Title = "Total Projects",
-            Value = dashboard.TotalProjectCount,
+            Value = stats.TotalProjectCount,
             Icon = Icons.Material.Filled.Folder,
             Color = Color.Primary
         },
         new()
         {
             Title = "Total Tickets",
-            Value = dashboard.TotalTicketCount,
+            Value = stats.TotalTicketCount,
             Icon = Icons.Material.Filled.ConfirmationNumber,
             Color = Color.Secondary
         },
         new()
         {
             Title = "Open Tickets",
-            Value = dashboard.OpenTicketCount,
+            Value = stats.OpenTicketCount,
             Icon = Icons.Material.Filled.PendingActions,
             Color = Color.Warning
         },
         new()
         {
             Title = "Resolved Tickets",
-            Value = dashboard.ResolvedTicketCount,
+            Value = stats.ResolvedTicketCount,
             Icon = Icons.Material.Filled.CheckCircle,
             Color = Color.Success
         }
-    ];
+    ];}
 
-    private static IReadOnlyList<DashboardStatItem> BuildProjectManagerStats(DashboardDTO dashboard) =>
-    [
-        new()
+    private static IReadOnlyList<DashboardStatItem> BuildPMStats(DashboardDTO dashboard)
+    {
+        var stats = dashboard.PMStats;
+        return
+        [
+            new()
         {
             Title = "Managed Projects",
-            Value = dashboard.TotalProjectCount,
+            Value = stats.ManagedProjectCount,
             Icon = Icons.Material.Filled.Folder,
             Color = Color.Primary
         },
         new()
         {
             Title = "Project Tickets",
-            Value = dashboard.TotalTicketCount,
+            Value = stats.ManagedProjectTicketCount,
             Icon = Icons.Material.Filled.ConfirmationNumber,
             Color = Color.Secondary
         },
         new()
         {
             Title = "Open Tickets",
-            Value = dashboard.OpenTicketCount,
+            Value = stats.OpenManagedTicketCount,
             Icon = Icons.Material.Filled.PendingActions,
             Color = Color.Warning
         },
         new()
         {
             Title = "Resolved Tickets",
-            Value = dashboard.ResolvedTicketCount,
+            Value = stats.ResolvedManagedTicketCount,
             Icon = Icons.Material.Filled.CheckCircle,
             Color = Color.Success
         }
-    ];
+    ]; 
+    }
 
-    private static IReadOnlyList<DashboardStatItem> BuildDeveloperStats(DashboardDTO dashboard) =>
-    [
-        new()
+    private static IReadOnlyList<DashboardStatItem> BuildDevStats(DashboardDTO dashboard)
+    {
+        var stats = dashboard.DevStats;
+
+        return
+        [
+            new()
         {
             Title = "Assigned Tickets",
-            Value = dashboard.TotalTicketCount,
+            Value = stats.AssignedTicketCount,
             Icon = Icons.Material.Filled.AssignmentInd,
             Color = Color.Primary
         },
         new()
         {
             Title = "Open Tickets",
-            Value = dashboard.OpenTicketCount,
+            Value = stats.OpenAssignedTicketCount,
             Icon = Icons.Material.Filled.PendingActions,
             Color = Color.Warning
         },
         new()
         {
             Title = "Resolved Tickets",
-            Value = dashboard.ResolvedTicketCount,
+            Value = stats.ResolvedAssignedTicketCount,
             Icon = Icons.Material.Filled.CheckCircle,
             Color = Color.Success
         }
     ];
+    }
 
-    private static IReadOnlyList<DashboardStatItem> BuildSubmitterStats(DashboardDTO dashboard) =>
-    [
-        new()
+    private static IReadOnlyList<DashboardStatItem> BuildSubmitterStats(DashboardDTO dashboard)
+    {
+        var stats = dashboard.SubmitterStats;
+
+        return[
+            new()
         {
             Title = "Submitted Tickets",
-            Value = dashboard.TotalTicketCount,
+            Value = stats.SubmittedTicketCount,
             Icon = Icons.Material.Filled.Outbox,
             Color = Color.Primary
         },
         new()
         {
             Title = "Open Tickets",
-            Value = dashboard.OpenTicketCount,
+            Value = stats.OpenSubmittedTicketCount,
             Icon = Icons.Material.Filled.PendingActions,
             Color = Color.Warning
         },
         new()
         {
             Title = "Resolved Tickets",
-            Value = dashboard.ResolvedTicketCount,
+            Value = stats.ResolvedSubmittedTicketCount,
             Icon = Icons.Material.Filled.CheckCircle,
             Color = Color.Success
         }
-    ];
+    ]; }
 
-    private static IReadOnlyList<DashboardStatItem> BuildDefaultStats(DashboardDTO dashboard) =>
-    [
-        new()
+    private static IReadOnlyList<DashboardStatItem> BuildDefaultStats(DashboardDTO dashboard)
+    {
+        var stats = dashboard.CompanyStats;
+        return
+        [
+            new()
         {
             Title = "Total Tickets",
-            Value = dashboard.TotalTicketCount,
+            Value = stats.TotalTicketCount,
             Icon = Icons.Material.Filled.QueryStats,
             Color = Color.Primary
         }
-    ];
+    ]; }
 }
 
     

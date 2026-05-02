@@ -4,7 +4,8 @@ namespace WonderDevTracker.Client.Models.ViewModels
 {
     public class DashboardStatItem
     {
-        public string? Title { get; set; }
+        public string Title { get; set; } = string.Empty;
+
         public int Value { get; init; }
 
         public string Icon { get; init; } = Icons.Material.Filled.QueryStats;
