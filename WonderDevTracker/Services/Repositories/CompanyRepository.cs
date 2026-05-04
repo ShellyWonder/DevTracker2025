@@ -22,34 +22,7 @@ namespace WonderDevTracker.Services.Repositories
             return company;
         }
 
-        public async Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo)
-        {
-            await using var context = contextFactory.CreateDbContext();
 
-            //Primarily for admin dashboard consumption, so we will pull all company data.
-            //For user - specific dashboards, we will filter by user assignments in the query to pull only relevant data.
-            IQueryable<Ticket> allCompanyTickets = context.Tickets.Where(t => t.Project!.CompanyId == userInfo.CompanyId);
-            IQueryable<Project> allCompanyProjects = context.Projects.Where(p => p.CompanyId == userInfo.CompanyId);
-           
-            int totalProjectCount = await allCompanyProjects.CountAsync();
-
-            int totalTicketCount = await allCompanyTickets.CountAsync();
-
-            int openTicketCount = await allCompanyTickets.Where(t => t.Status != TicketStatus.Resolved).CountAsync();
-
-            int resolvedTicketCount = await allCompanyTickets.Where(t => t.Status == TicketStatus.Resolved).CountAsync();
-
-            return new DashboardDTO
-            {
-                CompanyStats = new CompanyDashboardStatsDTO
-                {
-                    TotalProjectCount = totalProjectCount,
-                    TotalTicketCount = totalTicketCount,
-                    OpenTicketCount = openTicketCount,
-                    ResolvedTicketCount = resolvedTicketCount
-                }
-            };
-        }
         public async Task UpdateCompanyAsync(Company company, UserInfo userInfo)
         {
             if (!userInfo.IsInRole(Role.Admin) || company.Id != userInfo.CompanyId) return;
@@ -150,7 +123,153 @@ namespace WonderDevTracker.Services.Repositories
             }
         }
 
+        #endregion
 
+        #region DASHBOARD DATA
+
+        public async Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo)
+        {
+            await using var context = contextFactory.CreateDbContext();
+
+            //Primarily for admin dashboard consumption, so we will pull all company data.
+            //For user - specific dashboards, we will filter by user assignments in the query to pull only relevant data.
+            //For PM, Dev and Submitter queries, we are filtering out archived projects and tickets to focus on active work.
+
+            IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, userInfo.CompanyId);
+            IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, userInfo.CompanyId);
+            IQueryable<Project> pmProjects = GetPMProjectsQuery(context, userInfo.CompanyId, userInfo.UserId);
+            IQueryable<Ticket> pmTickets = GetPMProjectTicketsQuery(context, userInfo.CompanyId, userInfo.UserId);
+            IQueryable<Project> devProjects = GetDeveloperProjectsQuery(context, userInfo.CompanyId, userInfo.UserId);
+            IQueryable<Ticket> devTickets = GetDeveloperTicketsQuery(context, userInfo.CompanyId, userInfo.UserId);
+            IQueryable<Ticket> submitterTickets = GetSubmitterTicketsQuery(context, userInfo.CompanyId, userInfo.UserId);
+
+            return new DashboardDTO
+            {
+                CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
+                PMStats = await GetPMDashboardStatsAsync(pmProjects, pmTickets),
+                DevStats = await GetDeveloperDashboardStatsAsync(devProjects, devTickets),
+                SubmitterStats = await GetSubmitterDashboardStatsAsync(submitterTickets)
+            };
+        }
+        #region Query Builders
+        //For company-wide(ADMIN) stats
+        private static IQueryable<Project> GetCompanyProjectsQuery(ApplicationDbContext context, int companyId)
+        {
+            return context.Projects
+                .AsNoTracking()
+                .Where(p => p.CompanyId == companyId);
+        }
+
+        private static IQueryable<Ticket> GetCompanyTicketsQuery(ApplicationDbContext context, int companyId)
+        {
+            return context.Tickets
+                .AsNoTracking()
+                .Where(t => t.Project!.CompanyId == companyId);
+        }
+        //For PM-specific stats
+        private static IQueryable<Project> GetPMProjectsQuery(ApplicationDbContext context, int companyId, string userId)
+        {
+            return context.Projects
+                .AsNoTracking()
+                .Where(p => p.CompanyId == companyId && p.Members!.Any(m => m.Id == userId) && !p.Archived);
+        }
+        private static IQueryable<Ticket> GetPMProjectTicketsQuery(ApplicationDbContext context, int companyId, string userId)
+        {
+            return context.Tickets
+                .AsNoTracking()
+                .Where(t => t.Project!.CompanyId == companyId &&
+                !t.Archived &&
+                !t.Project!.Archived &&
+                t.Project!.Members!.Any(m => m.Id == userId));
+        }
+
+        //For Developer-specific stats
+        private static IQueryable<Project> GetDeveloperProjectsQuery(ApplicationDbContext context, int companyId, string userId)
+        {
+            return context.Projects
+                .AsNoTracking()
+                .Where(p => p.CompanyId == companyId && p.Members!.Any(m => m.Id == userId) && !p.Archived);
+        }
+
+        private static IQueryable<Ticket> GetDeveloperTicketsQuery(ApplicationDbContext context, int companyId, string userId)
+        {
+            return context.Tickets
+                .AsNoTracking()
+                .Where(t => t.Project!.CompanyId == companyId &&
+                !t.Archived &&
+                !t.Project!.Archived &&
+                t.DeveloperUserId == userId);
+        }
+
+        //For Submitter-specific stats
+        private static IQueryable<Ticket> GetSubmitterTicketsQuery(ApplicationDbContext context, int companyId, string userId)
+        {
+            return context.Tickets
+                .AsNoTracking()
+                .Where(t => t.Project!.CompanyId == companyId &&
+                !t.Archived &&
+                !t.Project!.Archived &&
+                t.SubmitterUserId == userId);
+        }
+        #endregion
+
+        #region Role-Specific Stats Calculators
+        private static async Task<CompanyDashboardStatsDTO> GetCompanyDashboardStatsAsync(
+                                                                IQueryable<Project> companyProjects,
+                                                                IQueryable<Ticket> companyTickets)
+        {
+            return new CompanyDashboardStatsDTO
+            {
+                TotalProjectCount = await companyProjects.CountAsync(),
+                TotalTicketCount = await companyTickets.CountAsync(),
+                OpenTicketCount = await companyTickets
+                                        .CountAsync(t => t.Status != TicketStatus.Resolved),
+                ResolvedTicketCount = await companyTickets
+                                        .CountAsync(t => t.Status == TicketStatus.Resolved)
+            };
+        }
+
+        private static async Task<PMDashboardStatsDTO> GetPMDashboardStatsAsync(
+                                                                IQueryable<Project> pmProjects,
+                                                                IQueryable<Ticket> pmTickets)
+        {
+            return new PMDashboardStatsDTO
+            {
+                ManagedProjectCount = await pmProjects.CountAsync(),
+                ActiveManagedTicketCount = await pmTickets.CountAsync(),
+                OpenManagedTicketCount = await pmTickets
+                                        .CountAsync(t => t.Status != TicketStatus.Resolved),
+                ResolvedManagedTicketCount = await pmTickets
+                                        .CountAsync(t => t.Status == TicketStatus.Resolved)
+            };
+        }
+        private static async Task<DevDashboardStatsDTO> GetDeveloperDashboardStatsAsync(
+                                                                IQueryable<Project> devProjects,
+                                                                IQueryable<Ticket> devTickets)
+        {
+            return new DevDashboardStatsDTO
+            {
+                AssignedProjectsCount = await devProjects.CountAsync(),
+                AssignedTicketCount = await devTickets.CountAsync(),
+                OpenAssignedTicketCount = await devTickets
+                    .CountAsync(t => t.Status != TicketStatus.Resolved),
+                ResolvedAssignedTicketCount = await devTickets
+                    .CountAsync(t => t.Status == TicketStatus.Resolved)
+            };
+        }
+        private static async Task<SubmitterDashboardStatsDTO> GetSubmitterDashboardStatsAsync(
+                                                                IQueryable<Ticket> submitterTickets)
+        {
+            return new SubmitterDashboardStatsDTO
+            {
+                SubmittedTicketCount = await submitterTickets.CountAsync(),
+                OpenSubmittedTicketCount = await submitterTickets
+                                                .CountAsync(t => t.Status != TicketStatus.Resolved),
+                ResolvedSubmittedTicketCount = await submitterTickets
+                                                .CountAsync(t => t.Status == TicketStatus.Resolved)
+            };
+        }
+        #endregion
         #endregion
     }
 }
