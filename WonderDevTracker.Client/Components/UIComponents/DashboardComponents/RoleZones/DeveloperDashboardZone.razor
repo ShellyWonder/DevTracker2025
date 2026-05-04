@@ -20,7 +20,7 @@
 	[Parameter]
 	public IEnumerable<ProjectDTO> Projects { get; set; } = [];
 
-	private IReadOnlyList<DashboardStatItem> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Developer);
+	private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Developer);
 
 	
 }

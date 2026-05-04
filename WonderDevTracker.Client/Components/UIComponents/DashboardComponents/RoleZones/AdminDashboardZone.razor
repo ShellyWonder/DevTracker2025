@@ -12,7 +12,7 @@
 	@* Recent projects *@
 	<DashboardProjectActivity Projects="Projects"
 							  CanManageProjects="true"
-							  Title="Company Projects" />
+							  />
 
 	@* Recent tickets *@
 	<DashboardRecentTickets Tickets="Tickets"
@@ -40,5 +40,5 @@
 	[Parameter]
 	public IEnumerable<AppUserDTO> Members { get; set; } = [];
 
-	private IReadOnlyList<DashboardStatItem> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Admin);
+	private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Admin);
 }

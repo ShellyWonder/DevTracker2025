@@ -7,7 +7,7 @@ namespace WonderDevTracker.Client.Helpers;
 
 public static class DashboardStatFactory
 {
-    public static IReadOnlyList<DashboardStatItem> BuildStats(
+    public static IReadOnlyList<DashboardStatItemViewModel> BuildStats(
         DashboardDTO dashboard,
         Role role)
     {
@@ -21,13 +21,13 @@ public static class DashboardStatFactory
         };
     }
 
-    private static IReadOnlyList<DashboardStatItem> BuildCompanyStats(DashboardDTO dashboard)
+    private static IReadOnlyList<DashboardStatItemViewModel> BuildCompanyStats(DashboardDTO dashboard)
     {
         var stats = dashboard.CompanyStats;
 
         return
         [
-            new DashboardStatItem
+            new DashboardStatItemViewModel
         {
             Title = "Total Projects",
             Value = stats.TotalProjectCount,
@@ -57,7 +57,7 @@ public static class DashboardStatFactory
         }
     ];}
 
-    private static IReadOnlyList<DashboardStatItem> BuildPMStats(DashboardDTO dashboard)
+    private static IReadOnlyList<DashboardStatItemViewModel> BuildPMStats(DashboardDTO dashboard)
     {
         var stats = dashboard.PMStats;
         return
@@ -72,7 +72,7 @@ public static class DashboardStatFactory
         new()
         {
             Title = "Project Tickets",
-            Value = stats.ManagedProjectTicketCount,
+            Value = stats.ActiveManagedTicketCount,
             Icon = Icons.Material.Filled.ConfirmationNumber,
             Color = Color.Secondary
         },
@@ -93,7 +93,7 @@ public static class DashboardStatFactory
     ]; 
     }
 
-    private static IReadOnlyList<DashboardStatItem> BuildDevStats(DashboardDTO dashboard)
+    private static IReadOnlyList<DashboardStatItemViewModel> BuildDevStats(DashboardDTO dashboard)
     {
         var stats = dashboard.DevStats;
 
@@ -123,7 +123,7 @@ public static class DashboardStatFactory
     ];
     }
 
-    private static IReadOnlyList<DashboardStatItem> BuildSubmitterStats(DashboardDTO dashboard)
+    private static IReadOnlyList<DashboardStatItemViewModel> BuildSubmitterStats(DashboardDTO dashboard)
     {
         var stats = dashboard.SubmitterStats;
 
@@ -151,7 +151,7 @@ public static class DashboardStatFactory
         }
     ]; }
 
-    private static IReadOnlyList<DashboardStatItem> BuildDefaultStats(DashboardDTO dashboard)
+    private static IReadOnlyList<DashboardStatItemViewModel> BuildDefaultStats(DashboardDTO dashboard)
     {
         var stats = dashboard.CompanyStats;
         return

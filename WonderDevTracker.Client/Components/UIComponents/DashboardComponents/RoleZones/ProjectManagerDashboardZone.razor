@@ -28,5 +28,5 @@
 	[Parameter]
 	public IEnumerable<AppUserDTO> Members { get; set; } = [];
 
-	private IReadOnlyList<DashboardStatItem> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.ProjectManager);
+	private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.ProjectManager);
 }

@@ -2,7 +2,7 @@
 
 namespace WonderDevTracker.Client.Models.ViewModels
 {
-    public class DashboardStatItem
+    public class DashboardStatItemViewModel
     {
         public string Title { get; set; } = string.Empty;
 
