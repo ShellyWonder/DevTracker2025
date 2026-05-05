@@ -1,0 +1,77 @@
+﻿@* DashboardHeader *@
+
+@* Note Future features:
+ 1. add a "last login" timestamp below the role,
+and/or a "welcome back" message that changes based on the time of day
+(e.g., "Good morning", "Good afternoon", "Good evening") instead of just "Welcome back".
+2. Add current date and time in the header, perhaps with a tooltip showing the user's local timezone.
+3. Add the light/dark mode toggle in the header for easy access to theme switching.
+ *@<MudPaper Class="dashboard-header pa-6 mb-6"
+		Elevation="0"
+		Rounded="true">
+
+<MudStack Row="true"
+		  AlignItems="AlignItems.Center"
+		  Justify="Justify.SpaceBetween"
+		  Spacing="3"
+		  Class="dashboard-header-stack">
+
+	<MudStack Row="true"
+			  AlignItems="AlignItems.Center"
+			  Spacing="3">
+
+		<MudAvatar Size="Size.Large"
+				   Image="@MemberImageUrl"
+				   Alt="@($"{UserName} profile image")">
+			@GetInitials(UserName)
+		</MudAvatar>
+
+		<MudStack Spacing="1">
+			<MudText Typo="Typo.h4"
+					 Class="dashboard-header-title">
+				Welcome back, @UserName!
+			</MudText>
+
+			<MudText Typo="Typo.subtitle1"
+					 Class="dashboard-header-company">
+				@CompanyName
+			</MudText>
+
+			<MudText Typo="Typo.body2"
+					 Class="dashboard-header-role">
+				@DashboardRole
+			</MudText>
+		</MudStack>
+
+	</MudStack>
+
+</MudStack>
+
+</MudPaper>
+
+@code {
+	[Parameter, EditorRequired]
+	public string UserName { get; set; } = string.Empty;
+
+	[Parameter, EditorRequired]
+	public string DashboardRole { get; set; } = string.Empty;
+
+	[Parameter]
+	public string? MemberImageUrl { get; set; }
+
+	[Parameter, EditorRequired]
+	public string CompanyName { get; set; } = string.Empty;
+
+	private static string GetInitials(string name)
+	{
+		if (string.IsNullOrWhiteSpace(name))
+			return "?";
+
+		var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+		if (parts.Length == 1)
+			return parts[0][0].ToString().ToUpperInvariant();
+
+		return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+	}
+}
