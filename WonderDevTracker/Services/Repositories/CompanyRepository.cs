@@ -134,7 +134,7 @@ namespace WonderDevTracker.Services.Repositories
             //Primarily for admin dashboard consumption, so we will pull all company data.
             //For user - specific dashboards, we will filter by user assignments in the query to pull only relevant data.
             //For PM, Dev and Submitter queries, we are filtering out archived projects and tickets to focus on active work.
-
+            
             IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, userInfo.CompanyId);
             IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, userInfo.CompanyId);
             IQueryable<Project> pmProjects = GetPMProjectsQuery(context, userInfo.CompanyId, userInfo.UserId);
@@ -145,6 +145,7 @@ namespace WonderDevTracker.Services.Repositories
 
             return new DashboardDTO
             {
+                CompanyInfo = await GetCompanyInfoAsync(context, userInfo.CompanyId),
                 CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
                 PMStats = await GetPMDashboardStatsAsync(pmProjects, pmTickets),
                 DevStats = await GetDeveloperDashboardStatsAsync(devProjects, devTickets),
@@ -166,6 +167,7 @@ namespace WonderDevTracker.Services.Repositories
                 .AsNoTracking()
                 .Where(t => t.Project!.CompanyId == companyId);
         }
+
         //For PM-specific stats
         private static IQueryable<Project> GetPMProjectsQuery(ApplicationDbContext context, int companyId, string userId)
         {
@@ -268,6 +270,20 @@ namespace WonderDevTracker.Services.Repositories
                 ResolvedSubmittedTicketCount = await submitterTickets
                                                 .CountAsync(t => t.Status == TicketStatus.Resolved)
             };
+        }
+        #endregion
+        #region Company Info DTO
+        private static async Task<CompanyDashboardInfoDTO> GetCompanyInfoAsync(ApplicationDbContext context, int companyId)
+        {
+            return await context.Companies
+                .Where(c => c.Id == companyId)
+                .Select(c => new CompanyDashboardInfoDTO
+                {
+                    CompanyId = c.Id,
+                    CompanyName = c.Name ?? "Company",
+                   //ImageUrl = c.Image != null ? $"/fileuploads/{c.Image.Id}" : null
+                })
+                .FirstOrDefaultAsync() ?? throw new ApplicationException("Company not found");
         }
         #endregion
         #endregion

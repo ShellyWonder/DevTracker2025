@@ -10,7 +10,7 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         public int ManagedProjectCount { get; set; }
 
         [Description("Total number of tickets across all managed projects.")]
-        public int ManagedProjectTicketCount { get; set; }
+        public int ActiveManagedTicketCount { get; set; }
 
         [Description("Number of open tickets across all managed projects.")]
         public int OpenManagedTicketCount { get; set; }

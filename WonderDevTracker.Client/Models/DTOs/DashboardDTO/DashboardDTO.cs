@@ -9,7 +9,10 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
     
     public class DashboardDTO
     {
-        //General stats for company dashboard, primarily for admin consumption.
+        //CompanyInfo:Basic info about the company, used for display and to determine what data to load.
+        public CompanyDashboardInfoDTO CompanyInfo { get; set; } = new();
+
+        //CompanyStats:General stats for company dashboard, primarily for admin consumption.
         public CompanyDashboardStatsDTO CompanyStats { get; set; } = new();
         public PMDashboardStatsDTO PMStats { get; set; } = new();
         public DevDashboardStatsDTO DevStats { get; set; } = new();
