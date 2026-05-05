@@ -1,0 +1,41 @@
+﻿@* ExpandCollapseToggle *@
+
+<MudButton Variant="Variant.Text"
+		   Color="@Color"
+		   Size="@Size"
+		   EndIcon="@Icon"
+		   OnClick="OnToggle">
+	@Text
+</MudButton>
+
+@code {
+	[Parameter]
+	public bool IsExpanded { get; set; }
+
+	[Parameter]
+	public EventCallback<bool> OnExpandedChanged { get; set; }
+
+	[Parameter]
+	public string ExpandText { get; set; } = "Show All";
+
+	[Parameter]
+	public string CollapseText { get; set; } = "Show Less";
+
+	[Parameter]
+	public Color Color { get; set; } = Color.Primary;
+
+	[Parameter]
+	public Size Size { get; set; } = Size.Small;
+
+	public string Text => IsExpanded ? CollapseText : ExpandText;
+
+        private string Icon => IsExpanded ? Icons.Material.Filled.ExpandLess
+								: Icons.Material.Filled.ExpandMore;
+
+	private async Task OnToggle()
+	{
+
+		IsExpanded = !IsExpanded;
+		await OnExpandedChanged.InvokeAsync(IsExpanded);
+	}
+}
