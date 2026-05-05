@@ -1,0 +1,54 @@
+﻿/*NOTE:
+    The shell(wrapper)gives Blazor CSS isolation a real HTML element 
+    to attach its scope attribute to. 
+    Then ::deep tells the isolated stylesheet to reach 
+    into the MudBlazor component output beneath that wrapper.*/
+
+.dashboard-header-shell ::deep .dashboard-header {
+    background: linear-gradient(135deg, #FFFFFF 0%, #F9FCFE 100%);
+    border: 1px solid #DDE6EC;
+    border-radius: 18px;
+}
+
+.dashboard-header-shell ::deep .dashboard-header-stack {
+    width: 100%;
+}
+
+.dashboard-header-shell ::deep .dashboard-header-title {
+    color: #1E2A35;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.dashboard-header-shell ::deep .dashboard-header-company {
+    color: #0077B6;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.dashboard-header-shell ::deep .dashboard-header-role {
+    color: #6C7A89;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.dashboard-header-shell ::deep .dashboard-header-avatar {
+    border: 2px solid #DDE6EC;
+    background-color: #F9FCFE;
+    color: #0077B6;
+    font-weight: 700;
+}
+
+@media (max-width: 600px) {
+    .dashboard-header-shell ::deep .dashboard-header {
+        padding: 1.25rem !important;
+    }
+
+    .dashboard-header-shell ::deep .dashboard-header-title {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-header-shell ::deep .dashboard-header-stack {
+        align-items: flex-start;
+    }
+}
