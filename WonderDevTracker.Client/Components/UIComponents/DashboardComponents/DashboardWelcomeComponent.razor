@@ -1,0 +1,23 @@
+﻿@* DashboardWelcomeComponent *@
+
+@inherits AuthenticatedComponentBase
+@if (AuthReady && UserInfo is not null)
+{
+	<TitleComponentPage Title="@Title" Subtitle="@DashboardSubtitle" />
+}
+@code {
+
+	private string Title => $"Welcome back, {UserName}!";
+	private string UserName => UserInfo?.FullName ?? "User";
+
+	private string DashboardSubtitle =>
+			IsAdmin
+				? "Here's the company-wide project and ticket overview."
+				: IsProjectManager
+					? "Here's what's happening with your assigned projects and team activity."
+					: UserIsInRole(Role.Developer)
+						? "Here's what's happening with your assigned tickets."
+							: UserIsInRole(Role.Submitter)
+							? "Here's an overview of your submitted tickets and updates."
+							: "Here's your dashboard overview.";
+				}
