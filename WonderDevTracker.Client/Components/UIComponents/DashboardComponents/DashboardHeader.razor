@@ -5,7 +5,8 @@
 and/or a "welcome back" message that changes based on the time of day
 (e.g., "Good morning", "Good afternoon", "Good evening") instead of just "Welcome back".
 2. Add current date and time in the header, perhaps with a tooltip showing the user's local timezone.
-3. Add the light/dark mode toggle in the header for easy access to theme switching.*@
+3. Add the light/dark mode toggle in the header for easy access to theme switching.
+<DashboardThemeToggle />*@
 
 <div class="dashboard-header-shell">
  <MudPaper Class="dashboard-header pa-6 mb-6"
@@ -50,7 +51,9 @@ and/or a "welcome back" message that changes based on the time of day
 </MudStack>
 
 </MudPaper>
+
 </div>
+
 @code {
 	[Parameter, EditorRequired]
 	public string UserName { get; set; } = string.Empty;

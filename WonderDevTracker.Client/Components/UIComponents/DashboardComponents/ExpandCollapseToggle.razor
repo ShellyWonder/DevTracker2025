@@ -22,7 +22,9 @@
 	public string CollapseText { get; set; } = "Show Less";
 
 	[Parameter]
-	public Color Color { get; set; } = Color.Primary;
+	public Color Color { get; set; } = Color.Dark;
+	[Parameter]
+	public Typo Typo { get; set; } = Typo.caption;
 
 	[Parameter]
 	public Size Size { get; set; } = Size.Small;

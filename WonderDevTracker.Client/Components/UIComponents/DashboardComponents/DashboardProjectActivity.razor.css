@@ -1,0 +1,9 @@
+﻿.dashboard-project-activity-shell {
+    margin-bottom: 1rem;
+}
+
+.dashboard-project-activity-shell ::deep .dashboard-project-activity {
+    background: #FFFFFF;
+    border: 1px solid #DDE6EC;
+    border-radius: 18px;
+}

@@ -12,7 +12,7 @@
 	@* Recent projects *@
 	<DashboardProjectActivity Projects="Projects"
 							  CanManageProjects="true"
-							  />
+							  CollapsedCount="3"/>
 
 	@* Recent tickets *@
 	<DashboardRecentTickets Tickets="Tickets"
@@ -32,7 +32,7 @@
 	public DashboardDTO Dashboard { get; set; } = default!;
 
 	[Parameter]
-	public IEnumerable<ProjectDTO> Projects { get; set; } = [];
+	public IReadOnlyList<ProjectDTO> Projects { get; set; } = [];
 
 	[Parameter]
 	public IEnumerable<TicketDTO> Tickets { get; set; } = [];

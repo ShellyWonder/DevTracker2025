@@ -1,0 +1,103 @@
+﻿@* DashboardProjectActivity *@
+
+<div class="dashboard-project-activity-shell">
+
+	<MudPaper Class="dashboard-project-activity pa-4 mb-4"
+			  Elevation="1"
+			  Rounded="true">
+
+		<MudStack Row="true"
+				  AlignItems="AlignItems.Center"
+				  Justify="Justify.SpaceBetween"
+				  Class="mb-3">
+
+			<MudStack Row="true"
+					  AlignItems="AlignItems.Center"
+					  Spacing="2">
+
+				<MudIcon Icon="@Icons.Material.Filled.FolderOpen"
+						 Color="Color.Primary" />
+
+				<TitleComponentPage Title="Active Projects" />
+			</MudStack>
+
+			<MudStack Row="true"
+					  AlignItems="AlignItems.Center"
+					  Spacing="2">
+
+				@if (CanManageProjects)
+				{
+					<SafeNavButton Href="/projects/create"
+								   Color="Color.Primary"
+								   Variant="Variant.Filled"
+								   Size="Size.Small">
+						Create New
+					</SafeNavButton>
+				}
+				@if (HasMoreThanCollapsedCount)
+				{
+					<ExpandCollapseToggle @bind-Expanded="_expanded" />
+				}
+
+			</MudStack>
+		</MudStack>
+
+
+		@if (!_activeProjects.Any())
+		{
+			<NotFoundDisplay Message="No active projects found." />
+		}
+		else
+		{
+			<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+				@foreach (var item in VisibleProjectsWithIndex)
+				{
+					<div class="col mb-2">
+						<ProjectCard Project="@item.Project"
+									 Index="@item.Index" />
+					</div>
+				}
+			</div>
+		}
+
+
+	</MudPaper>
+</div>
+
+@code {
+	[Parameter, EditorRequired]
+	public IReadOnlyList<ProjectDTO> Projects { get; set; } = [];
+
+	[Parameter, EditorRequired]
+	public bool CanManageProjects { get; set; } = false;
+
+	[Parameter]
+	public int CollapsedCount { get; set; } = 3;
+
+	private bool _expanded;
+
+	private IReadOnlyList<ProjectDTO> _activeProjects = [];
+
+	protected override void OnParametersSet()
+	{
+		_activeProjects = Projects
+			.Where(p => !p.Archived)
+			.OrderBy(p => p.EndDate)
+			.ToList();
+	}
+
+
+	private IEnumerable<ProjectDTO> VisibleProjects =>
+		_expanded
+			? _activeProjects
+			: _activeProjects.Take(CollapsedCount);
+	private IEnumerable<ProjectWithIndex> VisibleProjectsWithIndex =>
+			VisibleProjects
+				.Select((project, index) => new ProjectWithIndex(project, index));
+
+	private bool HasMoreThanCollapsedCount =>
+							   _activeProjects.Count > CollapsedCount;
+
+	private sealed record ProjectWithIndex(ProjectDTO Project, int Index);
+
+}
