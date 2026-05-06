@@ -1,0 +1,14 @@
+﻿.dashboard-team-panel-shell {
+    margin-bottom: 1rem;
+}
+
+    .dashboard-team-panel-shell ::deep .dashboard-team-panel {
+        background: #FFFFFF;
+        border: 1px solid #DDE6EC;
+        border-radius: 18px;
+    }
+
+    .dashboard-team-panel-shell ::deep .dashboard-team-role-zone {
+        border-radius: 14px;
+        min-height: 100%;
+    }
