@@ -1,0 +1,18 @@
+﻿.dashboard-quick-actions-shell {
+    margin-bottom: 1rem;
+}
+
+    .dashboard-quick-actions-shell ::deep .dashboard-quick-actions {
+        background: #FFFFFF;
+        border: 1px solid #DDE6EC;
+        border-radius: 18px;
+    }
+
+    .dashboard-quick-actions-shell ::deep .dashboard-quick-actions-title {
+        color: #1E2A35;
+        font-weight: 700;
+    }
+
+    .dashboard-quick-actions-shell ::deep .dashboard-quick-actions-list {
+        gap: 0.5rem;
+    }

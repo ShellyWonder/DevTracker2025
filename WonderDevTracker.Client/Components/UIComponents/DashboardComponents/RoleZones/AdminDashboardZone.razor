@@ -1,18 +1,17 @@
 ﻿@* AdminDashboardZone *@
 
 
-	@*Add breakpoints*@
+@*Add breakpoints*@
 <MudStack Spacing="4">
-
+	@* Company-wide stat cards - COMPLETE *@
 	<DashboardStatGrid Stats="Stats" />
 
-	@* Company-wide stats *@
+	@* Company-wide stat charts  *@
 	<DashboardChartsGrid Dashboard="Dashboard" />
 
-	@* Recent projects *@
+	@* Recent projects  - COMPLETE*@
 	<DashboardProjectActivity Projects="Projects"
-							  CanManageProjects="true"
-							  CollapsedCount="3"/>
+							  CollapsedCount="3" />
 
 	@* Recent tickets *@
 	<DashboardRecentTickets Tickets="Tickets"
