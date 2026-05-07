@@ -28,16 +28,6 @@
                       AlignItems="AlignItems.Center"
                       Spacing="2">
 
-                @if (CanManageMembers)
-                {
-                    <SafeNavButton Href="/company/members"
-                                   Color="Color.Primary"
-                                   Variant="Variant.Outlined"
-                                   Size="Size.Small">
-                        Manage Team
-                    </SafeNavButton>
-                }
-
                 @if (HasMoreThanCollapsedCount)
                 {
                     <ExpandCollapseToggle @bind-Expanded="_expanded" />
@@ -122,7 +112,6 @@
     protected override void OnParametersSet()
     {
         _visibleMembers = Members
-            .Where(m => m.Role != Role.DemoUser)
             .OrderBy(m => m.Role)
             .ThenBy(m => m.LastName)
             .ThenBy(m => m.FirstName)
@@ -142,7 +131,8 @@
                     .Where(m => m.Role == role)
                     .OrderBy(m => m.LastName)
                     .ThenBy(m => m.FirstName)
-                    .ToList()));
+                    .ToList()))
+                     .Where(group => group.Members.Any());
 
     private bool HasMoreThanCollapsedCount =>
         _visibleMembers.Count > CollapsedCount;
@@ -153,6 +143,7 @@
         Role.ProjectManager,
         Role.Developer,
         Role.Submitter
+       
     ];
 
     private static string GetEmptyRoleMessage(Role role) =>
