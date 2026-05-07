@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
@@ -134,7 +135,7 @@ namespace WonderDevTracker.Services.Repositories
             //Primarily for admin dashboard consumption, so we will pull all company data.
             //For user - specific dashboards, we will filter by user assignments in the query to pull only relevant data.
             //For PM, Dev and Submitter queries, we are filtering out archived projects and tickets to focus on active work.
-            
+
             IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, userInfo.CompanyId);
             IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, userInfo.CompanyId);
             IQueryable<Project> pmProjects = GetPMProjectsQuery(context, userInfo.CompanyId, userInfo.UserId);
@@ -142,15 +143,24 @@ namespace WonderDevTracker.Services.Repositories
             IQueryable<Project> devProjects = GetDeveloperProjectsQuery(context, userInfo.CompanyId, userInfo.UserId);
             IQueryable<Ticket> devTickets = GetDeveloperTicketsQuery(context, userInfo.CompanyId, userInfo.UserId);
             IQueryable<Ticket> submitterTickets = GetSubmitterTicketsQuery(context, userInfo.CompanyId, userInfo.UserId);
+            IQueryable<Ticket> adminCompanyTickets = GetAdminCompanyTicketsQuery(context, userInfo.CompanyId);
 
-            return new DashboardDTO
+            DashboardDTO dashboard = new()
             {
                 CompanyInfo = await GetCompanyInfoAsync(context, userInfo.CompanyId),
                 CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
                 PMStats = await GetPMDashboardStatsAsync(pmProjects, pmTickets),
                 DevStats = await GetDeveloperDashboardStatsAsync(devProjects, devTickets),
-                SubmitterStats = await GetSubmitterDashboardStatsAsync(submitterTickets)
+                SubmitterStats = await GetSubmitterDashboardStatsAsync(submitterTickets),
+                RecentActiveTickets = await GetRecentTicketSummariesAsync(
+                                       GetRecentActiveTicketsQuery(adminCompanyTickets)),
+                RecentResolvedTickets = await GetRecentTicketSummariesAsync(
+                                        GetRecentResolvedTicketsQuery(adminCompanyTickets)),
+                RecentUnassignedTickets = await GetRecentTicketSummariesAsync(
+                    GetRecentUnassignedTicketsQuery(adminCompanyTickets))
             };
+
+            return dashboard;
         }
         #region Query Builders
         //For company-wide(ADMIN) stats
@@ -212,6 +222,31 @@ namespace WonderDevTracker.Services.Repositories
                 !t.Archived &&
                 !t.Project!.Archived &&
                 t.SubmitterUserId == userId);
+        }
+
+        //For Admin dashboard ticket summaries, we want to pull all active tickets across the company, regardless of assignment, but still filter out archived items.
+        private static IQueryable<Ticket> GetAdminCompanyTicketsQuery(ApplicationDbContext context, int companyId)
+        {
+            return context.Tickets
+                .AsNoTracking()
+                .Where(t => t.Project!.CompanyId == companyId &&
+                !t.Archived &&
+                !t.Project!.Archived);
+        }
+        private static IQueryable<Ticket> GetRecentActiveTicketsQuery(IQueryable<Ticket> tickets)
+        {
+            return tickets.Where(t => t.Status != TicketStatus.Resolved);
+        }
+
+        private static IQueryable<Ticket> GetRecentResolvedTicketsQuery(IQueryable<Ticket> tickets)
+        {
+            return tickets.Where(t => t.Status == TicketStatus.Resolved);
+        }
+
+        private static IQueryable<Ticket> GetRecentUnassignedTicketsQuery(IQueryable<Ticket> tickets)
+        {
+            return tickets.Where(t => t.Status != TicketStatus.Resolved
+                                      && string.IsNullOrWhiteSpace(t.DeveloperUserId));
         }
         #endregion
 
@@ -281,11 +316,46 @@ namespace WonderDevTracker.Services.Repositories
                 {
                     CompanyId = c.Id,
                     CompanyName = c.Name ?? "Company",
-                   //ImageUrl = c.Image != null ? $"/fileuploads/{c.Image.Id}" : null
+                    //ImageUrl = c.Image != null ? $"/fileuploads/{c.Image.Id}" : null
                 })
                 .FirstOrDefaultAsync() ?? throw new ApplicationException("Company not found");
         }
         #endregion
+        #region Ticket Info DTO
+        private static Expression<Func<Ticket, DashboardTicketSummaryDTO>> TicketSummaryProjection =>
+                t => new DashboardTicketSummaryDTO
+                {
+                    Id = t.Id,
+                    Title = t.Title!,
+                    ProjectId = t.ProjectId,
+                    ProjectName = t.Project!.Name!,
+                    Status = t.Status,
+                    Priority = t.Priority,
+                    Type = t.Type,
+
+                    SubmitterName = t.SubmitterUser!.FirstName + " " + t.SubmitterUser.LastName,
+
+                    DeveloperName = t.DeveloperUser == null
+                        ? null
+                        : t.DeveloperUser.FirstName + " " + t.DeveloperUser.LastName,
+
+                    Created = t.Created,
+                    Updated = t.Updated
+                };
+
+        private static Task<List<DashboardTicketSummaryDTO>> GetRecentTicketSummariesAsync(
+                        IQueryable<Ticket> query,
+                        int take = 10)
+        {
+            return query
+                .OrderByDescending(t => t.Updated ?? t.Created)
+                .Take(take)
+                .Select(TicketSummaryProjection)
+                .ToListAsync();
+        }
+
+        #endregion
+
         #endregion
     }
 }

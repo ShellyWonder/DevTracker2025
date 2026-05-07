@@ -94,8 +94,8 @@
 	#region PARAMETERS
 	[Parameter]
 	public List<NotificationDTO> Notifications { get; set; } = new();
+
 	 
-	
 	#endregion
 
 	#region STATE
@@ -119,16 +119,15 @@
 	private void ResetIndex() => IndexTracker.Reset();
 	private string UserName => UserInfo?.FullName ?? "User";
 	private string? CompanyName => _data?.CompanyInfo?.CompanyName;
-	
 
 	private Role DashboardRole =>
-		IsAdmin
-			? Role.Admin
-			: IsProjectManager
-				? Role.ProjectManager
-				: UserIsInRole(Role.Developer)
-					? Role.Developer
-					: Role.Submitter;
+			IsAdmin
+				? Role.Admin
+				: IsProjectManager
+					? Role.ProjectManager
+					: UserIsInRole(Role.Developer)
+						? Role.Developer
+						: Role.Submitter;
 
 	private string DashboardRoleLabel =>
 	IsAdmin
@@ -170,11 +169,23 @@
 			_tickets = (await TicketService.GetOpenTicketsAsync(UserInfo)).ToList();
 			_members = (await CompanyService.GetUsersAsync(UserInfo)).ToList();
 
+			_recentProjects = _projects
+				.Where(p => !p.Archived)
+				.OrderBy(p => p.EndDate)
+				.Take(6)
+				.ToList();
+
+			_recentTickets = _tickets
+				.Where(t => !t.Archived)
+				.OrderByDescending(t => t.Created)
+				.Take(6)
+				.ToList();
+
 			_hasData = _data is not null;
 
 			breadcrumbs = [
 						new BreadcrumbItem("Home", href: "/"),
-					    new BreadcrumbItem("Dashboard", href: null, disabled: true),
+						new BreadcrumbItem("Dashboard", href: null, disabled: true),
 			];
 			breadcrumbs.Add(new BreadcrumbItem(UserInfo?.FullName ?? "User Not Found", href: null, disabled: true));
 		}
@@ -189,7 +200,7 @@
 
 			_loadingComplete = true;
 		}
-		
+
 	}
 	#endregion
 
