@@ -51,4 +51,11 @@
     .dashboard-header-shell ::deep .dashboard-header-stack {
         align-items: flex-start;
     }
+
+    .dashboard-header-shell ::deep .dashboard-header-subtitle {
+        color: #6C7A89;
+        font-weight: 400;
+        line-height: 1.5;
+        max-width: 760px;
+    }
 }
