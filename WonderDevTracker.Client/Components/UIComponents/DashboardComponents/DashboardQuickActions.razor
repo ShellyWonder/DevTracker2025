@@ -1,52 +1,81 @@
 ﻿@* DashboardQuickActions.razor *@
 
 <div class="dashboard-quick-actions-shell">
-    <MudPaper Class="dashboard-quick-actions pa-4 mb-4"
-              Elevation="1"
-              Rounded="true">
+	<MudPaper Class="dashboard-quick-actions pa-4 mb-4"
+			  Elevation="1"
+			  Rounded="true">
 
-        <MudStack Row="true"
-                  AlignItems="AlignItems.Center"
-                  Justify="Justify.SpaceBetween"
-                  Class="dashboard-quick-actions-header">
+		<MudStack Row="true"
+				  AlignItems="AlignItems.Center"
+				  Justify="Justify.SpaceBetween"
+				  Class="dashboard-quick-actions-header">
 
-            <MudStack Row="true"
-                      AlignItems="AlignItems.Center"
-                      Spacing="2">
+			<MudStack Row="true"
+					  AlignItems="AlignItems.Center"
+					  Spacing="2">
 
-                <MudIcon Icon="@Icons.Material.Filled.Bolt"
-                         Color="Color.Primary" />
+				<MudIcon Icon="@Icons.Material.Filled.Bolt"
+						 Color="Color.Primary" />
 
-                <MudText Typo="Typo.h6"
-                         Class="dashboard-quick-actions-title">
-                    Quick Actions
-                </MudText>
+				<MudText Typo="Typo.h6"
+						 Class="dashboard-quick-actions-title">
+					Quick Actions
+				</MudText>
 
-            </MudStack>
+			</MudStack>
 
-            <MudStack Row="true"
-                      AlignItems="AlignItems.Center"
-                      Spacing="2"
-                      Class="dashboard-quick-actions-list flex-wrap">
+			<MudStack Row="true"
+					  AlignItems="AlignItems.Center"
+					  Spacing="2"
+					  Class="dashboard-quick-actions-list flex-wrap">
 
-                @if (CanManageProjects)
-                {
-                    <SafeNavButton Href="/projects/create"
-                                   Color="Color.Primary"
-                                   Variant="Variant.Filled"
-                                   Size="Size.Small">
-                        Create New Project
-                    </SafeNavButton>
-                }
+				@if (CanManageProjects)
+				{
+					<SafeNavButton Href="/projects/create"
+								   Color="Color.Primary"
+								   Variant="Variant.Filled"
+								   Size="Size.Small">
+						Create New Project
+					</SafeNavButton>
+				}
 
-            </MudStack>
+				@if (CanSubmitTickets)
+				{
+					<SafeNavButton Href="/tickets/create"
+								   Color="Color.Secondary"
+								   Variant="Variant.Filled"
+								   Size="Size.Small">
+						Submit Ticket
+					</SafeNavButton>
+				}
 
-        </MudStack>
+				@if (CanManageMembers)
+				{
+					<SafeNavButton Href="/company/members"
+								   Color="Color.Primary"
+								   Variant="Variant.Outlined"
+								   Size="Size.Small">
+						Manage Team
+					</SafeNavButton>
+				}
 
-    </MudPaper>
+			</MudStack>
+
+		</MudStack>
+
+	</MudPaper>
 </div>
 
 @code {
-    [Parameter]
+	[Parameter]
 	public bool CanManageProjects { get; set; } = false;
+
+	[Parameter]
+	public bool CanManageMembers { get; set; } = false;
+
+	[Parameter]
+	public bool CanManageTickets { get; set; } = false;
+
+	[Parameter]
+	public bool CanSubmitTickets { get; set; } = false;
 }
