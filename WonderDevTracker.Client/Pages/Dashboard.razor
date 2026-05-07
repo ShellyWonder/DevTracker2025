@@ -2,9 +2,6 @@
 @page "/dashboard"
 @attribute [Authorize]
 
-@using MudBlazor
-@using WonderDevTracker.Client.Components.UIComponents.NotificationComponents
-
 @inject INotificationDTOService NotificationService
 @inject IProjectDTOService ProjectService
 @inject ITicketDTOService TicketService
@@ -23,22 +20,7 @@
 	{
 		<LoadingSpinner Message="Loading dashboard details..." Color="Color.Primary" Size="Size.Large" />
 	}
-	else if (_user is not null)
-	{
-		@* Reset Index at start of render;
-					controls the index for components that use IndexTracker.*@
-		ResetIndex();
-		<PageTitle>Dashboard | Dev Tracker</PageTitle>
-		<TitleComponentPage Title=@($"Welcome back, {UserName}!") Subtitle="Here's what's happening with your projects and tickets." />
-
-		<div class="vstack gap-3">
-			<!-- Dashboard content -->
-			<NotificationCard Notifications="Notifications"
-							  Index="0"
-							  OnNotificationsChanged="RefreshNotificationsAsync" />
-		</div>
-	}
-	else
+	else if (_data is null || UserInfo is null)
 	{
 		<PageTitle>Dashboard Details Not Found | Dev Tracker</PageTitle>
 
@@ -49,31 +31,124 @@
 					  ForwardLabel="Login Page" />
 
 	}
+	else
+	{
+		@* Reset Index at start of render;
+					controls the index for components that use IndexTracker.*@
+		ResetIndex();
+		<PageTitle>@($"{UserName}'s Dashboard | Dev Tracker")</PageTitle>
+
+	
+		<DashboardHeader UserName="@UserName"
+						 DashboardRole="@DashboardRoleLabel"
+						 DashboardSubtitle="@DashboardSubtitle"
+						 MemberImageUrl="@UserInfo.ProfilePictureUrl"
+						 CompanyName="@CompanyName" />
+
+		<DashboardQuickActions CanManageProjects="@ActionsPermissions.CanManageProjects"
+							   CanManageMembers="@ActionsPermissions.CanManageMembers"
+							   CanManageTickets="@ActionsPermissions.CanManageTickets"
+							   CanSubmitTickets="@ActionsPermissions.CanSubmitTickets" />
+		<div class="vstack gap-3">
+			<!-- Dashboard content -->
+			<!--Data Display Cards(?)-->
+			@if (IsAdmin)
+			{
+				<!-- Admin-specific content -->
+				<AdminDashboardZone Dashboard="_data"
+									Projects="_recentProjects"
+									Tickets="_recentTickets"
+									Members="_members" />
+			}
+			else if (IsProjectManager)
+			{
+				<!-- Project Manager-specific content -->
+
+				<ProjectManagerDashboardZone Dashboard="_data"
+											 Projects="_recentProjects"
+											 Tickets="_recentTickets"
+											 Members="_members" />
+			}
+			else if (UserIsInRole(Role.Developer))
+			{
+				<!-- Developer-specific content -->
+
+				<DeveloperDashboardZone Dashboard="_data" />
+			}
+			else
+			{
+
+				<!-- Submitter-specific content -->
+
+				<SubmitterDashboardZone Dashboard="_data" />
+			}
+			<!-- Notification content -->
+			<NotificationCard Notifications="Notifications"
+							  Index="@IndexTracker.Next()"
+							  OnNotificationsChanged="RefreshNotificationsAsync" />
+		</div>
+	}
+
 </MudContainer>
-	@code {
+@code {
 	#region PARAMETERS
 	[Parameter]
 	public List<NotificationDTO> Notifications { get; set; } = new();
-
-
-
+	 
+	
 	#endregion
 
 	#region STATE
-	private AppUserDTO? _user;
-	private TicketDTO? _ticket;
+
+	// private TicketDTO? _ticket;
 	private CompanyDTO? _company;
-	private ProjectDTO? _project;
-	private NotificationDTO? _notification;
+	// private ProjectDTO? _project;
+	private DashboardDTO? _data;
 	private List<NotificationDTO> _notifications = [];
 	private List<TicketDTO> _tickets = [];
+	private List<TicketDTO> _recentTickets = [];
 	private List<ProjectDTO> _projects = [];
+	private List<AppUserDTO> _members = [];
+	private List<ProjectDTO> _recentProjects = [];
 	private List<BreadcrumbItem> breadcrumbs = [];
 	private bool _loadingComplete = false;
+	private bool _hasData = false;
 	#endregion
-	#region UI HELPERS & COMPUTED
+
+	#region UI HELPERS & COMPUTED PROPERTIES
 	private void ResetIndex() => IndexTracker.Reset();
-	private string UserName => _user?.FullName ?? "User";
+	private string UserName => UserInfo?.FullName ?? "User";
+	private string? CompanyName => _data?.CompanyInfo?.CompanyName;
+	
+
+	private Role DashboardRole =>
+		IsAdmin
+			? Role.Admin
+			: IsProjectManager
+				? Role.ProjectManager
+				: UserIsInRole(Role.Developer)
+					? Role.Developer
+					: Role.Submitter;
+
+	private string DashboardRoleLabel =>
+	IsAdmin
+			? "Administrator Dashboard"
+		: IsProjectManager
+			? "Project Manager Dashboard"
+			: UserIsInRole(Role.Developer)
+				? "Developer Dashboard"
+				: "Submitter Dashboard";
+
+	private string DashboardSubtitle =>
+				IsAdmin
+					? "Here's the company-wide project and ticket overview."
+					: IsProjectManager
+						? "Here's what's happening with your assigned projects and team activity."
+						: UserIsInRole(Role.Developer)
+							? "Here's what's happening with your assigned tickets."
+								: UserIsInRole(Role.Submitter)
+								? "Here's an overview of your submitted tickets and updates."
+								: "Here's your dashboard overview.";
 	#endregion
 
 	#region LIFECYCLE
@@ -81,32 +156,43 @@
 	{
 		try
 		{
-			if (UserInfo is null) 
-			{ 
+			if (UserInfo is null)
+			{
 				NavManager.NavigateTo("/Account/Login", forceLoad: true);
 				return;
 			}
 
+			_data = await CompanyService.GetDashboardDataAsync(UserInfo);
 			Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo.UserId);
 			await NotificationState.RefreshUnreadCountAsync(UserInfo);
 
+			_projects = (await ProjectService.GetAllProjectsAsync(UserInfo)).ToList();
+			_tickets = (await TicketService.GetOpenTicketsAsync(UserInfo)).ToList();
+			_members = (await CompanyService.GetUsersAsync(UserInfo)).ToList();
+
+			_hasData = _data is not null;
+
+			breadcrumbs = [
+						new BreadcrumbItem("Home", href: "/"),
+					    new BreadcrumbItem("Dashboard", href: null, disabled: true),
+			];
+			breadcrumbs.Add(new BreadcrumbItem(UserInfo?.FullName ?? "User Not Found", href: null, disabled: true));
 		}
 		catch (Exception ex)
 		{
 			Console.WriteLine(ex);
 			Snackbar.Add("Error loading dashboard details.", Severity.Error);
+			_hasData = false;
 		}
-		_loadingComplete = true;
+		finally
+		{
 
-
-		breadcrumbs = [
-					new BreadcrumbItem("Home", href: "/"),
-				    new BreadcrumbItem("Dashboard", href: null, disabled: true),
-				 ];
-		breadcrumbs.Add(new BreadcrumbItem(_user?.FullName ?? "User Not Found", href: null, disabled: true));
-
+			_loadingComplete = true;
+		}
+		
 	}
 	#endregion
+
 	#region EVENT HANDLERS
 	private async Task RefreshNotificationsAsync()
 	{
@@ -114,4 +200,12 @@
 		await NotificationState.RefreshUnreadCountAsync(UserInfo);
 	}
 	#endregion
+
+	private DashboardActionPermissions ActionsPermissions => new()
+	{
+		CanManageProjects = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+		CanManageTickets = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+		CanManageMembers = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+		CanSubmitTickets = IsAuthenticated
+	};
 }

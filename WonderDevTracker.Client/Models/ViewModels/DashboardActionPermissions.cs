@@ -5,7 +5,7 @@
     {
         public bool CanManageProjects { get; set; }
         public bool CanManageTickets { get; set; }
-        public bool CanManageUsers { get; set; }
+        public bool CanManageMembers { get; set; }
         public bool CanSubmitTickets { get; set; }
     }
 }
