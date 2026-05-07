@@ -13,11 +13,12 @@
 	<DashboardProjectActivity Projects="Projects"
 							  CollapsedCount="3" />
 
-	@* Recent tickets *@
-	<DashboardRecentTickets Tickets="Tickets"
-							CanManageTickets="true"
-							Title="Recent Ticket Activity" />
-	@* Team/member panel *@
+	@* Recent tickets - COMPLETE *@
+	<DashboardRecentTickets ActiveTickets="Dashboard.RecentActiveTickets"
+							ResolvedTickets="Dashboard.RecentResolvedTickets"
+							UnassignedTickets="Dashboard.RecentUnassignedTickets" />
+
+	@* Team/member panel  - COMPLETE*@
 	<DashboardTeamPanel Members="Members"
 						CanManageMembers="true" />
 

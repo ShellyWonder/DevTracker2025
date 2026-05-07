@@ -1,0 +1,33 @@
+﻿@* DashboardRecentTickets *@
+
+<MudExpansionPanels>
+    <MudExpansionPanel Text="Recent Ticket Activity" Expanded="true">
+        <MudTabs Rounded="true" Elevation="0">
+            <MudTabPanel Text="Active">
+                <DashboardRecentTicketsTable Tickets="ActiveTickets" />
+            </MudTabPanel>
+
+            <MudTabPanel Text="Resolved">
+                <DashboardRecentTicketsTable Tickets="ResolvedTickets" />
+            </MudTabPanel>
+
+            @if (UnassignedTickets?.Any() == true)
+            {
+                <MudTabPanel Text="Unassigned">
+                    <DashboardRecentTicketsTable Tickets="UnassignedTickets" />
+                </MudTabPanel>
+            }
+        </MudTabs>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<DashboardTicketSummaryDTO> ActiveTickets { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<DashboardTicketSummaryDTO> ResolvedTickets { get; set; } = [];
+
+    [Parameter]
+    public IReadOnlyList<DashboardTicketSummaryDTO> UnassignedTickets { get; set; } = [];
+}

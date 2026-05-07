@@ -1,0 +1,58 @@
+﻿@* DashboardRecentTicketsTable *@
+
+@if (Tickets is null || Tickets.Count == 0)
+{
+    
+    <NotFoundDisplay Message="No recent tickets to display." />
+}
+else
+{
+    <MudDataGrid T="DashboardTicketSummaryDTO"
+                 Items="Tickets"
+                 Dense="true"
+                 Hover="true"
+                 Bordered="false"
+                 Elevation="0">
+        <Columns>
+            <PropertyColumn Property="t => t.Title" Title="Ticket" />
+            <PropertyColumn Property="t => t.ProjectName" Title="Project" />
+
+            <TemplateColumn Title="Status">
+                <CellTemplate Context="ticket">
+                    <TicketStatusChip Status="ticket.Item.Status" />
+                </CellTemplate>
+            </TemplateColumn>
+
+            <TemplateColumn Title="Priority">
+                <CellTemplate Context="ticket">
+                    <TicketPriorityChip Priority="ticket.Item.Priority" />
+                </CellTemplate>
+            </TemplateColumn>
+
+            <PropertyColumn Property="t => t.DeveloperName" Title="Developer" />
+            <PropertyColumn Property="t => t.SubmitterName" Title="Submitter" />
+
+            <TemplateColumn Title="Last Activity">
+                <CellTemplate Context="ticket">
+                    <TimestampComponent PrimaryTimestamp="ticket.Item.Updated"
+                                        FallbackTimestamp="ticket.Item.Created" />
+                </CellTemplate>
+            </TemplateColumn>
+
+            <TemplateColumn Title="Actions">
+                <CellTemplate Context="ticket">
+                    <SafeNavButton Href="@($"/tickets/{ticket.Item.Id}")"
+                                   Variant="Variant.Text"
+                                   Color="Color.Primary">
+                        View
+                    </SafeNavButton>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<DashboardTicketSummaryDTO> Tickets { get; set; } = [];
+}
