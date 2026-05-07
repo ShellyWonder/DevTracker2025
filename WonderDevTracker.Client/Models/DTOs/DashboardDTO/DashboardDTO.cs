@@ -17,6 +17,9 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         public PMDashboardStatsDTO PMStats { get; set; } = new();
         public DevDashboardStatsDTO DevStats { get; set; } = new();
         public SubmitterDashboardStatsDTO SubmitterStats { get; set; } = new();
+        public DashboardTicketSummaryDTO RecentActiveTickets { get; set; } = new();
+        public DashboardTicketSummaryDTO RecentResolvedTickets { get; set; } = new();
+        public DashboardTicketSummaryDTO RecentUnassignedTickets { get; set; } = new();
 
 
 
