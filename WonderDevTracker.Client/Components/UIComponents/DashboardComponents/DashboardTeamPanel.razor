@@ -1,8 +1,5 @@
 ﻿@* DashboardTeamPanel.razor *@
 
-@using WonderDevTracker.Client.Models.DTOs
-@using WonderDevTracker.Client.Models.Enums
-
 <div class="dashboard-team-panel-shell">
     <MudPaper Class="dashboard-team-panel pa-4 mb-4"
               Elevation="1"
@@ -112,10 +109,10 @@
     protected override void OnParametersSet()
     {
         _visibleMembers = Members
-            .OrderBy(m => m.Role)
-            .ThenBy(m => m.LastName)
-            .ThenBy(m => m.FirstName)
-            .ToList();
+        .OrderBy(m => m.Role)
+        .ThenBy(m => m.LastName)
+        .ThenBy(m => m.FirstName)
+        .ToList();
     }
 
     private IEnumerable<AppUserDTO> DisplayMembers =>
