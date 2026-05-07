@@ -38,6 +38,12 @@
     color: #0077B6;
     font-weight: 700;
 }
+.dashboard-header-shell ::deep .dashboard-header-subtitle {
+    color: #6C7A89;
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 760px;
+}
 
 @media (max-width: 600px) {
     .dashboard-header-shell ::deep .dashboard-header {
@@ -52,10 +58,5 @@
         align-items: flex-start;
     }
 
-    .dashboard-header-shell ::deep .dashboard-header-subtitle {
-        color: #6C7A89;
-        font-weight: 400;
-        line-height: 1.5;
-        max-width: 760px;
-    }
+    
 }
