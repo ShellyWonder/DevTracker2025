@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Services.Interfaces;
 
@@ -61,6 +62,11 @@ namespace WonderDevTracker.Client.Services
             };
             var response = await http.PutAsJsonAsync("api/company/users/{userId}", userRoleUpdate);
             response.EnsureSuccessStatusCode();
+        }
+
+        public Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo)
+        {
+            throw new NotImplementedException();
         }
     }
 }

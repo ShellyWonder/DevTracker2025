@@ -119,7 +119,6 @@ namespace WonderDevTracker.Services
                     projectId);
 
 
-
             // 2. Notify Admin(s) - if admin is not the actor 
             var adminRecipient = await projectRecipientService.GetCompanyAdminRecipientAsync(actor);
             var pmName = await projectRecipientService.GetUserDisplayNameAsync(pmUserId);

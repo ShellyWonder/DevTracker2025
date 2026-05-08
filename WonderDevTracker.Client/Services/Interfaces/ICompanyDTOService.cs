@@ -1,4 +1,5 @@
 ﻿using WonderDevTracker.Client.Models.DTOs;
+using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
 
 namespace WonderDevTracker.Client.Services.Interfaces
