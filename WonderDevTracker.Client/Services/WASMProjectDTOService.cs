@@ -81,8 +81,16 @@ namespace WonderDevTracker.Client.Services
 
         public async Task ArchiveProjectAsync(int projectId, UserInfo user)
         {
-            var response = await http.PatchAsync($"api/Projects/{projectId}/archive", null);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                var response = await http.PatchAsync($"api/Projects/{projectId}/archive", null);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+            }
 
         }
 
