@@ -34,9 +34,11 @@
 			<CompanyMembers Index="IndexTracker.Next()"
 							Members="_company.Members"
 							OnChange="HandleRefreshMembers" />
-			<CompanyInvites Invites="_company.Invites"
-							Index="IndexTracker.Next()"
-							OnChange="HandleRefreshInvites" />
+			<section id="company-invites">
+				<CompanyInvites Invites="_company.Invites"
+								Index="IndexTracker.Next()"
+								OnChange="HandleRefreshInvites" />
+			</section>
 
 		</div>
 	}
@@ -124,7 +126,7 @@
 
 		try
 		{
-			
+
 			_company.Invites = [.. await InviteService.GetInviteAsync(UserInfo)];
 		}
 		catch (Exception ex)

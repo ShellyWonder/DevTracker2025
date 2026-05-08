@@ -48,7 +48,12 @@
 		<DashboardQuickActions CanManageProjects="@ActionsPermissions.CanManageProjects"
 							   CanManageMembers="@ActionsPermissions.CanManageMembers"
 							   CanManageTickets="@ActionsPermissions.CanManageTickets"
-							   CanSubmitTickets="@ActionsPermissions.CanSubmitTickets" />
+							   CanSubmitTickets="@ActionsPermissions.CanSubmitTickets" 
+							   CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
+							   CanViewOpenTickets="@ActionsPermissions.CanViewOpenTickets"
+							   CanViewMyTickets="@ActionsPermissions.CanViewMyTickets"
+							   CanViewInvites="@ActionsPermissions.CanViewInvites"
+								   />
 		<div class="vstack gap-3">
 			<!-- Dashboard content -->
 			<!--Data Display Cards(?)-->
@@ -95,13 +100,9 @@
 	[Parameter]
 	public List<NotificationDTO> Notifications { get; set; } = new();
 
-	 
 	#endregion
 
 	#region STATE
-	// private TicketDTO? _ticket;
-	private CompanyDTO? _company;
-	// private ProjectDTO? _project;
 	private DashboardDTO? _data;
 	private List<NotificationDTO> _notifications = [];
 	private List<TicketDTO> _tickets = [];
@@ -129,7 +130,7 @@
 						: Role.Submitter;
 
 	private string DashboardRoleLabel =>
-	IsAdmin
+	    IsAdmin
 			? "Administrator Dashboard"
 		: IsProjectManager
 			? "Project Manager Dashboard"
@@ -204,24 +205,22 @@
 	#endregion
 
 	#region EVENT HANDLERS
-	private async Task RefreshNotificationsAsync()
-	{
-		Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo!.UserId);
-		await NotificationState.RefreshUnreadCountAsync(UserInfo);
-	}
+		private async Task RefreshNotificationsAsync()
+		{
+			Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo!.UserId);
+			await NotificationState.RefreshUnreadCountAsync(UserInfo);
+		}
 	#endregion
 
-	private DashboardActionPermissionsViewModel ActionsPermissions => new()
-	{
-		CanManageProjects = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-		CanManageTickets = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-		CanManageMembers = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-		CanViewInvites = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-		CanSubmitTickets = IsAuthenticated,
-		CanViewUnassignedTickets = IsAuthenticated,
-		CanViewArchivedTickets = IsAuthenticated
-	};
-}
-
-	};
+		private DashboardActionPermissionsViewModel ActionsPermissions => new()
+		{
+			CanManageProjects = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+			CanManageTickets = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+			CanManageMembers = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+			CanSubmitTickets = IsAuthenticated,
+			CanViewInvites = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+			CanViewArchivedTickets = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+			CanViewMyTickets = UserIsAnyRole(Role.ProjectManager, Role.Developer),
+			CanViewOpenTickets = UserIsInRole(Role.Admin)
+		};
 }

@@ -3,7 +3,7 @@
 <div class="dashboard-quick-actions-shell">
 	<MudPaper Class="dashboard-quick-actions pa-4 mb-4"
 			  Elevation="1"
-			  Rounded="true">
+			  rounded="true">
 
 		<MudStack Row="true"
 				  AlignItems="AlignItems.Center"
@@ -58,6 +58,42 @@
 						Manage Team
 					</SafeNavButton>
 				}
+				@if (CanViewInvites)
+				{
+					<SafeNavButton Href="/company#company-invites"
+								   Color="Color.Primary"
+								   Variant="Variant.Outlined"
+								   Size="Size.Small">
+						View Invitations
+					</SafeNavButton>
+				}
+				@if (CanViewOpenTickets)
+				{
+					<SafeNavButton Href="/tickets/open"
+								   Color="Color.Primary"
+								   Variant="Variant.Outlined"
+								   Size="Size.Small">
+						View Open Tickets
+					</SafeNavButton>
+				}
+				@if (CanViewMyTickets)
+				{
+					<SafeNavButton Href="/tickets/assigned"
+								   Color="Color.Primary"
+								   Variant="Variant.Outlined"
+								   Size="Size.Small">
+						View My Tickets
+					</SafeNavButton>
+				}
+				@if (CanViewArchivedTickets)
+				{
+					<SafeNavButton Href="/tickets/archived"
+								   Color="Color.Primary"
+								   Variant="Variant.Outlined"
+								   Size="Size.Small">
+						View Archived Tickets
+					</SafeNavButton>
+				}
 
 			</MudStack>
 
@@ -78,4 +114,16 @@
 
 	[Parameter]
 	public bool CanSubmitTickets { get; set; } = false;
+
+	[Parameter]
+	public bool CanViewInvites { get; set; } = false;
+
+	[Parameter]
+	public bool CanViewOpenTickets { get; set; } = false;
+
+	[Parameter]
+	public bool CanViewArchivedTickets { get; set; } = false;
+
+	[Parameter]
+	public bool CanViewMyTickets { get; set; } = false;
 }

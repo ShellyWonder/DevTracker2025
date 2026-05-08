@@ -8,8 +8,10 @@
         public bool CanManageMembers { get; set; }
         public bool CanSubmitTickets { get; set; }
         public bool CanViewInvites { get; set; }
-        public bool CanViewUnassignedTickets { get; set; }
+        public bool CanViewOpenTickets { get; set; }
         public bool CanViewArchivedTickets { get; set; }
+        public bool CanViewMyTickets { get; set; }
+
 
 
     }
