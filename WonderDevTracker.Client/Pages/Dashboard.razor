@@ -99,7 +99,6 @@
 	#endregion
 
 	#region STATE
-
 	// private TicketDTO? _ticket;
 	private CompanyDTO? _company;
 	// private ProjectDTO? _project;
@@ -212,11 +211,17 @@
 	}
 	#endregion
 
-	private DashboardActionPermissions ActionsPermissions => new()
+	private DashboardActionPermissionsViewModel ActionsPermissions => new()
 	{
 		CanManageProjects = UserIsAnyRole(Role.Admin, Role.ProjectManager),
 		CanManageTickets = UserIsAnyRole(Role.Admin, Role.ProjectManager),
 		CanManageMembers = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-		CanSubmitTickets = IsAuthenticated
+		CanViewInvites = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+		CanSubmitTickets = IsAuthenticated,
+		CanViewUnassignedTickets = IsAuthenticated,
+		CanViewArchivedTickets = IsAuthenticated
+	};
+}
+
 	};
 }
