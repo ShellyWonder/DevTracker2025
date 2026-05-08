@@ -11,7 +11,7 @@ and/or a "welcome back" message that changes based on the time of day
 <div class="dashboard-header-shell">
 	<MudPaper Class="dashboard-header pa-6 mb-6"
 			  Elevation="0"
-			  Rounded="true">
+			  rounded="true">
 
 		<MudStack Row="true"
 				  AlignItems="AlignItems.Center"
@@ -24,8 +24,8 @@ and/or a "welcome back" message that changes based on the time of day
 					  Spacing="3">
 
 				<MudAvatar Size="Size.Large"
-						   Image="@MemberImageUrl"
-						   Alt="@($"{UserName} profile image")">
+						   image="@MemberImageUrl"
+						   alt="@($"{UserName} profile image")">
 					@GetInitials(UserName)
 				</MudAvatar>
 
