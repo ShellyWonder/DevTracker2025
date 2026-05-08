@@ -4,7 +4,6 @@
     public class DashboardActionPermissionsViewModel
     {
         public bool CanManageProjects { get; set; }
-        public bool CanManageTickets { get; set; }
         public bool CanManageMembers { get; set; }
         public bool CanSubmitTickets { get; set; }
         public bool CanViewInvites { get; set; }
