@@ -13,7 +13,7 @@
 	public bool IsExpanded { get; set; }
 
 	[Parameter]
-	public EventCallback<bool> OnExpandedChanged { get; set; }
+	public EventCallback<bool> IsExpandedChanged { get; set; }
 
 	[Parameter]
 	public string ExpandText { get; set; } = "Show All";
@@ -38,6 +38,6 @@
 	{
 
 		IsExpanded = !IsExpanded;
-		await OnExpandedChanged.InvokeAsync(IsExpanded);
+		await IsExpandedChanged.InvokeAsync(IsExpanded);
 	}
 }

@@ -3,7 +3,7 @@
 <div class="dashboard-team-panel-shell">
     <MudPaper Class="dashboard-team-panel pa-4 mb-4"
               Elevation="1"
-              Rounded="true">
+              rounded="true">
 
         <MudStack Row="true"
                   AlignItems="AlignItems.Center"
@@ -27,7 +27,7 @@
 
                 @if (HasMoreThanCollapsedCount)
                 {
-                    <ExpandCollapseToggle @bind-Expanded="_expanded" />
+                    <ExpandCollapseToggle @bind-IsExpanded="_expanded" />
                 }
 
             </MudStack>
