@@ -17,25 +17,36 @@
 	}
 	else
 	{
-		<MudTabs Elevation="0" Rounded="true" >
+		<MudCardHeader>
+			<CardHeaderContent>
+				<MudText Typo="Typo.h2" Color="Color.Primary">Invitations</MudText>
+				<MudDivider />
+			</CardHeaderContent>
+		</MudCardHeader>
+		<MudCardContent>
+		<MudTabs Elevation="0" Rounded="true">
 
 			<MudTabPanel Text="Pending Invites">
-				<CompanyInviteTable Invites="@PendingInvites"
-					                 Status="InviteStatusEnum.Pending"
-									 OnChange="OnChange"/>
+				<CompanyInviteTable Index="Index"
+									Invites="@PendingInvites"
+									Status="InviteStatusEnum.Pending"
+									OnChange="OnChange" />
 			</MudTabPanel>
 			<MudTabPanel Text="Accepted Invites">
-				<CompanyInviteTable Invites="@AcceptedInvites"
-					                Status="InviteStatusEnum.Accepted"
+				<CompanyInviteTable Index="Index"
+									Invites="@AcceptedInvites"
+									Status="InviteStatusEnum.Accepted"
 									OnChange="OnChange" />
 			</MudTabPanel>
 			<MudTabPanel Text="Cancelled/Expired Invites">
-				<CompanyInviteTable Invites="@CancelledInvites"
-					                Status="InviteStatusEnum.Cancelled"
+				<CompanyInviteTable Index="Index"
+									Invites="@CancelledInvites"
+									Status="InviteStatusEnum.Cancelled"
 									OnChange="OnChange" />
 
 			</MudTabPanel>
 		</MudTabs>
+		</MudCardContent>
 	}
 	@if (IsAdmin)
 	{
@@ -48,7 +59,7 @@
 					   TypeText="Invite New Member"
 					   Href="/company/invite" />
 	}
-	</AnimatedCard>
+</AnimatedCard>
 @code {
 	#region PARAMETERS
 	[Parameter, EditorRequired]

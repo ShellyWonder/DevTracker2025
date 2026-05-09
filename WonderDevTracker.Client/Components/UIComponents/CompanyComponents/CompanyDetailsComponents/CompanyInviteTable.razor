@@ -6,64 +6,74 @@
 
 @inherits AuthenticatedComponentBase
 
-<MudDataGrid Items="Invites"
-			 Elevation="0"
-			 Dense="true"
-			 RowsPerPage="10">
-	<Columns>
-		@if (Status == InviteStatusEnum.Pending)
-		{
-			@if (IsAdmin)
-			{
-				<TemplateColumn>
+<AnimatedCard Index="Index"
+			  Elevation="0"
+			  Class="p-3 mb-3">
+	<MudCardHeader>
+		
+	</MudCardHeader>
+	<MudCardContent>
+		<MudDataGrid Items="Invites"
+					 Elevation="0"
+					 Hover="true"
+					 Dense="true"
+					 RowsPerPage="10">
+			<Columns>
+				@if (Status == InviteStatusEnum.Pending)
+				{
+					@if (IsAdmin)
+					{
+						<TemplateColumn>
+							<CellTemplate>
+								<MudMenu Icon="@Icons.Material.Filled.MoreVert"
+										 Dense
+										 Size="Size.Small">
+									<MudMenuItem Icon="@Icons.Material.Filled.Mail"
+												 IconColor="Color.Dark"
+												 OnClick="async () => await HandleResendInvite(context.Item.Id)">
+										Resend
+									</MudMenuItem>
+									<MudMenuItem Icon="@Icons.Material.Filled.Cancel"
+												 IconColor="Color.Error"
+												 OnClick="async () => await HandleCancelInvite(context.Item.Id)">
+										Cancel
+									</MudMenuItem>
+								</MudMenu>
+							</CellTemplate>
+						</TemplateColumn>
+					}
+				}
+				<PropertyColumn Title="Name" Property="i => i.InviteeFullName">
 					<CellTemplate>
-						<MudMenu Icon="@Icons.Material.Filled.MoreVert"
-								 Dense
-								 Size="Size.Small">
-							<MudMenuItem Icon="@Icons.Material.Filled.Mail"
-										 IconColor="Color.Dark"
-										 OnClick="async () => await HandleResendInvite(context.Item.Id)">
-								Resend
-							</MudMenuItem>
-							<MudMenuItem Icon="@Icons.Material.Filled.Cancel"
-										 IconColor="Color.Error"
-										 OnClick="async () => await HandleCancelInvite(context.Item.Id)">
-								Cancel
-							</MudMenuItem>
-						</MudMenu>
+						<NameEmailLink Invite="context.Item" />
 					</CellTemplate>
-				</TemplateColumn>
-			}
-		}
-		<PropertyColumn Title="Name" Property="i => i.InviteeFullName">
-			<CellTemplate>
-				<NameEmailLink Invite="context.Item" />
-			</CellTemplate>
-		</PropertyColumn>
-		<PropertyColumn Title="Project" Property="@(i => i.Project!.Name)">
-			<CellTemplate>
-				<ProjectTitleLink Project="context.Item.Project" />
-			</CellTemplate>
-		</PropertyColumn>
+				</PropertyColumn>
+				<PropertyColumn Title="Project" Property="@(i => i.Project!.Name)">
+					<CellTemplate>
+						<ProjectTitleLink Project="context.Item.Project" />
+					</CellTemplate>
+				</PropertyColumn>
 
-		@*NOTE: If invite is accepted, Column shows Join date
+				@*NOTE: If invite is accepted, Column shows Join date
 			and title, "accepted";
 			If invite is pending, column shows Invite date,
 			and title, "sent"*@
-		<TemplateColumn Title="@(Status == InviteStatusEnum.Accepted ? "Accepted" : "Sent")">
-			<CellTemplate Context="invite">
-				<TimestampComponent PrimaryTimestamp="@GetInviteDisplayTimestamp(invite.Item, Status)" 
-									DisplayMode="TimestampDisplayMode.Absolute"/>
-			</CellTemplate>
-		</TemplateColumn>
-	</Columns>
-	<PagerContent>
-		<MudDataGridPager />
-	</PagerContent>
-	<NoRecordsContent>
-		<NotFoundDisplay Message="@GetEmptyMessage()" />
-	</NoRecordsContent>
-</MudDataGrid>
+				<TemplateColumn Title="@(Status == InviteStatusEnum.Accepted ? "Accepted" : "Sent")">
+					<CellTemplate Context="invite">
+						<TimestampComponent PrimaryTimestamp="@GetInviteDisplayTimestamp(invite.Item, Status)"
+											DisplayMode="TimestampDisplayMode.Absolute" />
+					</CellTemplate>
+				</TemplateColumn>
+			</Columns>
+			<PagerContent>
+				<MudDataGridPager />
+			</PagerContent>
+			<NoRecordsContent>
+				<NotFoundDisplay Message="@GetEmptyMessage()" />
+			</NoRecordsContent>
+		</MudDataGrid>
+	</MudCardContent>
+</AnimatedCard>
 
 @code {
 	#region PARAMETERS
@@ -71,12 +81,15 @@
 	public IEnumerable<InviteDTO> Invites { get; set; } = [];
 
 	[Parameter, EditorRequired]
+	public int Index { get; set; }
+
+	[Parameter, EditorRequired]
 	public InviteStatusEnum Status { get; set; }
 
 	[Parameter]
 	public EventCallback OnChange { get; set; }
 	#endregion
-
+	
 	private string GetEmptyMessage() => Status switch
 	{
 		InviteStatusEnum.Pending => "No pending invitations available.",
@@ -126,8 +139,9 @@
 		}
 	}
 
-	private DateTimeOffset? GetInviteDisplayTimestamp(InviteDTO invite, InviteStatusEnum status) 
+	private DateTimeOffset? GetInviteDisplayTimestamp(InviteDTO invite, InviteStatusEnum status)
 		=> status == InviteStatusEnum.Accepted ? invite.JoinDate : invite.InviteDate;
 	
+
 	#endregion
 }
