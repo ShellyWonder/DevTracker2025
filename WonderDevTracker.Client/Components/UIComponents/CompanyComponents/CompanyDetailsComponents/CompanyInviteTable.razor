@@ -49,8 +49,9 @@
 					</CellTemplate>
 				</PropertyColumn>
 				<PropertyColumn Title="Project" Property="@(i => i.Project!.Name)">
-					<CellTemplate>
-						<ProjectTitleLink Project="context.Item.Project" />
+					<CellTemplate Context="invite">
+						<ProjectTitleLink ProjectId="invite.Item.ProjectId"
+										  ProjectName="@invite.Item.Project!.Name" />
 					</CellTemplate>
 				</PropertyColumn>
 

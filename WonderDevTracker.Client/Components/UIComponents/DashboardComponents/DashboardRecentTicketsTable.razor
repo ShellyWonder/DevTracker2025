@@ -1,69 +1,74 @@
-﻿@* DashboardRecentTicketsTable *@
+﻿@using WonderDevTracker.Client.Components.UIComponents.CompanyComponents.CompanyDetailsComponents
+@* DashboardRecentTicketsTable *@
 
 @if (Tickets is null || Tickets.Count == 0)
 {
-    
-    <NotFoundDisplay Message="No recent tickets to display." />
+
+	<NotFoundDisplay Message="No recent tickets to display." />
 }
 else
 {
-    <MudDataGrid T="DashboardTicketSummaryDTO"
-                 Items="Tickets"
-                 Dense="true"
-                 Hover="true"
-                 ColumnResizeMode="ResizeMode.Container"
-                 DragDropColumnReordering
-                 Hideable
-                 ShowMenuIcon
-                 Bordered="false"
-                 Elevation="0">
-        <Columns>
-            <PropertyColumn Property="t => t.Title" Title="Ticket">
-                <CellTemplate Context="ticket">
-                    <TicketTitleLink TicketId="ticket.Item.Id"
-                                     Title="@ticket.Item.Title"/>
-                </CellTemplate>
-            </PropertyColumn>
-            <PropertyColumn Property="t => t.ProjectName" Title="Project" />
+	<MudDataGrid T="DashboardTicketSummaryDTO"
+				 Items="Tickets"
+				 Dense="true"
+				 Hover="true"
+				 ColumnResizeMode="ResizeMode.Container"
+				 DragDropColumnReordering
+				 Hideable
+				 ShowMenuIcon
+				 Bordered="false"
+				 Elevation="0">
+		<Columns>
+			<PropertyColumn Property="t => t.Title" Title="Ticket">
+				<CellTemplate Context="ticket">
+					<TicketTitleLink TicketId="ticket.Item.Id"
+									 Title="@ticket.Item.Title" />
+				</CellTemplate>
+			</PropertyColumn>
+			<PropertyColumn Property="t => t.ProjectName" Title="Project">
+				<CellTemplate Context="ticket">
+					<ProjectTitleLink ProjectId="ticket.Item.ProjectId"
+									 ProjectName="@ticket.Item.ProjectName" />
+				</CellTemplate>
+			</PropertyColumn>
+			<TemplateColumn Title="Status" Sortable="true" SortBy="t => t.Status">
+				<CellTemplate Context="ticket">
+					<TicketStatusChip Status="ticket.Item.Status" />
+				</CellTemplate>
+			</TemplateColumn>
 
-            <TemplateColumn Title="Status" Sortable="true" SortBy="t => t.Status">
-                <CellTemplate Context="ticket">
-                    <TicketStatusChip Status="ticket.Item.Status" />
-                </CellTemplate>
-            </TemplateColumn>
+			<TemplateColumn Title="Priority" Sortable="true" SortBy="t => t.Priority">
+				<CellTemplate Context="ticket">
+					<TicketPriorityChip Priority="ticket.Item.Priority" />
+				</CellTemplate>
+			</TemplateColumn>
 
-            <TemplateColumn Title="Priority" Sortable="true" SortBy="t => t.Priority">
-                <CellTemplate Context="ticket">
-                    <TicketPriorityChip Priority="ticket.Item.Priority" />
-                </CellTemplate>
-            </TemplateColumn>
+			@if (!UnassignedTickets)
+			{
+				<PropertyColumn Property="t => t.DeveloperName" Title="Developer" />
 
-            @if (!UnassignedTickets)
-            {
-            <PropertyColumn Property="t => t.DeveloperName" Title="Developer" />
-                
-            }
-            
-            <PropertyColumn Property="t => t.SubmitterName" Title="Submitter" />
+			}
 
-            <TemplateColumn Title="Last Activity">
-                <CellTemplate Context="ticket">
-                    <TimestampComponent PrimaryTimestamp="ticket.Item.Updated"
-                                        FallbackTimestamp="ticket.Item.Created" />
-                </CellTemplate>
-            </TemplateColumn>
+			<PropertyColumn Property="t => t.SubmitterName" Title="Submitter" />
 
-            <TemplateColumn Title="Actions">
-                <CellTemplate Context="ticket">
-                    <SafeNavButton Href="@($"/tickets/{ticket.Item.Id}")"
-                                   Variant="Variant.Text"
-                                   Color="Color.Primary">
-                        View
-                    </SafeNavButton>
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-    </MudDataGrid>
+			<TemplateColumn Title="Last Activity">
+				<CellTemplate Context="ticket">
+					<TimestampComponent PrimaryTimestamp="ticket.Item.Updated"
+										FallbackTimestamp="ticket.Item.Created" />
+				</CellTemplate>
+			</TemplateColumn>
+
+			<TemplateColumn Title="Actions">
+				<CellTemplate Context="ticket">
+					<SafeNavButton Href="@($"/tickets/{ticket.Item.Id}")"
+								   Variant="Variant.Text"
+								   Color="Color.Primary">
+						View
+					</SafeNavButton>
+				</CellTemplate>
+			</TemplateColumn>
+		</Columns>
+	</MudDataGrid>
 }
 
 @code {

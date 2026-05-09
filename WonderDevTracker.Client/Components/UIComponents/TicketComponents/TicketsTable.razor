@@ -1,4 +1,5 @@
-﻿@* TicketsTable *@
+﻿@using WonderDevTracker.Client.Components.UIComponents.CompanyComponents.CompanyDetailsComponents
+@* TicketsTable *@
 
 <div class="tickets-page">
 	<div class="tt-table @( _tableIsLoaded ? "tt-loaded" : null )">
@@ -51,7 +52,12 @@
 					            Property="t => GetProjectName(t.Ticket)" 
 								Sortable="true"
 								Title="Project"
-								SortBy="t => t.Ticket.Project?.Name ?? string.Empty" />
+								SortBy="t => t.Ticket.Project?.Name ?? string.Empty" >
+								<CellTemplate Context="ticket">
+								<ProjectTitleLink ProjectId="ticket.Item.Ticket.Project?.Id!"
+													ProjectName="@ticket.Item.Ticket.Project?.Name" />
+								</CellTemplate>
+								</PropertyColumn>
 				<TemplateColumn Title="Type" Sortable="true" SortBy="t => t.Ticket.Type">
 					<CellTemplate>
 						<TicketTypeChip Type="context.Item.Ticket.Type" />
