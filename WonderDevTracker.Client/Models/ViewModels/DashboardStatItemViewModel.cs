@@ -11,5 +11,7 @@ namespace WonderDevTracker.Client.Models.ViewModels
         public string Icon { get; init; } = Icons.Material.Filled.QueryStats;
 
         public Color Color { get; init; } = Color.Primary;
+
+        public string DetailsHref { get; set; } = "/";
     }
 }

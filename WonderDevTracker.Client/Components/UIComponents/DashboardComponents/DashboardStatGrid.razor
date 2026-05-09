@@ -2,26 +2,28 @@
 
 @if (Stats.Any())
 {
-    <MudGrid>
-        @foreach (var stat in Stats)
-        {
-            <MudItem xs="12" sm="6" md="@MdColumns" lg="@LgColumns">
-                <DashboardStatCard Title="@stat.Title"
-                                   StatValue="@stat.Value"
-                                   Icon="@stat.Icon"
-                                   Color="@stat.Color" />
-            </MudItem>
-        }
-    </MudGrid>
+	<MudGrid>
+		@foreach (var stat in Stats)
+		{
+			<MudItem xs="12" sm="6" md="@MdColumns" lg="@LgColumns">
+				<DashboardStatCard Index="@Stats.ToList().IndexOf(stat)"
+								   Title="@stat.Title"
+								   StatValue="@stat.Value"
+								   DetailsHref="@stat.DetailsHref"
+								   Icon="@stat.Icon"
+								   Color="@stat.Color" />
+			</MudItem>
+		}
+	</MudGrid>
 }
 
 @code {
-    [Parameter, EditorRequired]
-    public IEnumerable<DashboardStatItemViewModel> Stats { get; set; } = [];
+	[Parameter, EditorRequired]
+	public IEnumerable<DashboardStatItemViewModel> Stats { get; set; } = []; // Defined in DashboardStatFactory
 
-    [Parameter]
-    public int MdColumns { get; set; } = 3;
+	[Parameter]
+	public int MdColumns { get; set; } = 3;
 
-    [Parameter]
-    public int LgColumns { get; set; } = 3;
+	[Parameter]
+	public int LgColumns { get; set; } = 3;
 }

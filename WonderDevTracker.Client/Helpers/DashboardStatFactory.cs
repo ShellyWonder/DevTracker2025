@@ -32,28 +32,32 @@ public static class DashboardStatFactory
             Title = "Total Projects",
             Value = stats.TotalProjectCount,
             Icon = Icons.Material.Filled.Folder,
-            Color = Color.Primary
+            Color = Color.Primary,
+            DetailsHref = "/projects"
         },
         new()
         {
             Title = "Total Tickets",
             Value = stats.TotalTicketCount,
             Icon = Icons.Material.Filled.ConfirmationNumber,
-            Color = Color.Secondary
+            Color = Color.Secondary,
+            DetailsHref = "/tickets"
         },
         new()
         {
             Title = "Open Tickets",
             Value = stats.OpenTicketCount,
             Icon = Icons.Material.Filled.PendingActions,
-            Color = Color.Warning
+            Color = Color.Warning,
+            DetailsHref = "/tickets/open"
         },
         new()
         {
             Title = "Resolved Tickets",
             Value = stats.ResolvedTicketCount,
             Icon = Icons.Material.Filled.CheckCircle,
-            Color = Color.Success
+            Color = Color.Success,
+            DetailsHref = "/tickets/resolved"
         }
     ];}
 

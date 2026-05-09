@@ -1,7 +1,9 @@
 ﻿@* DashboardStatCard *@
+@inject NavigationManager NavManager
 
-<MudPaper Class="@Class" Elevation="1">
-	<MudCard Class="h-100">
+<MudPaper Class="@Class" Elevation="0">
+	<AnimatedCard Index="Index" OnClick="NavigateToDetails" Class="h-100">
+
 		<MudCardHeader>
 			<CardHeaderContent>
 				<MudStack Row="true"
@@ -24,11 +26,9 @@
 			</CardHeaderContent>
 		</MudCardHeader>
 		<MudCardContent Class="d-flex justify-center">
-
 			<DashboardStatChip StatValue="@StatValue" />
-
 		</MudCardContent>
-	</MudCard>
+	</AnimatedCard>
 </MudPaper>
 
 @code {
@@ -37,6 +37,12 @@
 
 	[Parameter, EditorRequired]
 	public int StatValue { get; set; }
+
+	[Parameter, EditorRequired]
+	public int Index { get; set; }
+
+	[Parameter, EditorRequired]
+	public string DetailsHref { get; set; } = default!;
 
 	[Parameter]
 	public string? Icon { get; set; } = MudBlazor.Icons.Material.Filled.QueryStats;
@@ -58,4 +64,12 @@
 
 	[Parameter]
 	public Size Size { get; set; } = Size.Medium;
+
+	private void NavigateToDetails()
+	{
+		if (string.IsNullOrWhiteSpace(DetailsHref)) return;
+
+		NavManager.NavigateTo(DetailsHref);
+		
+	}
 }
