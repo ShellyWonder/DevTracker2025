@@ -3,12 +3,14 @@
 
 @attribute [Authorize]
 
+@inject IndexTrackerHelper IndexTracker
 @inject ITicketDTOService ticketService
 @inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
 
-<PageTitle>Open Tickets | Dev Tracker</PageTitle>
+<PageTitle>Tickets Not Found | Dev Tracker</PageTitle>
+
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
 	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
 	@if (!_loadingComplete)
@@ -17,11 +19,20 @@
 	}
 	else if (tickets.Any())
 	{
-		<TitleComponentPage Title="Open Tickets" />
-		<TicketsTable Tickets="tickets" />
+		<PageTitle>Open Tickets | Dev Tracker</PageTitle>
+
+		@* Reset Index at start of render;
+					controls the index for components that use IndexTracker.*@
+		ResetIndex();
+		<MudPaper Elevation="2" Class="p-3">
+			<TitleComponentPage Title="Open Tickets" />
+			<MudDivider Class="mb-3" />
+			<TicketsTable Tickets="tickets" />
+		</MudPaper>
 	}
 	else
 	{
+		<PageTitle>Tickets Not Found | Dev Tracker</PageTitle>
 		<NotFoundFull Message="No open tickets found."
 					  ReturnUrl="/"
 					  ReturnLabel="Home"
@@ -36,6 +47,7 @@
 	private IEnumerable<TicketDTO> tickets = [];
 
 	private bool _loadingComplete = false;
+	private void ResetIndex() => IndexTracker.Reset();
 
 	protected override async Task OnInitializedWithAuthAsync()
 	{

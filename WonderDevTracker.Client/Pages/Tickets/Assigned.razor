@@ -8,7 +8,6 @@
 
 @inherits AuthenticatedComponentBase
 
-<PageTitle>My Tickets | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
 	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
 	@if (!_loadingComplete)
@@ -17,11 +16,19 @@
 	}
 	else if (tickets.Any())
 	{
+		<PageTitle>My Tickets | Dev Tracker</PageTitle>
+
+		<MudPaper Elevation="2" Class="p-3">
+
 		<TitleComponentPage Title="My Tickets" />
+			<MudDivider Class="mb-3" />
 		<TicketsTable Tickets="tickets" />
+
+		</MudPaper>
 	}
 	else
 	{
+		<PageTitle>Tickets Not Found | Dev Tracker</PageTitle>
 		<NotFoundFull Message="Your tickets not found."
 					  ReturnUrl="/"
 					  ReturnLabel="Home"
