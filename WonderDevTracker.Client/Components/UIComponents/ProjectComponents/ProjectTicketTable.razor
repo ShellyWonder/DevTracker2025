@@ -9,9 +9,10 @@
 			 ShowMenuIcon
 			 RowsPerPage="10">
 	<Columns>
-		<PropertyColumn Property="t => t.Title">
-			<CellTemplate>
-				<TicketTitleLink Ticket="context.Item" />
+		<PropertyColumn Property="t => t.Title" Title="Ticket">
+			<CellTemplate Context="ticket">
+				<TicketTitleLink TicketId="ticket.Item.Id"
+								 Title="@ticket.Item.Title" />
 			</CellTemplate>
 		</PropertyColumn>
 		<PropertyColumn Property="t => t.Priority">

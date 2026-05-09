@@ -11,25 +11,39 @@ else
                  Items="Tickets"
                  Dense="true"
                  Hover="true"
+                 ColumnResizeMode="ResizeMode.Container"
+                 DragDropColumnReordering
+                 Hideable
+                 ShowMenuIcon
                  Bordered="false"
                  Elevation="0">
         <Columns>
-            <PropertyColumn Property="t => t.Title" Title="Ticket" />
+            <PropertyColumn Property="t => t.Title" Title="Ticket">
+                <CellTemplate Context="ticket">
+                    <TicketTitleLink TicketId="ticket.Item.Id"
+                                     Title="@ticket.Item.Title"/>
+                </CellTemplate>
+            </PropertyColumn>
             <PropertyColumn Property="t => t.ProjectName" Title="Project" />
 
-            <TemplateColumn Title="Status">
+            <TemplateColumn Title="Status" Sortable="true" SortBy="t => t.Status">
                 <CellTemplate Context="ticket">
                     <TicketStatusChip Status="ticket.Item.Status" />
                 </CellTemplate>
             </TemplateColumn>
 
-            <TemplateColumn Title="Priority">
+            <TemplateColumn Title="Priority" Sortable="true" SortBy="t => t.Priority">
                 <CellTemplate Context="ticket">
                     <TicketPriorityChip Priority="ticket.Item.Priority" />
                 </CellTemplate>
             </TemplateColumn>
 
+            @if (!UnassignedTickets)
+            {
             <PropertyColumn Property="t => t.DeveloperName" Title="Developer" />
+                
+            }
+            
             <PropertyColumn Property="t => t.SubmitterName" Title="Submitter" />
 
             <TemplateColumn Title="Last Activity">
@@ -53,6 +67,9 @@ else
 }
 
 @code {
-    [Parameter, EditorRequired]
-    public IReadOnlyList<DashboardTicketSummaryDTO> Tickets { get; set; } = [];
+	[Parameter, EditorRequired]
+	public IReadOnlyList<DashboardTicketSummaryDTO> Tickets { get; set; } = [];
+
+	[Parameter]
+	public bool UnassignedTickets { get; set; }
 }

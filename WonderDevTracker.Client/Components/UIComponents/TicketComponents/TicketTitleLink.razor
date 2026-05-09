@@ -1,16 +1,24 @@
 ﻿@* TicketTitleLink *@
-@* Renders a link to /tickets/{id} using the provided TicketDTO *@
+@* Renders a link to /tickets/{id} using the provided ticket id and title *@
 
 <SafeNavLink Href="@Href"
-             Valid="@(Ticket?.Id is not null)" >
-    <MudText Typo="Typo.inherit">@Ticket?.Title</MudText>
+             Valid="@IsValid">
+    <MudText Typo="Typo.inherit">@Title</MudText>
 </SafeNavLink>
 
 @code {
     [Parameter, EditorRequired]
-    public TicketDTO? Ticket { get; set; }
+    public int? TicketId { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? Title { get; set; }
+
+    private bool IsValid => TicketId is not null;
 
     // SafeNavLink will no-op/disable if empty.
-    private string Href => (Ticket is null) ? string.Empty : $"tickets/{Ticket.Id}";
+    private string Href => IsValid
+        ? $"tickets/{TicketId}"
+        : string.Empty;
 }
+
 
