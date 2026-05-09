@@ -1,9 +1,7 @@
 ﻿@* DashboardProjectActivity *@
 
-<div class="dashboard-project-activity-shell">
-
-	<MudPaper Class="dashboard-project-activity pa-4 mb-4"
-			  Elevation="1"
+	<MudPaper Class="pa-4 mb-4"
+			  Elevation="0"
 			  rounded="true">
 
 		<MudStack Row="true"
@@ -18,7 +16,7 @@
 				<MudIcon Icon="@Icons.Material.Filled.FolderOpen"
 						 Color="Color.Primary" />
 
-				<TitleComponentPage Title="Active Projects" />
+				<MudText Typo="Typo.h2" Color="Color.Primary">Active Projects</MudText>
 			</MudStack>
 
 			<MudStack Row="true"
@@ -53,7 +51,7 @@
 
 
 	</MudPaper>
-</div>
+
 
 @code {
 	[Parameter, EditorRequired]

@@ -1,8 +1,7 @@
 ﻿@* DashboardTeamPanel.razor *@
 
-<div class="dashboard-team-panel-shell">
-    <MudPaper Class="dashboard-team-panel pa-4 mb-4"
-              Elevation="1"
+    <MudPaper Class="pa-4 mb-4"
+              Elevation="2"
               rounded="true">
 
         <MudStack Row="true"
@@ -17,7 +16,7 @@
                 <MudIcon Icon="@Icons.Material.Filled.Groups"
                          Color="Color.Primary" />
 
-                <TitleComponentPage Title="@Title" />
+                <MudText Typo="Typo.h2" Color="Color.Primary">Team Overview</MudText>
 
             </MudStack>
 
@@ -87,7 +86,7 @@
         }
 
     </MudPaper>
-</div>
+
 
 @code {
     [Parameter, EditorRequired]
@@ -95,9 +94,6 @@
 
     [Parameter]
     public bool CanManageMembers { get; set; }
-
-    [Parameter]
-    public string Title { get; set; } = "Team Overview";
 
     [Parameter]
     public int CollapsedCount { get; set; } = 8;
