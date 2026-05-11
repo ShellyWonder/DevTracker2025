@@ -7,10 +7,11 @@ and provide a consistent layout and styling for the notifications section of the
 
 @inherits AuthenticatedComponentBase
 
-<AnimatedCard Index="@Index">
+<AnimatedCard Index="@Index" Elevation="3">
 	<MudCardHeader>
-		<MudText Typo="Typo.h3" Color="Color.Primary">Notifications</MudText>
+		<MudText Typo="Typo.h2" Color="Color.Primary">Notifications</MudText>
 	</MudCardHeader>
+		<MudDivider Class="mb-3" />
 	<MudCardContent>
 		@if (Notifications.Count == 0)
 		{
