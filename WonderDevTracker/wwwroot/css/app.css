@@ -3,6 +3,11 @@
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
     --shell-offset: 96px; /*Height of fixed header/nav to offset 100vh calculations*/
+    /*-----------------------Avatar initials-----------------------*/
+    --dt-avatar-bg: linear-gradient(135deg, #F9FCFE, #DDE6EC);
+    --dt-avatar-text: #1E2A35;
+    --dt-avatar-featured-bg: linear-gradient(135deg, #0077B6, #00B4D8);
+    --dt-avatar-featured-text: #FFFFFF;
 }
 
 .tt-full-center {
@@ -28,6 +33,21 @@
 /* #endregion Fabbutton */
 
 /* #region ProjectCard.razor  */
+.project-card-avatar-stack {
+    display: flex;
+    align-items: center;
+}
+    .project-card-avatar-stack > * {
+        position: relative;
+    }
+
+    .project-card-avatar-stack > *:not(:first-child) {
+        margin-left: -10px;
+    }
+
+.project-card-member-avatar {
+    border: 2px solid #FFFFFF;
+}
 /* #region card animation*/
 .fade-in {
     opacity: 0;
@@ -462,6 +482,30 @@ h1, h2, h3, h4, h5, h6, button, nav {
     }
 }
 /* #endregion Tickets page/table container animations ==== */
+
+/*#region Avatar initials*/
+[data-theme="dark"] {
+    --dt-avatar-bg: linear-gradient(135deg, #2C3E50, #1E1E2F);
+    --dt-avatar-text: #F8F9FA;
+}
+
+.dt-user-avatar-initials {
+    background: var(--dt-avatar-bg);
+    color: var(--dt-avatar-text);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(108, 122, 137, 0.25);
+}
+
+.dt-user-avatar-initials-featured {
+    background: var(--dt-avatar-featured-bg);
+    color: var(--dt-avatar-featured-text);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+/*#endregion Avatar initials*/
 
 /* #region Blazor default CSS */
 h1:focus {

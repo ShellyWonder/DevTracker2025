@@ -1,0 +1,75 @@
+﻿@* UserAvatarComponent.razor *@
+
+<MudTooltip Text="@TooltipText" Arrow>
+    @if (!string.IsNullOrWhiteSpace(ImageUrl))
+    {
+        <MudAvatar Size="@Size"
+                   Class="@Class">
+            <MudImage Src="@ImageUrl"
+                      Alt="@AltText"
+                      Width="@ImageSize"
+                      Height="@ImageSize"
+                      ObjectFit="ObjectFit.Cover" />
+        </MudAvatar>
+    }
+    else
+    {
+        <MudAvatar Size="@Size"
+                   Class="@AvatarClass">
+            @DisplayInitials
+        </MudAvatar>
+    }
+</MudTooltip>
+
+@code {
+    [Parameter]
+    public string? FullName { get; set; }
+
+    [Parameter]
+    public string? ImageUrl { get; set; }
+
+    [Parameter]
+    public string? Initials { get; set; }
+
+    [Parameter]
+    public string? AltText { get; set; }
+
+    [Parameter]
+    public Size Size { get; set; } = Size.Large;
+
+    [Parameter]
+    public bool Featured { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string DisplayInitials =>
+        string.IsNullOrWhiteSpace(Initials) ? "?" : Initials;
+
+    private string TooltipText =>
+        string.IsNullOrWhiteSpace(FullName)
+            ? DisplayInitials
+            : FullName;
+
+    private string AvatarClass
+    {
+        get
+        {
+            var baseClass = Featured
+                ? "dt-user-avatar-initials-featured"
+                : "dt-user-avatar-initials";
+
+            return string.IsNullOrWhiteSpace(Class)
+                ? baseClass
+                : $"{baseClass} {Class}";
+        }
+    }
+
+    private int ImageSize => Size switch
+    {
+        Size.Small => 40,
+        Size.Medium => 56,
+        Size.Large => 72,
+        _ => 40
+    };
+}

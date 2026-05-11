@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using WonderDevTracker.Client.Helpers;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.Enums;
 
@@ -29,9 +30,15 @@ namespace WonderDevTracker.Models
                 Id = appUser.Id,
                 FirstName = appUser.FirstName,
                 LastName = appUser.LastName,
+
                 ImageUrl = appUser.ProfilePictureId.HasValue
-                ? $"/api/uploads/{appUser.ProfilePictureId}"
-                : $"https://api.dicebear.com/9.x/glass/svg?seed={appUser.UserName}",
+                                    ? $"/api/uploads/{appUser.ProfilePictureId}"
+                                    : null,
+
+                Initials = UserDisplayHelper.GetInitials(
+                            appUser.FirstName,
+                            appUser.LastName,
+                            appUser.UserName)
 
             };
             return dto;
@@ -41,11 +48,11 @@ namespace WonderDevTracker.Models
             AppUserDTO dto = user.ToDTO();
             var roleNames = await userManager.GetRolesAsync(user);
             string? roleName = roleNames
-                              .Where(rn => rn !=nameof(Role.DemoUser))
+                              .Where(rn => rn != nameof(Role.DemoUser))
                               .FirstOrDefault();
             bool success = Enum.TryParse<Role>(roleName, out var role);
-             if(success) dto.Role = role;
-             return dto;
+            if (success) dto.Role = role;
+            return dto;
         }
     }
-}      
+}
