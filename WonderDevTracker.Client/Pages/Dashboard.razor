@@ -20,7 +20,7 @@
 	{
 		<LoadingSpinner Message="Loading dashboard details..." Color="Color.Primary" Size="Size.Large" />
 	}
-	else if (_data is null || UserInfo is null)
+	else if (_data is null || UserInfo is null || CurrentUser is null)
 	{
 		<PageTitle>Dashboard Details Not Found | Dev Tracker</PageTitle>
 
@@ -39,21 +39,19 @@
 		<PageTitle>@($"{UserName}'s Dashboard | Dev Tracker")</PageTitle>
 
 	
-		<DashboardHeader UserName="@UserName"
+		<DashboardHeader User="@CurrentUser"
+						 UserName="@UserName"
 						 DashboardRole="@DashboardRoleLabel"
 						 DashboardSubtitle="@DashboardSubtitle"
-						 MemberImageUrl="@UserInfo.ProfilePictureUrl"
 						 CompanyName="@CompanyName" />
 
 		<DashboardQuickActions CanManageProjects="@ActionsPermissions.CanManageProjects"
 							   CanManageMembers="@ActionsPermissions.CanManageMembers"
-							   CanManageTickets="@ActionsPermissions.CanManageTickets"
-							   CanSubmitTickets="@ActionsPermissions.CanSubmitTickets" 
+							   CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
 							   CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
 							   CanViewOpenTickets="@ActionsPermissions.CanViewOpenTickets"
 							   CanViewMyTickets="@ActionsPermissions.CanViewMyTickets"
-							   CanViewInvites="@ActionsPermissions.CanViewInvites"
-								   />
+							   CanViewInvites="@ActionsPermissions.CanViewInvites" />
 		<div class="vstack gap-3">
 			<!-- Dashboard content -->
 			<!--Data Display Cards(?)-->
@@ -130,7 +128,7 @@
 						: Role.Submitter;
 
 	private string DashboardRoleLabel =>
-	    IsAdmin
+		IsAdmin
 			? "Administrator Dashboard"
 		: IsProjectManager
 			? "Project Manager Dashboard"
@@ -140,7 +138,7 @@
 
 	private string DashboardSubtitle =>
 				IsAdmin
-					? "Here's the company-wide project and ticket overview."
+					? "Here's your company-wide project and ticket overview."
 					: IsProjectManager
 						? "Here's what's happening with your assigned projects and team activity."
 						: UserIsInRole(Role.Developer)
@@ -148,6 +146,8 @@
 								: UserIsInRole(Role.Submitter)
 								? "Here's an overview of your submitted tickets and updates."
 								: "Here's your dashboard overview.";
+
+	private AppUserDTO? CurrentUser => _members.FirstOrDefault(m => m.Id == UserInfo?.UserId);
 	#endregion
 
 	#region LIFECYCLE
@@ -205,22 +205,21 @@
 	#endregion
 
 	#region EVENT HANDLERS
-		private async Task RefreshNotificationsAsync()
-		{
-			Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo!.UserId);
-			await NotificationState.RefreshUnreadCountAsync(UserInfo);
-		}
+	private async Task RefreshNotificationsAsync()
+	{
+		Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo!.UserId);
+		await NotificationState.RefreshUnreadCountAsync(UserInfo);
+	}
 	#endregion
 
-		private DashboardActionPermissionsViewModel ActionsPermissions => new()
-		{
-			CanManageProjects = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-			CanManageTickets = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-			CanManageMembers = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-			CanSubmitTickets = IsAuthenticated,
-			CanViewInvites = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-			CanViewArchivedTickets = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-			CanViewMyTickets = UserIsAnyRole(Role.ProjectManager, Role.Developer),
-			CanViewOpenTickets = UserIsInRole(Role.Admin)
-		};
+	private DashboardActionPermissionsViewModel ActionsPermissions => new()
+	{
+		CanManageProjects = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+		CanManageMembers = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+		CanSubmitTickets = IsAuthenticated,
+		CanViewArchivedTickets = UserIsAnyRole(Role.Admin, Role.ProjectManager),
+		CanViewMyTickets = UserIsAnyRole(Role.ProjectManager, Role.Developer),
+		CanViewInvites = UserIsInRole(Role.Admin),
+		CanViewOpenTickets = UserIsInRole(Role.Admin)
+	};
 }

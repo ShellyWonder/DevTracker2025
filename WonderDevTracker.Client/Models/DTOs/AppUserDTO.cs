@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using WonderDevTracker.Client.Models.Enums;
 
 namespace WonderDevTracker.Client.Models.DTOs
@@ -21,11 +20,15 @@ namespace WonderDevTracker.Client.Models.DTOs
         [Description("User Last Name")]
         public required string LastName { get; set; }
 
-        [JsonIgnore]
-        public string? FullName => $"{FirstName} {LastName}";
+       
+        public string? FullName => $"{FirstName} {LastName}".Trim();
 
         [Description("Url pointing to the user's image")]
-        public string ImageUrl { get; set; } = $"https://api.dicebear.com/9.x/glass/svg?seed={Random.Shared.Next()}";
+        public string? ImageUrl { get; set; }
+
+        public string Initials { get; set; } = "?";
+
+        public bool HasProfileImage => !string.IsNullOrWhiteSpace(ImageUrl);
 
         [Description("User's assigned role in the company")]
         public Role? Role {  get; set; } 
