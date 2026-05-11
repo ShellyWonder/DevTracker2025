@@ -4,80 +4,92 @@
 
 @if (Project is not null)
 {
-    <AnimatedCard Index="Index" OnClick="NavigateToDetails">
-        <MudCardHeader>
-            <CardHeaderContent>
-                <SafeNavLink Typo="Typo.h5"
-                             Href="@($"projects/{Project.Id}")"
-                             Valid="@(Project?.Id is not null)"
-                             Class="d-block">
-                    @Project?.Name
-                </SafeNavLink>
-                <ProjectDates StartDate="Project?.StartDate" EndDate="Project?.EndDate" />
-            </CardHeaderContent>
-        </MudCardHeader>
-        <MudCardContent>
-            @if (Project.Members is null)
-            {
-                <LoadingSpinner />
-            }
-            else if (Project.Members?.Count == 0)
-            {
-                <NotFoundDisplay Message="No project members assigned" />
+	<AnimatedCard Index="Index" OnClick="NavigateToDetails">
+		<MudCardHeader>
+			<CardHeaderContent>
+				<SafeNavLink Typo="Typo.h5"
+							 Href="@($"projects/{Project.Id}")"
+							 Valid="@(Project?.Id is not null)"
+							 Class="d-block">
+					@Project?.Name
+				</SafeNavLink>
+				<ProjectDates StartDate="Project?.StartDate" EndDate="Project?.EndDate" />
+			</CardHeaderContent>
+		</MudCardHeader>
+		<MudCardContent>
+			@if (Project.Members is null)
+			{
+				<LoadingSpinner />
+			}
+			else if (Project.Members?.Count == 0)
+			{
+				<NotFoundDisplay Message="No project members assigned" />
 
-            }
-            else
-            {
-                <div class="h-100 d-flex align-items-center justify-content-center">
+			}
+			else
+			{
+				<div class="h-100 d-flex align-items-center justify-content-center">
+					<div class="project-card-avatar-stack">
+						@foreach (AppUserDTO member in VisibleMembers!)
+						{
+							<UserAvatarComponent ImageUrl="@member.ImageUrl"
+												 Initials="@member.Initials"
+												 FullName="@member.FullName"
+												 AltText="@member.FullName"
+												 Size="Size.Medium"
+												 Class="project-card-member-avatar"
+												 Featured="true" />
+						}
 
-                    <MudAvatarGroup Max="5"
-                                    MaxColor="Color.Secondary">
-                        @foreach (AppUserDTO member in Project.Members!)
-                        {
-                            <MudAvatar>
-                                <MudTooltip Text="@member.FullName" Arrow>
-                                    <MudImage Src="@member.ImageUrl"
-                                              Alt="@member.FullName"
-                                              Height="40" />
-                                </MudTooltip>
-                            </MudAvatar>
-                        }
+						@if (HiddenMemberCount > 0)
+						{
+							<MudAvatar Size="Size.Medium"
+									   Class="project-card-member-avatar project-card-extra-avatar"
+										Color="Color.Secondary">
+								+@HiddenMemberCount
+							</MudAvatar>
+						}
+					</div>
 
-                    </MudAvatarGroup>
+				</div>
+			}
 
+		</MudCardContent>
+		<MudCardActions>
 
-                </div>
-            }
+			<ProjectPriorityChip Priority="Project.Priority" />
 
-        </MudCardContent>
-        <MudCardActions>
+			<LinksBtn Text="Details"
+					  Href="@($"/projects/{Project.Id}")"
+					  Disabled="@(Project is null)" />
 
-            <ProjectPriorityChip Priority="Project.Priority" />
+		</MudCardActions>
 
-            <LinksBtn Text="Details"
-                      Href="@($"/projects/{Project.Id}")"
-                      Disabled="@(Project is null)" />
-
-        </MudCardActions>
-
-    </AnimatedCard>
+	</AnimatedCard>
 }
 
 
 @code {
 
-    [Parameter, EditorRequired]
-    public ProjectDTO? Project { get; set; }
+	[Parameter, EditorRequired]
+	public ProjectDTO? Project { get; set; }
 
-    [Parameter]
-    public int Index { get; set; }//passed from parent to control Animation delay
+	[Parameter]
+	public int Index { get; set; }//passed from parent to control Animation delay
 
+	private const int MaxVisibleMembers = 5;
 
-    private void NavigateToDetails()
-    {
-        if (Project is null) return;
+	private IEnumerable<AppUserDTO> VisibleMembers =>
+		Project?.Members?.Take(MaxVisibleMembers) ?? Enumerable.Empty<AppUserDTO>();
 
-        NavManager.NavigateTo($"/projects/{Project?.Id}");
-    }
+	private int HiddenMemberCount =>
+		Math.Max((Project?.Members?.Count ?? 0) - MaxVisibleMembers, 0);
+
+	private void NavigateToDetails()
+	{
+		if (Project is null) return;
+
+		NavManager.NavigateTo($"/projects/{Project?.Id}");
+	}
 
 }

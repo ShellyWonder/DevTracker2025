@@ -8,9 +8,20 @@ and/or a "welcome back" message that changes based on the time of day
 3. Add the light/dark mode toggle in the header for easy access to theme switching.
 <DashboardThemeToggle />*@
 
-<div class="dashboard-header-shell">
+@if(User is null)
+{
 	<MudPaper Class="dashboard-header pa-6 mb-6"
-			  Elevation="0"
+			  Elevation="2"
+			  rounded="true">
+		<MudSkeleton Height="72px" />
+	</MudPaper>
+}
+else
+{
+	
+	<div class="dashboard-header-shell">
+	<MudPaper Class="dashboard-header pa-6 mb-6"
+			  Elevation="2"
 			  rounded="true">
 
 		<MudStack Row="true"
@@ -22,17 +33,15 @@ and/or a "welcome back" message that changes based on the time of day
 			<MudStack Row="true"
 					  AlignItems="AlignItems.Center"
 					  Spacing="3">
-
-				<MudAvatar Size="Size.Large"
-						   image="@MemberImageUrl"
-						   alt="@($"{UserName} profile image")">
-					@GetInitials(UserName)
-				</MudAvatar>
+				<UserAvatarComponent ImageUrl="@User.ImageUrl"
+									 Initials="@User.Initials"
+									 AltText="@($"{User.FirstName} {User.LastName}")"
+									 Featured="true" />
 
 				<MudStack Spacing="1">
 					<MudText Typo="Typo.h4"
 							 Class="dashboard-header-title">
-						Welcome back, @UserName!
+						Welcome Back, @UserName!
 					</MudText>
 					<MudText Typo="Typo.body2"
 							 Class="dashboard-header-role">
@@ -57,6 +66,7 @@ and/or a "welcome back" message that changes based on the time of day
 	</MudPaper>
 
 </div>
+}
 
 @code {
 	[Parameter, EditorRequired]
@@ -68,23 +78,10 @@ and/or a "welcome back" message that changes based on the time of day
 	[Parameter, EditorRequired]
 	public string DashboardSubtitle { get; set; } = string.Empty;
 
-	[Parameter]
-	public string? MemberImageUrl { get; set; }
+	[Parameter, EditorRequired]
+	public AppUserDTO? User { get; set; } 
 
 	[Parameter, EditorRequired]
 	public string CompanyName { get; set; } = string.Empty;
 
-	
-	private static string GetInitials(string name)
-	{
-		if (string.IsNullOrWhiteSpace(name))
-			return "?";
-
-		var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-		if (parts.Length == 1)
-			return parts[0][0].ToString().ToUpperInvariant();
-
-		return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
-	}
 }
