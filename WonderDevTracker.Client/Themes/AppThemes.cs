@@ -5,7 +5,6 @@ namespace WonderDevTracker.Client.Themes
 {
     public static class AppThemes
     {
-
         public static readonly MudTheme PaletteLightTheme = new()
         {
             PaletteLight = new PaletteLight
@@ -19,7 +18,7 @@ namespace WonderDevTracker.Client.Themes
                 Error = "#E63946",     // reddish tone
                 Dark = "#1E1E2F",      // deep purple/black (for dark buttons)
 
-                Background = "F9FCFE",
+                Background = "#F9FCFE",
                 Surface = "#FFFFFF",
                 AppbarBackground = "#0077B6",
                 DrawerBackground = "rgb(240, 240,240)",
@@ -62,7 +61,7 @@ namespace WonderDevTracker.Client.Themes
             {
                 DefaultBorderRadius = "6px"
             },
-            
+
             Typography = GetDefaultTypography()
         };
 

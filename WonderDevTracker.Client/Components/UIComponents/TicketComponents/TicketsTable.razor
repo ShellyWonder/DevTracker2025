@@ -2,10 +2,11 @@
 @* TicketsTable *@
 
 <div class="tickets-page">
+
 	<div class="tt-table @( _tableIsLoaded ? "tt-loaded" : null )">
 		<MudDataGrid T="IndexedTicket"
 					 Items="_indexedTickets"
-					 Elevation="2"
+					 Elevation="0"
 					 Dense="true"
 					 ColumnResizeMode="ResizeMode.Container"
 					 DragDropColumnReordering
