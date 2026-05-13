@@ -1,4 +1,5 @@
-﻿using Blazored.LocalStorage;
+﻿using ApexCharts;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MudBlazor.Services;
@@ -25,6 +26,9 @@ namespace WonderDevTracker.Client.Infrastructure
 
             services.AddScoped(sp =>
             new HttpClient { BaseAddress = new Uri(sp.GetRequiredService<NavigationManager>().BaseUri) });
+
+            //For dashboard charts
+            services.AddApexCharts();
 
             return services;
         }

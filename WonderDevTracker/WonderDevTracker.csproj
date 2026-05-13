@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WonderDevTracker.Client\WonderDevTracker.Client.csproj" />
+    <PackageReference Include="Blazor-ApexCharts" Version="6.1.0" />
     <PackageReference Include="Bogus" Version="35.6.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.16" />

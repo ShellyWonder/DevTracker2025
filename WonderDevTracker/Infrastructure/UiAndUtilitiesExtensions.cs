@@ -1,4 +1,5 @@
-﻿using Blazored.LocalStorage;
+﻿using ApexCharts;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using MudBlazor.Services;
@@ -28,6 +29,8 @@ namespace WonderDevTracker.Infrastructure
             services.AddHttpClient();
             //to cache images in the browser
             services.AddOutputCache();
+            //For dashboard charts
+            services.AddApexCharts();
 
             services.AddCascadingAuthenticationState();
             services.AddScoped<IdentityUserAccessor>();
