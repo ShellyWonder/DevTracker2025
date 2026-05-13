@@ -17,9 +17,12 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         public PMDashboardStatsDTO PMStats { get; set; } = new();
         public DevDashboardStatsDTO DevStats { get; set; } = new();
         public SubmitterDashboardStatsDTO SubmitterStats { get; set; } = new();
-        public List<DashboardTicketSummaryDTO> RecentActiveTickets { get; set; } = new();
-        public List<DashboardTicketSummaryDTO> RecentResolvedTickets { get; set; } = new();
-        public List<DashboardTicketSummaryDTO> RecentUnassignedTickets { get; set; } = new();
+        public List<DashboardTicketSummaryDTO> RecentActiveTickets { get; set; } = [];
+        public List<DashboardTicketSummaryDTO> RecentResolvedTickets { get; set; } = [];
+        public List<DashboardTicketSummaryDTO> RecentUnassignedTickets { get; set; } = [];
+        public IEnumerable<DashboardMonthlyTicketsDTO> TicketsOverTime { get; set; } = [];
+        public IEnumerable<DashboardMonthlyTicketsDTO> ResolvedTicketsOverTime { get; set; } = [];
+
 
 
 
