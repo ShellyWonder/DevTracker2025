@@ -1,4 +1,4 @@
-﻿@* AssignDeveloper.razor *@
+﻿@* AssignedDeveloper.razor *@
 
 @inject IndexTrackerHelper IndexTracker
 
@@ -90,14 +90,14 @@
 	{
 		if (!CanAssign) return;
 		_isEditing = true;
-		_selectedDeveloperId = Ticket.DeveloperUserId; // seed with current value
+		_selectedDeveloperId = Ticket.DeveloperUserId ?? string.Empty; // seed with current value
 	}
 
 	private void CancelEdit()
 	{
 		if (_busy) return;
 		_isEditing = false;
-		_selectedDeveloperId = Ticket.DeveloperUserId; // revert
+		_selectedDeveloperId = Ticket.DeveloperUserId ?? string.Empty; // revert
 	}
 
 	private async Task SaveAsync()
@@ -107,7 +107,11 @@
 		try
 		{
 			// Hand control to the parent to persist the change.
-			await OnSaveRequested.InvokeAsync(_selectedDeveloperId);
+			string? developerIdToSave = string.IsNullOrWhiteSpace(_selectedDeveloperId)
+			? null
+			: _selectedDeveloperId;
+
+			await OnSaveRequested.InvokeAsync(developerIdToSave);
 
 			// Assume parent refreshes Ticket and re-renders this component.
 			_isEditing = false;

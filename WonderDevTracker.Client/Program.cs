@@ -6,7 +6,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 //Register repositories and domain services
 builder.Services.AddRepositoriesAndDomain();
 
-//Register UI components and utilities including HTTP client and mudblazor
+//Register UI components and utilities including HTTP client, mudblazor, and apex charts
 builder.Services.AddUiAndUtilities();
 
 //Register identity services
