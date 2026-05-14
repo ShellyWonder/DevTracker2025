@@ -17,7 +17,7 @@
 
     // SafeNavLink will no-op/disable if empty.
     private string Href => IsValid
-        ? $"tickets/{TicketId}"
+        ? $"/tickets/{TicketId}"
         : string.Empty;
 }
 
