@@ -28,7 +28,7 @@ else
 			<PropertyColumn Property="t => t.ProjectName" Title="Project">
 				<CellTemplate Context="ticket">
 					<ProjectTitleLink ProjectId="ticket.Item.ProjectId"
-									 ProjectName="@ticket.Item.ProjectName" />
+									  ProjectName="@ticket.Item.ProjectName" />
 				</CellTemplate>
 			</PropertyColumn>
 			<TemplateColumn Title="Status" Sortable="true" SortBy="t => t.Status">
@@ -43,13 +43,12 @@ else
 				</CellTemplate>
 			</TemplateColumn>
 
-			@if (!UnassignedTickets)
-			{
-				<PropertyColumn Property="t => t.DeveloperName" Title="Developer" />
+			<PropertyColumn Property="t => t.DeveloperName"
+							Title="Developer" 
+							Hidden="@UnassignedTickets" />
 
-			}
-
-			<PropertyColumn Property="t => t.SubmitterName" Title="Submitter" />
+			<PropertyColumn Property="t => t.SubmitterName"
+							Title="Submitter" />
 
 			<TemplateColumn Title="Last Activity">
 				<CellTemplate Context="ticket">
