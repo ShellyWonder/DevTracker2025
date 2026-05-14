@@ -4,70 +4,71 @@
 
 @if (User is not null)
 {
-    <MudChip T="string"
-             Value="@User.Id"
-             Variant="@Variant"
-             Color="@Color"
-             SelectedColor="@SelectedColor"
-             Class="@Class">
+	<MudChip T="string"
+			 Value="@User.Id"
+			 Variant="@Variant"
+			 Color="@Color"
+			 SelectedColor="@SelectedColor"
+			 Class="@Class">
 
-        <AvatarContent>
-            <MudAvatar>
-                <MudImage Src="@User.ImageUrl" alt="User Avatar" aria-label="@User.FullName" title="@User.FullName" />
-            </MudAvatar>
-        </AvatarContent>
+		<AvatarContent>
+			<UserAvatarComponent ImageUrl="@User.ImageUrl"
+								 Initials="@User.Initials"
+								 FullName="@User.FullName"
+								 AltText="@User.FullName" />
+		</AvatarContent>
 
-        <ChildContent>
-            @DisplayText
-        </ChildContent>
+		<ChildContent>
+			@DisplayText
+		</ChildContent>
 
-    </MudChip>
+	</MudChip>
 }
 
 @code {
-    [Parameter, EditorRequired]
-    public AppUserDTO User { get; set; }
+	[Parameter, EditorRequired]
+	public AppUserDTO User { get; set; }
 
-    //Text to display on the chip, defaults to User.FullName
-    [Parameter]
-    public string? DisplayText { get; set; }
+	//Text to display on the chip, defaults to User.FullName
+	[Parameter]
+	public string? DisplayText { get; set; }
 
-    [Parameter, EditorRequired]
-    //user.id to use as the value of the chip
-    public string Value { get; set; }
+	[Parameter, EditorRequired]
+	//user.id to use as the value of the chip
+	public string Value { get; set; }
 
-    //Optional parameter to set the size of the avatar
-    [Parameter]
-    public Size AvatarSize { get; set; } = Size.Medium;
+	//Optional parameter to set the size of the avatar
+	[Parameter]
+	public Size AvatarSize { get; set; } = Size.Medium;
 
-    [Parameter] 
-    public EventCallback<AppUserDTO> OnClickUser { get; set; }
+	[Parameter]
+	public EventCallback<AppUserDTO> OnClickUser { get; set; }
 
-    // Common MudChip pass-throughs
-    [Parameter]
-    public Color Color { get; set; } = Color.Info;
+	// Common MudChip pass-throughs
+	[Parameter]
+	public Color Color { get; set; } = Color.Info;
 
-    [Parameter]
-    public Color SelectedColor { get; set; } = Color.Success;
+	[Parameter]
+	public Color SelectedColor { get; set; } = Color.Success;
 
-    [Parameter]
-    public Variant Variant { get; set; } = Variant.Filled;
+	[Parameter]
+	public Variant Variant { get; set; } = Variant.Filled;
 
-    // When ready to wire up click event
-    // [Parameter]
-    // public bool Disabled { get; set; }
+	// When ready to wire up click event
+	// [Parameter]
+	// public bool Disabled { get; set; }
 
-    [Parameter]
-    public string? Class { get; set; } = "me-2 mb-2";
+	[Parameter]
+	public string? Class { get; set; } = "me-2 mb-2";
 
-    // When ready to wire up click event
-    //Uncomment the following:
-    // private Task HandleClick()
-    //     => OnClickUser.HasDelegate ? OnClickUser.InvokeAsync(User) : Task.CompletedTask;
-    //and add OnClick="HandleClick" to the MudChip above
+	// When ready to wire up click event
+	//Uncomment the following:
+	// private Task HandleClick()
+	//     => OnClickUser.HasDelegate ? OnClickUser.InvokeAsync(User) : Task.CompletedTask;
+	//and add OnClick="HandleClick" to the MudChip above
 
-    protected override void OnParametersSet()
-    {
-        DisplayText ??= User.FullName ?? "Unknown User";
-    }
+	protected override void OnParametersSet()
+	{
+		DisplayText ??= User.FullName ?? "Unknown User";
+	}
 }
