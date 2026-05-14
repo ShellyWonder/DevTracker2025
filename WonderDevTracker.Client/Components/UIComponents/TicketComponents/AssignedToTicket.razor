@@ -12,9 +12,9 @@
 	{
 		<MudChip T="string">
 			<AvatarContent>
-				<MudAvatar>
-					<MudImage Src="@User.ImageUrl" Alt="@User.FullName" />
-				</MudAvatar>
+				<UserAvatarComponent ImageUrl="@User.ImageUrl"
+									 Initials="@User.Initials"
+									 AltText="@User.FullName"/>
 			</AvatarContent>
 			<ChildContent>
 				<MudText Typo="Typo.body1" Color="Color.Primary">@(User?.FullName ?? PlaceholderName)</MudText>
@@ -25,7 +25,7 @@
 
 @code {
 	[Parameter, EditorRequired]
-	public AppUserDTO User { get; set; }
+	public AppUserDTO? User { get; set; }
 
 	[Parameter]
 	public string PlaceholderName { get; set; } = "Unassigned";

@@ -63,20 +63,20 @@
 							 Text="@_ticket.Description" />
 
 			<TicketCommentArea Index="@IndexTracker.Next()"
-							   Comments="_ticket.Comments"
+							   Comments="@(_ticket.Comments?.ToList() ?? [])"
 							   CanComment="CanComment"
 							   OnAdd="HandleAddComment"
 							   OnEdit="HandleEditComment"
 							   OnDelete="HandleDeleteComment" />
 
 			<TicketAttachment Ticket="@_ticket"
-							  Attachments="@_ticket.Attachments.ToList()"
+							  Attachments="@(_ticket.Attachments?.ToList() ?? [])"
 							  UserCanEditTicket="_userCanEditTicket"
 							  Index="@IndexTracker.Next()"
 							  OnUploadRequested="HandleAttachmentUploadAsync"
 							  OnDeleteRequested="HandleDeleteAttachmentAsync" />
 
-			<TicketHistory Histories="@_ticket?.History"
+			<TicketHistory Histories="@(_ticket?.History ?? [])"
 						   Index="@IndexTracker.Next()" />
 		</div>
 		<div class="d-flex mt-2">
@@ -88,7 +88,7 @@
 				{
 					<MudButton Variant="Variant.Text"
 							   StartIcon="@Icons.Material.Filled.Edit"
-							   Href="@($"tickets/{_ticket?.Id}/edit")"
+							   Href="@($"/tickets/{_ticket?.Id}/edit")"
 							   Disabled="@(_ticket is null)"
 							   Color="Color.Tertiary">
 						Edit

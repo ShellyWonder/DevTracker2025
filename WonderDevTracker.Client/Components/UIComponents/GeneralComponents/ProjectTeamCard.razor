@@ -4,18 +4,15 @@
 
 
 <div class="d-flex align-items-center gap-2">
-	<div>
-		<MudAvatar>
-			@if (User is null)
-			{
-				<text>?</text>
-			}
-			else
-			{
-				<MudImage Src="@User.ImageUrl" Alt="@User.FullName" />
-			}
-		</MudAvatar>
-	</div>
+	
+		<UserAvatarComponent ImageUrl="@User?.ImageUrl"
+							 Initials="@User?.Initials"
+							 FullName="@User?.FullName"
+							 AltText="@User?.FullName"
+							 Size="Size.Medium"
+							 Class="project-card-member-avatar" 
+							 Featured="true"/>
+	
 
 	<div>
 		<MudText Typo="Typo.body1" Color="Color.Primary">@(User?.FullName ?? PlaceholderName)</MudText>
@@ -28,7 +25,7 @@
 
 @code {
 	[Parameter, EditorRequired]
-	public AppUserDTO User { get; set; }
+	public AppUserDTO? User { get; set; }
 
 	[Parameter]
 	public string PlaceholderName { get; set; } = "Unassigned";

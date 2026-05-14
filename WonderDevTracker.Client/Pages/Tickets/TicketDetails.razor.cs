@@ -32,7 +32,7 @@ namespace WonderDevTracker.Client.Pages.Tickets
         private bool _userCanArchiveTicket = false;
         private bool _userCanAssignTicket = false;
         private bool _processingArchiveRestore = false;
-        private bool CanComment => _userCanEditTicket || !_ticket!.Archived;
+        private bool CanComment => _ticket is not null && (_userCanEditTicket || !_ticket.Archived);
         #endregion
 
         #region UI REFERENCES & TOKENS
@@ -58,46 +58,80 @@ namespace WonderDevTracker.Client.Pages.Tickets
             _userCanAssignTicket = false;
             try
             {
-                _ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
-                //ensures everytime ticket is loaded or reloaded, attachments are immediately available as a guaranteed List<T>.
-                _attachments = _ticket?.Attachments?.ToList() ?? new();
-
-                if (_ticket is not null)
+                if (UserInfo is null)
                 {
-                    _breadcrumbs = [new BreadcrumbItem("Home", href: "/")];
-                    if (_ticket.Project is null)
-                    {
-                        _breadcrumbs.Add(new BreadcrumbItem("Tickets", href: "/tickets/open"));
-                        if (_ticket.Archived) _breadcrumbs.Add(new BreadcrumbItem("Archived Tickets", href: "/tickets/archived"));
-
-                    }
-                    else
-                    {
-                        _breadcrumbs.Add(new BreadcrumbItem("Projects", href: "/projects"));
-                        _breadcrumbs.Add(new BreadcrumbItem(_ticket.Project.Name ?? "Unknown Project", href: $"/projects/{_ticket.Project.Id}"));
-                    }
-                    _breadcrumbs.Add(new BreadcrumbItem(_ticket.Title ?? "Ticket Not Found", href: null, disabled: true));
-
-                    // Check if user has permission to alter ticket
-                    _userCanEditTicket = await AuthService.CanEditTicketAsync(_ticket!, UserInfo!);
-                    _userCanArchiveTicket = await AuthService.IsUserAdminPMAsync(_ticket.ProjectId, UserInfo!);
-                    _userCanAssignTicket = await AuthService.IsUserAdminPMAsync(_ticket.ProjectId, UserInfo!);
-
-                    IEnumerable<AppUserDTO> projectMembers = await ProjectService.GetProjectMembersAsync(_ticket.ProjectId, UserInfo!);
-                    _developers = projectMembers.Where(m => m.Role == Role.Developer);
-
+                    throw new InvalidOperationException("UserInfo was null while loading ticket details.");
                 }
 
+                TicketDTO? loadedTicket = await TicketService.GetTicketByIdAsync(Id, UserInfo);
+                Console.WriteLine($"Ticket Id: {loadedTicket?.Id}");
+                Console.WriteLine($"Title: {loadedTicket?.Title}");
+                Console.WriteLine($"Project null: {loadedTicket?.Project is null}");
+                Console.WriteLine($"Developer null: {loadedTicket?.DeveloperUser is null}");
+                Console.WriteLine($"Submitter null: {loadedTicket?.SubmitterUser is null}");
+                Console.WriteLine($"History null: {loadedTicket?.History is null}");
+                Console.WriteLine($"Comments null: {loadedTicket?.Comments is null}");
+                Console.WriteLine($"Attachments null: {loadedTicket?.Attachments is null}");
+                if (loadedTicket  is null)
+                {
+                    NavManager.NavigateTo("/tickets/open");
+                    return;
+                }
+                TicketDTO ticket = loadedTicket;
+                ProjectDTO? project = ticket.Project;
+                _ticket = ticket;
+                IEnumerable<AppUserDTO> projectMembers =
+        await ProjectService.GetProjectMembersAsync(loadedTicket.ProjectId, UserInfo);
+
+                _developers = projectMembers
+                    .Where(m => m is not null && m.Role == Role.Developer)
+                    .ToList();
+                //ensures everytime ticket is loaded or reloaded, attachments are immediately available as a guaranteed List<T>.
+                _attachments = loadedTicket.Attachments?.ToList() ?? [];
+
+                
+                _breadcrumbs = [new BreadcrumbItem("Home", href: "/")];
+                if (project is null)
+                {
+                    _breadcrumbs.Add(new BreadcrumbItem("Tickets", href: "/tickets/open"));
+
+                    if (loadedTicket.Archived)
+                    {
+                        _breadcrumbs.Add(new BreadcrumbItem("Archived Tickets", href: "/tickets/archived"));
+                    }
+                }
+                else 
+                {
+                    _breadcrumbs.Add(new BreadcrumbItem("Projects", href: "/projects"));
+                    _breadcrumbs.Add(new BreadcrumbItem(
+                        project.Name ?? "Unknown Project",
+                        href: $"/projects/{project.Id}"));
+                }
+
+                _breadcrumbs.Add(new BreadcrumbItem(
+                    loadedTicket.Title ?? "Ticket Not Found",
+                    href: null,
+                    disabled: true));
+
+                // Check if user has permission to alter ticket
+                    _userCanEditTicket = await AuthService.CanEditTicketAsync(loadedTicket, UserInfo);
+                    _userCanArchiveTicket = await AuthService.IsUserAdminPMAsync(loadedTicket.ProjectId, UserInfo);
+                    _userCanAssignTicket = await AuthService.IsUserAdminPMAsync(loadedTicket.ProjectId, UserInfo);
+
+                   
+
             }
+
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 Snackbar.Add("Error loading ticket details.", Severity.Error);
             }
-            _loadingComplete = true;
-            StateHasChanged();
 
-            if (_ticket is null) NavManager.NavigateTo("tickets/open");
+            finally
+            {
+                _loadingComplete = true; 
+            }
         }
         #endregion
 
@@ -148,7 +182,7 @@ namespace WonderDevTracker.Client.Pages.Tickets
                 //refresh ticket details to show restored status
                 await ReloadTicketAsync();
 
-                if (_ticket != null) _ticket.Archived = false;
+                _ticket?.Archived = false;
 
                 Snackbar.Add($"The ticket '{TicketTitle}' has been restored", Severity.Success);
                 // Navigate back to projects list
