@@ -1,31 +1,24 @@
 ﻿@* AssignedToTicket *@
 @inject ICompanyDTOService CompanyService
 
-
 <div class="d-flex align-items-center gap-2">
 
 	@if (User is null)
 	{
-		<MudText Color="Color.Error">Unassigned</MudText>
+		<UnassignedDeveloperLink TicketId="@TicketId" />
 	}
 	else
 	{
-		<MudChip T="string">
-			<AvatarContent>
-				<UserAvatarComponent ImageUrl="@User.ImageUrl"
-									 Initials="@User.Initials"
-									 AltText="@User.FullName"/>
-			</AvatarContent>
-			<ChildContent>
-				<MudText Typo="Typo.body1" Color="Color.Primary">@(User?.FullName ?? PlaceholderName)</MudText>
-			</ChildContent>
-		</MudChip>
+		<UserAvatarMudChip User="@User" PlaceholderName="@PlaceholderName" />
 	}
 </div>
 
 @code {
 	[Parameter, EditorRequired]
 	public AppUserDTO? User { get; set; }
+
+	[Parameter, EditorRequired]		
+	public int TicketId { get; set; }
 
 	[Parameter]
 	public string PlaceholderName { get; set; } = "Unassigned";

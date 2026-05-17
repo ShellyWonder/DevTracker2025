@@ -1,0 +1,26 @@
+﻿@* DashboardTicketActions *@
+
+@if (DeveloperUser is null)
+{
+	<UnassignedDeveloperLink TicketId="@TicketId" />
+}
+else
+{
+	<SafeNavButton Href="@TicketUrl"
+				   Variant="Variant.Text"
+				   Color="Color.Primary">
+		View
+	</SafeNavButton>
+}
+@code {
+	[Parameter, EditorRequired]
+	public AppUserDTO? DeveloperUser { get; set; }
+
+	[Parameter, EditorRequired]
+	public int TicketId { get; set; }
+
+	[Parameter]
+	public string Href { get; set; } = string.Empty;
+
+	private string TicketUrl => $"/tickets/{TicketId}";
+}

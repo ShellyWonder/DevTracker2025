@@ -26,7 +26,7 @@ namespace WonderDevTracker.Client.Models.DTOs
         [Description("Url pointing to the user's image")]
         public string? ImageUrl { get; set; }
 
-        public string Initials { get; set; } = "?";
+        public string? Initials { get; set; } 
 
         public bool HasProfileImage => !string.IsNullOrWhiteSpace(ImageUrl);
 
