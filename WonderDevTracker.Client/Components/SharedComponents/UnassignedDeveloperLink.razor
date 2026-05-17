@@ -1,0 +1,25 @@
+﻿@* UnassignedDeveloperLink *@
+@* for use when a ticket does not have a developer assignment  *@
+
+<SafeNavLink Href="@TicketUrl"
+			 Valid="@(TicketId > 0)"
+			 Color="@Color"
+			 Typo="@Typo">
+	Assign developer
+</SafeNavLink>
+
+
+@code {
+
+	[Parameter, EditorRequired]
+	public int TicketId { get; set; }
+
+	[Parameter]
+	public Color Color { get; set; } = Color.Error;
+
+	[Parameter]
+	public Typo Typo { get; set; } = Typo.button;
+
+
+	private string TicketUrl => $"/tickets/{TicketId}";
+}

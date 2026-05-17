@@ -1,0 +1,30 @@
+﻿@* UserAvatarMudChip *@
+
+@inject ICompanyDTOService CompanyService
+
+		<MudChip T="string">
+			<AvatarContent>
+				<UserAvatarComponent ImageUrl="@User?.ImageUrl"
+									 Initials="@User?.Initials"
+									 AltText="@User?.FullName"
+									 FullName="@User?.FullName"
+									 Featured="true"/>
+			</AvatarContent>
+			<ChildContent>
+				<MudText Typo="Typo.body1" Color="Color.Primary">@(User?.FullName ?? PlaceholderName)</MudText>
+			</ChildContent>
+		</MudChip>
+
+@code {
+	[Parameter, EditorRequired]
+	public AppUserDTO? User { get; set; }
+
+	[Parameter]
+	public string PlaceholderName { get; set; } = "Unassigned";
+
+	[Parameter]
+	public string? Class { get; set; }
+
+
+}
+

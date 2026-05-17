@@ -23,8 +23,11 @@
 
 @code {
     // public API: non-nullable
-    [Parameter] public TEnum Selected { get; set; }
-    [Parameter] public EventCallback<TEnum> SelectedChanged { get; set; }
+    [Parameter] 
+    public TEnum Selected { get; set; }
+
+    [Parameter]
+    public EventCallback<TEnum> SelectedChanged { get; set; }
 
     private Task OnSelectedValueChanged(TEnum value)
     {
