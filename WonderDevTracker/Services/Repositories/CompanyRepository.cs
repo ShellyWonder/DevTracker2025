@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using WonderDevTracker.Client;
+using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Data;
@@ -333,12 +334,39 @@ namespace WonderDevTracker.Services.Repositories
                     Priority = t.Priority,
                     Type = t.Type,
 
-                    SubmitterName = t.SubmitterUser!.FirstName + " " + t.SubmitterUser.LastName,
+                    SubmitterUser = t.SubmitterUser == null
+                    ? null
+                    : new AppUserDTO
+                    {
+                        Id = t.SubmitterUser.Id,
+                        FirstName = t.SubmitterUser.FirstName,
+                        LastName = t.SubmitterUser.LastName,
+                        // Use your actual AppUserDTO image property name here.
+                        ImageUrl = t.SubmitterUser.ProfilePictureId == null
+                                                                    ? null
+                                                                    : $"/api/uploads/{t.SubmitterUser.ProfilePictureId}",
 
-                    DeveloperName = t.DeveloperUser == null
-                        ? null
-                        : t.DeveloperUser.FirstName + " " + t.DeveloperUser.LastName,
+                        // Only include this if Initials is settable, not computed.
+                        Initials = t.SubmitterUser.FirstName.Substring(0, 1)
+                     + t.SubmitterUser.LastName.Substring(0, 1)
+                    },
 
+
+                    DeveloperUser = t.DeveloperUser == null
+            ? null
+            : new AppUserDTO
+            {
+                Id = t.DeveloperUser.Id,
+                FirstName = t.DeveloperUser.FirstName,
+                LastName = t.DeveloperUser.LastName,
+
+                ImageUrl = t.DeveloperUser.ProfilePictureId == null
+                    ? null
+                    : $"/api/uploads/{t.DeveloperUser.ProfilePictureId}",
+
+                Initials = t.DeveloperUser.FirstName.Substring(0, 1)
+                         + t.DeveloperUser.LastName.Substring(0, 1)
+            },
                     Created = t.Created,
                     Updated = t.Updated
                 };
