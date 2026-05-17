@@ -1,5 +1,4 @@
-﻿@using WonderDevTracker.Client.Components.UIComponents.CompanyComponents.CompanyDetailsComponents
-@* TicketsTable *@
+﻿@* TicketsTable *@
 
 <div class="tickets-page">
 
@@ -56,7 +55,7 @@
 								SortBy="t => t.Ticket.Project?.Name ?? string.Empty" >
 								<CellTemplate Context="ticket">
 								<ProjectTitleLink ProjectId="ticket.Item.Ticket.Project?.Id!"
-													ProjectName="@ticket.Item.Ticket.Project?.Name" />
+												  ProjectName="@ticket.Item.Ticket.Project?.Name" />
 								</CellTemplate>
 								</PropertyColumn>
 				<TemplateColumn Title="Type" Sortable="true" SortBy="t => t.Ticket.Type">
@@ -79,7 +78,7 @@
 								SortBy="t => t.Ticket.SubmitterUser == null ? string.Empty : t.Ticket.SubmitterUser.FullName"
 								ShowColumnOptions="true">
 					<CellTemplate>
-						<AssignedToTicket User="context.Item.Ticket.SubmitterUser" />
+						<AssignedToTicket User="context.Item.Ticket.SubmitterUser" TicketId="context.Item.Ticket.Id" />
 					</CellTemplate>
 				</TemplateColumn>
 
@@ -88,7 +87,7 @@
 								SortBy="t => t.Ticket.DeveloperUser == null ? string.Empty : t.Ticket.DeveloperUser.FullName"
 								ShowColumnOptions="true">
 					<CellTemplate>
-						<AssignedToTicket User="context.Item.Ticket.DeveloperUser" />
+						<AssignedToTicket User="context.Item.Ticket.DeveloperUser" TicketId="context.Item.Ticket.Id" />
 					</CellTemplate>
 				</TemplateColumn>
 				<TemplateColumn Title="Created"

@@ -30,7 +30,7 @@
 						SortBy="c => c.SubmitterUser?.FullName"
 						ShowColumnOptions="true">
 			<CellTemplate>
-				<AssignedToTicket User="@context.Item.SubmitterUser" />
+				<AssignedToTicket User="@context.Item.SubmitterUser" TicketId="@context.Item.Id" />
 			</CellTemplate>
 		</TemplateColumn>
 		<TemplateColumn Title="Developer"
@@ -38,7 +38,7 @@
 						SortBy="c => c.DeveloperUser?.FullName"
 						ShowColumnOptions="true">
 			<CellTemplate>
-				<AssignedToTicket User="@context.Item.DeveloperUser" />
+				<AssignedToTicket User="@context.Item.DeveloperUser" TicketId="@context.Item.Id" />
 			</CellTemplate>
 		</TemplateColumn>
 		<TemplateColumn Title="Updated">
