@@ -1,15 +1,23 @@
 ﻿@* AssignedToTicket *@
-@inject ICompanyDTOService CompanyService
 
-<div class="d-flex align-items-center gap-2">
+<div class="@CssClass">
 
-	@if (User is null)
+	@if (User is null && !AllowAssignment)
 	{
-		<UnassignedDeveloperLink TicketId="@TicketId" />
+		<MudText Typo="Typo.body2"
+				 Color="Color.Default"
+				 Class="text-muted"
+		          Style="font-style:italic">
+			Developer Not Assigned
+		</MudText>
+	}
+	else if(User is null)
+	{
+			<UnassignedDeveloperLink TicketId="@TicketId" />
 	}
 	else
 	{
-		<UserAvatarMudChip User="@User" PlaceholderName="@PlaceholderName" />
+		<UserAvatarMudChip User="@User"  />
 	}
 </div>
 
@@ -21,10 +29,21 @@
 	public int TicketId { get; set; }
 
 	[Parameter]
+	public bool AllowAssignment { get; set; } = true;
+
+	[Parameter]
 	public string PlaceholderName { get; set; } = "Unassigned";
 
 	[Parameter]
-	public string? Class { get; set; }
+	public string? Class { get; set; } 
+
+	[Parameter]
+	public string? Style { get; set; }
+
+	private string CssClass =>
+	   string.IsNullOrWhiteSpace(Class)
+		   ? "d-flex align-items-center justify-content-center gap-2"
+		   : $"d-flex align-items-center gap-2 {Class}";
 
 
 }
