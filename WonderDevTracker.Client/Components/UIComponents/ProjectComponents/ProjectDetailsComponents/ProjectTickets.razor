@@ -25,10 +25,12 @@
                     }
                 </MudTabPanel>
                 <MudTabPanel Text="Resolved Tickets">
-                    <ProjectTicketTable Tickets="@ResolvedTickets" />
+                    <ProjectTicketTable Tickets="@ResolvedTickets" 
+                                        AllowAssignment="false"/>
                 </MudTabPanel>
                 <MudTabPanel Text="Archived Tickets">
-                    <ProjectTicketTable Tickets="@ArchivedTickets" />
+                    <ProjectTicketTable Tickets="@ArchivedTickets"
+                                        AllowAssignment="false"/>
 
                 </MudTabPanel>
             </MudTabs>
