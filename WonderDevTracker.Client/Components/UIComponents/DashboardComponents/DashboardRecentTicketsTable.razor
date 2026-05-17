@@ -1,5 +1,4 @@
-﻿@using WonderDevTracker.Client.Components.UIComponents.CompanyComponents.CompanyDetailsComponents
-@* DashboardRecentTicketsTable *@
+﻿@* DashboardRecentTicketsTable *@
 
 @if (Tickets is null || Tickets.Count == 0)
 {
@@ -43,12 +42,24 @@ else
 				</CellTemplate>
 			</TemplateColumn>
 
-			<PropertyColumn Property="t => t.DeveloperName"
-							Title="Developer" 
-							Hidden="@UnassignedTickets" />
+			<TemplateColumn Title="Developer"
+							Hidden="@UnassignedTickets"
+							Sortable="true"
+							SortBy="@(ticket => ticket.DeveloperName)">
+				<CellTemplate Context="ticket">
+					<AssignedToTicket User="@ticket.Item.DeveloperUser"
+									  TicketId="@ticket.Item.Id" />
+				</CellTemplate>
+			</TemplateColumn>
 
-			<PropertyColumn Property="t => t.SubmitterName"
-							Title="Submitter" />
+			<TemplateColumn Title="Submitter"
+							Sortable="true"
+							SortBy="@(ticket => ticket.SubmitterName ?? string.Empty)">
+				<CellTemplate Context="ticket">
+					<UserAvatarMudChip User="@ticket.Item.SubmitterUser"
+									   PlaceholderName="Unknown" />
+				</CellTemplate>
+			</TemplateColumn>
 
 			<TemplateColumn Title="Last Activity">
 				<CellTemplate Context="ticket">
@@ -59,11 +70,8 @@ else
 
 			<TemplateColumn Title="Actions">
 				<CellTemplate Context="ticket">
-					<SafeNavButton Href="@($"/tickets/{ticket.Item.Id}")"
-								   Variant="Variant.Text"
-								   Color="Color.Primary">
-						View
-					</SafeNavButton>
+					<DashboardTicketActions DeveloperUser="@ticket.Item.DeveloperUser"
+											TicketId="@ticket.Item.Id" />
 				</CellTemplate>
 			</TemplateColumn>
 		</Columns>
@@ -76,4 +84,6 @@ else
 
 	[Parameter]
 	public bool UnassignedTickets { get; set; }
+
+	
 }
