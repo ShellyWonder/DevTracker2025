@@ -1,24 +1,26 @@
 ﻿@* TicketTitleLink *@
 @* Renders a link to /tickets/{id} using the provided ticket id and title *@
 
-<SafeNavLink Href="@Href"
-             Valid="@IsValid">
-    <MudText Typo="Typo.inherit">@Title</MudText>
-</SafeNavLink>
+<MudTooltip Text="View ticket details">
+	<SafeNavLink Href="@Href"
+				 Valid="@IsValid">
+		<MudText Typo="Typo.inherit">@Title</MudText>
+	</SafeNavLink>
+</MudTooltip>
 
 @code {
-    [Parameter, EditorRequired]
-    public int? TicketId { get; set; }
+	[Parameter, EditorRequired]
+	public int? TicketId { get; set; }
 
-    [Parameter, EditorRequired]
-    public string? Title { get; set; }
+	[Parameter, EditorRequired]
+	public string? Title { get; set; }
 
-    private bool IsValid => TicketId is not null;
+	private bool IsValid => TicketId is not null;
 
-    // SafeNavLink will no-op/disable if empty.
-    private string Href => IsValid
-        ? $"/tickets/{TicketId}"
-        : string.Empty;
+	// SafeNavLink will no-op/disable if empty.
+	private string Href => IsValid
+		? $"/tickets/{TicketId}"
+		: string.Empty;
 }
 
 

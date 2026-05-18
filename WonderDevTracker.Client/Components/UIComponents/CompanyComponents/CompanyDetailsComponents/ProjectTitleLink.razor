@@ -8,12 +8,14 @@
 }
 else
 {
-	<SafeNavLink Href="@ProjectUrl"
-				 Valid=" ValidProject"
-				 Class="project-details-link"
-	             Typo="Typo.inherit">
-		@ProjectName
-	</SafeNavLink>
+	<MudTooltip Text="View project details">
+		<SafeNavLink Href="@ProjectUrl"
+					 Valid=" ValidProject"
+					 Class="project-details-link"
+					 Typo="Typo.inherit">
+			@ProjectName
+		</SafeNavLink>
+	</MudTooltip>
 }
 
 @code {
