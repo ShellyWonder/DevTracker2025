@@ -17,7 +17,7 @@
 					 Size="Size.Large" />
 
 			<MudText Typo="Typo.h2" Color="Color.Primary">Recent Ticket Activity</MudText>
-			
+
 		</MudStack>
 		<MudStack Row="true"
 				  AlignItems="AlignItems.Center"
@@ -35,7 +35,8 @@
 			</MudTabPanel>
 
 			<MudTabPanel Text="Resolved">
-				<DashboardRecentTicketsTable Tickets="@ResolvedTickets" />
+				<DashboardRecentTicketsTable Tickets="@ResolvedTickets"
+											 AllowAssignment="false" />
 			</MudTabPanel>
 
 			@if (UnassignedTickets?.Any() == true)

@@ -47,8 +47,15 @@ else
 							Sortable="true"
 							SortBy="@(ticket => ticket.DeveloperName)">
 				<CellTemplate Context="ticket">
-					<AssignedToTicket User="@ticket.Item.DeveloperUser"
-									  TicketId="@ticket.Item.Id" />
+					@if (ticket.Item.DeveloperUser is null)
+					{
+						<NoLinkDevNotAssigned />
+					}
+					else
+					{
+						<UserAvatarMudChip User="@ticket.Item.DeveloperUser"
+										   PlaceholderName="Developer" />
+					}
 				</CellTemplate>
 			</TemplateColumn>
 
@@ -71,7 +78,8 @@ else
 			<TemplateColumn Title="Actions">
 				<CellTemplate Context="ticket">
 					<DashboardTicketActions DeveloperUser="@ticket.Item.DeveloperUser"
-											TicketId="@ticket.Item.Id" />
+											TicketId="@ticket.Item.Id" 
+											AllowAssignment="@AllowAssignment"/>
 				</CellTemplate>
 			</TemplateColumn>
 		</Columns>
@@ -84,6 +92,9 @@ else
 
 	[Parameter]
 	public bool UnassignedTickets { get; set; }
+
+	[Parameter]
+	public bool AllowAssignment { get; set; } = true;
 
 	
 }

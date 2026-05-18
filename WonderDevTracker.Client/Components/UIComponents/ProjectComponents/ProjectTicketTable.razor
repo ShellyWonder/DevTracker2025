@@ -30,7 +30,7 @@
 						SortBy="c => c.SubmitterUser?.FullName"
 						ShowColumnOptions="true">
 			<CellTemplate>
-				<AssignedToTicket User="@context.Item.SubmitterUser" TicketId="@context.Item.Id" />
+				<UserAvatarMudChip User="@context.Item.SubmitterUser"  />
 			</CellTemplate>
 		</TemplateColumn>
 		<TemplateColumn Title="Developer"
@@ -38,7 +38,9 @@
 						SortBy="c => c.DeveloperUser?.FullName"
 						ShowColumnOptions="true">
 			<CellTemplate>
-				<AssignedToTicket User="@context.Item.DeveloperUser" TicketId="@context.Item.Id" />
+				<AssignedToTicket User="@context.Item.DeveloperUser" 
+				                  TicketId="@context.Item.Id"
+								  AllowAssignment="@AllowAssignment"/>
 			</CellTemplate>
 		</TemplateColumn>
 		<TemplateColumn Title="Updated">
@@ -67,6 +69,9 @@
 @code {
 	[Parameter, EditorRequired]
 	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
+
+	[Parameter]
+	public bool AllowAssignment { get; set; } = true;
 
 
 

@@ -4,12 +4,7 @@
 
 	@if (User is null && !AllowAssignment)
 	{
-		<MudText Typo="Typo.body2"
-				 Color="Color.Default"
-				 Class="text-muted"
-		          Style="font-style:italic">
-			Developer Not Assigned
-		</MudText>
+		<NoLinkDevNotAssigned />
 	}
 	else if(User is null)
 	{

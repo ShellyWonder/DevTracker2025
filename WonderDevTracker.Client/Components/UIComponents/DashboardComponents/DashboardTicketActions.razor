@@ -1,6 +1,6 @@
 ﻿@* DashboardTicketActions *@
 
-@if (DeveloperUser is null)
+@if (DeveloperUser is null && AllowAssignment)
 {
 	<UnassignedDeveloperLink TicketId="@TicketId" />
 }
@@ -21,6 +21,9 @@ else
 
 	[Parameter]
 	public string Href { get; set; } = string.Empty;
+
+	[Parameter]
+	public bool AllowAssignment { get; set; } = true;
 
 	private string TicketUrl => $"/tickets/{TicketId}";
 }
