@@ -1,8 +1,8 @@
 ﻿@* DashboardQuickActions.razor *@
 
 <div class="dashboard-quick-actions-shell">
-	<MudPaper Class="dashboard-quick-actions pa-4 mb-4"
-			  Elevation="1"
+	<MudPaper Class="dashboard-quick-actions mb-3"
+			  Elevation="0"
 			  rounded="true">
 
 		<MudStack Row="true"
@@ -51,9 +51,9 @@
 
 				@if (CanManageMembers)
 				{
-					<SafeNavButton Href="/company/members"
-								   Color="Color.Primary"
-								   Variant="Variant.Outlined"
+					<SafeNavButton Href="/company/#company-members"
+								   Color="Color.Tertiary"
+								   Variant="Variant.Filled"
 								   Size="Size.Small">
 						Manage Team
 					</SafeNavButton>
@@ -61,35 +61,19 @@
 				@if (CanViewInvites)
 				{
 					<SafeNavButton Href="/company#company-invites"
-								   Color="Color.Primary"
-								   Variant="Variant.Outlined"
+								   Color="Color.Warning"
+								   Variant="Variant.Filled"
 								   Size="Size.Small">
 						View Invitations
 					</SafeNavButton>
 				}
-				@if (CanViewOpenTickets)
-				{
-					<SafeNavButton Href="/tickets/open"
-								   Color="Color.Primary"
-								   Variant="Variant.Outlined"
-								   Size="Size.Small">
-						View Open Tickets
-					</SafeNavButton>
-				}
-				@if (CanViewMyTickets)
-				{
-					<SafeNavButton Href="/tickets/assigned"
-								   Color="Color.Primary"
-								   Variant="Variant.Outlined"
-								   Size="Size.Small">
-						View My Tickets
-					</SafeNavButton>
-				}
+				
+				
 				@if (CanViewArchivedTickets)
 				{
 					<SafeNavButton Href="/tickets/archived"
-								   Color="Color.Primary"
-								   Variant="Variant.Outlined"
+								   Color="Color.Error"
+								   Variant="Variant.Filled"
 								   Size="Size.Small">
 						View Archived Tickets
 					</SafeNavButton>

@@ -8,7 +8,7 @@ and/or a "welcome back" message that changes based on the time of day
 3. Add the light/dark mode toggle in the header for easy access to theme switching.
 <DashboardThemeToggle />*@
 
-@if(User is null)
+@if (User is null)
 {
 	<MudPaper Class="dashboard-header pa-6 mb-6"
 			  Elevation="2"
@@ -18,54 +18,62 @@ and/or a "welcome back" message that changes based on the time of day
 }
 else
 {
-	
-	<div class="dashboard-header-shell">
-	<MudPaper Class="dashboard-header pa-6 mb-6"
-			  Elevation="2"
-			  rounded="true">
 
-		<MudStack Row="true"
-				  AlignItems="AlignItems.Center"
-				  Justify="Justify.SpaceBetween"
-				  Spacing="3"
-				  Class="dashboard-header-stack">
+	<div class="dashboard-header-shell">
+		<MudPaper Class="dashboard-header pa-6 mb-3"
+				  Elevation="2"
+				  rounded="true">
+
+			<MudStack Row="true" Spacing="4">
+				<DashboardQuickActions CanManageProjects="@CanManageProjects"
+									   CanManageMembers="@CanManageMembers"
+									   CanSubmitTickets="@CanSubmitTickets"
+									   CanViewArchivedTickets="@CanViewArchivedTickets"
+									   CanViewInvites="@CanViewInvites" />
+			</MudStack>
 
 			<MudStack Row="true"
 					  AlignItems="AlignItems.Center"
-					  Spacing="3">
-				<UserAvatarComponent ImageUrl="@User.ImageUrl"
-									 Initials="@User.Initials"
-									 AltText="@($"{User.FirstName} {User.LastName}")"
-									 Featured="true" />
+					  Justify="Justify.SpaceBetween"
+					  Spacing="3"
+					  Class="dashboard-header-stack mb-6">
 
-				<MudStack Spacing="1">
-					<MudText Typo="Typo.h4"
-							 Class="dashboard-header-title">
-						Welcome Back, @UserName!
-					</MudText>
-					<MudText Typo="Typo.body2"
-							 Class="dashboard-header-role">
-						@DashboardRole
-					</MudText>
+				<MudStack Row="true"
+						  AlignItems="AlignItems.Center"
+						  Spacing="3">
+					<UserAvatarComponent ImageUrl="@User.ImageUrl"
+										 Initials="@User.Initials"
+										 AltText="@($"{User.FirstName} {User.LastName}")"
+										 Featured="true" />
 
-					<MudText Typo="Typo.subtitle1"
-							 Class="dashboard-header-company">
-						@CompanyName
-					</MudText>
+					<MudStack Spacing="1">
+						<MudText Typo="Typo.body2"
+								 Class="dashboard-header-role">
+							@DashboardRole
+						</MudText>
+						<MudText Typo="Typo.h4"
+								 Class="dashboard-header-title">
+							Welcome Back, @UserName!
+						</MudText>
+						<MudText Typo="Typo.subtitle1"
+								 Class="dashboard-header-company">
+							@CompanyName
+						</MudText>
 
-					<MudText Typo="Typo.body1"
-							 Class="dashboard-header-subtitle">
-						@DashboardSubtitle
-					</MudText>
+						<MudText Typo="Typo.body1"
+								 Class="dashboard-header-subtitle">
+							@DashboardSubtitle
+						</MudText>
+
+					</MudStack>
+
 				</MudStack>
 
 			</MudStack>
 
-		</MudStack>
+		</MudPaper>
 
-	</MudPaper>
-
-</div>
+	</div>
 }
 
 @code {
@@ -79,9 +87,27 @@ else
 	public string DashboardSubtitle { get; set; } = string.Empty;
 
 	[Parameter, EditorRequired]
-	public AppUserDTO? User { get; set; } 
+	public AppUserDTO? User { get; set; }
 
 	[Parameter, EditorRequired]
 	public string CompanyName { get; set; } = string.Empty;
+
+	[Parameter]
+	public bool CanManageProjects { get; set; } = false;
+
+	[Parameter]
+	public bool CanManageMembers { get; set; } = false;
+
+	[Parameter]
+	public bool CanSubmitTickets { get; set; } = false;
+
+	[Parameter]
+	public bool CanViewInvites { get; set; } = false;
+
+	[Parameter]
+	public bool CanViewArchivedTickets { get; set; } = false;
+
+
+	
 
 }

@@ -4,8 +4,7 @@
 
     .dashboard-quick-actions-shell ::deep .dashboard-quick-actions {
         background: #FFFFFF;
-        border: 1px solid #DDE6EC;
-        border-radius: 18px;
+        
     }
 
     .dashboard-quick-actions-shell ::deep .dashboard-quick-actions-title {

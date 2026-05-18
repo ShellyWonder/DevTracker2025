@@ -37,23 +37,20 @@
 					controls the index for components that use IndexTracker.*@
 		ResetIndex();
 		<PageTitle>@($"{UserName}'s Dashboard | Dev Tracker")</PageTitle>
+			<!-- Dashboard content -->
 
-	
 		<DashboardHeader User="@CurrentUser"
 						 UserName="@UserName"
 						 DashboardRole="@DashboardRoleLabel"
 						 DashboardSubtitle="@DashboardSubtitle"
-						 CompanyName="@CompanyName" />
+						 CompanyName="@CompanyName"
+						 CanManageProjects="@ActionsPermissions.CanManageProjects"
+						 CanManageMembers="@ActionsPermissions.CanManageMembers"
+						 CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
+						 CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
+						 CanViewInvites="@ActionsPermissions.CanViewInvites" />
 
-		<DashboardQuickActions CanManageProjects="@ActionsPermissions.CanManageProjects"
-							   CanManageMembers="@ActionsPermissions.CanManageMembers"
-							   CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
-							   CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
-							   CanViewOpenTickets="@ActionsPermissions.CanViewOpenTickets"
-							   CanViewMyTickets="@ActionsPermissions.CanViewMyTickets"
-							   CanViewInvites="@ActionsPermissions.CanViewInvites" />
 		<div class="vstack gap-3">
-			<!-- Dashboard content -->
 			<!--Data Display Cards(?)-->
 			@if (IsAdmin)
 			{
