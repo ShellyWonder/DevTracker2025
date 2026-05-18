@@ -31,9 +31,11 @@
 			<CompanyInfo Index="IndexTracker.Next()"
 						 Company="_company"
 						 OnSave="HandleUpdateCompany" />
-			<CompanyMembers Index="IndexTracker.Next()"
-							Members="_company.Members"
-							OnChange="HandleRefreshMembers" />
+			<section id="company-members">
+				<CompanyMembers Index="IndexTracker.Next()"
+								Members="_company.Members"
+								OnChange="HandleRefreshMembers" />
+			</section>
 			<section id="company-invites">
 				<CompanyInvites Invites="_company.Invites"
 								Index="IndexTracker.Next()"
