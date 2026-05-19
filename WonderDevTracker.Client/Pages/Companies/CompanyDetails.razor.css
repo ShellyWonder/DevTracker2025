@@ -1,0 +1,6 @@
+﻿/*CompanyDetails.razor.css*/
+
+/* Style for the scroll section to ensure it is properly aligned when scrolled into view */
+.scroll-section {
+    scroll-margin-top: 96px;
+}
