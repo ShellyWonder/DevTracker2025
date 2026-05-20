@@ -15,7 +15,7 @@
 @inherits AuthenticatedComponentBase
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
-	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+	<MudBreadcrumbs Items="_breadcrumbs" Class="breadcrumbs1" />
 	@if (!_loadingComplete)
 	{
 		<LoadingSpinner Message="Loading dashboard details..." Color="Color.Primary" Size="Size.Large" />
@@ -37,7 +37,7 @@
 					controls the index for components that use IndexTracker.*@
 		ResetIndex();
 		<PageTitle>@($"{UserName}'s Dashboard | Dev Tracker")</PageTitle>
-			<!-- Dashboard content -->
+		<!-- Dashboard content -->
 
 		<DashboardHeader User="@CurrentUser"
 						 UserName="@UserName"
@@ -63,7 +63,6 @@
 			else if (IsProjectManager)
 			{
 				<!-- Project Manager-specific content -->
-
 				<ProjectManagerDashboardZone Dashboard="_data"
 											 Projects="_recentProjects"
 											 Tickets="_recentTickets"
@@ -72,151 +71,25 @@
 			else if (UserIsInRole(Role.Developer))
 			{
 				<!-- Developer-specific content -->
-
 				<DeveloperDashboardZone Dashboard="_data" />
 			}
-			else
-			{
+			<!--
+			NOTE:Submitter will see:
+			-DashboardHeader
+			- My Submitted Tickets
+			-Notifications
+			Submitter is not given its own dashboard zone because, while "submitter" is a role, 
+			it's more of a function that any user can perform (any user can submit tickets), 
+			relevant user content is shown without a dedicated dashboard zone.
+			-->
 
-				<!-- Submitter-specific content -->
+			<!-- My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
 
-				<SubmitterDashboardZone Dashboard="_data" />
-			}
-			<!-- Notification content -->
+			<!-- Notification content ~ list of notifications for the user, with links to related tickets or projects-->
 			<NotificationCard Notifications="Notifications"
 							  Index="@IndexTracker.Next()"
 							  OnNotificationsChanged="RefreshNotificationsAsync" />
 		</div>
 	}
-
 </MudContainer>
-@code {
-	#region PARAMETERS
-	[Parameter]
-	public List<NotificationDTO> Notifications { get; set; } = new();
 
-	#endregion
-
-	#region STATE
-	private DashboardDTO? _data;
-	private List<NotificationDTO> _notifications = [];
-	private List<TicketDTO> _tickets = [];
-	private List<TicketDTO> _recentTickets = [];
-	private List<ProjectDTO> _projects = [];
-	private List<AppUserDTO> _members = [];
-	private List<ProjectDTO> _recentProjects = [];
-	private List<BreadcrumbItem> breadcrumbs = [];
-	private bool _loadingComplete = false;
-	private bool _hasData = false;
-	#endregion
-
-	#region UI HELPERS & COMPUTED PROPERTIES
-	private void ResetIndex() => IndexTracker.Reset();
-	private string UserName => UserInfo?.FullName ?? "User";
-	private string? CompanyName => _data?.CompanyInfo?.CompanyName;
-
-	private Role DashboardRole =>
-			IsAdmin
-				? Role.Admin
-				: IsProjectManager
-					? Role.ProjectManager
-					: UserIsInRole(Role.Developer)
-						? Role.Developer
-						: Role.Submitter;
-
-	private string DashboardRoleLabel =>
-		IsAdmin
-			? "Administrator Dashboard"
-		: IsProjectManager
-			? "Project Manager Dashboard"
-			: UserIsInRole(Role.Developer)
-				? "Developer Dashboard"
-				: "Submitter Dashboard";
-
-	private string DashboardSubtitle =>
-				IsAdmin
-					? "Here's your company-wide project and ticket overview."
-					: IsProjectManager
-						? "Here's what's happening with your assigned projects and team activity."
-						: UserIsInRole(Role.Developer)
-							? "Here's what's happening with your assigned tickets."
-								: UserIsInRole(Role.Submitter)
-								? "Here's an overview of your submitted tickets and updates."
-								: "Here's your dashboard overview.";
-
-	private AppUserDTO? CurrentUser => _members.FirstOrDefault(m => m.Id == UserInfo?.UserId);
-	#endregion
-
-	#region LIFECYCLE
-	protected override async Task OnInitializedWithAuthAsync()
-	{
-		try
-		{
-			if (UserInfo is null)
-			{
-				NavManager.NavigateTo("/Account/Login", forceLoad: true);
-				return;
-			}
-
-			_data = await CompanyService.GetDashboardDataAsync(UserInfo);
-			Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo.UserId);
-			await NotificationState.RefreshUnreadCountAsync(UserInfo);
-
-			_projects = (await ProjectService.GetAllProjectsAsync(UserInfo)).ToList();
-			_tickets = (await TicketService.GetOpenTicketsAsync(UserInfo)).ToList();
-			_members = (await CompanyService.GetUsersAsync(UserInfo)).ToList();
-
-			_recentProjects = _projects
-				.Where(p => !p.Archived)
-				.OrderBy(p => p.EndDate)
-				.Take(6)
-				.ToList();
-
-			_recentTickets = _tickets
-				.Where(t => !t.Archived)
-				.OrderByDescending(t => t.Created)
-				.Take(6)
-				.ToList();
-
-			_hasData = _data is not null;
-
-			breadcrumbs = [
-						new BreadcrumbItem("Home", href: "/"),
-						new BreadcrumbItem("Dashboard", href: null, disabled: true),
-			];
-			breadcrumbs.Add(new BreadcrumbItem(UserInfo?.FullName ?? "User Not Found", href: null, disabled: true));
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine(ex);
-			Snackbar.Add("Error loading dashboard details.", Severity.Error);
-			_hasData = false;
-		}
-		finally
-		{
-
-			_loadingComplete = true;
-		}
-
-	}
-	#endregion
-
-	#region EVENT HANDLERS
-	private async Task RefreshNotificationsAsync()
-	{
-		Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo!.UserId);
-		await NotificationState.RefreshUnreadCountAsync(UserInfo);
-	}
-	#endregion
-
-	private DashboardActionPermissionsViewModel ActionsPermissions => new()
-	{
-		CanManageProjects = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-		CanManageMembers = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-		CanSubmitTickets = IsAuthenticated,
-		CanViewArchivedTickets = UserIsAnyRole(Role.Admin, Role.ProjectManager),
-		CanViewMyTickets = UserIsAnyRole(Role.ProjectManager, Role.Developer),
-		CanViewInvites = UserIsInRole(Role.Admin),
-		CanViewOpenTickets = UserIsInRole(Role.Admin)
-	};
-}
