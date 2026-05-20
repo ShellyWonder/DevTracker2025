@@ -9,18 +9,34 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
     
     public class DashboardDTO
     {
-        //CompanyInfo:Basic info about the company, used for display and to determine what data to load.
+        [Description("Basic info about the company, used for display and to determine what data to load.")]
         public CompanyDashboardInfoDTO CompanyInfo { get; set; } = new();
 
-        //CompanyStats:General stats for company dashboard, primarily for admin consumption.
+        [Description("General stats for company dashboard, primarily for admin consumption.")]
         public CompanyDashboardStatsDTO CompanyStats { get; set; } = new();
+
+        [Description("Stats for project managers on the dashboard.")]
         public PMDashboardStatsDTO PMStats { get; set; } = new();
+
+        [Description("Stats for developers on the dashboard.")]
         public DevDashboardStatsDTO DevStats { get; set; } = new();
+
+        [Description("Stats for submitters on the dashboard.")]
         public SubmitterDashboardStatsDTO SubmitterStats { get; set; } = new();
+
+        [Description("List of recent active tickets on the dashboard.")]
         public List<DashboardTicketSummaryDTO> RecentActiveTickets { get; set; } = [];
+
+        [Description("List of recent resolved tickets on the dashboard.")]
         public List<DashboardTicketSummaryDTO> RecentResolvedTickets { get; set; } = [];
+
+        [Description("List of recent unassigned tickets on the dashboard.")]
         public List<DashboardTicketSummaryDTO> RecentUnassignedTickets { get; set; } = [];
+
+        [Description("Number of tickets created within the last month for the dashboard.")]
         public IEnumerable<DashboardMonthlyTicketsDTO> TicketsOverTime { get; set; } = [];
+
+        [Description("Number of tickets resolved within the last month for the dashboard.")]
         public IEnumerable<DashboardMonthlyTicketsDTO> ResolvedTicketsOverTime { get; set; } = [];
 
 
