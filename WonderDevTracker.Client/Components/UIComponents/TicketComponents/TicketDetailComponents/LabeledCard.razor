@@ -1,40 +1,36 @@
 ﻿@* LabeledCard ~ Shared UI wrapper for a titled section card with optional actions *@
 
-<AnimatedCard Index="Index">
-<MudCard Elevation="@Elevation" Class="@Class">
+<MudCard Elevation="@Elevation"
+		 Class="@CardClass">
 	<MudCardHeader>
 		<CardHeaderContent>
 			<MudText Typo="Typo.h6">@Title</MudText>
 		</CardHeaderContent>
-
-			<CardHeaderActions>
-				@if (Actions is not null)
-				{
-					@Actions
-				}
-			</CardHeaderActions>
-	</MudCardHeader>
-
-	<MudCardContent Class="@ContentClass">
-			@if (ChildContent is not null)
+		<CardHeaderActions>
+			@if (Actions is not null)
 			{
-				@ChildContent
+				@Actions
 			}
+		</CardHeaderActions>
+	</MudCardHeader>
+	<MudCardContent Class="@ContentClass">
+		@if (ChildContent is not null)
+		{
+			@ChildContent
+		}
 	</MudCardContent>
 </MudCard>
-</AnimatedCard>
-@code {
-	[Parameter]
-	public int Index { get; set; }
 
+@code {
+	
 	[Parameter, EditorRequired]
 	public string Title { get; set; } = default!;
 
 	[Parameter]
-	public int Elevation { get; set; } = 0;
+	public int Elevation { get; set; } = 3;
 
 	[Parameter]
-	public string? Class { get; set; } = "tt-section-card";
+	public string? Class { get; set; } 
 
 	[Parameter]
 	public string? ContentClass { get; set; } = "pt-0";
@@ -44,4 +40,9 @@
 
 	[Parameter, EditorRequired]
 	public RenderFragment ChildContent { get; set; } = default!;
+
+	private string CardClass => 
+	string.IsNullOrWhiteSpace(Class) 
+	? "tt-section-card":
+	$"tt-section-card {Class}";
 }

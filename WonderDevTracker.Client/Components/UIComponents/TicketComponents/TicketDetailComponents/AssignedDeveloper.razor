@@ -1,9 +1,6 @@
 ﻿@* AssignedDeveloper.razor *@
 
-@inject IndexTrackerHelper IndexTracker
-
-<LabeledCard Index="@IndexTracker.Next()"
-			 Title="Assigned To:">
+<LabeledCard Title="Assigned To:" Class="h-100">
 	@if (!_isEditing)
 	{
 		<div class="d-flex align-items-center">
@@ -31,7 +28,7 @@
 					   Class="flex-grow-1"
 					   Disabled="@BtnDisabled"
 					   Placeholder="@PlaceholderText"
-			           Clearable>
+					   Clearable>
 				@foreach (var dev in Developers)
 				{
 					<MudSelectItem T="string" Value="@dev.Id">
@@ -63,9 +60,6 @@
 	// Incoming data
 	[Parameter, EditorRequired]
 	public TicketDTO Ticket { get; set; } = default!;
-
-	[Parameter]
-	public int Index { get; set; }
 
 	// List of possible developers to assign
 	[Parameter]

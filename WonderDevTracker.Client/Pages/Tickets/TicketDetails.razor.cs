@@ -42,10 +42,15 @@ namespace WonderDevTracker.Client.Pages.Tickets
         private Guid _membersRefreshToken = Guid.NewGuid();
         #endregion
 
-        #region UI HELPERS & COMPUTED
+        #region UI HELPERS & COMPUTED PROPERTIES
         private void ResetIndex() => IndexTracker.Reset();
         private string TicketTitle => _ticket?.Title ?? "Ticket";
         private async Task ReloadTicketAsync() => _ticket = await TicketService.GetTicketByIdAsync(Id, UserInfo!);
+
+        private static string GetAnimationStyle(int index)
+        {
+            return $"animation-delay: {index * 0.08}s;";
+        }
         #endregion
 
         #region LIFECYCLE METHODS

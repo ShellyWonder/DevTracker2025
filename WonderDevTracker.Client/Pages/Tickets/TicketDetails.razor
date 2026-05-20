@@ -30,20 +30,20 @@
 			<TicketGeneralInfo Ticket="_ticket"
 							   Index="@IndexTracker.Next()" />
 			<!-- Submitter and Developer components -->
+			<div class="fade-in" style="@GetAnimationStyle(IndexTracker.Next())">
 			<MudGrid>
 				<MudItem xs="12" md="6">
-					<TicketSubmitter Ticket="_ticket"
-									 Index="@IndexTracker.Next()" />
+					<TicketSubmitter Ticket="_ticket" />
 				</MudItem>
 
 				<MudItem xs="12" md="6">
 					<AssignedDeveloper Ticket="_ticket"
-									   Index="@IndexTracker.Next()"
 									   Developers="_developers"
 									   CanAssign="_userCanAssignTicket"
 									   OnSaveRequested="HandleAssignDevAsync" />
 				</MudItem>
 			</MudGrid>
+			</div>
 
 			<!-- Priority, Status & Type components -->
 			<TicketMetaRow Index="@IndexTracker.Next()"
