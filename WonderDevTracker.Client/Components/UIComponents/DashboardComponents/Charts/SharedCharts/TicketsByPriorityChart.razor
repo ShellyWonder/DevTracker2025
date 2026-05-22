@@ -1,0 +1,25 @@
+﻿@* TicketsByPriorityChart.razor *@
+
+@typeparam TItem
+
+<DashboardChartCard Title="@Title" Subtitle="@Subtitle">
+    @if (Items is null || !Items.Any())
+    {
+        <DashboardChartEmptyState Message="No ticket priority data available yet." />
+    }
+    else
+    {
+        @* Apex chart markup goes here *@
+    }
+</DashboardChartCard>
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<TItem> Items { get; set; } = [];
+
+    [Parameter]
+    public string Title { get; set; } = "Tickets by Priority";
+
+    [Parameter]
+    public string? Subtitle { get; set; } = "Current workload grouped by priority.";
+}
