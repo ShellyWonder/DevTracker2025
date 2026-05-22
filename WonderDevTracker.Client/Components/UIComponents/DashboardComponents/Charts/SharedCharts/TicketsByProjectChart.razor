@@ -1,0 +1,25 @@
+﻿@*TicketsByProjectChart*@
+
+@typeparam TItem
+
+<DashboardChartCard Title="@Title" Subtitle="@Subtitle">
+    @if (Items is null || !Items.Any())
+    {
+        <DashboardChartEmptyState Message="No project ticket data available yet." />
+    }
+    else
+    {
+        @* Apex chart markup goes here *@
+    }
+</DashboardChartCard>
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<TItem> Items { get; set; } = [];
+
+    [Parameter]
+    public string Title { get; set; } = "Tickets by Project";
+
+    [Parameter]
+    public string? Subtitle { get; set; } = "Ticket volume grouped by project.";
+}
