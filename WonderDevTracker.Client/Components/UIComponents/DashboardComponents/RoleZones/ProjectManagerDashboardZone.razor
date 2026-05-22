@@ -1,18 +1,30 @@
 ﻿@* ProjectManagerDashboardZone *@
+@if (Dashboard is null)
+{
 
-<MudStack Spacing="4">
-	<DashboardStatGrid Stats="Stats" />
-	
-@* Assigned projects *@
+	<DashboardChartEmptyState Message="Dashboard data is not available." />
+}
+else
+{
+	<MudStack Spacing="4">
+	@* PM-scoped stats *@
+		<DashboardStatGrid Stats="Stats" />
 
-@* Project team activity *@
-	<DashboardTeamPanel Members="Members" 
-						CanManageMembers="true"/>
-@* Unassigned tickets for projects assigned to PM *@
+	@* PM-scoped charts *@
+		<ProjectManagerChartsGrid Dashboard="Dashboard" />
 
-@* Assigned/resolved ticket movement *@
+	@* Assigned projects *@
+
+	@* Project team activity *@
+		<DashboardTeamPanel Members="Members" 
+							CanManageMembers="true"/>
+	@* Unassigned tickets for projects assigned to PM *@
+
+	@* Assigned/resolved ticket movement *@
 
 </MudStack>
+	
+}
 
 @code {
 
