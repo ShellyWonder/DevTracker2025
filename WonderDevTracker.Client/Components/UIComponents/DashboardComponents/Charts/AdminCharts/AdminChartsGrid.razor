@@ -1,0 +1,31 @@
+﻿@*AdminChartsGrid *@
+<MudGrid Spacing="3">
+	<MudItem xs="12">
+		<TicketsOverTimeChart ChartData="Dashboard.ChartData"
+							  Title="Company Tickets Over Time"
+							  Subtitle="Submitted and resolved tickets across the company." />
+
+	</MudItem>
+    @* Future chart: tickets by status *@
+    <MudItem xs="12" md="6">
+        @* <TicketsByStatusChart Items="Dashboard.ChartData.TicketsByStatus" /> *@
+    </MudItem>
+
+    @* Future chart: tickets by priority *@
+    <MudItem xs="12" md="6">
+        @* <TicketsByPriorityChart Items="Dashboard.ChartData.TicketsByPriority" /> *@
+    </MudItem>
+
+    @* Future chart: projects by priority *@
+    <MudItem xs="12" md="6">
+        @* <ProjectsByPriorityChart Items="Dashboard.ChartData.ProjectsByPriority" /> *@
+    </MudItem>
+    @* Future chart: tickets by project *@
+    <MudItem xs="12" md="6">
+        @* <TicketsByProjectChart Items="Dashboard.ChartData.TicketsByProject" /> *@
+    </MudItem>
+</MudGrid>
+@code {
+	[Parameter, EditorRequired]
+	public DashboardDTO Dashboard { get; set; } = default!;
+}

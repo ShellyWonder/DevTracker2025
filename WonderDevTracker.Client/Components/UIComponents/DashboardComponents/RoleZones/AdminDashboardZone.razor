@@ -1,13 +1,13 @@
 ﻿@* AdminDashboardZone *@
 
 
-@*Add breakpoints*@
+@*TODO:Add breakpoints*@
 <MudStack Spacing="4">
 	@* Company-wide stat cards - COMPLETE *@
 	<DashboardStatGrid Stats="Stats" />
 
-	@* Company-wide stat charts  *@
-	<DashboardChartsGrid Dashboard="Dashboard" />
+	@* Company-wide stat charts *@  
+	<AdminChartsGrid Dashboard="Dashboard" />
 
 	@* Recent projects  - COMPLETE*@
 	<DashboardProjectActivity Projects="Projects"
@@ -22,9 +22,7 @@
 	<DashboardTeamPanel Members="Members"
 						CanManageMembers="true" />
 
-	@* Unassigned tickets *@
-
-	@* Archived/restored activity later *@
+	
 </MudStack>
 
 @code {

@@ -1,0 +1,54 @@
+﻿@*TicketsOverTimeChart *@
+
+@using ApexCharts
+
+<DashboardChartCard Title="@Title" Subtitle="@Subtitle">
+	@if (IsEmpty)
+	{
+		<DashboardChartEmptyState Message="No ticket timeline data available yet." />
+	}
+	else
+	{
+		<ApexChart TItem="DashboardMonthlyTicketsDTO">
+			<ApexPointSeries TItem="DashboardMonthlyTicketsDTO"
+							 Items="@SubmittedTickets"
+							 Name="Submitted Tickets"
+							 SeriesType="SeriesType.Area"
+							 XValue="@(mt => mt.Month.ToString("MMM yyyy"))"
+							 YValue="@(mt => mt.Count)" />
+
+			<ApexPointSeries TItem="DashboardMonthlyTicketsDTO"
+							 Items="@ResolvedTickets"
+							 Name="Resolved Tickets"
+							 SeriesType="SeriesType.Area"
+							 XValue="@(mt => mt.Month.ToString("MMM yyyy"))"
+							 YValue="@(mt => mt.Count)" />
+		</ApexChart>
+
+	}
+</DashboardChartCard>
+
+@code {
+	[Parameter, EditorRequired]
+	public DashboardChartDataDTO ChartData { get; set; } = default!;
+
+	[Parameter]
+	public string Title { get; set; } = "Tickets Over Time";
+
+	[Parameter]
+	public string? Subtitle { get; set; } = "Created and resolved tickets by month.";
+	private IReadOnlyList<DashboardMonthlyTicketsDTO> SubmittedTickets =>
+			ChartData?.TicketsOverTime
+				.OrderBy(mt => mt.Month)
+				.ToList()
+			?? [];
+
+	private IReadOnlyList<DashboardMonthlyTicketsDTO> ResolvedTickets =>
+		ChartData?.ResolvedTicketsOverTime
+			.OrderBy(mt => mt.Month)
+			.ToList()
+		?? [];
+
+	private bool IsEmpty =>
+		SubmittedTickets.Count == 0 && ResolvedTickets.Count == 0;
+}
