@@ -1,0 +1,20 @@
+﻿@* DeveloperChartsSummary.razor *@
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6">
+        @* <TicketsByStatusChart Items="Dashboard.DevTicketsByStatus"
+                              Title="My Tickets by Status"
+                              Subtitle="Your assigned tickets grouped by current status." /> *@
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        @* <TicketsByPriorityChart Items="Dashboard.DevTicketsByPriority"
+                                Title="My Tickets by Priority"
+                                Subtitle="Your assigned tickets grouped by priority." /> *@
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter, EditorRequired]
+    public DashboardDTO Dashboard { get; set; } = default!;
+}
