@@ -1,14 +1,26 @@
 ﻿@* DeveloperDashboardZone *@
 
-@*Add breakpoints*@
-<MudStack Spacing="4">
 
-	<DashboardStatGrid Stats="Stats" />
+@if (Dashboard is null)
+{
 
-@* Assigned tickets *@
-@* Recent ticket updates *@
-@* Projects they are assigned to *@
-</MudStack>
+	<DashboardChartEmptyState Message="Dashboard data is not available." />
+}
+else
+{
+	@*Add breakpoints*@
+	<MudStack Spacing="4">
+		<DashboardStatGrid Stats="Stats" />
+
+		@* Assigned tickets *@
+		@* Recent ticket updates *@
+		@* Projects they are assigned to *@
+
+		@* Developer charts summary *@
+		<DeveloperChartsSummary Dashboard="Dashboard" />
+	</MudStack>
+
+}
 
 @code {
 	[Parameter, EditorRequired]
