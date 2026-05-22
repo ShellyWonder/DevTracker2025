@@ -1,0 +1,25 @@
+﻿@*TicketsByStatusChart *@
+
+@typeparam TItem
+
+<DashboardChartCard Title="@Title" Subtitle="@Subtitle">
+    @if (Items is null || !Items.Any())
+    {
+        <DashboardChartEmptyState Message="No ticket status data available yet." />
+    }
+    else
+    {
+        @* Apex chart markup goes here *@
+    }
+</DashboardChartCard>
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<TItem> Items { get; set; } = [];
+
+    [Parameter]
+    public string Title { get; set; } = "Tickets by Status";
+
+    [Parameter]
+    public string? Subtitle { get; set; } = "Current ticket distribution by status.";
+}
