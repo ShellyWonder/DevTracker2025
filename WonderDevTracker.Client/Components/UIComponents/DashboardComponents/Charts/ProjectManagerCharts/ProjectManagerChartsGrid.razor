@@ -1,0 +1,26 @@
+﻿@* ProjectManagerChartsGrid.razor *@
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6">
+        @* <TicketsByStatusChart Items="Dashboard.PMTicketsByStatus"
+                              Title="My Project Tickets by Status"
+                              Subtitle="Tickets across projects you manage." /> *@
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        @* <TicketsByPriorityChart Items="Dashboard.PMTicketsByPriority"
+                                Title="My Project Tickets by Priority"
+                                Subtitle="Priority distribution for your managed projects." /> *@
+    </MudItem>
+
+    <MudItem xs="12">
+        @* <TicketsByProjectChart Items="Dashboard.PMTicketsByProject"
+                               Title="Tickets by Managed Project"
+                               Subtitle="Ticket volume across your assigned projects." /> *@
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter, EditorRequired]
+    public DashboardDTO Dashboard { get; set; } = default!;
+}
