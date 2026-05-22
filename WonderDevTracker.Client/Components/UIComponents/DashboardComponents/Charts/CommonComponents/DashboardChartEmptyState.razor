@@ -1,0 +1,16 @@
+﻿@* DashboardChartEmptyState *@
+
+<div class="d-flex flex-column align-items-center justify-content-center py-4 text-center">
+    <MudIcon Icon="@Icons.Material.Filled.InsertChartOutlined"
+             Size="Size.Large"
+             Color="Color.Secondary" />
+
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">
+        @Message
+    </MudText>
+</div>
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = "No chart data available yet.";
+}
