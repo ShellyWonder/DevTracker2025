@@ -33,12 +33,8 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         [Description("List of recent unassigned tickets on the dashboard.")]
         public List<DashboardTicketSummaryDTO> RecentUnassignedTickets { get; set; } = [];
 
-        [Description("Number of tickets created within the last month for the dashboard.")]
-        public IEnumerable<DashboardMonthlyTicketsDTO> TicketsOverTime { get; set; } = [];
-
-        [Description("Number of tickets resolved within the last month for the dashboard.")]
-        public IEnumerable<DashboardMonthlyTicketsDTO> ResolvedTicketsOverTime { get; set; } = [];
-
+        [Description("Data for charts on the dashboard.")]
+        public DashboardChartDataDTO ChartData { get; set; } = new();
 
 
 

@@ -146,6 +146,7 @@ namespace WonderDevTracker.Services.Repositories
             IQueryable<Ticket> submitterTickets = GetSubmitterTicketsQuery(context, userInfo.CompanyId, userInfo.UserId);
             IQueryable<Ticket> adminCompanyTickets = GetAdminCompanyTicketsQuery(context, userInfo.CompanyId);
 
+
             DashboardDTO dashboard = new()
             {
                 CompanyInfo = await GetCompanyInfoAsync(context, userInfo.CompanyId),
@@ -158,7 +159,8 @@ namespace WonderDevTracker.Services.Repositories
                 RecentResolvedTickets = await GetRecentTicketSummariesAsync(
                                         GetRecentResolvedTicketsQuery(adminCompanyTickets)),
                 RecentUnassignedTickets = await GetRecentTicketSummariesAsync(
-                    GetRecentUnassignedTicketsQuery(adminCompanyTickets))
+                                        GetRecentUnassignedTicketsQuery(adminCompanyTickets)),
+                ChartData = await GetTicketsOverTimeDataAsync(context, userInfo.CompanyId)
             };
 
             return dashboard;
@@ -308,6 +310,7 @@ namespace WonderDevTracker.Services.Repositories
             };
         }
         #endregion
+
         #region Company Info DTO
         private static async Task<CompanyDashboardInfoDTO> GetCompanyInfoAsync(ApplicationDbContext context, int companyId)
         {
@@ -322,6 +325,7 @@ namespace WonderDevTracker.Services.Repositories
                 .FirstOrDefaultAsync() ?? throw new ApplicationException("Company not found");
         }
         #endregion
+
         #region Ticket Info DTO
         private static Expression<Func<Ticket, DashboardTicketSummaryDTO>> TicketSummaryProjection =>
                 t => new DashboardTicketSummaryDTO
@@ -382,6 +386,86 @@ namespace WonderDevTracker.Services.Repositories
                 .ToListAsync();
         }
 
+        #endregion
+
+        #region CHART DATA
+        private static async Task<DashboardChartDataDTO> GetTicketsOverTimeDataAsync(ApplicationDbContext context, int companyId)
+        {
+
+            List<DashboardMonthlyTicketsDTO> ticketsOverTime = [];
+            List<DashboardMonthlyTicketsDTO> resolvedTicketsOverTime = [];
+           
+            IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, companyId);
+
+            //1.Calculate the date range for the past 12 months
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
+            //loop over the previous 12 months
+            for (int monthsAgo = 12; monthsAgo >= 0; monthsAgo--)
+            {
+                int year = now.Year;
+                int month = now.Month - monthsAgo;
+
+                if (month <= 0)
+                {
+                    year -= 1;
+                    month += 12;
+                }
+                //Set to first day of month for consistent grouping
+                var thisMonth = new DateTimeOffset(
+                    year,
+                    month,
+                    day: 1,
+                    hour: 0,
+                    minute: 0,
+                    second: 0,
+                    TimeSpan.Zero);
+
+                //Set the end of the month by adding 1 month 
+                var nextMonth = new DateTimeOffset(
+                    year: month == 12 ? year + 1 : year,
+                    month: month == 12 ? 1 : month + 1,
+                    day: 1,
+                    hour: 0,
+                    minute: 0,
+                    second: 0,
+                    TimeSpan.Zero
+                    );
+
+                //query db for tickets created in that month
+                var createdCount = await allCompanyTickets.CountAsync(t => t.Created >= thisMonth && t.Created < nextMonth);
+
+                //query db for tickets resolved and updatedin that month
+                var resolvedCount = await allCompanyTickets.Where(t => t.Status == TicketStatus.Resolved)
+                                                               .CountAsync(t => t.Updated.HasValue
+                                                               ? (t.Updated.Value >= thisMonth && t.Updated.Value < nextMonth)
+                                                               : (t.Created >= thisMonth && t.Created < nextMonth)
+                                                                );
+                //ignore first month if no data to show on chart
+                if (ticketsOverTime.Count > 0 || resolvedTicketsOverTime.Count > 0 || createdCount > 0 || resolvedCount > 0)
+                {
+                    ticketsOverTime.Add(new DashboardMonthlyTicketsDTO
+                    {
+                        Month = thisMonth,
+                        Count = createdCount
+                    });
+                    resolvedTicketsOverTime.Add(new DashboardMonthlyTicketsDTO
+                    {
+                        Month = thisMonth,
+                        Count = resolvedCount
+                    });
+                    
+                }
+
+
+            }
+
+            return new DashboardChartDataDTO
+            {
+                TicketsOverTime = ticketsOverTime,
+                ResolvedTicketsOverTime = resolvedTicketsOverTime
+            };
+        }
         #endregion
 
         #endregion
