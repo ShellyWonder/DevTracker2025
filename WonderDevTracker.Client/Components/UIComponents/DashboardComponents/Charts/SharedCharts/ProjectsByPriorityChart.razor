@@ -1,25 +1,34 @@
 ﻿@* ProjectsByPriorityChart *@
 
-@typeparam TItem
+
 
 <DashboardChartCard Title="@Title" Subtitle="@Subtitle">
-    @if (Items is null || !Items.Any())
+    @if (IsEmpty)
     {
         <DashboardChartEmptyState Message="No project priority data available yet." />
     }
     else
     {
-        @* Apex chart markup goes here *@
+		<ApexChart TItem="DashboardCountByCategoryDTO">
+			<ApexPointSeries TItem="DashboardCountByCategoryDTO"
+							 Items="@Items"
+							 Name="Projects by Priority"
+							 SeriesType="SeriesType.Bar"
+							 XValue="@(item => item.Label)"
+							 YValue="@(item => item.Count)" />
+		</ApexChart>
     }
 </DashboardChartCard>
 
-@code {
+    @code {
     [Parameter, EditorRequired]
-    public IReadOnlyList<TItem> Items { get; set; } = [];
+    public List<DashboardCountByCategoryDTO> Items { get; set; } = [];
 
     [Parameter]
     public string Title { get; set; } = "Projects by Priority";
 
     [Parameter]
     public string? Subtitle { get; set; } = "Project distribution by priority.";
+
+    private bool IsEmpty => Items is null || !Items.Any();
 }
