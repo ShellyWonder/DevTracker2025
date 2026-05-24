@@ -160,7 +160,7 @@ namespace WonderDevTracker.Services.Repositories
                                         GetRecentResolvedTicketsQuery(adminCompanyTickets)),
                 RecentUnassignedTickets = await GetRecentTicketSummariesAsync(
                                         GetRecentUnassignedTicketsQuery(adminCompanyTickets)),
-                ChartData = await GetTicketsOverTimeDataAsync(context, userInfo.CompanyId)
+                ChartData = await GetDashboardChartDataAsync(context, userInfo.CompanyId)
             };
 
             return dashboard;
@@ -389,12 +389,28 @@ namespace WonderDevTracker.Services.Repositories
         #endregion
 
         #region CHART DATA
-        private static async Task<DashboardChartDataDTO> GetTicketsOverTimeDataAsync(ApplicationDbContext context, int companyId)
+
+        //chart aggregator method to call individual queries and package into single DTO for dashboard consumption
+        private static async Task<DashboardChartDataDTO> GetDashboardChartDataAsync(
+                                                        ApplicationDbContext context,
+                                                        int companyId)
+        {
+          
+            return new DashboardChartDataDTO
+            {
+                TicketsOverTimeChart = await GetTicketsOverTimeDataAsync(context, companyId),
+                TicketsByStatus = await GetTicketsByStatusDataAsync(context, companyId),
+                TicketsByPriority = await GetTicketsByPriorityDataAsync(context, companyId),
+                ProjectsByPriority = await GetProjectsByPriorityDataAsync(context, companyId)
+            };
+        }
+
+        private static async Task<DashboardTicketsOverTimeChartDTO> GetTicketsOverTimeDataAsync(ApplicationDbContext context, int companyId)
         {
 
             List<DashboardMonthlyTicketsDTO> ticketsOverTime = [];
             List<DashboardMonthlyTicketsDTO> resolvedTicketsOverTime = [];
-           
+
             IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, companyId);
 
             //1.Calculate the date range for the past 12 months
@@ -454,17 +470,67 @@ namespace WonderDevTracker.Services.Repositories
                         Month = thisMonth,
                         Count = resolvedCount
                     });
-                    
                 }
-
-
             }
 
-            return new DashboardChartDataDTO
+            return new DashboardTicketsOverTimeChartDTO
             {
                 TicketsOverTime = ticketsOverTime,
                 ResolvedTicketsOverTime = resolvedTicketsOverTime
             };
+        }
+
+        private static async Task<List<DashboardCountByCategoryDTO>> GetTicketsByStatusDataAsync(
+                                ApplicationDbContext context,
+                                int companyId)
+        {
+            IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, companyId);
+
+            return await GetCountByCategoryAsync<TicketStatus>(
+                        allCompanyTickets.Select(t => (TicketStatus?)t.Status));
+        }
+
+        private static async Task<List<DashboardCountByCategoryDTO>> GetProjectsByPriorityDataAsync(
+                        ApplicationDbContext context,
+                        int companyId)
+        {
+            IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, companyId);
+
+            return await GetCountByCategoryAsync<ProjectPriority>(
+                allCompanyProjects.Select(p => (ProjectPriority?)p.Priority));
+        }
+
+        private static async Task<List<DashboardCountByCategoryDTO>> GetTicketsByPriorityDataAsync(
+                                ApplicationDbContext context,
+                                int companyId)
+        {
+            IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, companyId);
+
+            return await GetCountByCategoryAsync<TicketPriority>(
+                allCompanyTickets.Select(t => (TicketPriority?)t.Priority));
+        }
+
+        private static async Task<List<DashboardCountByCategoryDTO>> GetCountByCategoryAsync<TEnum>(
+            IQueryable<TEnum?> query)
+            where TEnum : struct, Enum
+        {
+            var groupedData = await query
+        .GroupBy(e => e)
+        .Select(g => new
+        {
+            Value = g.Key,
+            Count = g.Count()
+        })
+        .ToListAsync();
+
+            return [.. groupedData
+                .Select(d => new DashboardCountByCategoryDTO
+                {
+                    Label = d.Value.HasValue
+                        ? d.Value.Value.GetDisplayName()
+                        : "Unspecified",
+                    Count = d.Count
+                })];
         }
         #endregion
 
