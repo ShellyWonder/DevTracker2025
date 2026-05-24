@@ -1,7 +1,7 @@
 ﻿@*AdminChartsGrid *@
 <MudGrid Spacing="3">
 
-    @* Submitted and resolved tickets *@
+    @* submitted and resolved tickets *@
         <MudItem xs="12">
 		    <TicketsOverTimeChart TimeData="Dashboard.ChartData.TicketsOverTimeChart"
 							      Title="Company Tickets Over Time"
@@ -14,9 +14,9 @@
         <TicketsByStatusChart Items="Dashboard.ChartData.TicketsByStatus" />
     </MudItem>
 
-    @* Future chart: tickets by priority *@
+    @* tickets by priority *@
     <MudItem xs="12" md="6">
-        @* <TicketsByPriorityChart Items="Dashboard.ChartData.TicketsByPriority" /> *@
+       <TicketsByPriorityChart Items="Dashboard.ChartData.TicketsByPriority" /> 
     </MudItem>
 
     @* Future chart: projects by priority *@
