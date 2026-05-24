@@ -2,7 +2,9 @@
 {
     public class DashboardChartDataDTO
     {
-        public List<DashboardMonthlyTicketsDTO> TicketsOverTime { get; set; } = [];
-        public List<DashboardMonthlyTicketsDTO> ResolvedTicketsOverTime { get; set; } = [];
+        public DashboardTicketsOverTimeChartDTO TicketsOverTimeChart { get; set; } = new DashboardTicketsOverTimeChartDTO();
+        public List<DashboardCountByCategoryDTO> TicketsByStatus { get; set; } = [];
+        public List<DashboardCountByCategoryDTO> TicketsByPriority { get; set; } = [];
+        public List<DashboardCountByCategoryDTO> ProjectsByPriority { get; set; } = [];
     }
 }
