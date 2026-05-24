@@ -486,8 +486,10 @@ namespace WonderDevTracker.Services.Repositories
         {
             IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, companyId);
 
-            return await GetCountByCategoryAsync<TicketStatus>(
-                        allCompanyTickets.Select(t => (TicketStatus?)t.Status));
+            List<DashboardCountByCategoryDTO> data = await GetCountByCategoryAsync<TicketStatus>(
+       allCompanyTickets.Select(t => (TicketStatus?)t.Status));
+
+            return [.. data.OrderBy(item => GetTicketStatusSortOrder(item.Label))];
         }
 
         private static async Task<List<DashboardCountByCategoryDTO>> GetProjectsByPriorityDataAsync(
@@ -531,6 +533,18 @@ namespace WonderDevTracker.Services.Repositories
                         : "Unspecified",
                     Count = d.Count
                 })];
+        }
+
+        private static int GetTicketStatusSortOrder(string statusLabel)
+        {
+            return statusLabel switch
+            {
+                "New" => 1,
+                "In Development" => 2,
+                "Testing" => 3,
+                "Resolved" => 4,
+                _ => 99
+            };
         }
         #endregion
 
