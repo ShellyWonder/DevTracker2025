@@ -1,25 +1,35 @@
-﻿@*TicketsByStatusChart *@
+﻿@using ApexCharts
 
-@typeparam TItem
+@*TicketsByStatusChart *@
 
 <DashboardChartCard Title="@Title" Subtitle="@Subtitle">
-    @if (Items is null || !Items.Any())
+    @if (IsEmpty)
     {
         <DashboardChartEmptyState Message="No ticket status data available yet." />
     }
     else
     {
-        @* Apex chart markup goes here *@
+        <ApexChart TItem="DashboardCountByCategoryDTO">
+            <ApexPointSeries TItem="DashboardCountByCategoryDTO"
+                             Items="@Items"
+                             Name="Tickets"
+                             SeriesType="SeriesType.Bar"
+                             XValue="@(item => item.Label)"
+                             YValue="@(item => item.Count)" />
+        </ApexChart>
     }
 </DashboardChartCard>
 
 @code {
+    
     [Parameter, EditorRequired]
-    public IReadOnlyList<TItem> Items { get; set; } = [];
+	public List<DashboardCountByCategoryDTO> Items { get; set; } = [];
 
     [Parameter]
     public string Title { get; set; } = "Tickets by Status";
 
     [Parameter]
     public string? Subtitle { get; set; } = "Current ticket distribution by status.";
+
+	private bool IsEmpty => Items == null || !Items.Any();
 }
