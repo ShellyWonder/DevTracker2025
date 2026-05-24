@@ -498,8 +498,10 @@ namespace WonderDevTracker.Services.Repositories
         {
             IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, companyId);
 
-            return await GetCountByCategoryAsync<ProjectPriority>(
+            List<DashboardCountByCategoryDTO> data = await GetCountByCategoryAsync<ProjectPriority>(
                 allCompanyProjects.Select(p => (ProjectPriority?)p.Priority));
+
+            return [.. data.OrderBy(item => GetProjectPrioritySortOrder(item.Label))];
         }
 
         private static async Task<List<DashboardCountByCategoryDTO>> GetTicketsByPriorityDataAsync(
@@ -508,8 +510,10 @@ namespace WonderDevTracker.Services.Repositories
         {
             IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, companyId);
 
-            return await GetCountByCategoryAsync<TicketPriority>(
-                allCompanyTickets.Select(t => (TicketPriority?)t.Priority));
+            List<DashboardCountByCategoryDTO> data = await GetCountByCategoryAsync<TicketPriority>(
+        allCompanyTickets.Select(t => (TicketPriority?)t.Priority));
+
+            return [.. data.OrderBy(item => GetTicketPrioritySortOrder(item.Label))];
         }
 
         private static async Task<List<DashboardCountByCategoryDTO>> GetCountByCategoryAsync<TEnum>(
@@ -543,6 +547,29 @@ namespace WonderDevTracker.Services.Repositories
                 "In Development" => 2,
                 "Testing" => 3,
                 "Resolved" => 4,
+                _ => 99
+            };
+        }
+
+        private static int GetTicketPrioritySortOrder(string priorityLabel)
+        {
+            return priorityLabel switch
+            {
+                "Low" => 1,
+                "Medium" => 2,
+                "High" => 3,
+                "Urgent" => 4,
+                _ => 99
+            };
+        }
+        private static int GetProjectPrioritySortOrder(string priorityLabel)
+        {
+            return priorityLabel switch
+            {
+                "Low" => 1,
+                "Medium" => 2,
+                "High" => 3,
+                "Urgent" => 4,
                 _ => 99
             };
         }
