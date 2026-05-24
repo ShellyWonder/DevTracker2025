@@ -29,8 +29,9 @@
 </DashboardChartCard>
 
 @code {
+	
 	[Parameter, EditorRequired]
-	public DashboardChartDataDTO ChartData { get; set; } = default!;
+	public DashboardTicketsOverTimeChartDTO TimeData { get; set; } = default!;
 
 	[Parameter]
 	public string Title { get; set; } = "Tickets Over Time";
@@ -38,13 +39,13 @@
 	[Parameter]
 	public string? Subtitle { get; set; } = "Created and resolved tickets by month.";
 	private IReadOnlyList<DashboardMonthlyTicketsDTO> SubmittedTickets =>
-			ChartData?.TicketsOverTime
+			TimeData?.TicketsOverTime
 				.OrderBy(mt => mt.Month)
 				.ToList()
 			?? [];
 
 	private IReadOnlyList<DashboardMonthlyTicketsDTO> ResolvedTickets =>
-		ChartData?.ResolvedTicketsOverTime
+		TimeData?.ResolvedTicketsOverTime
 			.OrderBy(mt => mt.Month)
 			.ToList()
 		?? [];
