@@ -395,13 +395,14 @@ namespace WonderDevTracker.Services.Repositories
                                                         ApplicationDbContext context,
                                                         int companyId)
         {
-          
+
             return new DashboardChartDataDTO
             {
                 TicketsOverTimeChart = await GetTicketsOverTimeDataAsync(context, companyId),
                 TicketsByStatus = await GetTicketsByStatusDataAsync(context, companyId),
                 TicketsByPriority = await GetTicketsByPriorityDataAsync(context, companyId),
-                ProjectsByPriority = await GetProjectsByPriorityDataAsync(context, companyId)
+                ProjectsByPriority = await GetProjectsByPriorityDataAsync(context, companyId),
+                TicketsByProject = await GetTicketsByProjectDataAsync(context, companyId)
             };
         }
 
@@ -516,6 +517,29 @@ namespace WonderDevTracker.Services.Repositories
             return [.. data.OrderBy(item => GetTicketPrioritySortOrder(item.Label))];
         }
 
+        private static async Task<List<DashboardTicketsByProjectDTO>> GetTicketsByProjectDataAsync(
+                                                                        ApplicationDbContext context,
+                                                                        int companyId)
+        {
+            return await GetAdminCompanyTicketsQuery(context, companyId)
+                .GroupBy(t => new
+                {
+                    t.ProjectId,
+                    ProjectName = t.Project!.Name
+                })
+                .Select(g => new DashboardTicketsByProjectDTO
+                {
+                    ProjectId = g.Key.ProjectId,
+                    ProjectName = g.Key.ProjectName ?? "Unnamed Project",
+                    TotalTicketCount = g.Count(),
+                    OpenTicketCount = g.Count(t => t.Status != TicketStatus.Resolved),
+                    ResolvedTicketCount = g.Count(t => t.Status == TicketStatus.Resolved)
+                })
+                .OrderByDescending(x => x.TotalTicketCount)
+                .ToListAsync();
+        }
+
+        #region Enum Helper Methods
         private static async Task<List<DashboardCountByCategoryDTO>> GetCountByCategoryAsync<TEnum>(
             IQueryable<TEnum?> query)
             where TEnum : struct, Enum
@@ -573,6 +597,7 @@ namespace WonderDevTracker.Services.Repositories
                 _ => 99
             };
         }
+        #endregion
         #endregion
 
         #endregion
