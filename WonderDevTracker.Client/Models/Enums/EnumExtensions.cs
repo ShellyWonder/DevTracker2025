@@ -83,8 +83,36 @@ namespace WonderDevTracker.Client.Models.Enums
 
             return Color.Default;
         }
+
         // Overload for non-nullable enums
         public static Color GetColor<TEnum>(this TEnum value) where TEnum : struct, Enum
         => ((TEnum?)value).GetColor<TEnum>();
+
+        // Method to get hex color code(ApexCharts-required) for charting purposes
+        public static string GetChartColorHex<TEnum>(this TEnum value)
+                                             where TEnum : struct, Enum
+        {
+            return value switch
+            {
+                TicketStatus.New => "#DDE6EC",
+                TicketStatus.InDevelopment => "#5D81C9",
+                TicketStatus.InTesting => "#FF993B",
+                TicketStatus.Resolved => "#90BE6D",
+
+                TicketPriority.Low => "#DDE6EC",
+                TicketPriority.Medium => "#5D81C9",
+                TicketPriority.High => "#FF993B",
+                TicketPriority.Urgent => "#E76F51",
+
+                ProjectPriority.Low => "#DDE6EC",
+                ProjectPriority.Medium => "#5D81C9",
+                ProjectPriority.High => "#FF993B",
+                ProjectPriority.Urgent => "#E76F51",
+
+                _ => "#0077B6"
+            };
+        }
     }
+
+
 }
