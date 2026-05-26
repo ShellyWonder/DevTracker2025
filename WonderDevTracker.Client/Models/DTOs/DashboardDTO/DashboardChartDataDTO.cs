@@ -1,11 +1,14 @@
-﻿namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
+﻿using WonderDevTracker.Client.Models.Enums;
+
+namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
 {
+    
     public class DashboardChartDataDTO
     {
         public DashboardTicketsOverTimeChartDTO TicketsOverTimeChart { get; set; } = new DashboardTicketsOverTimeChartDTO();
-        public List<DashboardCountByCategoryDTO> TicketsByStatus { get; set; } = [];
-        public List<DashboardCountByCategoryDTO> TicketsByPriority { get; set; } = [];
-        public List<DashboardCountByCategoryDTO> ProjectsByPriority { get; set; } = [];
+        public List<DashboardEnumCountDTO<TicketStatus>> TicketsByStatus { get; set; } = [];
+        public List<DashboardEnumCountDTO<TicketPriority>> TicketsByPriority { get; set; } = [];
+        public List<DashboardEnumCountDTO<ProjectPriority>> ProjectsByPriority { get; set; } = [];
         public List<DashboardTicketsByProjectDTO> TicketsByProject { get; set; } = [];
     }
 }
