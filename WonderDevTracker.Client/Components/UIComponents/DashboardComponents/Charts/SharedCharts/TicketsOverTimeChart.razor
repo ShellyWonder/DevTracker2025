@@ -9,7 +9,8 @@
 	}
 	else
 	{
-		<ApexChart TItem="DashboardMonthlyTicketsDTO">
+		<ApexChart TItem="DashboardMonthlyTicketsDTO"
+				   Height="300">
 			<ApexPointSeries TItem="DashboardMonthlyTicketsDTO"
 							 Items="@SubmittedTickets"
 							 Name="Submitted Tickets"
@@ -29,7 +30,7 @@
 </DashboardChartCard>
 
 @code {
-	
+
 	[Parameter, EditorRequired]
 	public DashboardTicketsOverTimeChartDTO TimeData { get; set; } = default!;
 

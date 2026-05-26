@@ -1,32 +1,47 @@
 ﻿@*AdminChartsGrid *@
+
 <MudGrid Spacing="3">
 
-    @* submitted and resolved tickets *@
-        <MudItem xs="12">
-		    <TicketsOverTimeChart TimeData="Dashboard.ChartData.TicketsOverTimeChart"
-							      Title="Company Tickets Over Time"
-							      Subtitle="Submitted and resolved tickets across the company." />
+	@* submitted and resolved tickets *@
+	<MudItem xs="12">
+		<TicketsOverTimeChart TimeData="Dashboard.ChartData.TicketsOverTimeChart"
+							  Title="Company Tickets Over Time"
+							  Subtitle="Submitted and resolved tickets across the company." />
 
-	    </MudItem>
-     
-    @* tickets by status *@
-    <MudItem xs="12" md="6">
-        <TicketsByStatusChart Items="Dashboard.ChartData.TicketsByStatus" />
-    </MudItem>
+	</MudItem>
 
-    @* tickets by priority *@
-    <MudItem xs="12" md="6">
-       <TicketsByPriorityChart Items="Dashboard.ChartData.TicketsByPriority" /> 
-    </MudItem>
+	@* tickets by status *@
+	<MudItem xs="12" md="6">
+		<DashboardEnumCountChart TEnum="TicketStatus"
+								 Items="@Dashboard.ChartData.TicketsByStatus"
+								 Title="Tickets by Status"
+								 Subtitle="Current ticket distribution by status."
+								 EmptyStateMessage="No ticket status data available yet."
+								 SeriesName="Tickets" />
+	</MudItem>
+	@* tickets by priority *@
+	<MudItem xs="12" md="6">
+		<DashboardEnumCountChart TEnum="TicketPriority"
+								 Items="@Dashboard.ChartData.TicketsByPriority"
+								 Title="Tickets by Priority"
+								 Subtitle="Current ticket distribution by priority."
+								 EmptyStateMessage="No ticket priority data available yet."
+								 SeriesName="Tickets" />
+	</MudItem>
+	@*  projects by priority *@
+	<MudItem xs="12" md="6">
+		<DashboardEnumCountChart TEnum="ProjectPriority"
+								 Items="@Dashboard.ChartData.ProjectsByPriority"
+								 Title="Projects by Priority"
+								 Subtitle="Current project distribution by priority."
+								 EmptyStateMessage="No project priority data available yet."
+								 SeriesName="Projects" />
+	</MudItem>
+	@* tickets by project *@
+	<MudItem xs="12" md="6">
+		<TicketsByProjectChart Items="Dashboard.ChartData.TicketsByProject" />
+	</MudItem>
 
-    @* Future chart: projects by priority *@
-    <MudItem xs="12" md="6">
-        <ProjectsByPriorityChart Items="Dashboard.ChartData.ProjectsByPriority" />
-    </MudItem>
-    @* Future chart: tickets by project *@
-    <MudItem xs="12" md="6">
-        @* <TicketsByProjectChart Items="Dashboard.ChartData.TicketsByProject" /> *@
-    </MudItem>
 </MudGrid>
 @code {
 	[Parameter, EditorRequired]

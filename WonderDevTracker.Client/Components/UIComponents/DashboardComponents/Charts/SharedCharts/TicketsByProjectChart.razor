@@ -1,29 +1,58 @@
 ﻿@*TicketsByProjectChart*@
 
-@typeparam TItem
+
 
 <DashboardChartCard Title="@Title" Subtitle="@Subtitle">
-    @if (IsEmpty)
-    {
-        <DashboardChartEmptyState Message="No project ticket data available yet." />
-    }
-    else
-    {
-       <ApexChart>
+	@if (IsEmpty)
+	{
+		<DashboardChartEmptyState Message="No project ticket data available yet." />
+	}
+	else
+	{
+		<ApexChart TItem="DashboardTicketsByProjectDTO"
+				   Height="250"
+				   Options="Options">
+			<ApexPointSeries TItem="DashboardTicketsByProjectDTO"
+							 Name="Open"
+							 SeriesType="SeriesType.Bar"
+							 Items="Items"
+							 XValue="@(item => item.ProjectName)"
+							 YValue="@(item => item.OpenTicketCount)" />
 
-       </ApexChart>
-    }
+			<ApexPointSeries TItem="DashboardTicketsByProjectDTO"
+							 Name="Resolved"
+							 SeriesType="SeriesType.Bar"
+							 Items="Items"
+							 XValue="@(item => item.ProjectName)"
+							 YValue="@(item => item.ResolvedTicketCount)" />
+		</ApexChart>
+	}
 </DashboardChartCard>
 
 @code {
-    [Parameter, EditorRequired]
-    public IReadOnlyList<TItem> Items { get; set; } = [];
+	[Parameter, EditorRequired]
+	public IReadOnlyList<DashboardTicketsByProjectDTO> Items { get; set; } = [];
 
-    [Parameter]
-    public string Title { get; set; } = "Tickets by Project";
+	[Parameter]
+	public string Title { get; set; } = "Tickets by Project";
 
-    [Parameter]
-    public string? Subtitle { get; set; } = "Ticket volume grouped by project.";
+	[Parameter]
+	public string? Subtitle { get; set; } = "Open and resolved tickets grouped by project.";
 
 	private bool IsEmpty => Items is null || !Items.Any();
+
+	private ApexChartOptions<DashboardTicketsByProjectDTO> Options { get; set; } = new()
+	{
+		Chart = new Chart
+		{
+			Stacked = true
+		},
+		PlotOptions = new PlotOptions
+		{
+			Bar = new PlotOptionsBar
+			{
+				Horizontal = true
+			}
+		}
+	};
 }

@@ -1,0 +1,63 @@
+﻿@*DashboardEnumCountChart *@
+
+@typeparam TEnum where TEnum : struct, Enum
+
+<DashboardChartCard Title="@Title" Subtitle="@Subtitle">
+	@if (IsEmpty)
+	{
+		<DashboardChartEmptyState Message="@EmptyStateMessage" />
+	}
+	else
+	{
+		<ApexChart TItem="DashboardEnumCountDTO<TEnum>"
+				   Height="250"
+				   Options="@Options">
+
+			<ApexPointSeries TItem="DashboardEnumCountDTO<TEnum>"
+							 Items="@Items"
+							 Name="@SeriesName"
+							 SeriesType="SeriesType.Bar"
+							 XValue="@(item => item.Label)"
+							 YValue="@(item => item.Count)" />
+		</ApexChart>
+	}
+</DashboardChartCard>
+
+@code {
+	[Parameter, EditorRequired]
+	public List<DashboardEnumCountDTO<TEnum>> Items { get; set; } = [];
+
+	[Parameter, EditorRequired]
+	public string Title { get; set; }
+
+	[Parameter, EditorRequired]
+	public string? Subtitle { get; set; }
+
+	[Parameter]
+	public string EmptyStateMessage { get; set; } = "No data available.";
+
+	[Parameter]
+	public string SeriesName { get; set; } = "Count";
+
+	private ApexChartOptions<DashboardEnumCountDTO<TEnum>> Options => new()
+	{
+		Colors = Items
+		   .Select(item => item.Value.HasValue
+			   ? item.Value.Value.GetChartColorHex()
+			   : "#DDE6EC")
+		   .ToList(),
+
+		PlotOptions = new PlotOptions
+		{
+			Bar = new PlotOptionsBar
+			{
+				Distributed = true
+			}
+		},
+		Legend = new Legend
+		{
+			Show = false
+		}
+	};
+	private bool IsEmpty => Items == null || !Items.Any();
+}
