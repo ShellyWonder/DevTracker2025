@@ -47,7 +47,9 @@ namespace WonderDevTracker.Services.Repositories
                                         GetRecentResolvedTicketsQuery(adminCompanyTickets)),
                 RecentUnassignedTickets = await GetRecentTicketSummariesAsync(
                                         GetRecentUnassignedTicketsQuery(adminCompanyTickets)),
-                ChartData = await GetDashboardChartDataAsync(context, userInfo.CompanyId)
+                ChartData = await GetDashboardChartDataAsync(context, userInfo.CompanyId),
+                MySubmittedTickets = await GetMySubmittedTicketsAsync(context, userInfo.CompanyId, userInfo.UserId)
+
             };
 
             return dashboard;
@@ -114,7 +116,14 @@ namespace WonderDevTracker.Services.Repositories
                 t.SubmitterUserId == userId);
         }
 
-        //For Admin dashboard ticket summaries, we want to pull all active tickets across the company, regardless of assignment, but still filter out archived items.
+
+        /// <summary>
+        /// For Admin dashboard ticket summaries, pull all active company tickets,
+        /// regardless of assignment, but still filter out archived items.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="companyId"></param>
+        /// <returns></returns>
         private static IQueryable<Ticket> GetAdminCompanyTicketsQuery(ApplicationDbContext context, int companyId)
         {
             return context.Tickets
@@ -244,20 +253,20 @@ namespace WonderDevTracker.Services.Repositories
 
 
                     DeveloperUser = t.DeveloperUser == null
-            ? null
-            : new AppUserDTO
-            {
-                Id = t.DeveloperUser.Id,
-                FirstName = t.DeveloperUser.FirstName,
-                LastName = t.DeveloperUser.LastName,
+                                    ? null
+                                    : new AppUserDTO
+                                    {
+                                        Id = t.DeveloperUser.Id,
+                                        FirstName = t.DeveloperUser.FirstName,
+                                        LastName = t.DeveloperUser.LastName,
 
-                ImageUrl = t.DeveloperUser.ProfilePictureId == null
+                                        ImageUrl = t.DeveloperUser.ProfilePictureId == null
                     ? null
                     : $"/api/uploads/{t.DeveloperUser.ProfilePictureId}",
 
-                Initials = t.DeveloperUser.FirstName.Substring(0, 1)
+                                        Initials = t.DeveloperUser.FirstName.Substring(0, 1)
                          + t.DeveloperUser.LastName.Substring(0, 1)
-            },
+                                    },
                     Created = t.Created,
                     Updated = t.Updated
                 };
@@ -270,6 +279,37 @@ namespace WonderDevTracker.Services.Repositories
                 .OrderByDescending(t => t.Updated ?? t.Created)
                 .Take(take)
                 .Select(TicketSummaryProjection)
+                .ToListAsync();
+        }
+
+        private static async Task<List<DashboardTicketSummaryDTO>> GetMySubmittedTicketsAsync(
+            ApplicationDbContext context,
+            int companyId,
+            string userId,
+            int take = 10)
+        {
+            return await GetSubmitterTicketsQuery(context, companyId, userId)
+                .OrderByDescending(t => t.Updated ?? t.Created)
+                .Take(take)
+                .Select(t => new DashboardTicketSummaryDTO
+                {
+                    Id = t.Id,
+                    Title = t.Title ?? "Untitled",
+                    ProjectId = t.ProjectId,
+                    ProjectName = t.Project!.Name ?? "Unknown",
+                    Status = t.Status,
+                    Priority = t.Priority,
+                    Type = t.Type,
+                    Created = t.Created,
+                    Updated = t.Updated,
+                    DeveloperUser = t.DeveloperUser == null
+                                    ? null
+                                    : t.DeveloperUser.ToDTO(),
+
+                    SubmitterUser = t.SubmitterUser == null
+                                    ? null
+                                    : t.SubmitterUser.ToDTO()
+                })
                 .ToListAsync();
         }
 
