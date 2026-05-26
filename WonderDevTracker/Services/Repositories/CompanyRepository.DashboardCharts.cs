@@ -17,8 +17,7 @@ namespace WonderDevTracker.Services.Repositories
         //chart aggregator method to call individual queries and package into single DTO for dashboard consumption
         private static async Task<DashboardChartDataDTO> GetDashboardChartDataAsync(
                                                         ApplicationDbContext context,
-                                                        int companyId,
-                                                          int ticketsByProjectDaysBack = 90)
+                                                        int companyId)
         {
 
             return new DashboardChartDataDTO
@@ -27,7 +26,7 @@ namespace WonderDevTracker.Services.Repositories
                 TicketsByStatus = await GetTicketsByStatusDataAsync(context, companyId),
                 TicketsByPriority = await GetTicketsByPriorityDataAsync(context, companyId),
                 ProjectsByPriority = await GetProjectsByPriorityDataAsync(context, companyId),
-                TicketsByProject = await GetTicketsByProjectDataAsync(context, companyId, daysBack: ticketsByProjectDaysBack)
+                TicketsByProject = await GetTicketsByProjectDataAsync(context, companyId)
             };
         }
 
@@ -105,51 +104,50 @@ namespace WonderDevTracker.Services.Repositories
             };
         }
 
-        private static async Task<List<DashboardCountByCategoryDTO>> GetTicketsByStatusDataAsync(
+        private static async Task<List<DashboardEnumCountDTO<TicketStatus>>> GetTicketsByStatusDataAsync(
                                 ApplicationDbContext context,
                                 int companyId)
         {
             IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, companyId);
 
-            List<DashboardCountByCategoryDTO> data = await GetCountByCategoryAsync<TicketStatus>(
+            List<DashboardEnumCountDTO<TicketStatus>> data = await GetCountByCategoryAsync<TicketStatus>(
        allCompanyTickets.Select(t => (TicketStatus?)t.Status));
 
-            return [.. data.OrderBy(item => GetTicketStatusSortOrder(item.Label))];
+            return [.. data.OrderBy(item => item.Value)];
         }
 
-        private static async Task<List<DashboardCountByCategoryDTO>> GetProjectsByPriorityDataAsync(
+        private static async Task<List<DashboardEnumCountDTO<ProjectPriority>>> GetProjectsByPriorityDataAsync(
                         ApplicationDbContext context,
                         int companyId)
         {
             IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, companyId);
 
-            List<DashboardCountByCategoryDTO> data = await GetCountByCategoryAsync<ProjectPriority>(
+            List<DashboardEnumCountDTO<ProjectPriority>> data = await GetCountByCategoryAsync<ProjectPriority>(
                 allCompanyProjects.Select(p => (ProjectPriority?)p.Priority));
 
-            return [.. data.OrderBy(item => GetProjectPrioritySortOrder(item.Label))];
+            return [.. data.OrderBy(item => item.Value)];
         }
 
-        private static async Task<List<DashboardCountByCategoryDTO>> GetTicketsByPriorityDataAsync(
+        private static async Task<List<DashboardEnumCountDTO<TicketPriority>>> GetTicketsByPriorityDataAsync(
                                 ApplicationDbContext context,
                                 int companyId)
         {
             IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, companyId);
 
-            List<DashboardCountByCategoryDTO> data = await GetCountByCategoryAsync<TicketPriority>(
+            List<DashboardEnumCountDTO<TicketPriority>> data = await GetCountByCategoryAsync<TicketPriority>(
         allCompanyTickets.Select(t => (TicketPriority?)t.Priority));
 
-            return [.. data.OrderBy(item => GetTicketPrioritySortOrder(item.Label))];
+            return [.. data.OrderBy(item => item.Value)];
         }
 
         private static async Task<List<DashboardTicketsByProjectDTO>> GetTicketsByProjectDataAsync(
                                                                         ApplicationDbContext context,
-                                                                        int companyId,
-                                                                        int daysBack = 90)
+                                                                        int companyId)
 
         {
-            var cutoff = DateTimeOffset.UtcNow.AddDays(-daysBack);
+            //var cutoff = DateTimeOffset.UtcNow.AddDays(-daysBack);
             return await GetAdminCompanyTicketsQuery(context, companyId)
-                .Where(t => t.Created >= cutoff)
+            //    .Where(t => t.Created >= cutoff)
                 .GroupBy(t => new
                 {
                     t.ProjectId,
@@ -168,7 +166,7 @@ namespace WonderDevTracker.Services.Repositories
         }
 
         #region Helper Methods
-        private static async Task<List<DashboardCountByCategoryDTO>> GetCountByCategoryAsync<TEnum>(
+        private static async Task<List<DashboardEnumCountDTO<TEnum>>> GetCountByCategoryAsync<TEnum>(
             IQueryable<TEnum?> query)
             where TEnum : struct, Enum
         {
@@ -182,50 +180,18 @@ namespace WonderDevTracker.Services.Repositories
         .ToListAsync();
 
             return [.. groupedData
-                .Select(d => new DashboardCountByCategoryDTO
+                .Select(d => new DashboardEnumCountDTO<TEnum>
                 {
-                    Label = d.Value.HasValue
-                        ? d.Value.Value.GetDisplayName()
-                        : "Unspecified",
+                    Value = d.Value,
+            Label = d.Value.HasValue
+                ? d.Value.Value.GetDisplayName()
+                : "Unspecified",
                     Count = d.Count
                 })];
         }
 
-        private static int GetTicketStatusSortOrder(string statusLabel)
-        {
-            return statusLabel switch
-            {
-                "New" => 1,
-                "In Development" => 2,
-                "Testing" => 3,
-                "Resolved" => 4,
-                _ => 99
-            };
-        }
-
-        private static int GetTicketPrioritySortOrder(string priorityLabel)
-        {
-            return priorityLabel switch
-            {
-                "Low" => 1,
-                "Medium" => 2,
-                "High" => 3,
-                "Urgent" => 4,
-                _ => 99
-            };
-        }
-        private static int GetProjectPrioritySortOrder(string priorityLabel)
-        {
-            return priorityLabel switch
-            {
-                "Low" => 1,
-                "Medium" => 2,
-                "High" => 3,
-                "Urgent" => 4,
-                _ => 99
-            };
-        }
         #endregion
+
         #endregion
     }
 }
