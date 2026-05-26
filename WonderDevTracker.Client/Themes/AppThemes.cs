@@ -11,6 +11,8 @@ namespace WonderDevTracker.Client.Themes
             {
                 Primary = "#0077B6",
                 Secondary = "#00B4D8",
+                Tertiary = "#1EC8A5",
+
                 Success = "#90BE6D",
                 Info = "#6895ED", //periwinkle
 
@@ -41,6 +43,8 @@ namespace WonderDevTracker.Client.Themes
             {
                 Primary = "#0077B6",
                 Secondary = "#00B4D8",
+                Tertiary = "#1EC8A5",
+
                 Success = "#90BE6D",
                 Info = "#5D81C9",
 

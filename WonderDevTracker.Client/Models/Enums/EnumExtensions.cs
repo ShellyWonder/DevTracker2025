@@ -94,20 +94,20 @@ namespace WonderDevTracker.Client.Models.Enums
         {
             return value switch
             {
-                TicketStatus.New => "#DDE6EC",
+                TicketStatus.New => "#1EC8A5",
                 TicketStatus.InDevelopment => "#5D81C9",
                 TicketStatus.InTesting => "#FF993B",
                 TicketStatus.Resolved => "#90BE6D",
 
-                TicketPriority.Low => "#DDE6EC",
+                TicketPriority.Low => "#1EC8A5",
                 TicketPriority.Medium => "#5D81C9",
                 TicketPriority.High => "#FF993B",
-                TicketPriority.Urgent => "#E76F51",
+                TicketPriority.Urgent => "#E63946",
 
-                ProjectPriority.Low => "#DDE6EC",
+                ProjectPriority.Low => "#1EC8A5",
                 ProjectPriority.Medium => "#5D81C9",
                 ProjectPriority.High => "#FF993B",
-                ProjectPriority.Urgent => "#E76F51",
+                ProjectPriority.Urgent => "#E63946", 
 
                 _ => "#0077B6"
             };
