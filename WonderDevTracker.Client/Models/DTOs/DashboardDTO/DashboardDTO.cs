@@ -16,8 +16,8 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         [Description("General stats for company dashboard, primarily for admin consumption.")]
         public CompanyDashboardStatsDTO CompanyStats { get; set; } = new();
 
-        [Description("Stats for project managers on the dashboard.")]
-        public PMDashboardStatsDTO PMStats { get; set; } = new();
+        [Description("Dashboard data for project managers.")]
+        public PMDashboardDTO PMDashboard { get; set; } = new();
 
         [Description("Stats for developers on the dashboard.")]
         public DevDashboardStatsDTO DevStats { get; set; } = new();
