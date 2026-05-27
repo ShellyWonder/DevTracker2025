@@ -19,7 +19,6 @@ namespace WonderDevTracker.Client.Pages
 
         #region STATE
         private DashboardDTO? _data;
-        private List<NotificationDTO> _notifications = [];
         private List<TicketDTO> _tickets = [];
         private List<TicketDTO> _recentTickets = [];
         private List<ProjectDTO> _projects = [];

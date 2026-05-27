@@ -39,40 +39,45 @@
 		<PageTitle>@($"{UserName}'s Dashboard | Dev Tracker")</PageTitle>
 		<div class="vstack gap-3">
 			<!-- Dashboard content -->
+			<AnimatedBlock Index="0">
+				<DashboardHeader User="@CurrentUser"
+								 UserName="@UserName"
+								 DashboardRole="@DashboardRoleLabel"
+								 DashboardSubtitle="@DashboardSubtitle"
+								 CompanyName="@CompanyName"
+								 CanManageProjects="@ActionsPermissions.CanManageProjects"
+								 CanManageMembers="@ActionsPermissions.CanManageMembers"
+								 CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
+								 CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
+								 CanViewInvites="@ActionsPermissions.CanViewInvites" />
+			</AnimatedBlock>
 
-			<DashboardHeader User="@CurrentUser"
-							 UserName="@UserName"
-							 DashboardRole="@DashboardRoleLabel"
-							 DashboardSubtitle="@DashboardSubtitle"
-							 CompanyName="@CompanyName"
-							 CanManageProjects="@ActionsPermissions.CanManageProjects"
-							 CanManageMembers="@ActionsPermissions.CanManageMembers"
-							 CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
-							 CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
-							 CanViewInvites="@ActionsPermissions.CanViewInvites" />
-
-	
-			<!--Data Display Cards(?)-->
+			<!-- Role-specific dashboard zones -->
 			@if (IsAdmin)
 			{
 				<!-- Admin-specific content -->
-				<AdminDashboardZone Dashboard="_data"
-									Projects="_recentProjects"
-									Tickets="_recentTickets"
-									Members="_members" />
+				<AnimatedBlock Index="1">
+					<AdminDashboardZone Dashboard="_data"
+										Projects="_recentProjects"
+										Members="_members" />
+				</AnimatedBlock>
 			}
 			else if (IsProjectManager)
 			{
 				<!-- Project Manager-specific content -->
-				<ProjectManagerDashboardZone Dashboard="_data"
-											 Projects="_recentProjects"
-											 Tickets="_recentTickets"
-											 Members="_members" />
+				<AnimatedBlock Index="1">
+					<ProjectManagerDashboardZone Dashboard="_data"
+												 Projects="_recentProjects"
+												 Tickets="_recentTickets"
+												 Members="_members" />
+				</AnimatedBlock>
 			}
 			else if (UserIsInRole(Role.Developer))
 			{
 				<!-- Developer-specific content -->
-				<DeveloperDashboardZone Dashboard="_data" />
+				<AnimatedBlock Index="1">
+					<DeveloperDashboardZone Dashboard="_data" />
+				</AnimatedBlock>
 			}
 			<!--
 			NOTE:Submitter will see:
@@ -84,9 +89,13 @@
 			relevant user content is shown without a dedicated dashboard zone.
 			-->
 			<!-- My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
+			<AnimatedBlock Index="2">
+				<DashboardSubmittedTicketsTable Tickets="_data.MySubmittedTickets"
+												AllowAssignment="@ActionsPermissions.CanManageMembers" />
+			</AnimatedBlock>
 			<!-- Notification content ~ list of notifications for the user, with links to related tickets or projects-->
 			<NotificationCard Notifications="Notifications"
-							  Index="@IndexTracker.Next()"
+							  Index="3"
 							  OnNotificationsChanged="RefreshNotificationsAsync" />
 		</div>
 	}
