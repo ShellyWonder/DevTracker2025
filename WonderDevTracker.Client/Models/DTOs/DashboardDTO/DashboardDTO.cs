@@ -45,6 +45,7 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         [Description("Data for charts on the dashboard.")]
         public DashboardChartDataDTO ChartData { get; set; } = new();
 
+
         #endregion
 
     }

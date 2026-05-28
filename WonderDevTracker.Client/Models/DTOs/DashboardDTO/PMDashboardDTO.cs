@@ -8,9 +8,12 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         public PMDashboardStatsDTO PMStats { get; set; } = new();
 
         [Description("List of projects managed by the project manager.")]
-        public List<ProjectDTO> ManagedProjects { get; set; } = [];
+        public List<DashboardProjectSummaryDTO> ManagedProjects { get; set; } = [];
 
         [Description("List of unassigned tickets that the project manager can assign to developers.")]
-        public List<TicketDTO> UnassignedTickets { get; set; } = [];
+        public List<DashboardTicketSummaryDTO> UnassignedTickets { get; set; } = [];
+
+        [Description("Chart data for project managers on the dashboard.")]
+        public DashboardChartDataDTO PMChartData { get; set; } = new();
     }
 }

@@ -38,7 +38,7 @@ namespace WonderDevTracker.Services.Repositories
             {
                 CompanyInfo = await GetCompanyInfoAsync(context, userInfo.CompanyId),
                 CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
-                PMStats = await GetPMDashboardStatsAsync(pmProjects, pmTickets),
+                PMDashboard = await GetPMDashboardDataAsync(context, userInfo.CompanyId, userInfo.UserId),
                 DevStats = await GetDeveloperDashboardStatsAsync(devProjects, devTickets),
                 SubmitterStats = await GetSubmitterDashboardStatsAsync(submitterTickets),
                 RecentActiveTickets = await GetRecentTicketSummariesAsync(
@@ -77,6 +77,7 @@ namespace WonderDevTracker.Services.Repositories
                 .AsNoTracking()
                 .Where(p => p.CompanyId == companyId && p.Members!.Any(m => m.Id == userId) && !p.Archived);
         }
+
         private static IQueryable<Ticket> GetPMProjectTicketsQuery(ApplicationDbContext context, int companyId, string userId)
         {
             return context.Tickets
@@ -136,7 +137,6 @@ namespace WonderDevTracker.Services.Repositories
         {
             return tickets.Where(t => t.Status != TicketStatus.Resolved);
         }
-
         private static IQueryable<Ticket> GetRecentResolvedTicketsQuery(IQueryable<Ticket> tickets)
         {
             return tickets.Where(t => t.Status == TicketStatus.Resolved);
@@ -147,6 +147,83 @@ namespace WonderDevTracker.Services.Repositories
             return tickets.Where(t => t.Status != TicketStatus.Resolved
                                       && string.IsNullOrWhiteSpace(t.DeveloperUserId));
         }
+        #endregion
+
+        #region Role-Specific Dashboard Aggregation Methods
+        #region PM Dashboard
+        private static async Task<PMDashboardDTO> GetPMDashboardDataAsync(ApplicationDbContext context, int companyId, string userId)
+        {
+            IQueryable<Project> pmProjects = GetPMProjectsQuery(context, companyId, userId);
+            IQueryable<Ticket> pmTickets = GetPMProjectTicketsQuery(context, companyId, userId);
+
+            return new PMDashboardDTO
+            {
+                PMStats = await GetPMDashboardStatsAsync(pmProjects, pmTickets),
+                ManagedProjects = await GetPMManagedProjectsAsync(pmProjects),
+                UnassignedTickets = await GetPMUnassignedTicketsAsync(pmTickets)
+            };
+        }
+
+        private static async Task<List<DashboardTicketSummaryDTO>> GetPMUnassignedTicketsAsync(IQueryable<Ticket> pmTickets)
+        {
+            return await pmTickets
+                        .Where(t => string.IsNullOrWhiteSpace(t.DeveloperUserId))
+                        .OrderByDescending(t => t.Updated ?? t.Created)
+                        .Select(t => new DashboardTicketSummaryDTO
+                        {
+                            Id = t.Id,
+                            Title = t.Title ?? string.Empty,
+
+                            ProjectId = t.ProjectId,
+                            ProjectName = t.Project!.Name ?? string.Empty,
+
+                            Type = t.Type,
+                            Priority = t.Priority,
+                            Status = t.Status,
+
+                            Created = t.Created,
+                            Updated = t.Updated,
+
+                            SubmitterUser = t.SubmitterUser == null
+                                            ? null
+                                            : new AppUserDTO
+                                            {
+                                                Id = t.SubmitterUser.Id,
+                                                FirstName = t.SubmitterUser.FirstName,
+                                                LastName = t.SubmitterUser.LastName,
+                   
+                                            }
+
+                        })
+        .ToListAsync();
+        }
+
+        private static async Task<List<DashboardProjectSummaryDTO>> GetPMManagedProjectsAsync(IQueryable<Project> pmProjects)
+                                                                                               
+        {
+            return await pmProjects
+            .OrderByDescending(p => p.Created)
+            .Select(p => new DashboardProjectSummaryDTO
+            {
+                Id = p.Id,
+                Name = p.Name ?? string.Empty,
+                Description = p.Description,
+                Priority = p.Priority,
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                MemberCount = p.Members == null ? 0 : p.Members.Count,
+                OpenTicketCount = p.Tickets.Count(t =>
+                    !t.Archived && t.Status != TicketStatus.Resolved),
+                UnassignedTicketCount = p.Tickets.Count(t =>
+                    !t.Archived && string.IsNullOrWhiteSpace(t.DeveloperUserId))
+            })
+            .ToListAsync();
+        }
+        #endregion
+        #region Developer Dashboard
+
+        #endregion
+
         #endregion
 
         #region Role-Specific Stats Calculators
@@ -261,11 +338,11 @@ namespace WonderDevTracker.Services.Repositories
                                         LastName = t.DeveloperUser.LastName,
 
                                         ImageUrl = t.DeveloperUser.ProfilePictureId == null
-                    ? null
-                    : $"/api/uploads/{t.DeveloperUser.ProfilePictureId}",
+                                                    ? null
+                                                    : $"/api/uploads/{t.DeveloperUser.ProfilePictureId}",
 
                                         Initials = t.DeveloperUser.FirstName.Substring(0, 1)
-                         + t.DeveloperUser.LastName.Substring(0, 1)
+                                                    + t.DeveloperUser.LastName.Substring(0, 1)
                                     },
                     Created = t.Created,
                     Updated = t.Updated
