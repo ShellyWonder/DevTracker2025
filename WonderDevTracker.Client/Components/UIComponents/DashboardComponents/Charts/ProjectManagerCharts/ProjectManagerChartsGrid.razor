@@ -1,26 +1,30 @@
 ﻿@* ProjectManagerChartsGrid.razor *@
 
 <MudGrid Spacing="3">
-    <MudItem xs="12" md="6">
-        @* <TicketsByStatusChart Items="Dashboard.PMTicketsByStatus"
-                              Title="My Project Tickets by Status"
-                              Subtitle="Tickets across projects you manage." /> *@
-    </MudItem>
+	<MudItem xs="12" md="6">
+		<DashboardEnumCountChart TEnum="TicketStatus"
+								 Items="@Dashboard.PMChartData.TicketsByStatus"
+								 Title="Tickets by Status"
+								 Subtitle="Current managed ticket distribution by status."
+								 EmptyStateMessage="No ticket status data available yet."
+								 SeriesName="Tickets" />
+	</MudItem>
 
-    <MudItem xs="12" md="6">
-        @* <TicketsByPriorityChart Items="Dashboard.PMTicketsByPriority"
-                                Title="My Project Tickets by Priority"
-                                Subtitle="Priority distribution for your managed projects." /> *@
-    </MudItem>
+	<MudItem xs="12" md="6">
+		<DashboardEnumCountChart TEnum="ProjectPriority"
+								 Items="@Dashboard.PMChartData.ProjectsByPriority"
+								 Title="Projects by Priority"
+								 Subtitle="Current managed project distribution by priority."
+								 EmptyStateMessage="No project priority data available yet."
+								 SeriesName="Projects" />
+	</MudItem>
 
-    <MudItem xs="12">
-        @* <TicketsByProjectChart Items="Dashboard.PMTicketsByProject"
-                               Title="Tickets by Managed Project"
-                               Subtitle="Ticket volume across your assigned projects." /> *@
-    </MudItem>
+	<MudItem xs="12">
+		<TicketsByProjectChart Items="Dashboard.PMChartData.TicketsByProject" />
+	</MudItem>
 </MudGrid>
 
 @code {
-    [Parameter, EditorRequired]
-    public PMDashboardDTO Dashboard { get; set; } = default!;
+	[Parameter, EditorRequired]
+	public PMDashboardDTO Dashboard { get; set; } = default!;
 }
