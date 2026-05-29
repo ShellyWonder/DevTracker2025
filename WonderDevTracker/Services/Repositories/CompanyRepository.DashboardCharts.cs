@@ -12,9 +12,11 @@ namespace WonderDevTracker.Services.Repositories
     public partial class CompanyRepository
     {
 
-        #region CHART DATA
+        #region CHART AGGREGATOR METHODS 
 
-        //chart aggregator method to call individual queries and package into single DTO for dashboard consumption
+        #region Company/Admin Dashboard Chart Data
+        //calls individual queries and packages into single DTO for dashboard consumption
+        //
         private static async Task<DashboardChartDataDTO> GetDashboardChartDataAsync(
                                                         ApplicationDbContext context,
                                                         int companyId)
@@ -29,6 +31,62 @@ namespace WonderDevTracker.Services.Repositories
                 TicketsByProject = await GetTicketsByProjectDataAsync(context, companyId)
             };
         }
+        #endregion
+
+        #region Project Manager Dashboard Chart Data
+        private static async Task<DashboardChartDataDTO> GetPMDashboardChartDataAsync(
+                                                        IQueryable<Project> pmProjects,
+                                                        IQueryable<Ticket> pmTickets)
+        {
+            return new DashboardChartDataDTO
+            {
+                TicketsByStatus = await GetTicketsByStatusDataAsync(pmTickets),
+                TicketsByPriority = await GetTicketsByPriorityDataAsync(pmTickets),
+                ProjectsByPriority = await GetProjectsByPriorityDataAsync(pmProjects),
+                TicketsByProject = await GetTicketsByProjectDataAsync(pmTickets)
+
+            };
+        }
+        #endregion
+        private static async Task<List<DashboardTicketsByProjectDTO>> GetTicketsByProjectDataAsync(IQueryable<Ticket> pmTickets)
+        {
+            return await pmTickets
+                   .Where(t => t.Project != null)
+                   .GroupBy(t => new
+                   {
+                       t.ProjectId,
+                       ProjectName = t.Project!.Name
+                   })
+                   .Select(g => new DashboardTicketsByProjectDTO
+                   {
+                       ProjectId = g.Key.ProjectId,
+                       ProjectName = g.Key.ProjectName ?? "Unknown Project",
+                       OpenTicketCount = g.Count(t => t.Status != TicketStatus.Resolved)
+                   })
+                   .OrderByDescending(x => x.OpenTicketCount)
+                   .ThenBy(x => x.ProjectName)
+                     .ToListAsync();
+        }
+
+        private static async Task<List<DashboardEnumCountDTO<ProjectPriority>>> GetProjectsByPriorityDataAsync(IQueryable<Project> pmProjects)
+        {
+            return await GetCountByCategoryAsync<ProjectPriority>(
+                        pmProjects.Select(p => (ProjectPriority?)p.Priority));
+        }
+
+        private static async Task<List<DashboardEnumCountDTO<TicketPriority>>> GetTicketsByPriorityDataAsync(IQueryable<Ticket> pmTickets)
+        {
+            return await GetCountByCategoryAsync<TicketPriority>(
+                        pmTickets.Select(t => (TicketPriority?)t.Priority));
+        }
+
+        private static async Task<List<DashboardEnumCountDTO<TicketStatus>>> GetTicketsByStatusDataAsync(IQueryable<Ticket> pmTickets)
+        {
+            return await GetCountByCategoryAsync<TicketStatus>(
+                        pmTickets.Select(t => (TicketStatus?)t.Status));
+        }
+        #endregion
+
 
         private static async Task<DashboardTicketsOverTimeChartDTO> GetTicketsOverTimeDataAsync(ApplicationDbContext context, int companyId)
         {
@@ -192,6 +250,6 @@ namespace WonderDevTracker.Services.Repositories
 
         #endregion
 
-        #endregion
+      
     }
 }
