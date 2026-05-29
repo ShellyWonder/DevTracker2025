@@ -29,7 +29,7 @@ else
 @code {
 
 	[Parameter, EditorRequired]
-	public DashboardDTO Dashboard { get; set; } = default!;
+	public PMDashboardDTO Dashboard { get; set; } = default!;
 
 	[Parameter]
 	public IEnumerable<ProjectDTO> Projects { get; set; } = [];
@@ -40,5 +40,6 @@ else
 	[Parameter]
 	public IEnumerable<AppUserDTO> Members { get; set; } = [];
 
-	private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.ProjectManager);
+	private IReadOnlyList<DashboardStatItemViewModel> Stats =>
+		DashboardStatFactory.BuildStats(Dashboard);
 }

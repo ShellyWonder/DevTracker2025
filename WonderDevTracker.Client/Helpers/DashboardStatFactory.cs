@@ -14,11 +14,16 @@ public static class DashboardStatFactory
         return role switch
         {
             Role.Admin => BuildCompanyStats(dashboard),
-            Role.ProjectManager => BuildPMStats(dashboard),
+            Role.ProjectManager => BuildPMStats(dashboard.PMDashboard),
             Role.Developer => BuildDevStats(dashboard),
             Role.Submitter => BuildSubmitterStats(dashboard),
             _ => BuildDefaultStats(dashboard)
         };
+    }
+    public static IReadOnlyList<DashboardStatItemViewModel> BuildStats(
+    PMDashboardDTO dashboard)
+    {
+        return BuildPMStats(dashboard);
     }
 
     private static IReadOnlyList<DashboardStatItemViewModel> BuildCompanyStats(DashboardDTO dashboard)
@@ -61,7 +66,7 @@ public static class DashboardStatFactory
         }
     ];}
 
-    private static IReadOnlyList<DashboardStatItemViewModel> BuildPMStats(DashboardDTO dashboard)
+    private static IReadOnlyList<DashboardStatItemViewModel> BuildPMStats(PMDashboardDTO dashboard)
     {
         var stats = dashboard.PMStats;
         return
