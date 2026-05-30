@@ -1,5 +1,6 @@
 ﻿//CompanyRepository.Dashboard.cs
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using WonderDevTracker.Client;
@@ -38,7 +39,7 @@ namespace WonderDevTracker.Services.Repositories
             {
                 CompanyInfo = await GetCompanyInfoAsync(context, userInfo.CompanyId),
                 CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
-                PMDashboard = await GetPMDashboardDataAsync(context, userInfo.CompanyId, userInfo.UserId),
+                PMDashboard = await GetPMDashboardDataAsync(context, userInfo.CompanyId, userInfo.UserId, userManager),
                 DevStats = await GetDeveloperDashboardStatsAsync(devProjects, devTickets),
                 SubmitterStats = await GetSubmitterDashboardStatsAsync(submitterTickets),
                 RecentActiveTickets = await GetRecentTicketSummariesAsync(
@@ -151,7 +152,9 @@ namespace WonderDevTracker.Services.Repositories
 
         #region Role-Specific Dashboard Aggregation Methods
         #region PM Dashboard
-        private static async Task<PMDashboardDTO> GetPMDashboardDataAsync(ApplicationDbContext context, int companyId, string userId)
+        private static async Task<PMDashboardDTO> GetPMDashboardDataAsync(ApplicationDbContext context, 
+                                                                          int companyId, string userId, 
+                                                                          UserManager<ApplicationUser> userManager)
         {
             IQueryable<Project> pmProjects = GetPMProjectsQuery(context, companyId, userId);
             IQueryable<Ticket> pmTickets = GetPMProjectTicketsQuery(context, companyId, userId);
@@ -161,7 +164,8 @@ namespace WonderDevTracker.Services.Repositories
                 PMStats = await GetPMDashboardStatsAsync(pmProjects, pmTickets),
                 ManagedProjects = await GetPMManagedProjectsAsync(pmProjects),
                 UnassignedTickets = await GetPMUnassignedTicketsAsync(pmTickets),
-                PMChartData = await GetPMDashboardChartDataAsync(pmProjects, pmTickets)
+                PMChartData = await GetPMDashboardChartDataAsync(pmProjects, pmTickets),
+                TeamMembers = await GetPMTeamMembersAsync(pmProjects, userManager)
             };
         }
 
@@ -393,6 +397,23 @@ namespace WonderDevTracker.Services.Repositories
 
         #endregion
 
+        private static async Task<List<AppUserDTO>> GetPMTeamMembersAsync(
+                                IQueryable<Project> pmProjects,
+                                UserManager<ApplicationUser> userManager)
+        {
+            List<ApplicationUser> members = await pmProjects
+                .SelectMany(p => p.Members!)
+                .GroupBy(m => m.Id)
+                .Select(g => g.First())
+                .OrderBy(m => m.LastName)
+                .ThenBy(m => m.FirstName)
+                .ToListAsync();
+
+            var dtoTasks = members.Select(member => member.ToDTOWithRole(userManager));
+            AppUserDTO[] dtos = await Task.WhenAll(dtoTasks);
+
+            return [.. dtos];
+        }
         #endregion
     }
 }

@@ -15,5 +15,8 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
 
         [Description("Chart data for project managers on the dashboard.")]
         public DashboardChartDataDTO PMChartData { get; set; } = new();
+
+        [Description("List of team members assigned to the project manager.")]
+        public List<AppUserDTO> TeamMembers { get; set; } = [];
     }
 }
