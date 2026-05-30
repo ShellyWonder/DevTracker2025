@@ -14,9 +14,10 @@ else
 		<ProjectManagerChartsGrid Dashboard="Dashboard" />
 
 	@* Assigned projects *@
-
+		
 	@* Project team activity *@
-		<DashboardTeamPanel Members="Members" 
+		<DashboardTeamPanel Members="Dashboard.TeamMembers"
+							Title="My Project Teams"
 							CanManageMembers="true"/>
 	@* Unassigned tickets for projects assigned to PM *@
 
@@ -32,13 +33,7 @@ else
 	public PMDashboardDTO Dashboard { get; set; } = default!;
 
 	[Parameter]
-	public IEnumerable<ProjectDTO> Projects { get; set; } = [];
-
-	[Parameter]
 	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
-
-	[Parameter]
-	public IEnumerable<AppUserDTO> Members { get; set; } = [];
 
 	private IReadOnlyList<DashboardStatItemViewModel> Stats =>
 		DashboardStatFactory.BuildStats(Dashboard);

@@ -16,7 +16,7 @@
                 <MudIcon Icon="@Icons.Material.Filled.Groups"
                          Color="Color.Primary" />
 
-                <MudText Typo="Typo.h2" Color="Color.Primary">Team Overview</MudText>
+                <MudText Typo="Typo.h2" Color="Color.Primary">@Title</MudText>
 
             </MudStack>
 
@@ -89,10 +89,13 @@
 
 
 @code {
-    [Parameter, EditorRequired]
-    public IEnumerable<AppUserDTO> Members { get; set; } = [];
+	[Parameter, EditorRequired]
+	public IEnumerable<AppUserDTO> Members { get; set; } = [];
 
-    [Parameter]
+	[Parameter, EditorRequired]
+	public string Title { get; set; }
+
+        [Parameter]
     public bool CanManageMembers { get; set; }
 
     [Parameter]
