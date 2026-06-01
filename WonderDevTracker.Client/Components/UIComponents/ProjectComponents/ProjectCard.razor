@@ -5,17 +5,22 @@
 @if (Project is not null)
 {
 	<AnimatedCard Index="Index" OnClick="NavigateToDetails">
-		<MudCardHeader>
-			<CardHeaderContent>
-				<SafeNavLink Typo="Typo.h5"
-							 Href="@($"projects/{Project.Id}")"
-							 Valid="@(Project?.Id is not null)"
-							 Class="d-block">
-					@Project?.Name
-				</SafeNavLink>
-				<ProjectDates StartDate="Project?.StartDate" EndDate="Project?.EndDate" />
-			</CardHeaderContent>
-		</MudCardHeader>
+		
+			<MudCardHeader>
+				<CardHeaderContent>
+
+					<SafeNavLink Typo="Typo.h5"
+								 Href="@($"projects/{Project.Id}")"
+								 Valid="@(Project?.Id is not null)"
+								 Class="d-block">
+						@Project?.Name
+					</SafeNavLink>
+
+
+					<ProjectDates StartDate="Project?.StartDate" EndDate="Project?.EndDate" />
+				</CardHeaderContent>
+			</MudCardHeader>
+		
 		<MudCardContent>
 			@if (Project.Members is null)
 			{
@@ -45,7 +50,7 @@
 						{
 							<MudAvatar Size="Size.Medium"
 									   Class="project-card-member-avatar project-card-extra-avatar"
-										Color="Color.Secondary">
+									   Color="Color.Secondary">
 								+@HiddenMemberCount
 							</MudAvatar>
 						}
@@ -64,7 +69,7 @@
 					  Disabled="@(Project is null)" />
 
 		</MudCardActions>
-
+		
 	</AnimatedCard>
 }
 

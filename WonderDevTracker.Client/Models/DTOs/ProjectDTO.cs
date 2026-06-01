@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using WonderDevTracker.Client.Models.Enums;
-using static MudBlazor.CategoryTypes;
 
 namespace WonderDevTracker.Client.Models.DTOs
 {

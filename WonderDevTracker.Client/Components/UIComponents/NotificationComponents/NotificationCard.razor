@@ -7,7 +7,7 @@ and provide a consistent layout and styling for the notifications section of the
 
 @inherits AuthenticatedComponentBase
 
-<AnimatedCard Index="@Index" Elevation="3">
+<MudCard  Elevation="3">
 	<MudCardHeader>
 		<MudText Typo="Typo.h2" Color="Color.Primary">Notifications</MudText>
 	</MudCardHeader>
@@ -15,7 +15,7 @@ and provide a consistent layout and styling for the notifications section of the
 	<MudCardContent>
 		@if (Notifications.Count == 0)
 		{
-			<NotFoundDisplay Message="No notifications available" />
+			<NotFoundDisplay Message="All caught up! No notifications to display." />
 		}
 		else
 		{
@@ -40,7 +40,7 @@ and provide a consistent layout and styling for the notifications section of the
 			</MudTabs>
 		}
 	</MudCardContent>
-</AnimatedCard>
+</MudCard>
 
 @code {
 
@@ -48,7 +48,7 @@ and provide a consistent layout and styling for the notifications section of the
 	[Parameter]
 	public List<NotificationDTO> Notifications { get; set; } = new();
 
-	[Parameter, EditorRequired]
+	[Parameter]
 	public int Index { get; set; }
 
 	[Parameter]
