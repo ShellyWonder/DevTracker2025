@@ -49,7 +49,8 @@ namespace WonderDevTracker.Services.Repositories
                 RecentUnassignedTickets = await GetRecentTicketSummariesAsync(
                                         GetRecentUnassignedTicketsQuery(adminCompanyTickets)),
                 ChartData = await GetDashboardChartDataAsync(context, userInfo.CompanyId),
-                MySubmittedTickets = await GetMySubmittedTicketsAsync(context, userInfo.CompanyId, userInfo.UserId)
+                MySubmittedTickets = await GetMySubmittedTicketsAsync(context, userInfo.CompanyId, userInfo.UserId),
+                RecentProjects = await GetProjectSummariesAsync(GetActiveCompanyProjectsQuery(context, userInfo.CompanyId))
 
             };
 
@@ -62,6 +63,11 @@ namespace WonderDevTracker.Services.Repositories
             return context.Projects
                 .AsNoTracking()
                 .Where(p => p.CompanyId == companyId);
+        }
+        private static IQueryable<Project> GetActiveCompanyProjectsQuery(ApplicationDbContext context, int companyId)
+        {
+            return GetCompanyProjectsQuery(context, companyId)
+                .Where(p => !p.Archived);
         }
 
         private static IQueryable<Ticket> GetCompanyTicketsQuery(ApplicationDbContext context, int companyId)
@@ -119,13 +125,7 @@ namespace WonderDevTracker.Services.Repositories
         }
 
 
-        /// <summary>
-        /// For Admin dashboard ticket summaries, pull all active company tickets,
-        /// regardless of assignment, but still filter out archived items.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="companyId"></param>
-        /// <returns></returns>
+
         private static IQueryable<Ticket> GetAdminCompanyTicketsQuery(ApplicationDbContext context, int companyId)
         {
             return context.Tickets
@@ -152,8 +152,8 @@ namespace WonderDevTracker.Services.Repositories
 
         #region Role-Specific Dashboard Aggregation Methods
         #region PM Dashboard
-        private static async Task<PMDashboardDTO> GetPMDashboardDataAsync(ApplicationDbContext context, 
-                                                                          int companyId, string userId, 
+        private static async Task<PMDashboardDTO> GetPMDashboardDataAsync(ApplicationDbContext context,
+                                                                          int companyId, string userId,
                                                                           UserManager<ApplicationUser> userManager)
         {
             IQueryable<Project> pmProjects = GetPMProjectsQuery(context, companyId, userId);
@@ -162,10 +162,10 @@ namespace WonderDevTracker.Services.Repositories
             return new PMDashboardDTO
             {
                 PMStats = await GetPMDashboardStatsAsync(pmProjects, pmTickets),
-                ManagedProjects = await GetPMManagedProjectsAsync(pmProjects),
+                ManagedProjects = await GetProjectSummariesAsync(pmProjects),
                 UnassignedTickets = await GetPMUnassignedTicketsAsync(pmTickets),
                 PMChartData = await GetPMDashboardChartDataAsync(pmProjects, pmTickets),
-                TeamMembers = await GetPMTeamMembersAsync(pmProjects, userManager)
+                TeamMembers = await GetPMTeamMembersAsync(context, companyId, userId, userManager)
             };
         }
 
@@ -196,17 +196,17 @@ namespace WonderDevTracker.Services.Repositories
                                                 Id = t.SubmitterUser.Id,
                                                 FirstName = t.SubmitterUser.FirstName,
                                                 LastName = t.SubmitterUser.LastName,
-                   
+
                                             }
 
                         })
         .ToListAsync();
         }
 
-        private static async Task<List<DashboardProjectSummaryDTO>> GetPMManagedProjectsAsync(IQueryable<Project> pmProjects)
-                                                                                               
+        private static async Task<List<DashboardProjectSummaryDTO>> GetProjectSummariesAsync(IQueryable<Project> projects)
+
         {
-            return await pmProjects
+            return await projects
             .OrderByDescending(p => p.Created)
             .Select(p => new DashboardProjectSummaryDTO
             {
@@ -398,21 +398,48 @@ namespace WonderDevTracker.Services.Repositories
         #endregion
 
         private static async Task<List<AppUserDTO>> GetPMTeamMembersAsync(
-                                IQueryable<Project> pmProjects,
-                                UserManager<ApplicationUser> userManager)
+    ApplicationDbContext context,
+    int companyId,
+    string userId,
+    UserManager<ApplicationUser> userManager)
         {
-            List<ApplicationUser> members = await pmProjects
+            List<string> memberIds = await context.Projects
+                .AsNoTracking()
+                .Where(p =>
+                    p.CompanyId == companyId &&
+                    !p.Archived &&
+                    p.Members!.Any(m => m.Id == userId))
                 .SelectMany(p => p.Members!)
-                .GroupBy(m => m.Id)
-                .Select(g => g.First())
-                .OrderBy(m => m.LastName)
-                .ThenBy(m => m.FirstName)
+                .Select(m => m.Id)
+                .Distinct()
                 .ToListAsync();
 
-            var dtoTasks = members.Select(member => member.ToDTOWithRole(userManager));
-            AppUserDTO[] dtos = await Task.WhenAll(dtoTasks);
+            List<ApplicationUser> members = await context.Users
+                .AsNoTracking()
+                .Where(u => memberIds.Contains(u.Id))
+                .OrderBy(u => u.LastName)
+                .ThenBy(u => u.FirstName)
+                .ToListAsync();
 
-            return [.. dtos];
+            List<AppUserDTO> dtos = [];
+
+            foreach (ApplicationUser member in members)
+            {
+                try
+                {
+                    AppUserDTO dto = await member.ToDTOWithRole(userManager);
+                    dtos.Add(dto);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(
+                        $"PM TeamMembers mapping failed for user: {member.Id} | {member.Email} | {member.FirstName} {member.LastName}");
+                    Console.WriteLine(ex.ToString());
+                    throw;
+                }
+            }
+
+            return dtos;
         }
         #endregion
     }

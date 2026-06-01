@@ -1,6 +1,5 @@
 ﻿//CompanyRepository.DashboardCharts.cs
 
-
 using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
@@ -21,7 +20,6 @@ namespace WonderDevTracker.Services.Repositories
                                                         ApplicationDbContext context,
                                                         int companyId)
         {
-
             return new DashboardChartDataDTO
             {
                 TicketsOverTimeChart = await GetTicketsOverTimeDataAsync(context, companyId),
@@ -30,6 +28,7 @@ namespace WonderDevTracker.Services.Repositories
                 ProjectsByPriority = await GetProjectsByPriorityDataAsync(context, companyId),
                 TicketsByProject = await GetTicketsByProjectDataAsync(context, companyId)
             };
+
         }
         #endregion
 
@@ -241,7 +240,7 @@ namespace WonderDevTracker.Services.Repositories
                 .Select(d => new DashboardEnumCountDTO<TEnum>
                 {
                     Value = d.Value,
-            Label = d.Value.HasValue
+                    Label = d.Value.HasValue
                 ? d.Value.Value.GetDisplayName()
                 : "Unspecified",
                     Count = d.Count
@@ -250,6 +249,6 @@ namespace WonderDevTracker.Services.Repositories
 
         #endregion
 
-      
+
     }
 }
