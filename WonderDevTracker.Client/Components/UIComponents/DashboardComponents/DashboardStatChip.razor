@@ -1,15 +1,16 @@
 ﻿@* DashboardStatChip *@
 
-<MudChip T=int Color="@Color" 
-	           Variant="@Variant" 
-			   Size="@Size" 
-			   Class="@Class">
+<MudChip T="int"
+		 Color="@Color"
+		 Variant="@Variant"
+		 Size="@Size"
+		 Class="@Class">
 	@StatValue
 </MudChip>
 
 @code {
 	[Parameter, EditorRequired]
-	public int StatValue { get; set; }	
+	public int StatValue { get; set; }
 
 	[Parameter]
 	public Color Color { get; set; } = Color.Primary;
@@ -18,8 +19,8 @@
 	public Variant Variant { get; set; } = Variant.Filled;
 
 	[Parameter]
-	public Size Size { get; set; } = Size.Large;
+	public Size Size { get; set; } = Size.Small;
 
 	[Parameter]
-	public string? Class { get; set; } = "mx-auto";
+	public string? Class { get; set; } = "dashboard-stat-chip";
 }

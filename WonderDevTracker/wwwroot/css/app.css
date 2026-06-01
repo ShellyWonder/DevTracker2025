@@ -507,6 +507,55 @@ h1, h2, h3, h4, h5, h6, button, nav {
 }
 /*#endregion Avatar initials*/
 
+/*#region Dashboard*/
+/*#region Dashboard stat card*/
+.dashboard-stat-card {
+    border-radius: 12px;
+    min-height: 76px;
+    overflow: hidden;
+}
+
+.dashboard-stat-card__content {
+    padding: 1rem 1.25rem;
+    min-height: 76px;
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-stat-card__main {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.dashboard-stat-card__icon {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-stat-card__title {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dashboard-stat-card__chip {
+    min-width: 42px;
+    height: 30px;
+    border-radius: 999px;
+    font-weight: 700;
+    justify-content: center;
+    margin-left: auto;
+}
+
+/*#endregion Dashboard stat card*/
+/*#endregion Dashboard*/
+
 /* #region Blazor default CSS */
 h1:focus {
     outline: none;

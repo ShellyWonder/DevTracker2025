@@ -1,33 +1,46 @@
 ﻿@* DashboardStatCard *@
 @inject NavigationManager NavManager
 
-<MudPaper Class="@Class" Elevation="0">
+<MudPaper Class="@($"dashboard-stat-card {Class}")" Elevation="1">
 	<AnimatedCard Index="Index" OnClick="NavigateToDetails" Class="h-100">
 
-		<MudCardHeader>
-			<CardHeaderContent>
+		<MudCardContent Class="dashboard-stat-card__content">
+			<MudStack Row="true"
+					  AlignItems="AlignItems.Center"
+					  Justify="Justify.SpaceBetween"
+					  Spacing="2"
+					  Class="w-100">
+
 				<MudStack Row="true"
 						  AlignItems="AlignItems.Center"
-						  Justify="Justify.SpaceBetween"
-						  Class="w-100">
+						  Spacing="2"
+						  Class="dashboard-stat-card__main">
+
+					@if (!string.IsNullOrWhiteSpace(Icon))
+					{
+						<div class="dashboard-stat-card__icon">
+							<MudIcon Icon="@Icon"
+									 Color="@Color"
+									 Size="@Size" />
+						</div>
+					}
 
 					<MudText Typo="@Typo"
 							 Color="@Color"
 							 Align="@Align"
-							 Class="@Class">
+							 Class="dashboard-stat-card__title">
 						@Title
 					</MudText>
 
-					@if (!string.IsNullOrWhiteSpace(Icon))
-					{
-						<MudIcon Icon="@Icon" Color="@Color" Size="@Size" />
-					}
 				</MudStack>
-			</CardHeaderContent>
-		</MudCardHeader>
-		<MudCardContent Class="d-flex justify-center">
-			<DashboardStatChip StatValue="@StatValue" />
+
+				<DashboardStatChip StatValue="@StatValue"
+								   Color="@Color"
+								   Class="dashboard-stat-card__chip" />
+
+			</MudStack>
 		</MudCardContent>
+
 	</AnimatedCard>
 </MudPaper>
 
@@ -54,13 +67,10 @@
 	public Typo Typo { get; set; } = Typo.h6;
 
 	[Parameter]
-	public Variant Variant { get; set; } = Variant.Filled;
-
-	[Parameter]
 	public Align Align { get; set; } = Align.Left;
 
 	[Parameter]
-	public string? Class { get; set; } = "pa-3 h-100";
+	public string? Class { get; set; } = "h-100";
 
 	[Parameter]
 	public Size Size { get; set; } = Size.Medium;
@@ -70,6 +80,5 @@
 		if (string.IsNullOrWhiteSpace(DetailsHref)) return;
 
 		NavManager.NavigateTo(DetailsHref);
-		
 	}
 }
