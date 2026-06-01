@@ -21,5 +21,8 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         public int UnassignedTicketCount { get; set; }
 
         public int MemberCount { get; set; }
+
+        public List<AppUserDTO> Members { get; set; } = [];
+        public bool Archived { get; set; } = false;
     }
 }
