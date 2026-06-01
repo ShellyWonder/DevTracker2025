@@ -90,27 +90,62 @@ namespace WonderDevTracker.Client.Models.Enums
 
         // Method to get hex color code(ApexCharts-required) for charting purposes
         public static string GetChartColorHex<TEnum>(this TEnum value)
-                                             where TEnum : struct, Enum
+                                                    where TEnum : struct, Enum
         {
-            return value switch
+            Type enumType = typeof(TEnum);
+
+            if (enumType == typeof(TicketStatus))
             {
-                TicketStatus.New => "#1EC8A5",
-                TicketStatus.InDevelopment => "#5D81C9",
-                TicketStatus.InTesting => "#FF993B",
-                TicketStatus.Resolved => "#90BE6D",
+                var status = (TicketStatus)(object)value;
 
-                TicketPriority.Low => "#1EC8A5",
-                TicketPriority.Medium => "#5D81C9",
-                TicketPriority.High => "#FF993B",
-                TicketPriority.Urgent => "#E63946",
+                return status switch
+                {
+                    TicketStatus.New => "#1EC8A5",
+                    TicketStatus.InDevelopment => "#5D81C9",
+                    TicketStatus.InTesting => "#FF993B",
+                    TicketStatus.Resolved => "#90BE6D",
+                    _ => "#0077B6"
+                };
+            }
 
-                ProjectPriority.Low => "#1EC8A5",
-                ProjectPriority.Medium => "#5D81C9",
-                ProjectPriority.High => "#FF993B",
-                ProjectPriority.Urgent => "#E63946", 
+            if (enumType == typeof(TicketPriority))
+            {
+                var priority = (TicketPriority)(object)value;
 
-                _ => "#0077B6"
-            };
+                return priority switch
+                {
+                    TicketPriority.Low => "#1EC8A5",
+                    TicketPriority.Medium => "#5D81C9",
+                    TicketPriority.High => "#FF993B",
+                    TicketPriority.Urgent => "#E63946",
+                    _ => "#0077B6"
+                };
+            }
+
+            if (enumType == typeof(ProjectPriority))
+            {
+                var priority = (ProjectPriority)(object)value;
+
+                return priority switch
+                {
+                    ProjectPriority.Low => "#1EC8A5",
+                    ProjectPriority.Medium => "#5D81C9",
+                    ProjectPriority.High => "#FF993B",
+                    ProjectPriority.Urgent => "#E63946",
+                    _ => "#0077B6"
+                };
+            }
+
+            return "#0077B6";
+        }
+
+        // Overload for nullable enums, returning a default gray color if null
+        public static string GetChartColorHex<TEnum>(this TEnum? value)
+                                                        where TEnum : struct, Enum
+        {
+            return value.HasValue
+                ? value.Value.GetChartColorHex()
+                : "#DDE6EC";
         }
     }
 

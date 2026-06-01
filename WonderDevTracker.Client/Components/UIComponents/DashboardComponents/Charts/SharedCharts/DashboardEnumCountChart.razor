@@ -42,10 +42,8 @@
 	private ApexChartOptions<DashboardEnumCountDTO<TEnum>> Options => new()
 	{
 		Colors = Items
-		   .Select(item => item.Value.HasValue
-			   ? item.Value.Value.GetChartColorHex()
-			   : "#DDE6EC")
-		   .ToList(),
+				.Select(item => item.Value.GetChartColorHex())
+				.ToList(),
 
 		PlotOptions = new PlotOptions
 		{
