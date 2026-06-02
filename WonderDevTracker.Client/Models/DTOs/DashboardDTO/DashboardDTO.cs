@@ -26,6 +26,11 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         public SubmitterDashboardStatsDTO SubmitterStats { get; set; } = new();
         #endregion
 
+        #region Dashboard Projects
+        [Description("List of projects to display on the dashboard.")]
+        public List<DashboardProjectSummaryDTO> RecentProjects { get; set; } = [];
+        #endregion
+
         #region Dashboard Ticket Lists for tables
         [Description("List of recent active tickets on the dashboard.")]
         public List<DashboardTicketSummaryDTO> RecentActiveTickets { get; set; } = [];
