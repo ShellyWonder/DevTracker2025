@@ -7,33 +7,29 @@
 else
 {
 	<MudStack Spacing="4">
-	@* PM-scoped stats *@
+		@* PM-scoped stats *@
 		<DashboardStatGrid Stats="Stats" />
 
-	@* PM-scoped charts *@
+		@* PM-scoped charts *@
 		<ProjectManagerChartsGrid Dashboard="Dashboard" />
 
-	@* Assigned projects *@
-		
-	@* Project team activity *@
+		@* Assigned projects *@
+		<DashboardProjectActivity Projects="Dashboard.ManagedProjects" />
+		@* Project team activity *@
 		<DashboardTeamPanel Members="Dashboard.TeamMembers"
 							Title="My Project Teams"
-							CanManageMembers="true"/>
-	@* Unassigned tickets for projects assigned to PM *@
+							CanManageMembers="true" />
+		@* Unassigned tickets for projects assigned to PM *@
+		<DashboardRecentTickets UnassignedTickets="Dashboard.UnassignedTickets" />
 
-	@* Assigned/resolved ticket movement *@
+	</MudStack>
 
-</MudStack>
-	
 }
 
 @code {
 
 	[Parameter, EditorRequired]
 	public PMDashboardDTO Dashboard { get; set; } = default!;
-
-	[Parameter]
-	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
 
 	private IReadOnlyList<DashboardStatItemViewModel> Stats =>
 		DashboardStatFactory.BuildStats(Dashboard);

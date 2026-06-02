@@ -1,70 +1,67 @@
 ﻿@* DashboardProjectActivity *@
 
-	<MudPaper Class="pa-4 mb-4"
-			  Elevation="0"
-			  rounded="true">
+<MudPaper Class="pa-4 mb-4"
+		  Elevation="0">
+
+	<MudStack Row="true"
+			  AlignItems="AlignItems.Center"
+			  Justify="Justify.SpaceBetween"
+			  Class="mb-3">
 
 		<MudStack Row="true"
 				  AlignItems="AlignItems.Center"
-				  Justify="Justify.SpaceBetween"
-				  Class="mb-3">
+				  Spacing="2">
 
-			<MudStack Row="true"
-					  AlignItems="AlignItems.Center"
-					  Spacing="2">
+			<MudIcon Icon="@Icons.Material.Filled.FolderOpen"
+					 Color="Color.Primary" />
 
-				<MudIcon Icon="@Icons.Material.Filled.FolderOpen"
-						 Color="Color.Primary" />
-
-				<MudText Typo="Typo.h2" Color="Color.Primary">Recent Active Projects</MudText>
-			</MudStack>
-
-			<MudStack Row="true"
-					  AlignItems="AlignItems.Center"
-					  Spacing="2">
-
-				@if (HasMoreThanCollapsedCount)
-				{
-					<ExpandCollapseToggle @bind-IsExpanded="_expanded" />
-				}
-
-			</MudStack>
+			<MudText Typo="Typo.h2" Color="Color.Primary">Recent Active Projects</MudText>
 		</MudStack>
 
+		<MudStack Row="true"
+				  AlignItems="AlignItems.Center"
+				  Spacing="2">
 
-		@if (!_activeProjects.Any())
-		{
-			<NotFoundDisplay Message="No active projects found." />
-		}
-		else
-		{
-			<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
-				@foreach (var item in VisibleProjectsWithIndex)
-				{
-					<div class="col mb-2">
-						<ProjectCard Project="@item.Project"
-									 Index="@item.Index" />
-					</div>
-				}
-			</div>
-		}
+			@if (HasMoreThanCollapsedCount)
+			{
+				<ExpandCollapseToggle @bind-IsExpanded="_expanded" />
+			}
+
+		</MudStack>
+	</MudStack>
 
 
-	</MudPaper>
+	@if (!_activeProjects.Any())
+	{
+		<NotFoundDisplay Message="No active projects found." />
+	}
+	else
+	{
+		<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+			@foreach (var item in VisibleProjectsWithIndex)
+			{
+				<div class="col mb-2">
+					<DashboardProjectSummaryCard Project="@item.Project"
+								 Index="@item.Index" />
+				</div>
+			}
+		</div>
+	}
+
+
+</MudPaper>
 
 
 @code {
 	[Parameter, EditorRequired]
-	public IReadOnlyList<ProjectDTO> Projects { get; set; } = [];
-
-	
+	public IReadOnlyList<DashboardProjectSummaryDTO> Projects { get; set; } = [];
 
 	[Parameter]
 	public int CollapsedCount { get; set; } = 3;
 
 	private bool _expanded;
 
-	private IReadOnlyList<ProjectDTO> _activeProjects = [];
+	private IReadOnlyList<DashboardProjectSummaryDTO> _activeProjects = [];
 
 	protected override void OnParametersSet()
 	{
@@ -75,17 +72,17 @@
 	}
 
 
-	private IEnumerable<ProjectDTO> VisibleProjects =>
+	private IEnumerable<DashboardProjectSummaryDTO> VisibleProjects =>
 		_expanded
 			? _activeProjects
 			: _activeProjects.Take(CollapsedCount);
 	private IEnumerable<ProjectWithIndex> VisibleProjectsWithIndex =>
-			VisibleProjects
-				.Select((project, index) => new ProjectWithIndex(project, index));
+	VisibleProjects
+		.Select((project, index) => new ProjectWithIndex(project, index));
 
 	private bool HasMoreThanCollapsedCount =>
 							   _activeProjects.Count > CollapsedCount;
 
-	private sealed record ProjectWithIndex(ProjectDTO Project, int Index);
+	private sealed record ProjectWithIndex(DashboardProjectSummaryDTO Project, int Index);
 
 }

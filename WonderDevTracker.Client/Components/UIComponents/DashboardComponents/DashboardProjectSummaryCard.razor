@@ -1,0 +1,94 @@
+﻿@* DashboardProjectSummaryCard.razor *@
+
+@inject NavigationManager NavManager
+
+@if (Project is not null)
+{
+    <AnimatedCard Index="Index" OnClick="NavigateToDetails">
+
+        <MudCardHeader>
+            <CardHeaderContent>
+
+                <SafeNavLink Typo="Typo.h5"
+                             Href="@($"projects/{Project.Id}")"
+                             Valid="@(Project.Id > 0)"
+                             Class="d-block">
+                    @Project.Name
+                </SafeNavLink>
+
+                <ProjectDates StartDate="Project.StartDate"
+                              EndDate="Project.EndDate" />
+
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            @if (Project.MemberCount == 0)
+            {
+                <NotFoundDisplay Message="No project members assigned" />
+            }
+            else if (Project.Members is null || Project.Members.Count == 0)
+            {
+                <NotFoundDisplay Message="Project members unavailable" />
+            }
+            else
+            {
+                <div class="h-100 d-flex align-items-center justify-content-center">
+                    <div class="project-card-avatar-stack">
+                        @foreach (AppUserDTO member in VisibleMembers)
+                        {
+                            <UserAvatarComponent ImageUrl="@member.ImageUrl"
+                                                 Initials="@member.Initials"
+                                                 FullName="@member.FullName"
+                                                 AltText="@member.FullName"
+                                                 Size="Size.Medium"
+                                                 Class="project-card-member-avatar"
+                                                 Featured="true" />
+                        }
+
+                        @if (HiddenMemberCount > 0)
+                        {
+                            <MudAvatar Size="Size.Medium"
+                                       Class="project-card-member-avatar project-card-extra-avatar"
+                                       Color="Color.Secondary">
+                                +@HiddenMemberCount
+                            </MudAvatar>
+                        }
+                    </div>
+                </div>
+            }
+        </MudCardContent>
+
+        <MudCardActions>
+            <ProjectPriorityChip Priority="Project.Priority" />
+
+            <LinksBtn Text="Details"
+                      Href="@($"/projects/{Project.Id}")"
+                      Disabled="@(Project.Id <= 0)" />
+        </MudCardActions>
+
+    </AnimatedCard>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public DashboardProjectSummaryDTO? Project { get; set; }
+
+    [Parameter]
+    public int Index { get; set; }
+
+    private const int MaxVisibleMembers = 5;
+
+    private IEnumerable<AppUserDTO> VisibleMembers =>
+        Project?.Members?.Take(MaxVisibleMembers) ?? Enumerable.Empty<AppUserDTO>();
+
+    private int HiddenMemberCount =>
+        Math.Max((Project?.MemberCount ?? 0) - (Project?.Members?.Count ?? 0), 0);
+
+    private void NavigateToDetails()
+    {
+        if (Project is null || Project.Id <= 0) return;
+
+        NavManager.NavigateTo($"/projects/{Project.Id}");
+    }
+}
