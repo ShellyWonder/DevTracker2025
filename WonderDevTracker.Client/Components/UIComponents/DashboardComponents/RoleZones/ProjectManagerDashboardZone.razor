@@ -20,7 +20,10 @@ else
 							Title="My Project Teams"
 							CanManageMembers="true" />
 		@* Unassigned tickets for projects assigned to PM *@
-		<DashboardRecentTickets UnassignedTickets="Dashboard.UnassignedTickets" />
+		<DashboardRecentTickets UnassignedTickets="Dashboard.UnassignedTickets"
+								AllowAssignment="true" 
+								Mode="DashboardRecentTicketsMode.SingleUnassigned"
+								Title="Unassigned Tickets"/>
 
 	</MudStack>
 

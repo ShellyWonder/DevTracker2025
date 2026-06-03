@@ -16,7 +16,7 @@
 					 Color="Color.Primary"
 					 Size="Size.Large" />
 
-			<MudText Typo="Typo.h2" Color="Color.Primary">Recent Ticket Activity</MudText>
+			<MudText Typo="Typo.h2" Color="Color.Primary">@Title</MudText>
 
 		</MudStack>
 		<MudStack Row="true"
@@ -29,28 +29,46 @@
 
 	@if (_expanded)
 	{
-		<MudTabs Rounded="true" Elevation="0">
-			<MudTabPanel Text="Active">
-				<DashboardRecentTicketsTable Tickets="@ActiveTickets" />
-			</MudTabPanel>
 
-			<MudTabPanel Text="Resolved">
-				<DashboardRecentTicketsTable Tickets="@ResolvedTickets"
-											 AllowAssignment="false" />
-			</MudTabPanel>
-
-			@if (UnassignedTickets?.Any() == true)
-			{
-				<MudTabPanel Text="Unassigned">
-					<DashboardRecentTicketsTable Tickets="@UnassignedTickets"
-												 UnassignedTickets="true" />
+		if (IsSingleTab)
+		{
+			<DashboardRecentTicketsTable Tickets="@UnassignedTickets"
+										 UnassignedTickets="true"
+										 AllowAssignment="@AllowAssignment" />
+		}
+		else
+		{
+			<MudTabs Rounded="true" Elevation="0">
+				<MudTabPanel Text="Active">
+					<DashboardRecentTicketsTable Tickets="@ActiveTickets" />
 				</MudTabPanel>
-			}
-		</MudTabs>
+
+				<MudTabPanel Text="Resolved">
+					<DashboardRecentTicketsTable Tickets="@ResolvedTickets"
+												 AllowAssignment="false" />
+				</MudTabPanel>
+
+				@if (UnassignedTickets?.Any() == true)
+				{
+					<MudTabPanel Text="Unassigned">
+						<DashboardRecentTicketsTable Tickets="@UnassignedTickets"
+													 UnassignedTickets="true" />
+					</MudTabPanel>
+				}
+			</MudTabs>
+
+		}
 	}
 </MudPaper>
 
 @code {
+
+	[Parameter]
+	public string Title { get; set; } = "Recent Ticket Activity";
+
+	[Parameter]
+	public DashboardRecentTicketsMode Mode { get; set; } = DashboardRecentTicketsMode.Tabs;
+
 	[Parameter]
 	public IReadOnlyList<DashboardTicketSummaryDTO> ActiveTickets { get; set; } = [];
 
@@ -61,7 +79,13 @@
 	public IReadOnlyList<DashboardTicketSummaryDTO> UnassignedTickets { get; set; } = [];
 
 	[Parameter]
+	public bool AllowAssignment { get; set; } = true;
+
+	[Parameter]
 	public int Index { get; set; }
+
+
+	private bool IsSingleTab => Mode == DashboardRecentTicketsMode.SingleUnassigned;
 
 	private bool _expanded = true;
 }
