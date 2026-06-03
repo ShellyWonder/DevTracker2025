@@ -1,8 +1,7 @@
 ﻿@* DashboardRecentTickets *@
 
 <MudPaper Class="pa-4 mb-4"
-		  Elevation="3"
-		  rounded="true">
+		  Elevation="3">
 	<MudStack Row="true"
 			  AlignItems="AlignItems.Center"
 			  Justify="Justify.SpaceBetween"
@@ -27,38 +26,37 @@
 		</MudStack>
 	</MudStack>
 
-	@if (_expanded)
+	
+	@if (IsSingleTab)
 	{
-
-		if (IsSingleTab)
-		{
-			<DashboardRecentTicketsTable Tickets="@UnassignedTickets"
-										 UnassignedTickets="true"
-										 AllowAssignment="@AllowAssignment" />
-		}
-		else
-		{
-			<MudTabs Rounded="true" Elevation="0">
-				<MudTabPanel Text="Active">
-					<DashboardRecentTicketsTable Tickets="@ActiveTickets" />
-				</MudTabPanel>
-
-				<MudTabPanel Text="Resolved">
-					<DashboardRecentTicketsTable Tickets="@ResolvedTickets"
-												 AllowAssignment="false" />
-				</MudTabPanel>
-
-				@if (UnassignedTickets?.Any() == true)
-				{
-					<MudTabPanel Text="Unassigned">
-						<DashboardRecentTicketsTable Tickets="@UnassignedTickets"
-													 UnassignedTickets="true" />
-					</MudTabPanel>
-				}
-			</MudTabs>
-
-		}
+		<DashboardRecentTicketsTable Tickets="VisibleUnassignedTickets"
+									 UnassignedTickets="true"
+									 AllowAssignment="@AllowAssignment" />
 	}
+	else
+	{
+		<MudTabs Rounded="true" Elevation="0">
+			<MudTabPanel Text="Active">
+				<DashboardRecentTicketsTable Tickets="VisibleActiveTickets" />
+			</MudTabPanel>
+
+			<MudTabPanel Text="Resolved">
+				<DashboardRecentTicketsTable Tickets="VisibleResolvedTickets"
+											 AllowAssignment="false" />
+			</MudTabPanel>
+
+			@if (UnassignedTickets?.Any() == true)
+			{
+				<MudTabPanel Text="Unassigned">
+					<DashboardRecentTicketsTable Tickets="VisibleUnassignedTickets"
+												 UnassignedTickets="true"
+												 AllowAssignment="@AllowAssignment" />
+				</MudTabPanel>
+			}
+		</MudTabs>
+
+	}
+
 </MudPaper>
 
 @code {
@@ -82,10 +80,26 @@
 	public bool AllowAssignment { get; set; } = true;
 
 	[Parameter]
+	public int PreviewCount { get; set; } = 3;
+
+	[Parameter]
 	public int Index { get; set; }
 
+	private IReadOnlyList<DashboardTicketSummaryDTO> VisibleActiveTickets =>
+	_expanded
+		? ActiveTickets
+		: ActiveTickets.Take(PreviewCount).ToList();
 
+	private IReadOnlyList<DashboardTicketSummaryDTO> VisibleResolvedTickets =>
+		_expanded
+			? ResolvedTickets
+			: ResolvedTickets.Take(PreviewCount).ToList();
+
+	private IReadOnlyList<DashboardTicketSummaryDTO> VisibleUnassignedTickets =>
+		_expanded
+			? UnassignedTickets
+			: UnassignedTickets.Take(PreviewCount).ToList();
 	private bool IsSingleTab => Mode == DashboardRecentTicketsMode.SingleUnassigned;
 
-	private bool _expanded = true;
+	private bool _expanded = false;
 }
