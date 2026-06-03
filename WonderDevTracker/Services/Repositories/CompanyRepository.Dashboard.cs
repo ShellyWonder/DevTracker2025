@@ -144,12 +144,15 @@ namespace WonderDevTracker.Services.Repositories
 
         private static IQueryable<Ticket> GetRecentUnassignedTicketsQuery(IQueryable<Ticket> tickets)
         {
-            return tickets.Where(t => t.Status != TicketStatus.Resolved
-                                      && string.IsNullOrWhiteSpace(t.DeveloperUserId));
+            return tickets.Where(t => t.DeveloperUserId == null)
+                .Where(t => t.Status != TicketStatus.Resolved)
+                .Where(t => !t.Archived)
+                .Where(t => !t.Project!.Archived);
         }
         #endregion
 
         #region Role-Specific Dashboard Aggregation Methods
+
         #region PM Dashboard
         private static async Task<PMDashboardDTO> GetPMDashboardDataAsync(ApplicationDbContext context,
                                                                           int companyId, string userId,
@@ -172,6 +175,7 @@ namespace WonderDevTracker.Services.Repositories
         {
             return await pmTickets
                         .Where(t => string.IsNullOrWhiteSpace(t.DeveloperUserId))
+                        .Where(t => t.Status != TicketStatus.Resolved)
                         .OrderByDescending(t => t.Updated ?? t.Created)
                         .Select(t => new DashboardTicketSummaryDTO
                         {
