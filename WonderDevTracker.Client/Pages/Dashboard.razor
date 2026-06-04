@@ -20,7 +20,7 @@
 	{
 		<LoadingSpinner Message="Loading dashboard details..." Color="Color.Primary" Size="Size.Large" />
 	}
-	else if (_data is null || UserInfo is null || CurrentUser is null)
+	else if (IsEmpty)
 	{
 		<PageTitle>Dashboard Details Not Found | Dev Tracker</PageTitle>
 
@@ -66,10 +66,7 @@
 			{
 				<!-- Project Manager-specific content -->
 				<AnimatedBlock Index="1">
-					<ProjectManagerDashboardZone Dashboard="_data"
-												 Projects="_recentProjects"
-												 Tickets="_recentTickets"
-												 Members="_members" />
+					<ProjectManagerDashboardZone Dashboard="_data?.PMDashboard" />
 				</AnimatedBlock>
 			}
 			else if (UserIsInRole(Role.Developer))
@@ -90,13 +87,29 @@
 			-->
 			<!-- My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
 			<AnimatedBlock Index="2">
-				<DashboardSubmittedTicketsTable Tickets="_data.MySubmittedTickets"
-												AllowAssignment="@ActionsPermissions.CanManageMembers" />
+				<DashboardExpandableSection Title="My Submitted Tickets"
+											Icon="@Icons.Material.Filled.Outbox"
+											StartsExpanded="false">
+					<ChildContent Context="isExpanded">
+						<DashboardSubmittedTicketsTable Tickets="_data?.MySubmittedTickets ?? []"
+														AllowAssignment="@ActionsPermissions.CanManageMembers"
+														IsExpanded="@isExpanded"
+														PreviewCount="3" />
+					</ChildContent>
+				</DashboardExpandableSection>
 			</AnimatedBlock>
 			<!-- Notification content ~ list of notifications for the user, with links to related tickets or projects-->
-			<NotificationCard Notifications="Notifications"
-							  Index="3"
-							  OnNotificationsChanged="RefreshNotificationsAsync" />
+			<DashboardExpandableSection Title="My Notifications"
+										Icon="@Icons.Material.Filled.Notifications"
+										StartsExpanded="false">
+				<ChildContent Context="isExpanded">
+					<NotificationCard Notifications="Notifications"
+									  IsExpanded="@isExpanded"
+									  PreviewCount="3"
+									  Index="3"
+									  OnNotificationsChanged="RefreshNotificationsAsync" />
+				</ChildContent>
+			</DashboardExpandableSection>
 		</div>
 	}
 </MudContainer>

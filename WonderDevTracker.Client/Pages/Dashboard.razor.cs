@@ -33,15 +33,9 @@ namespace WonderDevTracker.Client.Pages
         private void ResetIndex() => IndexTracker.Reset();
         private string UserName => UserInfo?.FullName ?? "User";
         private string? CompanyName => _data?.CompanyInfo?.CompanyName;
+        private bool IsEmpty => _data is null || UserInfo is null || CurrentUser is null;
 
-        private Role DashboardRole =>
-                IsAdmin
-                    ? Role.Admin
-                    : IsProjectManager
-                        ? Role.ProjectManager
-                        : UserIsInRole(Role.Developer)
-                            ? Role.Developer
-                            : Role.Submitter;
+       
 
         private string DashboardRoleLabel =>
             IsAdmin
