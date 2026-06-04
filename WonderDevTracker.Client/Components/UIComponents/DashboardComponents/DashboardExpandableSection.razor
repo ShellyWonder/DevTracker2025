@@ -1,0 +1,45 @@
+﻿@* DashboardExpandableSection.razor *@
+
+<MudPaper Class="dashboard-section pa-5 mb-4" Elevation="2">
+    <div class="d-flex align-center justify-space-between mb-3">
+        <div class="d-flex align-center gap-3">
+            @if (!string.IsNullOrWhiteSpace(Icon))
+            {
+                <MudIcon Icon="@Icon" Color="Color.Primary" Size="Size.Large" />
+            }
+
+            <MudText Typo="Typo.h2" Color="Color.Primary">
+                @Title
+            </MudText>
+        </div>
+
+        <ExpandCollapseToggle @bind-IsExpanded="IsExpanded"
+                              ExpandText="Show All"
+                              CollapseText="Show Less" />
+    </div>
+
+    @ChildContent(IsExpanded)
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Icon { get; set; }
+
+    [Parameter]
+    public bool StartsExpanded { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment<bool> ChildContent { get; set; } = default!;
+
+    private bool IsExpanded { get; set; }
+
+    protected override void OnInitialized()
+    {
+        IsExpanded = StartsExpanded;
+    }
+
+   
+}

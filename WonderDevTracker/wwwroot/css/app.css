@@ -508,6 +508,11 @@ h1, h2, h3, h4, h5, h6, button, nav {
 /*#endregion Avatar initials*/
 
 /*#region Dashboard*/
+.dashboard-section {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
 /*#region Dashboard stat card*/
 .dashboard-stat-card {
     border-radius: 12px;

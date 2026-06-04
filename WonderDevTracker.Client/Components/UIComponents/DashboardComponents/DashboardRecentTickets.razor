@@ -1,68 +1,39 @@
 ﻿@* DashboardRecentTickets *@
 
-<MudPaper Class="pa-4 mb-4"
-		  Elevation="3">
-	<MudStack Row="true"
-			  AlignItems="AlignItems.Center"
-			  Justify="Justify.SpaceBetween"
-			  Class="mb-3">
+@if (IsSingleTab)
+{
+	<DashboardRecentTicketsTable Tickets="VisibleUnassignedTickets"
+								 UnassignedTickets="true"
+								 AllowAssignment="@AllowAssignment" />
+}
+else
+{
+	<MudTabs Rounded="true" Elevation="0">
+		<MudTabPanel Text="Active">
+			<DashboardRecentTicketsTable Tickets="VisibleActiveTickets" />
+		</MudTabPanel>
 
-		<MudStack Row="true"
-				  AlignItems="AlignItems.Center"
-				  Spacing="2">
+		<MudTabPanel Text="Resolved">
+			<DashboardRecentTicketsTable Tickets="VisibleResolvedTickets"
+										 AllowAssignment="false" />
+		</MudTabPanel>
 
-			<MudIcon Icon="@Icons.Material.Filled.ConfirmationNumber"
-					 Color="Color.Primary"
-					 Size="Size.Large" />
-
-			<MudText Typo="Typo.h2" Color="Color.Primary">@Title</MudText>
-
-		</MudStack>
-		<MudStack Row="true"
-				  AlignItems="AlignItems.Center"
-				  Spacing="2">
-
-			<ExpandCollapseToggle @bind-IsExpanded="_expanded" />
-		</MudStack>
-	</MudStack>
-
-	
-	@if (IsSingleTab)
-	{
-		<DashboardRecentTicketsTable Tickets="VisibleUnassignedTickets"
-									 UnassignedTickets="true"
-									 AllowAssignment="@AllowAssignment" />
-	}
-	else
-	{
-		<MudTabs Rounded="true" Elevation="0">
-			<MudTabPanel Text="Active">
-				<DashboardRecentTicketsTable Tickets="VisibleActiveTickets" />
+		@if (UnassignedTickets?.Any() == true)
+		{
+			<MudTabPanel Text="Unassigned">
+				<DashboardRecentTicketsTable Tickets="VisibleUnassignedTickets"
+											 UnassignedTickets="true"
+											 AllowAssignment="@AllowAssignment" />
 			</MudTabPanel>
+		}
+	</MudTabs>
 
-			<MudTabPanel Text="Resolved">
-				<DashboardRecentTicketsTable Tickets="VisibleResolvedTickets"
-											 AllowAssignment="false" />
-			</MudTabPanel>
-
-			@if (UnassignedTickets?.Any() == true)
-			{
-				<MudTabPanel Text="Unassigned">
-					<DashboardRecentTicketsTable Tickets="VisibleUnassignedTickets"
-												 UnassignedTickets="true"
-												 AllowAssignment="@AllowAssignment" />
-				</MudTabPanel>
-			}
-		</MudTabs>
-
-	}
-
-</MudPaper>
+}
 
 @code {
 
 	[Parameter]
-	public string Title { get; set; } = "Recent Ticket Activity";
+	public bool IsExpanded { get; set; }
 
 	[Parameter]
 	public DashboardRecentTicketsMode Mode { get; set; } = DashboardRecentTicketsMode.Tabs;
@@ -82,24 +53,20 @@
 	[Parameter]
 	public int PreviewCount { get; set; } = 3;
 
-	[Parameter]
-	public int Index { get; set; }
-
 	private IReadOnlyList<DashboardTicketSummaryDTO> VisibleActiveTickets =>
-	_expanded
-		? ActiveTickets
-		: ActiveTickets.Take(PreviewCount).ToList();
+    IsExpanded
+			? ActiveTickets
+			: ActiveTickets.Take(PreviewCount).ToList();
 
 	private IReadOnlyList<DashboardTicketSummaryDTO> VisibleResolvedTickets =>
-		_expanded
+	IsExpanded
 			? ResolvedTickets
 			: ResolvedTickets.Take(PreviewCount).ToList();
 
 	private IReadOnlyList<DashboardTicketSummaryDTO> VisibleUnassignedTickets =>
-		_expanded
+		IsExpanded
 			? UnassignedTickets
 			: UnassignedTickets.Take(PreviewCount).ToList();
 	private bool IsSingleTab => Mode == DashboardRecentTicketsMode.SingleUnassigned;
 
-	private bool _expanded = false;
 }
