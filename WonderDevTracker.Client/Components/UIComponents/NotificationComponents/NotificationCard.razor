@@ -14,9 +14,11 @@ and provide a consistent layout and styling for the notifications section of the
 		}
 		else
 		{
-			<MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-
-		<MudTabPanel Text="Active Notifications">
+			<MudTabs Elevation="0" 
+				Rounded="true" 
+				ApplyEffectsToContainer="true" 
+				PanelClass="pa-2 pt-2">
+					<MudTabPanel Text="Active Notifications">
 			<NotificationTable Notifications="@VisibleActiveNotifications"
 							   Index="@Index"
 							   OnMarkViewed="HandleMarkViewedAsync"
@@ -24,7 +26,7 @@ and provide a consistent layout and styling for the notifications section of the
 							   OnMarkAllViewed="HandleMarkAllViewedAsync" />
 		</MudTabPanel>
 
-		<MudTabPanel Text="Dismissed Notifications">
+					<MudTabPanel Text="Dismissed Notifications">
 			<NotificationTable Notifications="@VisibleDismissedNotifications"
 							   Index="@Index"
 							   OnMarkViewed="HandleMarkViewedAsync"
