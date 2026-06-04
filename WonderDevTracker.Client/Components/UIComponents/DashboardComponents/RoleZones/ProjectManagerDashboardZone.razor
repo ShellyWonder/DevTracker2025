@@ -20,10 +20,17 @@ else
 							Title="My Project Teams"
 							CanManageMembers="true" />
 		@* Unassigned tickets for projects assigned to PM *@
-		<DashboardRecentTickets UnassignedTickets="Dashboard.UnassignedTickets"
-								AllowAssignment="true" 
-								Mode="DashboardRecentTicketsMode.SingleUnassigned"
-								Title="Unassigned Tickets"/>
+		<DashboardExpandableSection Title="Unassigned Tickets"
+									Icon="@Icons.Material.Filled.ConfirmationNumber"
+									StartsExpanded="false">
+			<ChildContent Context="isExpanded">
+				<DashboardRecentTickets Mode="DashboardRecentTicketsMode.SingleUnassigned"
+										UnassignedTickets="@Dashboard.UnassignedTickets"
+										IsExpanded="@isExpanded"
+										PreviewCount="3"
+										AllowAssignment="true" />
+			</ChildContent>
+		</DashboardExpandableSection>
 
 	</MudStack>
 
