@@ -96,7 +96,7 @@ namespace WonderDevTracker.Services
            return await notificationRepository.GetUnreadCountAsync(userInfo.UserId);
         }
 
-        public async Task MarkViewedAsync(int notificationId, string recipientId)
+        public async Task MarkReadAsync(int notificationId, string recipientId)
         {
             await notificationRepository.MarkViewedAsync(notificationId, recipientId);
         }
@@ -112,9 +112,15 @@ namespace WonderDevTracker.Services
         }
 
         //Bulk process to mark all notifications as viewed for the current user
-        public async Task MarkAllViewedAsync(UserInfo userInfo)
+        public async Task MarkAllReadAsync(UserInfo userInfo)
         {
-            await notificationRepository.MarkAllViewedAsync(userInfo.UserId);
+            await notificationRepository.MarkAllReadAsync(userInfo.UserId);
+        }
+
+    
+        public async Task MarkUnreadAsync(int notificationId, string currentUserId)
+        {
+            await notificationRepository.MarkUnreadAsync(notificationId, currentUserId);
         }
     }
 }

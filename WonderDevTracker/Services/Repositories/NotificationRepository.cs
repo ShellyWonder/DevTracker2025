@@ -61,18 +61,13 @@ namespace WonderDevTracker.Services.Repositories
         }
 
         public async Task MarkViewedAsync(int notificationId, string recipientId)
-        {
-            await using var db = await context.CreateDbContextAsync();
-            var notification = await db.Notifications
-                .FirstOrDefaultAsync(n => n.Id == notificationId && n.RecipientId == recipientId) 
-                                     ?? throw new UnauthorizedAccessException(
-                                      "Notification does not exist or does not belong to the current user.");
-            notification.HasBeenViewed = true;
+            => await SetNotificationViewedStateAsync(notificationId, recipientId, viewed: true);
 
-            await db.SaveChangesAsync();
-        }
+        public async Task MarkUnreadAsync(int notificationId, string recipientId)
+            => await SetNotificationViewedStateAsync(notificationId, recipientId, viewed: false);
+
         //Bulk operation to mark all notifications as viewed for a recipient
-        public async Task MarkAllViewedAsync(string recipientId)
+        public async Task MarkAllReadAsync(string recipientId)
         {
             await using var db = await context.CreateDbContextAsync();
             await db.Notifications
@@ -133,6 +128,30 @@ namespace WonderDevTracker.Services.Repositories
             await db.SaveChangesAsync();
         }
 
+        private async Task SetNotificationViewedStateAsync(int notificationId,
+                                                   string recipientId,
+                                                   bool viewed)
+        {
+            await using var db = await context.CreateDbContextAsync();
+
+            var notification = await db.Notifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId &&
+                                          n.RecipientId == recipientId)
+                ?? throw new UnauthorizedAccessException(
+                    "Notification does not exist or does not belong to the current user.");
+
+            if (notification.HasBeenViewed == viewed)
+            {
+                throw new InvalidOperationException(
+                    viewed
+                        ? "Notification is already marked as read."
+                        : "Notification is already marked as unread.");
+            }
+
+            notification.HasBeenViewed = viewed;
+
+            await db.SaveChangesAsync();
+        }
         #endregion
     }
 }
