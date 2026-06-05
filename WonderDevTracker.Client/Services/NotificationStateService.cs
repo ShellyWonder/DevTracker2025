@@ -18,7 +18,7 @@ namespace WonderDevTracker.Client.Services
 
         public async Task MarkAllViewedAsync(UserInfo userInfo)
         {
-            await notificationService.MarkAllViewedAsync(userInfo);
+            await notificationService.MarkAllReadAsync(userInfo);
 
             UnreadCount = 0;
             NotifyStateChanged();

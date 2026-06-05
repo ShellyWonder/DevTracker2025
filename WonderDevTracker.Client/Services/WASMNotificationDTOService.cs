@@ -110,21 +110,21 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public async Task MarkViewedAsync(int notificationId, string currentUserId)
+        public async Task MarkReadAsync(int notificationId, string currentUserId)
         {
             try
             {
                 // currentUserId not used — server derives user from auth context
-                var response = await http.PutAsync($"api/notifications/{notificationId}/viewed", null);
+                var response = await http.PutAsync($"api/notifications/{notificationId}/read", null);
                 if(!response.IsSuccessStatusCode)             
-                    throw new Exception($"Failed to mark notification {notificationId} as viewed. Status: {response.StatusCode}");
+                    throw new Exception($"Failed to mark notification {notificationId} as read. Status: {response.StatusCode}");
                 
             }
 
             catch (Exception ex)
             {
 
-                Console.WriteLine($"Error marking notification {notificationId} as viewed: {ex.Message}");
+                Console.WriteLine($"Error marking notification {notificationId} as read: {ex.Message}");
             }
         }
 
@@ -143,17 +143,33 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public async Task MarkAllViewedAsync(UserInfo userInfo)
+        public async Task MarkAllReadAsync(UserInfo userInfo)
         {
             try
             {
-                var response = await http.PutAsync("api/notifications/mark-all-viewed", null);
+                var response = await http.PutAsync("api/notifications/mark-all-read", null);
                 if(!response.IsSuccessStatusCode)
-                    throw new Exception($"Failed to mark all notifications as viewed. Status: {response.StatusCode}");
+                    throw new Exception($"Failed to mark all notifications as read. Status: {response.StatusCode}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error marking all notifications as viewed: {ex.Message}");
+                Console.WriteLine($"Error marking all notifications as read: {ex.Message}");
+            }
+        }
+
+        public async Task MarkUnreadAsync(int notificationId, string currentUserId)
+        {
+            try
+            {
+                var response = await http.PutAsync($"api/notifications/{notificationId}/unread", null);
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Failed to mark notification {notificationId} as unread. Status: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"Error marking notification {notificationId} as unread: {ex.Message}");
+               
             }
         }
     }

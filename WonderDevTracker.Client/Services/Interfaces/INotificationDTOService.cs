@@ -42,26 +42,34 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <summary>
         /// Marks the specified notification as viewed by the given user asynchronously.
         /// </summary>
-        /// <param name="currentUserId">The unique identifier of the notification to mark as viewed.</param>
-        /// <param name="recipentId">The user for whom the notification is being marked as viewed. Cannot be null.</param>
+        /// <param name="currentUserId">The unique identifier of the notification to mark as read.</param>
+        /// <param name="recipentId">The user for whom the notification is being marked as read. Cannot be null.</param>
         /// <remarks>A task that represents the asynchronous operation.</remarks>
-        public Task MarkViewedAsync(int notificationId, string currentUserId);
+        public Task MarkReadAsync(int notificationId, string currentUserId);
 
         /// <summary>
-        /// Mark All User Notifications As Viewed
+        /// Mark All User Notifications As Read
         /// </summary>
-        /// <remarks>Marks all relevant items(bulk process) as viewed for the specified user.
+        /// <remarks>Marks all relevant items(bulk process) as read for the specified user.
         /// Performs I/O-bound work and updates persisted state; exceptions from the underlying
         /// data store may be propagated to the caller.</remarks>
-        /// <param name="userInfo">The user whose items will be marked as viewed.</param>
+        /// <param name="userInfo">The user whose items will be marked as read.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task MarkAllViewedAsync(UserInfo userInfo);
+        Task MarkAllReadAsync(UserInfo userInfo);
+
+        /// <summary>
+        /// Marks the specified notification as unread by the given user asynchronously.
+        /// </summary>
+        /// <param name="notificationId">The unique identifier of the notification to mark as unread.</param>
+        /// <param name="currentUserId">The identifier of the user for whom the notification is being marked as unread. Cannot be null or empty.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task MarkUnreadAsync(int notificationId, string currentUserId);
 
         /// <summary>
         /// Archive Notification
         /// </summary>
         /// <param name="notificationId">Notification id to archive.</param>
-        /// <param name="recipientId">Recipient id for whom the notification will be archived. Cannot be null or empty.</param>
+        /// <param name="currentUserId">Recipient id for whom the notification will be archived. Cannot be null or empty.</param>
         /// <remarks> Asynchronously archives(soft delete) a notification for a specified recipient. May be restored by the recepient or company admin.</remarks>
         public Task ArchiveNotificationAsync(int notificationId, string currentUserId, bool isAdmin);
 
@@ -69,7 +77,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// Restore Archived Notification
         /// </summary>
         /// <param name="notificationId">Id of the notification to restore.</param>
-        /// <param name="recipientId">Recipient id for whom the notification will be restored. Cannot be null or empty.</param>
+        /// <param name="currentUserId">Recipient id for whom the notification will be restored. Cannot be null or empty.</param>
         /// <remarks>Restores a previously archived(soft delete) notification for the specified recipient asynchronously.</remarks>
         public Task RestoreNotificationAsync(int notificationId, string currentUserId, bool isAdmin);
 
