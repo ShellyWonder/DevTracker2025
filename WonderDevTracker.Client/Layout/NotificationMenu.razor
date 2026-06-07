@@ -42,7 +42,7 @@
 
 			<MudMenuItem Disabled="true">
 				<div class="py-5 text-center">
-					<MudText Typo="Typo.button" Color="Color.Warning">You're all caught up!</MudText>
+					<MudText Typo="Typo.button" Color="Color.Secondary">No new notifications- You're all caught up!</MudText>
 				</div>
 			</MudMenuItem>
 
@@ -65,9 +65,11 @@
 								@notification.Title
 							</MudText>
 						</div>
-						<MudText Typo="Typo.body2" Class="notification-message">
-							@GetPreviewText(notification.Message)
-						</MudText>
+						<div class="notification-menu-message-wrapper">
+							<TruncatedTooltipText Text="@notification.Message"
+												  Typo="Typo.body2"
+												  Placement="Placement.Left" />
+						</div>
 						<MudText Typo="Typo.caption" Class="notification-timestamp">
 							@DateTimeHelper.FormatTimestamp(notification.Created)
 						</MudText>
@@ -86,13 +88,14 @@
 
 @code {
 
-	#region Local state variables
+	#region STATE
 
 	private const int Take = 5;
 	private bool IsLoading = true;
 	private List<NotificationDTO> Notifications = [];
 	#endregion
 
+	#region LIFECYCLE
 	protected override async Task OnInitializedWithAuthAsync()
 	{
 		if (!IsAuthenticated || UserInfo is null)
@@ -100,7 +103,9 @@
 		NotificationState.OnChange += StateHasChanged;
 		await LoadMenuAsync();
 	}
+	#endregion
 
+	#region PRIVATE METHODS
 	private async Task LoadMenuAsync()
 	{
 		IsLoading = true;
@@ -116,12 +121,11 @@
 			IsLoading = false;
 		}
 	}
-
 	private async Task OpenNotificationAsync(NotificationDTO notification)
 	{
 		if (!notification.HasBeenViewed)
 		{
-			await NotificationService.MarkViewedAsync(notification.Id, UserInfo!.UserId);
+			await NotificationService.MarkReadAsync(notification.Id, UserInfo!.UserId);
 			notification.HasBeenViewed = true;
 
 			await NotificationState.RefreshUnreadCountAsync(UserInfo);
@@ -130,15 +134,7 @@
 		NavManager.NavigateTo(GetNotificationTarget(notification));
 	}
 
-	private void GoToNotificationCenter()
-	=> NavManager.NavigateTo("/dashboard");
-
-
-	private static string GetPreviewText(string? text, int maxLength = 70)
-	{
-		if (string.IsNullOrWhiteSpace(text)) return string.Empty;
-		return text.Length <= maxLength ? text : $"{text[..maxLength]}...";
-	}
+	private void GoToNotificationCenter()	=> NavManager.NavigateTo("/dashboard");
 
 	private static string GetNotificationTarget(NotificationDTO notification)
 	{
@@ -150,11 +146,9 @@
 
 		return "/dashboard";
 	}
+	#endregion
 
-	public void Dispose()
-	{
-		NotificationState.OnChange -= StateHasChanged;
-	}
-		
+	public void Dispose() => NotificationState.OnChange -= StateHasChanged;
+			
 }
 

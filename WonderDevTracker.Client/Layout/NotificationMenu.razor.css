@@ -1,4 +1,10 @@
 ﻿/*NotificationMenu.razor.css*/
+.notification-menu-message-wrapper {
+    max-width: 360px;
+    min-width: 0;
+    overflow: hidden;
+}
+
 .notification-menu-item {
     display: flex;
     flex-direction: column;
@@ -19,12 +25,6 @@
     line-height: 1.2;
 }
 
-.notification-message {
-    line-height: 1.35;
-    white-space: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
 .notification-timestamp {
     opacity: 0.75;
@@ -49,3 +49,5 @@
 .notification-menu-item.unread {
     opacity: 1;
 }
+
+

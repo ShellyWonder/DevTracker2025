@@ -1,12 +1,22 @@
 ﻿.dt-truncated-tooltip-wrapper {
     display: block;
+    width: 100%;
     min-width: 0;
     max-width: 100%;
     overflow: hidden;
 }
 
+    .dt-truncated-tooltip-wrapper ::deep .mud-tooltip-root {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
     .dt-truncated-tooltip-wrapper ::deep .dt-truncated-tooltip-text {
         display: block;
+        width: 100%;
         min-width: 0;
         max-width: 100%;
         overflow: hidden;

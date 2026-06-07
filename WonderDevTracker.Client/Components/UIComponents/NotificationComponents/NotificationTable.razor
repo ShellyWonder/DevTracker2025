@@ -30,6 +30,7 @@
 				<MudChip T="string"
 						 Color="@GetViewedChipColor(context.Item)"
 						 Variant="Variant.Filled"
+						 Style="text-transform: uppercase"
 						 Size="Size.Medium">
 					@GetViewedChipLabel(context.Item)
 				</MudChip>
@@ -60,15 +61,13 @@
 				</MudText>
 			</CellTemplate>
 		</PropertyColumn>
+
 		<PropertyColumn Property="n => n.Message">
-			<CellTemplate>
-				<MudText Class="text-truncate" Style="max-width: 600px;">
-					@context.Item.Message
-				</MudText>
+			<CellTemplate Context="messageCell">
+				<TruncatedTooltipText Text="@messageCell.Item.Message" />
 			</CellTemplate>
 		</PropertyColumn>
 
-		
 		<TemplateColumn Title="Actions">
 			<CellTemplate>
 				@{
