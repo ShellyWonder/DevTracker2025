@@ -3,18 +3,18 @@
 @if (!IsArchived)
 {
 	<MudToolBar>
-		<MudSwitch T="bool" 
-			@bind-Value="_unreadOnly"
-			Color="Color.Error"
-			Label="Unread Only" />
-	<MudSpacer />
-	<MudButton Color="Color.Warning"
-			   Variant="Variant.Text"
-			   StartIcon="@Icons.Material.Filled.DoneAll"
-			   Disabled="@(!Notifications.Any(n => !n.HasBeenViewed))"
-			   OnClick="OnMarkAllReadRequested">
-		Mark all as Read
-	</MudButton>
+		<MudSwitch T="bool"
+				   @bind-Value="_unreadOnly"
+				   Color="Color.Error"
+				   Label="Unread Only" />
+		<MudSpacer />
+		<MudButton Color="Color.Tertiary"
+				   Variant="Variant.Text"
+				   Style="font-weight: bold;"
+				   Disabled="@(!Notifications.Any(n => !n.HasBeenViewed))"
+				   OnClick="OnMarkAllReadRequested">
+			Mark all as Read
+		</MudButton>
 	</MudToolBar>
 }
 <MudDataGrid Items="FilteredNotifications"
@@ -25,16 +25,16 @@
 			 Hideable
 			 RowsPerPage="10">
 	<Columns>
-		<TemplateColumn  Title="Status">
+		<TemplateColumn Title="Status">
 			<CellTemplate>
 				<MudChip T="string"
 						 Color="@GetViewedChipColor(context.Item)"
 						 Variant="Variant.Filled"
-						 Size="Size.Small">
+						 Size="Size.Medium">
 					@GetViewedChipLabel(context.Item)
 				</MudChip>
 			</CellTemplate>
-		</TemplateColumn> 
+		</TemplateColumn>
 
 		@* enum company/ticket/project *@
 		<PropertyColumn Property="n => n.Type">
@@ -55,7 +55,7 @@
 
 		<PropertyColumn Property="n => n.Title">
 			<CellTemplate>
-             <MudText Typo="Typo.body2" Color="Color.Dark">
+				<MudText Typo="Typo.body2" Color="Color.Dark">
 					@context.Item.Title
 				</MudText>
 			</CellTemplate>
@@ -67,9 +67,9 @@
 				</MudText>
 			</CellTemplate>
 		</PropertyColumn>
-		
 
-		<TemplateColumn Title="Actions" >
+		
+		<TemplateColumn Title="Actions">
 			<CellTemplate>
 				@{
 					var notification = context.Item;
@@ -85,7 +85,7 @@
 										   OnRestoreRequested="@OnRestoreRequested" />
 			</CellTemplate>
 		</TemplateColumn>
-		
+
 	</Columns>
 	<PagerContent>
 		<MudDataGridPager />
@@ -144,9 +144,9 @@
 	}
 
 	private static Color GetViewedChipColor(NotificationDTO notification) =>
-	notification.HasBeenViewed ? Color.Default : Color.Error;
+	notification.HasBeenViewed ? Color.Tertiary : Color.Error;
 
 	private static string GetViewedChipLabel(NotificationDTO notification) =>
-	notification.HasBeenViewed ? "Viewed" : "Unread";
+	notification.HasBeenViewed ? "Read" : "Unread";
 	#endregion
 }
