@@ -1,0 +1,104 @@
+﻿@* NotificationActionButtons.razor *@
+
+<MudStack Row="true"
+		  Spacing="1"
+		  AlignItems="AlignItems.Center"
+		  Class="notification-actions">
+
+	<MudButton Variant="Variant.Text"
+			   Size="Size.Small"
+			   Color="Color.Default"
+			   Disabled="@(!CanShowSource || Busy)"
+			   OnClick="HandleShowSourceAsync">
+		View
+	</MudButton>
+
+	@if (!IsArchived)
+	{
+		@if (Notification.HasBeenViewed)
+		{
+			<MudButton Variant="Variant.Text"
+					   Size="Size.Small"
+					   Color="Color.Default"
+					   Disabled="Busy"
+					   OnClick="HandleMarkUnreadAsync">
+				| Mark unread |
+			</MudButton>
+		}
+		else
+		{
+			<MudButton Variant="Variant.Text"
+					   Size="Size.Small"
+					   Color="Color.Primary"
+					   Disabled="Busy"
+					   OnClick="HandleMarkReadAsync">
+				|  Mark read    |
+			</MudButton>
+		}
+
+		<MudButton Variant="Variant.Text"
+				   Size="Size.Small"
+				   Color="Color.Default"
+				   Disabled="Busy"
+				   OnClick="HandleDismissAsync">
+			Dismiss
+		</MudButton>
+	}
+	else
+	{
+		<MudButton Variant="Variant.Text"
+				   Size="Size.Small"
+				   Color="Color.Success"
+				   Disabled="Busy"
+				   OnClick="HandleRestoreAsync">
+			Restore
+		</MudButton>
+	}
+
+</MudStack>
+
+@code {
+	[Parameter, EditorRequired]
+	public NotificationDTO Notification { get; set; } = default!;
+
+	[Parameter]
+	public bool IsArchived { get; set; }
+
+	[Parameter]
+	public bool Busy { get; set; }
+
+	[Parameter]
+	public string? SourceUrl { get; set; }
+
+	[Parameter]
+	public EventCallback<NotificationDTO> OnShowSourceRequested { get; set; }
+
+	[Parameter]
+	public EventCallback<int> OnMarkReadRequested { get; set; }
+
+	[Parameter]
+	public EventCallback<int> OnMarkUnreadRequested { get; set; }
+
+	[Parameter]
+	public EventCallback<int> OnDismissRequested { get; set; }
+
+	[Parameter]
+	public EventCallback<int> OnRestoreRequested { get; set; }
+
+	private bool CanShowSource => !string.IsNullOrWhiteSpace(SourceUrl);
+
+	private Task HandleShowSourceAsync() =>
+		 OnShowSourceRequested.InvokeAsync(Notification);
+	
+	private Task HandleMarkReadAsync() =>
+		OnMarkReadRequested.InvokeAsync(Notification.Id);
+
+	private Task HandleMarkUnreadAsync() =>
+		OnMarkUnreadRequested.InvokeAsync(Notification.Id);
+
+	private Task HandleDismissAsync() =>
+			 OnDismissRequested.InvokeAsync(Notification.Id);
+
+	private Task HandleRestoreAsync() =>
+		OnRestoreRequested.InvokeAsync(Notification.Id);
+}

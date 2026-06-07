@@ -12,7 +12,7 @@
 			   Variant="Variant.Text"
 			   StartIcon="@Icons.Material.Filled.DoneAll"
 			   Disabled="@(!Notifications.Any(n => !n.HasBeenViewed))"
-			   OnClick="OnMarkAllViewed">
+			   OnClick="OnMarkAllReadRequested">
 		Mark all as Read
 	</MudButton>
 	</MudToolBar>
@@ -44,7 +44,7 @@
 		</PropertyColumn>
 		<TemplateColumn Title="Date"
 						Sortable="true"
-						SortBy="n => n.ArchivedAt ?? n.Created">
+						SortBy="n => n.ArchivedAt.GetValueOrDefault(n.Created)">
 
 			<CellTemplate Context="notification">
 				<TimestampComponent PrimaryTimestamp="@notification.Item.ArchivedAt"
@@ -75,33 +75,14 @@
 					var notification = context.Item;
 					var link = GetNotificationLink(notification);
 				}
-				@if (link is not null)
-				{
-					<SafeNavButton Href="@link"
-								   Color="Color.Primary"
-								   Variant="Variant.Text"
-								   OnClick="@(() => OnMarkViewed.InvokeAsync(notification.Id))">
-						View Source
-					</SafeNavButton>
-				}
-				@if (!IsArchived)
-				{
-					<MudIconButton Icon="@Icons.Material.Filled.Archive"
-								   Color="Color.Default"
-								   title="Dismiss"
-								   ariaLabel="Dismiss notification"
-								   OnClick="@(() => OnArchived.InvokeAsync(notification.Id))" />
-								   
-				}
-				else
-				{
-					<MudIconButton Icon="@Icons.Material.Filled.Restore"
-								   Color="Color.Success"
-								   title="Restore"
-								   ariaLabel="Restore notification"
-								   OnClick="@(() => OnRestored.InvokeAsync(notification.Id))" />
-								   
-				}
+				<NotificationActionButtons Notification="@notification"
+										   IsArchived="@IsArchived"
+										   SourceUrl="@link"
+										   OnShowSourceRequested="@OnShowSourceRequested"
+										   OnMarkReadRequested="@OnMarkReadRequested"
+										   OnMarkUnreadRequested="@OnMarkUnreadRequested"
+										   OnDismissRequested="@OnDismissRequested"
+										   OnRestoreRequested="@OnRestoreRequested" />
 			</CellTemplate>
 		</TemplateColumn>
 		
@@ -126,16 +107,22 @@
 	public bool IsArchived { get; set; }
 
 	[Parameter]
-	public EventCallback<int> OnMarkViewed { get; set; }
+	public EventCallback<NotificationDTO> OnShowSourceRequested { get; set; }
 
 	[Parameter]
-	public EventCallback<int> OnArchived { get; set; }
+	public EventCallback<int> OnMarkReadRequested { get; set; }
 
 	[Parameter]
-	public EventCallback<int> OnRestored { get; set; }
+	public EventCallback<int> OnMarkUnreadRequested { get; set; }
 
 	[Parameter]
-	public EventCallback OnMarkAllViewed { get; set; }
+	public EventCallback<int> OnDismissRequested { get; set; }
+
+	[Parameter]
+	public EventCallback<int> OnRestoreRequested { get; set; }
+
+	[Parameter]
+	public EventCallback OnMarkAllReadRequested { get; set; }
 	#endregion
 
 	#region PRIVATE FIELDS
