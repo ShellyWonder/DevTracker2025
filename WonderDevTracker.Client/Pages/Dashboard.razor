@@ -104,7 +104,9 @@
 										StartsExpanded="false">
 				<ChildContent Context="isExpanded">
 					<NotificationCard Notifications="Notifications"
+									  DismissedNotifications="@DismissedNotifications"
 									  IsExpanded="@isExpanded"
+									  OnOpen="HandleOpenNotificationAsync"
 									  PreviewCount="3"
 									  Index="3"
 									  OnNotificationsChanged="RefreshNotificationsAsync" />

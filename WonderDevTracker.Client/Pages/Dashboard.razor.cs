@@ -5,17 +5,16 @@ using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Models.ViewModels;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace WonderDevTracker.Client.Pages
 {
     public partial class Dashboard : AuthenticatedComponentBase
     {
-        #region PARAMETERS
-        [Parameter]
-        public List<NotificationDTO> Notifications { get; set; } = new();
+        private List<NotificationDTO> Notifications { get; set; } = new();
 
-        #endregion
+        private List<NotificationDTO> DismissedNotifications { get; set; } = [];
 
         #region STATE
         private DashboardDTO? _data;
@@ -34,8 +33,6 @@ namespace WonderDevTracker.Client.Pages
         private string UserName => UserInfo?.FullName ?? "User";
         private string? CompanyName => _data?.CompanyInfo?.CompanyName;
         private bool IsEmpty => _data is null || UserInfo is null || CurrentUser is null;
-
-       
 
         private string DashboardRoleLabel =>
             IsAdmin
@@ -73,9 +70,11 @@ namespace WonderDevTracker.Client.Pages
 
                 _data = await CompanyService.GetDashboardDataAsync(UserInfo);
                 Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo.UserId);
+                DismissedNotifications = await NotificationService.GetArchivedForCurrentUserAsync(UserInfo.UserId);
+
                 await NotificationState.RefreshUnreadCountAsync(UserInfo);
 
-                _projects = (await ProjectService.GetAllProjectsAsync(UserInfo)).ToList();
+                _projects = [.. (await ProjectService.GetAllProjectsAsync(UserInfo))];
                 _tickets = (await TicketService.GetOpenTicketsAsync(UserInfo)).ToList();
                 _members = (await CompanyService.GetUsersAsync(UserInfo)).ToList();
 
@@ -117,8 +116,28 @@ namespace WonderDevTracker.Client.Pages
         #region EVENT HANDLERS
         private async Task RefreshNotificationsAsync()
         {
+            if (UserInfo is null) return;
+
             Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo!.UserId);
+            DismissedNotifications = await NotificationService.GetArchivedForCurrentUserAsync(UserInfo.UserId);
             await NotificationState.RefreshUnreadCountAsync(UserInfo);
+        }
+
+        private Task HandleOpenNotificationAsync(NotificationDTO notification)
+        {
+            if (notification.TicketId is not null)
+            {
+                NavManager.NavigateTo($"/tickets/{notification.TicketId}");
+                return Task.CompletedTask;
+            }
+
+            if (notification.ProjectId is not null)
+            {
+                NavManager.NavigateTo($"/projects/{notification.ProjectId}");
+                return Task.CompletedTask;
+            }
+
+            return Task.CompletedTask;
         }
         #endregion
 
