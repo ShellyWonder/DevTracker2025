@@ -1,0 +1,31 @@
+﻿@* TruncatedTooltipText *@
+
+<div class="dt-truncated-tooltip-wrapper">
+	<MudTooltip Text="@Text"
+				Placement="@Placement"
+				Arrow="true"
+				Disabled="@string.IsNullOrWhiteSpace(Text)">
+		<MudText Class="@TextClass" Typo="@Typo">
+			@Text
+		</MudText>
+	</MudTooltip>
+</div>
+
+@code {
+	[Parameter]
+	public string? Text { get; set; }
+
+	[Parameter]
+	public Placement Placement { get; set; } = Placement.Top;
+
+	[Parameter]
+	public string CssClass { get; set; } = "dt-truncated-tooltip-text";
+
+	[Parameter]
+	public Typo Typo { get; set; } 
+
+	private string TextClass =>
+		string.IsNullOrWhiteSpace(CssClass)
+			? "dt-truncated-tooltip-text"
+			: $"dt-truncated-tooltip-text {CssClass}";
+}
