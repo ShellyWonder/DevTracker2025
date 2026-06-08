@@ -111,12 +111,28 @@
 	{
 		if (!IsAuthenticated || UserInfo is null)
 			return;
-		NotificationState.OnChange += StateHasChanged;
+
+		NotificationState.OnChange += HandleNotificationStateChanged;
+
 		await LoadMenuAsync();
 	}
 	#endregion
 
 	#region EVENT HANDLERS
+	private void HandleNotificationStateChanged()
+	{
+		_ = InvokeAsync(async () =>
+		{
+			if (UserInfo is null)
+				return;
+
+			Notifications = await NotificationService
+				.GetForCurrentUserAsync(UserInfo.UserId, Take);
+
+			StateHasChanged();
+		});
+	}
+
 	private async Task LoadMenuAsync()
 	{
 		IsLoading = true;
@@ -186,8 +202,10 @@
 
 		await NotificationState.RefreshUnreadCountAsync(UserInfo);
 	}
+	#endregion
 
-	private void GoToNotificationCenter() => NavManager.NavigateTo("/dashboard");
+	#region NAVIGATION
+	private void GoToNotificationCenter() => NavManager.NavigateTo("/dashboard#notifications-table");
 
 	private static string GetNotificationTarget(NotificationDTO notification)
 	{
@@ -201,7 +219,7 @@
 	}
 	#endregion
 
-	public void Dispose() => NotificationState.OnChange -= StateHasChanged;
+	public void Dispose() => NotificationState.OnChange -= HandleNotificationStateChanged;
 
 }
 

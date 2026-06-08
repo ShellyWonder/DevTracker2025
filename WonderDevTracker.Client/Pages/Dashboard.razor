@@ -52,11 +52,27 @@
 								 CanViewInvites="@ActionsPermissions.CanViewInvites" />
 			</AnimatedBlock>
 
+			<!-- Notification content ~ list of notifications for the user, with links to related tickets or projects-->
+			<div id="notifications-table">
+				<DashboardExpandableSection Title="My Notifications"
+											Icon="@Icons.Material.Filled.Notifications"
+											StartsExpanded="false">
+					<ChildContent Context="isExpanded">
+						<NotificationCard Notifications="Notifications"
+										  DismissedNotifications="@DismissedNotifications"
+										  IsExpanded="@isExpanded"
+										  OnOpen="HandleOpenNotificationAsync"
+										  PreviewCount="3"
+										  Index="1"
+										  OnNotificationsChanged="RefreshNotificationsAsync" />
+					</ChildContent>
+				</DashboardExpandableSection>
+			</div>
 			<!-- Role-specific dashboard zones -->
 			@if (IsAdmin)
 			{
 				<!-- Admin-specific content -->
-				<AnimatedBlock Index="1">
+				<AnimatedBlock Index="2">
 					<AdminDashboardZone Dashboard="_data"
 										Projects="_recentProjects"
 										Members="_members" />
@@ -65,14 +81,14 @@
 			else if (IsProjectManager)
 			{
 				<!-- Project Manager-specific content -->
-				<AnimatedBlock Index="1">
+				<AnimatedBlock Index="2">
 					<ProjectManagerDashboardZone Dashboard="_data?.PMDashboard" />
 				</AnimatedBlock>
 			}
 			else if (UserIsInRole(Role.Developer))
 			{
 				<!-- Developer-specific content -->
-				<AnimatedBlock Index="1">
+				<AnimatedBlock Index="2">
 					<DeveloperDashboardZone Dashboard="_data" />
 				</AnimatedBlock>
 			}
@@ -86,7 +102,7 @@
 			relevant user content is shown without a dedicated dashboard zone.
 			-->
 			<!-- My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
-			<AnimatedBlock Index="2">
+			<AnimatedBlock Index="3">
 				<DashboardExpandableSection Title="My Submitted Tickets"
 											Icon="@Icons.Material.Filled.Outbox"
 											StartsExpanded="false">
@@ -98,20 +114,7 @@
 					</ChildContent>
 				</DashboardExpandableSection>
 			</AnimatedBlock>
-			<!-- Notification content ~ list of notifications for the user, with links to related tickets or projects-->
-			<DashboardExpandableSection Title="My Notifications"
-										Icon="@Icons.Material.Filled.Notifications"
-										StartsExpanded="false">
-				<ChildContent Context="isExpanded">
-					<NotificationCard Notifications="Notifications"
-									  DismissedNotifications="@DismissedNotifications"
-									  IsExpanded="@isExpanded"
-									  OnOpen="HandleOpenNotificationAsync"
-									  PreviewCount="3"
-									  Index="3"
-									  OnNotificationsChanged="RefreshNotificationsAsync" />
-				</ChildContent>
-			</DashboardExpandableSection>
+
 		</div>
 	}
 </MudContainer>
