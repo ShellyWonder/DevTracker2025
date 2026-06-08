@@ -5,46 +5,55 @@
 		  AlignItems="AlignItems.Center"
 		  Class="notification-actions">
 
-	<MudButton Variant="Variant.Text"
-			   Size="Size.Small"
-			   Color="Color.Default"
-			   Disabled="@(!CanShowSource || Busy)"
-			   OnClick="HandleShowSourceAsync">
-		View
-	</MudButton>
-
+	@if (ShowView)
+	{
+		<MudButton Variant="Variant.Text"
+				   Size="Size.Small"
+				   Color="Color.Default"
+				   Disabled="@(!CanShowSource || Busy)"
+				   OnClick="HandleShowSourceAsync">
+			View
+		</MudButton>
+	}
 	@if (!IsArchived)
 	{
-		@if (Notification.HasBeenViewed)
+
+		@if (ShowMarkReadUnread)
+		{
+			@if (Notification.HasBeenViewed)
+			{
+				<MudButton Variant="Variant.Text"
+						   Size="Size.Small"
+						   Color="Color.Default"
+						   Disabled="Busy"
+						   OnClick="HandleMarkUnreadAsync">
+					Mark unread
+				</MudButton>
+			}
+			else
+			{
+				<MudButton Variant="Variant.Text"
+						   Size="Size.Small"
+						   Color="Color.Primary"
+						   Disabled="Busy"
+						   OnClick="HandleMarkReadAsync">
+					Mark read
+				</MudButton>
+			}
+		}
+
+		@if (ShowDismiss)
 		{
 			<MudButton Variant="Variant.Text"
 					   Size="Size.Small"
 					   Color="Color.Default"
 					   Disabled="Busy"
-					   OnClick="HandleMarkUnreadAsync">
-				| Mark unread |
+					   OnClick="HandleDismissAsync">
+				Dismiss
 			</MudButton>
 		}
-		else
-		{
-			<MudButton Variant="Variant.Text"
-					   Size="Size.Small"
-					   Color="Color.Primary"
-					   Disabled="Busy"
-					   OnClick="HandleMarkReadAsync">
-				|  Mark read    |
-			</MudButton>
-		}
-
-		<MudButton Variant="Variant.Text"
-				   Size="Size.Small"
-				   Color="Color.Default"
-				   Disabled="Busy"
-				   OnClick="HandleDismissAsync">
-			Dismiss
-		</MudButton>
 	}
-	else
+	else if (ShowRestore)
 	{
 		<MudButton Variant="Variant.Text"
 				   Size="Size.Small"
@@ -54,10 +63,11 @@
 			Restore
 		</MudButton>
 	}
-
 </MudStack>
 
 @code {
+
+	#region PARAMETERS
 	[Parameter, EditorRequired]
 	public NotificationDTO Notification { get; set; } = default!;
 
@@ -85,13 +95,29 @@
 	[Parameter]
 	public EventCallback<int> OnRestoreRequested { get; set; }
 
-	private bool CanShowSource => !string.IsNullOrWhiteSpace(SourceUrl);
+	[Parameter]
+	public bool ShowView { get; set; } = true;
 
+	[Parameter]
+	public bool ShowMarkReadUnread { get; set; } = true;
+
+	[Parameter]
+	public bool ShowDismiss { get; set; } = true;
+
+	[Parameter]
+	public bool ShowRestore { get; set; } = true;
+	#endregion
+
+	#region COMPUTED PROPERTIES
+	private bool CanShowSource => !string.IsNullOrWhiteSpace(SourceUrl);
+	#endregion
+
+	#region EVENT HANDLERS
 	private Task HandleShowSourceAsync() =>
 		 OnShowSourceRequested.InvokeAsync(Notification);
-	
+
 	private Task HandleMarkReadAsync() =>
-		OnMarkReadRequested.InvokeAsync(Notification.Id);
+			OnMarkReadRequested.InvokeAsync(Notification.Id);
 
 	private Task HandleMarkUnreadAsync() =>
 		OnMarkUnreadRequested.InvokeAsync(Notification.Id);
@@ -101,4 +127,5 @@
 
 	private Task HandleRestoreAsync() =>
 		OnRestoreRequested.InvokeAsync(Notification.Id);
+	#endregion
 }

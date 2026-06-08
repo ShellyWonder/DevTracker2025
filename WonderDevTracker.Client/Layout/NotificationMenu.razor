@@ -16,11 +16,11 @@
 		 TransformOrigin="Origin.TopRight"
 		 Size="Size.Small"
 		 Dense
-		 offsetY="true">
+		 OffsetY="true">
 
 	<ActivatorContent>
 		<MudBadge Content="@NotificationState.UnreadCount"
-		          Visible="@(NotificationState.UnreadCount > 0)"
+				  Visible="@(NotificationState.UnreadCount > 0)"
 				  Color="Color.Error"
 				  Overlap="true">
 			<MudIconButton Icon="@Icons.Material.Filled.Notifications"
@@ -42,7 +42,7 @@
 
 			<MudMenuItem Disabled="true">
 				<div class="py-5 text-center">
-					<MudText Typo="Typo.button" Color="Color.Secondary">No new notifications- You're all caught up!</MudText>
+					<MudText Typo="Typo.button" Color="Color.Primary">No new notifications- You're all caught up!</MudText>
 				</div>
 			</MudMenuItem>
 
@@ -51,29 +51,41 @@
 		{
 			@foreach (var notification in Notifications)
 			{
-
-				<MudMenuItem OnClick="() => OpenNotificationAsync(notification)">
+				<MudMenuItem>
 					<div class="notification-menu-item @(notification.HasBeenViewed ? "read" : "unread")">
+						<div class="notification-menu-click-target" @onclick="() => OpenNotificationAsync(notification)">
+							<div class="notification-menu-top-row">
+								@if (!notification.HasBeenViewed)
+								{
+									<span class="notification-unread-dot"></span>
+								}
 
-						<div class="notification-menu-top-row">
-							@if (!notification.HasBeenViewed)
-							{
-								<span class="notification-unread-dot"></span>
-							}
-
-							<MudText Typo="Typo.subtitle2" Class="notification-title">
-								@notification.Title
+								<MudText Typo="Typo.button" Color="Color.Primary" Class="notification-title">
+									@notification.Title
+								</MudText>
+							</div>
+							<div class="notification-menu-message-wrapper">
+								<TruncatedTooltipText Text="@notification.Message"
+													  Typo="Typo.body2"
+													  Placement="Placement.Left" />
+							</div>
+							<MudText Typo="Typo.caption" Color="Color.Dark" Class="notification-timestamp">
+								@DateTimeHelper.FormatTimestamp(notification.Created)
 							</MudText>
 						</div>
-						<div class="notification-menu-message-wrapper">
-							<TruncatedTooltipText Text="@notification.Message"
-												  Typo="Typo.body2"
-												  Placement="Placement.Left" />
-						</div>
-						<MudText Typo="Typo.caption" Class="notification-timestamp">
-							@DateTimeHelper.FormatTimestamp(notification.Created)
-						</MudText>
 					</div>
+
+					<div class="notification-menu-actions" @onclick:stopPropagation="true">
+						<NotificationActionButtons Notification="notification"
+												   Busy="IsLoading"
+												   SourceUrl="@GetNotificationTarget(notification)"
+												   ShowView="false"
+												   ShowRestore="false"
+												   OnMarkReadRequested="MarkReadFromMenuAsync"
+												   OnMarkUnreadRequested="MarkUnreadFromMenuAsync"
+												   OnDismissRequested="DismissFromMenuAsync" />
+					</div>
+
 				</MudMenuItem>
 			}
 
@@ -89,7 +101,6 @@
 @code {
 
 	#region STATE
-
 	private const int Take = 5;
 	private bool IsLoading = true;
 	private List<NotificationDTO> Notifications = [];
@@ -105,7 +116,7 @@
 	}
 	#endregion
 
-	#region PRIVATE METHODS
+	#region EVENT HANDLERS
 	private async Task LoadMenuAsync()
 	{
 		IsLoading = true;
@@ -133,8 +144,50 @@
 
 		NavManager.NavigateTo(GetNotificationTarget(notification));
 	}
+	private async Task MarkReadFromMenuAsync(int notificationId)
+	{
+		if (UserInfo is null)
+			return;
 
-	private void GoToNotificationCenter()	=> NavManager.NavigateTo("/dashboard");
+		await NotificationService.MarkReadAsync(notificationId, UserInfo.UserId);
+
+		var notification = Notifications.FirstOrDefault(n => n.Id == notificationId);
+		if (notification is not null)
+			notification.HasBeenViewed = true;
+
+		await NotificationState.RefreshUnreadCountAsync(UserInfo);
+	}
+
+	private async Task MarkUnreadFromMenuAsync(int notificationId)
+	{
+		if (UserInfo is null)
+			return;
+
+		await NotificationService.MarkUnreadAsync(notificationId, UserInfo.UserId);
+
+		var notification = Notifications.FirstOrDefault(n => n.Id == notificationId);
+		if (notification is not null)
+			notification.HasBeenViewed = false;
+
+		await NotificationState.RefreshUnreadCountAsync(UserInfo);
+	}
+
+	private async Task DismissFromMenuAsync(int notificationId)
+	{
+		if (UserInfo is null)
+			return;
+
+		await NotificationService.ArchiveNotificationAsync(
+			notificationId,
+			UserInfo.UserId,
+			IsAdmin);
+
+		Notifications.RemoveAll(n => n.Id == notificationId);
+
+		await NotificationState.RefreshUnreadCountAsync(UserInfo);
+	}
+
+	private void GoToNotificationCenter() => NavManager.NavigateTo("/dashboard");
 
 	private static string GetNotificationTarget(NotificationDTO notification)
 	{
@@ -149,6 +202,6 @@
 	#endregion
 
 	public void Dispose() => NotificationState.OnChange -= StateHasChanged;
-			
+
 }
 
