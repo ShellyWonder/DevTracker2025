@@ -40,14 +40,14 @@ public static class DashboardStatFactory
             Color = Color.Primary,
             DetailsHref = "/projects"
         },
-        new()
-        {
-            Title = "Total Tickets",
-            Value = stats.TotalTicketCount,
-            Icon = Icons.Material.Filled.ConfirmationNumber,
-            Color = Color.Secondary,
-            DetailsHref = "/tickets"
-        },
+        //new()
+        //{
+        //    Title = "Total Tickets",
+        //    Value = stats.TotalTicketCount,
+        //    Icon = Icons.Material.Filled.ConfirmationNumber,
+        //    Color = Color.Secondary,
+        //    DetailsHref = "/tickets"
+        //},
         new()
         {
             Title = "Open Tickets",
@@ -64,7 +64,8 @@ public static class DashboardStatFactory
             Color = Color.Success,
             DetailsHref = "/tickets/resolved"
         }
-    ];}
+    ];
+    }
 
     private static IReadOnlyList<DashboardStatItemViewModel> BuildPMStats(PMDashboardDTO dashboard)
     {
@@ -76,30 +77,34 @@ public static class DashboardStatFactory
             Title = "Managed Projects",
             Value = stats.ManagedProjectCount,
             Icon = Icons.Material.Filled.Folder,
-            Color = Color.Primary
+            Color = Color.Primary,
+            DetailsHref = "/projects/assigned"
         },
         new()
         {
             Title = "Project Tickets",
             Value = stats.ActiveManagedTicketCount,
             Icon = Icons.Material.Filled.ConfirmationNumber,
-            Color = Color.Secondary
+            Color = Color.Secondary,
+            DetailsHref = "/tickets/assigned"
         },
         new()
         {
             Title = "Open Tickets",
             Value = stats.OpenManagedTicketCount,
             Icon = Icons.Material.Filled.PendingActions,
-            Color = Color.Warning
+            Color = Color.Warning,
+            DetailsHref = "/tickets/open"
         },
         new()
         {
             Title = "Resolved Tickets",
             Value = stats.ResolvedManagedTicketCount,
             Icon = Icons.Material.Filled.CheckCircle,
-            Color = Color.Success
+            Color = Color.Success,
+            DetailsHref = "/tickets/resolved"
         }
-    ]; 
+    ];
     }
 
     private static IReadOnlyList<DashboardStatItemViewModel> BuildDevStats(DashboardDTO dashboard)
@@ -136,7 +141,7 @@ public static class DashboardStatFactory
     {
         var stats = dashboard.SubmitterStats;
 
-        return[
+        return [
             new()
         {
             Title = "Submitted Tickets",
@@ -158,7 +163,8 @@ public static class DashboardStatFactory
             Icon = Icons.Material.Filled.CheckCircle,
             Color = Color.Success
         }
-    ]; }
+    ];
+    }
 
     private static IReadOnlyList<DashboardStatItemViewModel> BuildDefaultStats(DashboardDTO dashboard)
     {
@@ -172,7 +178,8 @@ public static class DashboardStatFactory
             Icon = Icons.Material.Filled.QueryStats,
             Color = Color.Primary
         }
-    ]; }
+    ];
+    }
 }
 
-    
+
