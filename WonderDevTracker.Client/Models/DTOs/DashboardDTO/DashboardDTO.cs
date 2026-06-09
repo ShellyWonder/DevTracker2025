@@ -1,12 +1,12 @@
 ﻿//DashboardDTO
 using System.ComponentModel;
 
-
-
 namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
 {
-    //carries data for the dashboard page
-    
+
+    /// <summary>
+    /// DTO for the dashboard, containing all necessary data for rendering the dashboard view.
+    /// </summary>
     public class DashboardDTO
     {
         [Description("Basic info about the company, used for display and to determine what data to load.")]
@@ -16,11 +16,13 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         [Description("General stats for company dashboard, primarily for admin consumption.")]
         public CompanyDashboardStatsDTO CompanyStats { get; set; } = new();
 
+        #region Dashboards by role
         [Description("Dashboard data for project managers.")]
         public PMDashboardDTO PMDashboard { get; set; } = new();
 
-        [Description("Stats for developers on the dashboard.")]
-        public DevDashboardStatsDTO DevStats { get; set; } = new();
+        [Description("Dashboard data for developers.")]
+        public DeveloperDashboardDTO DevDashboard { get; set; } = new();
+        #endregion
 
         [Description("Stats for submitters on the dashboard.")]
         public SubmitterDashboardStatsDTO SubmitterStats { get; set; } = new();
