@@ -47,6 +47,21 @@ namespace WonderDevTracker.Services.Repositories
             };
         }
         #endregion
+        #region Developer Dashboard Chart Data
+        private static async Task<DashboardChartDataDTO> GetDeveloperDashboardChartDataAsync(
+                                                        IQueryable<Ticket> devTickets)
+        {
+            return new DashboardChartDataDTO
+            {
+                TicketsByStatus = await GetDeveloperTicketsByStatusDataAsync(devTickets),
+                TicketsByPriority = await GetDeveloperTicketsByPriorityDataAsync(devTickets),
+                ProjectsByPriority = [],
+                TicketsByProject = [],
+                TicketsOverTimeChart = new DashboardTicketsOverTimeChartDTO()
+            };
+        }
+        #endregion
+        #region Stats methods for PM and Dev dashboards 
         private static async Task<List<DashboardTicketsByProjectDTO>> GetTicketsByProjectDataAsync(IQueryable<Ticket> pmTickets)
         {
             return await pmTickets
@@ -84,6 +99,19 @@ namespace WonderDevTracker.Services.Repositories
             return await GetCountByCategoryAsync<TicketStatus>(
                         pmTickets.Select(t => (TicketStatus?)t.Status));
         }
+        private static async Task<List<DashboardEnumCountDTO<TicketStatus>>> GetDeveloperTicketsByStatusDataAsync(IQueryable<Ticket> devTickets)
+        {
+            List<DashboardEnumCountDTO<TicketStatus>> data = await GetCountByCategoryAsync<TicketStatus>(
+                        devTickets.Select(t => (TicketStatus?)t.Status));
+            return data;
+        }
+        private static async Task<List<DashboardEnumCountDTO<TicketPriority>>> GetDeveloperTicketsByPriorityDataAsync(IQueryable<Ticket> devTickets)
+        {
+            List<DashboardEnumCountDTO<TicketPriority>> data = await GetCountByCategoryAsync<TicketPriority>(
+                        devTickets.Select(t => (TicketPriority?)t.Priority));
+            return data;
+        }
+        #endregion
         #endregion
 
 

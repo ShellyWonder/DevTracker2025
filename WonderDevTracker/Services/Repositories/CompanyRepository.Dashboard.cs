@@ -22,8 +22,8 @@ namespace WonderDevTracker.Services.Repositories
         {
             await using var context = contextFactory.CreateDbContext();
 
-            //Primarily for admin dashboard consumption, so we will pull all company data.
-            //For user - specific dashboards, we will filter by user assignments in the query to pull only relevant data.
+
+            //For user - specific dashboards, filter by user assignments in the query to pull only relevant data.
             //For PM, Dev and Submitter queries, we are filtering out archived projects and tickets to focus on active work.
 
             IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, userInfo.CompanyId);
@@ -41,7 +41,7 @@ namespace WonderDevTracker.Services.Repositories
                 CompanyInfo = await GetCompanyInfoAsync(context, userInfo.CompanyId),
                 CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
                 PMDashboard = await GetPMDashboardDataAsync(context, userInfo.CompanyId, userInfo.UserId, userManager),
-                DevStats = await GetDeveloperDashboardStatsAsync(devProjects, devTickets),
+                DevDashboard = await GetDeveloperDashboardDataAsync(context, userInfo.CompanyId, userInfo.UserId),
                 SubmitterStats = await GetSubmitterDashboardStatsAsync(submitterTickets),
                 RecentActiveTickets = await GetRecentTicketSummariesAsync(
                                        GetRecentActiveTicketsQuery(adminCompanyTickets)),
@@ -107,11 +107,14 @@ namespace WonderDevTracker.Services.Repositories
         private static IQueryable<Ticket> GetDeveloperTicketsQuery(ApplicationDbContext context, int companyId, string userId)
         {
             return context.Tickets
-                .AsNoTracking()
-                .Where(t => t.Project!.CompanyId == companyId &&
-                !t.Archived &&
-                !t.Project!.Archived &&
-                t.DeveloperUserId == userId);
+                     .AsNoTracking()
+                     .Where(t =>
+                             t.Project != null &&
+                             t.Project.CompanyId == companyId &&
+                             !t.Archived &&
+                             !t.ArchivedByProject &&
+                             !t.Project.Archived &&
+                             t.DeveloperUserId == userId);
         }
 
         //For Submitter-specific stats
@@ -141,7 +144,6 @@ namespace WonderDevTracker.Services.Repositories
         {
             return tickets.Where(t => t.Status == TicketStatus.Resolved);
         }
-
         private static IQueryable<Ticket> GetRecentUnassignedTicketsQuery(IQueryable<Ticket> tickets)
         {
             return tickets.Where(t => t.DeveloperUserId == null)
@@ -313,7 +315,47 @@ namespace WonderDevTracker.Services.Repositories
 
         #endregion
         #region Developer Dashboard
+        private static async Task<DeveloperDashboardDTO> GetDeveloperDashboardDataAsync(
+                                                                    ApplicationDbContext context,
+                                                                    int companyId,
+                                                                    string userId)
+        {
+            var devTickets = GetDeveloperTicketsQuery(context, companyId, userId);
+            
 
+            return new DeveloperDashboardDTO
+            {
+                DevStats = await GetDeveloperDashboardStatsAsync(devTickets),
+                DevProjects = await GetProjectSummariesAsync(GetDeveloperProjectsQuery(context, companyId, userId)),
+                AssignedTickets = await GetDeveloperAssignedTicketSummariesAsync(devTickets),
+                DevChartData = await GetDeveloperDashboardChartDataAsync(devTickets)
+            };
+        }
+
+        private static async Task<List<DashboardTicketSummaryDTO>> GetDeveloperAssignedTicketSummariesAsync(
+    IQueryable<Ticket> devTickets,
+    int take = 10)
+        {
+            return await devTickets
+                .OrderBy(t => t.Status == TicketStatus.Resolved)
+                .ThenByDescending(t => t.Priority)
+                .ThenByDescending(t => t.Updated ?? t.Created)
+                .Take(take)
+                .Select(t => new DashboardTicketSummaryDTO
+                {
+                    Id = t.Id,
+                    Title = t.Title ?? "Untitled",
+                    ProjectId = t.ProjectId,
+                    ProjectName = t.Project != null ? t.Project.Name ?? "Unknown Project" : "Unknown Project",
+                    Type = t.Type,
+                    Priority = t.Priority,
+                    Status = t.Status,
+                    Created = t.Created,
+                    Updated = t.Updated,
+                   
+                })
+                .ToListAsync();
+        }
         #endregion
 
         #endregion
@@ -348,17 +390,18 @@ namespace WonderDevTracker.Services.Repositories
                                         .CountAsync(t => t.Status == TicketStatus.Resolved)
             };
         }
-        private static async Task<DevDashboardStatsDTO> GetDeveloperDashboardStatsAsync(
-                                                                IQueryable<Project> devProjects,
-                                                                IQueryable<Ticket> devTickets)
+        private static async Task<DevDashboardStatsDTO> GetDeveloperDashboardStatsAsync(IQueryable<Ticket> devTickets)
         {
             return new DevDashboardStatsDTO
             {
-                AssignedProjectsCount = await devProjects.CountAsync(),
                 AssignedTicketCount = await devTickets.CountAsync(),
                 OpenAssignedTicketCount = await devTickets
                     .CountAsync(t => t.Status != TicketStatus.Resolved),
-                ResolvedAssignedTicketCount = await devTickets
+                InProgressCount = await devTickets
+                    .CountAsync(t =>
+                        t.Status == TicketStatus.InDevelopment ||
+                        t.Status == TicketStatus.InTesting),
+                ResolvedCount = await devTickets
                     .CountAsync(t => t.Status == TicketStatus.Resolved)
             };
         }
