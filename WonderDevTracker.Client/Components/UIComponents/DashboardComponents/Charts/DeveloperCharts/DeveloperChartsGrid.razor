@@ -1,0 +1,27 @@
+﻿@* DeveloperChartsGrid.razor *@
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6">
+        <DashboardEnumCountChart TEnum="TicketStatus"
+                                 Items="@Dashboard.DevChartData.TicketsByStatus"
+                                 Title="Tickets by Status"
+                                 Subtitle="Current ticket distribution by status."
+                                 EmptyStateMessage="No ticket status data available yet."
+                                 SeriesName="Tickets" />
+    </MudItem>
+    
+
+    <MudItem xs="12" md="6">
+        <DashboardEnumCountChart TEnum="TicketPriority"
+								 Items="@Dashboard.DevChartData.TicketsByPriority"
+                                 Title="Tickets by Priority"
+                                 Subtitle="Current ticket distribution by priority."
+                                 EmptyStateMessage="No ticket priority data available yet."
+                                 SeriesName="Tickets" />
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter, EditorRequired]
+    public DeveloperDashboardDTO Dashboard { get; set; } = default!;
+}
