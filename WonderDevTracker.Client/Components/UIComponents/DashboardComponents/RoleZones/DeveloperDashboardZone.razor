@@ -8,7 +8,6 @@
 }
 else
 {
-	@*Add breakpoints*@
 	<MudStack Spacing="4">
 		<DashboardStatGrid Stats="Stats" />
 
@@ -17,14 +16,14 @@ else
 		@* Projects they are assigned to *@
 
 		@* Developer charts summary *@
-		<DeveloperChartsSummary Dashboard="Dashboard" />
+		<DeveloperChartsGrid Dashboard="Dashboard" />
 	</MudStack>
 
 }
 
 @code {
 	[Parameter, EditorRequired]
-	public DashboardDTO Dashboard { get; set; } = default!;
+	public DeveloperDashboardDTO Dashboard { get; set; } = default!;
 
 	[Parameter]
 	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
@@ -32,7 +31,7 @@ else
 	[Parameter]
 	public IEnumerable<ProjectDTO> Projects { get; set; } = [];
 
-	private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Developer);
+	private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard);
 
 	
 }

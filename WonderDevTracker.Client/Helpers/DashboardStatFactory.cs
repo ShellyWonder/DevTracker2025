@@ -15,15 +15,21 @@ public static class DashboardStatFactory
         {
             Role.Admin => BuildCompanyStats(dashboard),
             Role.ProjectManager => BuildPMStats(dashboard.PMDashboard),
-            Role.Developer => BuildDevStats(dashboard),
+            Role.Developer => BuildDevStats(dashboard.DevDashboard),
             Role.Submitter => BuildSubmitterStats(dashboard),
             _ => BuildDefaultStats(dashboard)
         };
     }
     public static IReadOnlyList<DashboardStatItemViewModel> BuildStats(
-    PMDashboardDTO dashboard)
+                                                           PMDashboardDTO dashboard)
     {
         return BuildPMStats(dashboard);
+    }
+
+    public static IReadOnlyList<DashboardStatItemViewModel> BuildStats(
+                                                        DeveloperDashboardDTO dashboard)
+    {
+        return BuildDevStats(dashboard);
     }
 
     private static IReadOnlyList<DashboardStatItemViewModel> BuildCompanyStats(DashboardDTO dashboard)
@@ -107,7 +113,7 @@ public static class DashboardStatFactory
     ];
     }
 
-    private static IReadOnlyList<DashboardStatItemViewModel> BuildDevStats(DashboardDTO dashboard)
+    private static IReadOnlyList<DashboardStatItemViewModel> BuildDevStats(DeveloperDashboardDTO dashboard)
     {
         var stats = dashboard.DevStats;
 
@@ -118,21 +124,32 @@ public static class DashboardStatFactory
             Title = "Assigned Tickets",
             Value = stats.AssignedTicketCount,
             Icon = Icons.Material.Filled.AssignmentInd,
-            Color = Color.Primary
+            Color = Color.Primary,
+            DetailsHref = "/"
         },
         new()
         {
             Title = "Open Tickets",
             Value = stats.OpenAssignedTicketCount,
             Icon = Icons.Material.Filled.PendingActions,
-            Color = Color.Warning
+            Color = Color.Warning,
+            DetailsHref = "/"
+        },
+        new()
+        {
+            Title = "In Progress",
+            Value = stats.InProgressCount,
+            Icon = Icons.Material.Filled.Build,
+            Color = Color.Info,
+            DetailsHref = "/"
         },
         new()
         {
             Title = "Resolved Tickets",
-            Value = stats.ResolvedAssignedTicketCount,
+            Value = stats.ResolvedCount,
             Icon = Icons.Material.Filled.CheckCircle,
-            Color = Color.Success
+            Color = Color.Success,
+            DetailsHref = "/"
         }
     ];
     }
