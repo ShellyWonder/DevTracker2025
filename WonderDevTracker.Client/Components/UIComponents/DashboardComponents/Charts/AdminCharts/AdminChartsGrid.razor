@@ -1,26 +1,18 @@
 ﻿@*AdminChartsGrid *@
 
 <MudGrid Spacing="3">
-
-	@* submitted and resolved tickets *@
+	@* Chart A tickets by status *@
 	<MudItem xs="12">
-		<TicketsOverTimeChart TimeData="Dashboard.ChartData.TicketsOverTimeChart"
-							  Title="Company Tickets Over Time"
-							  Subtitle="Submitted and resolved tickets across the company." />
-
-	</MudItem>
-
-	@* tickets by status *@
-	<MudItem xs="12" md="6">
 		<DashboardEnumCountChart TEnum="TicketStatus"
 								 Items="@Dashboard.ChartData.TicketsByStatus"
 								 Title="Tickets by Status"
 								 Subtitle="Current ticket distribution by status."
 								 EmptyStateMessage="No ticket status data available yet."
 								 SeriesName="Tickets" />
+	
 	</MudItem>
-	@* tickets by priority *@
-	<MudItem xs="12" md="6">
+	@* Chart B tickets by priority *@
+	<MudItem xs="12" sm="6">
 		<DashboardEnumCountChart TEnum="TicketPriority"
 								 Items="@Dashboard.ChartData.TicketsByPriority"
 								 Title="Tickets by Priority"
@@ -28,8 +20,8 @@
 								 EmptyStateMessage="No ticket priority data available yet."
 								 SeriesName="Tickets" />
 	</MudItem>
-	@*  projects by priority *@
-	<MudItem xs="12" md="6">
+	@* Chart C  projects by priority *@
+	<MudItem xs="12" sm="6">
 		<DashboardEnumCountChart TEnum="ProjectPriority"
 								 Items="@Dashboard.ChartData.ProjectsByPriority"
 								 Title="Projects by Priority"
@@ -37,12 +29,12 @@
 								 EmptyStateMessage="No project priority data available yet."
 								 SeriesName="Projects" />
 	</MudItem>
-	@* tickets by project *@
-	<MudItem xs="12" md="6">
-		<TicketsByProjectChart Items="Dashboard.ChartData.TicketsByProject" />
+	@* Chart D tickets by project *@
+	<MudItem xs="12">
+		<TicketsByProjectChart Items="Dashboard?.ChartData.TicketsByProject" />
 	</MudItem>
-
 </MudGrid>
+
 @code {
 	[Parameter, EditorRequired]
 	public DashboardDTO Dashboard { get; set; } = default!;
