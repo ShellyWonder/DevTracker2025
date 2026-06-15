@@ -1,108 +1,92 @@
 ﻿@* DashboardTeamPanel.razor *@
 
-    <MudPaper Class="pa-4 mb-4"
-              Elevation="2"
-              rounded="true">
+<MudPaper Class="@($"pa-4 dashboard-team-panel {Class}")"
+          Elevation="2">
+
+    <MudStack Row="true"
+              AlignItems="AlignItems.Center"
+              Justify="Justify.SpaceBetween"
+              Class="mb-3">
 
         <MudStack Row="true"
                   AlignItems="AlignItems.Center"
-                  Justify="Justify.SpaceBetween"
-                  Class="mb-3">
+                  Spacing="2">
 
-            <MudStack Row="true"
-                      AlignItems="AlignItems.Center"
-                      Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.Groups"
+                     Color="Color.Primary"
+                     Size="Size.Large" />
 
-                <MudIcon Icon="@Icons.Material.Filled.Groups"
-                         Color="Color.Primary" 
-                         Size="Size.Large"/>
-
-                <MudText Typo="Typo.h2" Color="Color.Primary">@Title</MudText>
-
-            </MudStack>
-
-            <MudStack Row="true"
-                      AlignItems="AlignItems.Center"
-                      Spacing="2">
-
-                @if (HasMoreThanCollapsedCount)
-                {
-                    <ExpandCollapseToggle @bind-IsExpanded="_expanded" />
-                }
-
-            </MudStack>
-
+            <MudText Typo="Typo.h2" Color="Color.Primary">@Title</MudText>
         </MudStack>
+    </MudStack>
 
-        @if (!_visibleMembers.Any())
-        {
-            <NotFoundDisplay Message="No team members found." />
-        }
-        else
-        {
-            <MudGrid Spacing="3">
-                @foreach (var roleGroup in VisibleRoleGroups)
-                {
-                    <MudItem xs="12" md="6" xl="3">
-                        <MudPaper Class="dashboard-team-role-zone pa-3"
-                                  Outlined="true">
+    @if (!_visibleMembers.Any())
+    {
+        <NotFoundDisplay Message="No team members found." />
+    }
+    else
+    {
+        <div class="dashboard-team-role-grid">
+            @foreach (var roleGroup in VisibleRoleGroups)
+            {
 
-                            <MudStack Row="true"
-                                      AlignItems="AlignItems.Center"
-                                      Justify="Justify.SpaceBetween"
-                                      Class="mb-2">
+                <MudPaper Class="dashboard-team-role-zone p-3"
+                          Elevation="0"
+                          Outlined >
 
-                                <MudText Typo="Typo.button"
-                                         Color="Color.Primary">
-                                    @roleGroup.Role.GetDisplayName()
-                                </MudText>
+                    <MudStack Row="true"
+                              AlignItems="AlignItems.Center"
+                              Justify="Justify.SpaceBetween"
+                              Class="mb-2">
 
-                                <MudChip T="string"
-                                         Size="Size.Small"
-                                         Color="Color.Info"
-                                         Variant="Variant.Outlined">
-                                    @roleGroup.Members.Count
-                                </MudChip>
+                        <MudText Typo="Typo.button"
+                                 Color="Color.Primary">
+                            @roleGroup.Role.GetDisplayName()
+                        </MudText>
 
-                            </MudStack>
+                        <MudChip T="string"
+                                 Size="Size.Small"
+                                 Color="Color.Info"
+                                 Variant="Variant.Outlined">
+                            @roleGroup.Members.Count
+                        </MudChip>
 
-                            @if (!roleGroup.Members.Any())
+                    </MudStack>
+
+                    @if (!roleGroup.Members.Any())
+                    {
+                        <NotFoundDisplay Message="@GetEmptyRoleMessage(roleGroup.Role)" />
+                    }
+                    else
+                    {
+                        <MudStack Spacing="2" Class="dashboard-team-member-list">
+                            @foreach (var member in roleGroup.Members)
                             {
-                                <NotFoundDisplay Message="@GetEmptyRoleMessage(roleGroup.Role)" />
+                                <ProjectTeamCard User="@member" />
                             }
-                            else
-                            {
-                                <MudStack Spacing="2">
-                                    @foreach (var member in roleGroup.Members)
-                                    {
-                                        <ProjectTeamCard User="@member" />
-                                    }
-                                </MudStack>
-                            }
+                        </MudStack>
+                    }
 
-                        </MudPaper>
-                    </MudItem>
-                }
-            </MudGrid>
-        }
+                </MudPaper>
+            }
+        </div>
+    }
 
-    </MudPaper>
+</MudPaper>
 
 
 @code {
-	[Parameter, EditorRequired]
-	public IEnumerable<AppUserDTO> Members { get; set; } = [];
+    [Parameter, EditorRequired]
+    public IEnumerable<AppUserDTO> Members { get; set; } = [];
 
-	[Parameter, EditorRequired]
-	public string Title { get; set; }
+    [Parameter, EditorRequired]
+    public string Title { get; set; }
 
-        [Parameter]
+    [Parameter]
     public bool CanManageMembers { get; set; }
 
     [Parameter]
-    public int CollapsedCount { get; set; } = 8;
-
-    private bool _expanded;
+    public string? Class { get; set; }
 
     private IReadOnlyList<AppUserDTO> _visibleMembers = [];
 
@@ -115,33 +99,26 @@
         .ToList();
     }
 
-    private IEnumerable<AppUserDTO> DisplayMembers =>
-        _expanded
-            ? _visibleMembers
-            : _visibleMembers.Take(CollapsedCount);
-
+    
     private IEnumerable<RoleMemberGroup> VisibleRoleGroups =>
         VisibleRoles
             .Select(role => new RoleMemberGroup(
                 role,
-                DisplayMembers
+                _visibleMembers
                     .Where(m => m.Role == role)
                     .OrderBy(m => m.LastName)
                     .ThenBy(m => m.FirstName)
                     .ToList()))
-                     .Where(group => group.Members.Any());
-
-    private bool HasMoreThanCollapsedCount =>
-        _visibleMembers.Count > CollapsedCount;
+            .Where(group => group.Members.Any());
 
     private static readonly Role[] VisibleRoles =
-    [
-        Role.Admin,
-        Role.ProjectManager,
-        Role.Developer,
-        Role.Submitter
-       
-    ];
+         [
+             Role.Admin,
+                Role.ProjectManager,
+                Role.Developer,
+                Role.Submitter
+
+        ];
 
     private static string GetEmptyRoleMessage(Role role) =>
         $"No {role.GetDisplayName()}s found.";
