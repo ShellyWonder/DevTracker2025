@@ -10,101 +10,87 @@ and/or a "welcome back" message that changes based on the time of day
 
 @if (User is null)
 {
-	<MudPaper Class="dashboard-header pa-6 mb-6"
-			  Elevation="2"
-			  rounded="true">
-		<MudSkeleton Height="72px" />
-	</MudPaper>
+    <MudPaper Class="dashboard-header pa-6 mb-6">
+        <NotFoundDisplay Message="User not found. Please contact your administrator for assistance." />
+
+    </MudPaper>
 }
 else
 {
+    
+            <div class="dashboard-header-shell">
+                
 
-	<div class="dashboard-header-shell">
-		<MudPaper Class="dashboard-header pa-6 mb-3"
-				  Elevation="2">
+                <MudStack Row="true"
+                          AlignItems="AlignItems.Center"
+                          Justify="Justify.SpaceBetween"
+                          Spacing="3"
+                          Class="dashboard-header-stack mb-6">
 
-			<MudStack Row="true" Spacing="4">
-				<DashboardQuickActions CanManageProjects="@CanManageProjects"
-									   CanManageMembers="@CanManageMembers"
-									   CanSubmitTickets="@CanSubmitTickets"
-									   CanViewArchivedTickets="@CanViewArchivedTickets"
-									   CanViewInvites="@CanViewInvites" />
-			</MudStack>
+                    <MudStack Row="true"
+                              AlignItems="AlignItems.Center"
+                              Spacing="3">
+                        <UserAvatarComponent ImageUrl="@User.ImageUrl"
+                                             Initials="@User.Initials"
+                                             AltText="@($"{User.FirstName} {User.LastName}")"
+                                             Featured="true" />
 
-			<MudStack Row="true"
-					  AlignItems="AlignItems.Center"
-					  Justify="Justify.SpaceBetween"
-					  Spacing="3"
-					  Class="dashboard-header-stack mb-6">
+                        <MudStack Spacing="1">
+                            <MudText Typo="Typo.body2"
+                                     Class="dashboard-header-role">
+                                @DashboardRole
+                            </MudText>
+                            <MudText Typo="Typo.h4"
+                                     Class="dashboard-header-title">
+                                Welcome Back, @UserName!
+                            </MudText>
+                            <MudText Typo="Typo.subtitle1"
+                                     Class="dashboard-header-company">
+                                @CompanyName
+                            </MudText>
 
-				<MudStack Row="true"
-						  AlignItems="AlignItems.Center"
-						  Spacing="3">
-					<UserAvatarComponent ImageUrl="@User.ImageUrl"
-										 Initials="@User.Initials"
-										 AltText="@($"{User.FirstName} {User.LastName}")"
-										 Featured="true" />
+                            <MudText Typo="Typo.body1"
+                                     Class="dashboard-header-subtitle">
+                                @DashboardSubtitle
+                            </MudText>
 
-					<MudStack Spacing="1">
-						<MudText Typo="Typo.body2"
-								 Class="dashboard-header-role">
-							@DashboardRole
-						</MudText>
-						<MudText Typo="Typo.h4"
-								 Class="dashboard-header-title">
-							Welcome Back, @UserName!
-						</MudText>
-						<MudText Typo="Typo.subtitle1"
-								 Class="dashboard-header-company">
-							@CompanyName
-						</MudText>
-
-						<MudText Typo="Typo.body1"
-								 Class="dashboard-header-subtitle">
-							@DashboardSubtitle
-						</MudText>
-
-					</MudStack>
-
-				</MudStack>
-
-			</MudStack>
-
-		</MudPaper>
-
-	</div>
+                        </MudStack>
+                    </MudStack>
+                </MudStack>
+            </div>
+       	
 }
 
 @code {
-	[Parameter, EditorRequired]
-	public string UserName { get; set; } = string.Empty;
+    [Parameter, EditorRequired]
+    public string UserName { get; set; } = string.Empty;
 
-	[Parameter, EditorRequired]
-	public string DashboardRole { get; set; } = string.Empty;
+    [Parameter, EditorRequired]
+    public string DashboardRole { get; set; } = string.Empty;
 
-	[Parameter, EditorRequired]
-	public string DashboardSubtitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired]
+    public string DashboardSubtitle { get; set; } = string.Empty;
 
-	[Parameter, EditorRequired]
-	public AppUserDTO? User { get; set; }
+    [Parameter, EditorRequired]
+    public AppUserDTO? User { get; set; }
 
-	[Parameter, EditorRequired]
-	public string CompanyName { get; set; } = string.Empty;
+    [Parameter, EditorRequired]
+    public string CompanyName { get; set; } = string.Empty;
 
-	[Parameter]
-	public bool CanManageProjects { get; set; } = false;
+    [Parameter]
+    public bool CanManageProjects { get; set; } = false;
 
-	[Parameter]
-	public bool CanManageMembers { get; set; } = false;
+    [Parameter]
+    public bool CanManageMembers { get; set; } = false;
 
-	[Parameter]
-	public bool CanSubmitTickets { get; set; } = false;
+    [Parameter]
+    public bool CanSubmitTickets { get; set; } = false;
 
-	[Parameter]
-	public bool CanViewInvites { get; set; } = false;
+    [Parameter]
+    public bool CanViewInvites { get; set; } = false;
 
-	[Parameter]
-	public bool CanViewArchivedTickets { get; set; } = false;
+    [Parameter]
+    public bool CanViewArchivedTickets { get; set; } = false;
 
 
 	
