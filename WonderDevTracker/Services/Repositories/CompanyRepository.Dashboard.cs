@@ -169,7 +169,8 @@ namespace WonderDevTracker.Services.Repositories
                 ManagedProjects = await GetProjectSummariesAsync(pmProjects),
                 UnassignedTickets = await GetPMUnassignedTicketsAsync(pmTickets),
                 PMChartData = await GetPMDashboardChartDataAsync(pmProjects, pmTickets),
-                TeamMembers = await GetPMTeamMembersAsync(context, companyId, userId, userManager)
+                TeamMembers = await GetPMTeamMembersAsync(context, companyId, userId, userManager),
+                MySubmittedTickets = await GetMySubmittedTicketsAsync(context, companyId, userId)
             };
         }
 

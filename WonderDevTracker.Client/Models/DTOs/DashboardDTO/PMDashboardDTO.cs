@@ -18,5 +18,9 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
 
         [Description("List of team members assigned to the project manager.")]
         public List<AppUserDTO> TeamMembers { get; set; } = [];
+
+        [Description("List of tickets submitted by the current user.")]
+        public List<DashboardTicketSummaryDTO> MySubmittedTickets { get; set; } = [];
+
     }
 }
