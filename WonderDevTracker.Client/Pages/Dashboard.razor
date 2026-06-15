@@ -15,107 +15,55 @@
 @inherits AuthenticatedComponentBase
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
-	<MudBreadcrumbs Items="_breadcrumbs" Class="breadcrumbs1" />
-	@if (!_loadingComplete)
-	{
-		<LoadingSpinner Message="Loading dashboard details..." Color="Color.Primary" Size="Size.Large" />
-	}
-	else if (IsEmpty)
-	{
-		<PageTitle>Dashboard Details Not Found | Dev Tracker</PageTitle>
+    <MudBreadcrumbs Items="_breadcrumbs" Class="breadcrumbs1" />
+    @if (!_loadingComplete)
+    {
+        <LoadingSpinner Message="Loading dashboard details..." Color="Color.Primary" Size="Size.Large" />
+    }
+    else if (IsEmpty)
+    {
+        <PageTitle>Dashboard Details Not Found | Dev Tracker</PageTitle>
 
-		<NotFoundFull Message="Error loading dashboard details."
-					  ReturnUrl="/"
-					  ReturnLabel="Home Page"
-					  ForwardUrl="/account/login"
-					  ForwardLabel="Login Page" />
+        <NotFoundFull Message="Error loading dashboard details."
+                      ReturnUrl="/"
+                      ReturnLabel="Home Page"
+                      ForwardUrl="/account/login"
+                      ForwardLabel="Login Page" />
 
-	}
-	else
-	{
-		@* Reset Index at start of render;
+    }
+    else
+    {
+        @* Reset Index at start of render;
 					controls the index for components that use IndexTracker.*@
-		ResetIndex();
-		<PageTitle>@($"{UserName}'s Dashboard | Dev Tracker")</PageTitle>
-		<div class="vstack gap-3">
-			<!-- Dashboard content -->
-			<AnimatedBlock Index="0">
-				<DashboardHeader User="@CurrentUser"
-								 UserName="@UserName"
-								 DashboardRole="@DashboardRoleLabel"
-								 DashboardSubtitle="@DashboardSubtitle"
-								 CompanyName="@CompanyName"
-								 CanManageProjects="@ActionsPermissions.CanManageProjects"
-								 CanManageMembers="@ActionsPermissions.CanManageMembers"
-								 CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
-								 CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
-								 CanViewInvites="@ActionsPermissions.CanViewInvites" />
-			</AnimatedBlock>
+        ResetIndex();
+        <PageTitle>@($"{UserName}'s Dashboard | Dev Tracker")</PageTitle>
+        <MudGrid>
 
-			<!-- Notification content ~ list of notifications for the user, with links to related tickets or projects-->
-			<div id="notifications-table">
-				<DashboardExpandableSection Title="My Notifications"
-											Icon="@Icons.Material.Filled.Notifications"
-											StartsExpanded="false">
-					<ChildContent Context="isExpanded">
-						<NotificationCard Notifications="Notifications"
-										  DismissedNotifications="@DismissedNotifications"
-										  IsExpanded="@isExpanded"
-										  OnOpen="HandleOpenNotificationAsync"
-										  PreviewCount="3"
-										  Index="1"
-										  OnNotificationsChanged="RefreshNotificationsAsync" />
-					</ChildContent>
-				</DashboardExpandableSection>
-			</div>
-			<!-- Role-specific dashboard zones -->
-			@if (IsAdmin)
-			{
-				<!-- Admin-specific content -->
-				<AnimatedBlock Index="2">
-					<AdminDashboardZone Dashboard="_data"
-										Projects="_recentProjects"
-										Members="_members" />
-				</AnimatedBlock>
-			}
-			else if (IsProjectManager)
-			{
-				<!-- Project Manager-specific content -->
-				<AnimatedBlock Index="2">
-					<ProjectManagerDashboardZone Dashboard="_data?.PMDashboard" />
-				</AnimatedBlock>
-			}
-			else if (UserIsInRole(Role.Developer))
-			{
-				<!-- Developer-specific content -->
-				<AnimatedBlock Index="2">
-					<DeveloperDashboardZone Dashboard="_data?.DevDashboard" />
-				</AnimatedBlock>
-			}
-			<!--
-			NOTE:Submitter will see:
-			-DashboardHeader
-			- My Submitted Tickets
-			-Notifications
-			Submitter is not given its own dashboard zone because, while "submitter" is a role,
-			it's more of a function that any user can perform (any user can submit tickets),
-			relevant user content is shown without a dedicated dashboard zone.
-			-->
-			<!-- My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
-			<AnimatedBlock Index="3">
-				<DashboardExpandableSection Title="My Submitted Tickets"
-											Icon="@Icons.Material.Filled.Outbox"
-											StartsExpanded="false">
-					<ChildContent Context="isExpanded">
-						<DashboardSubmittedTicketsTable Tickets="_data?.MySubmittedTickets ?? []"
-														AllowAssignment="@ActionsPermissions.CanManageMembers"
-														IsExpanded="@isExpanded"
-														PreviewCount="3" />
-					</ChildContent>
-				</DashboardExpandableSection>
-			</AnimatedBlock>
+            <!-- Role-specific dashboard zones -->
+            @if (IsAdmin)
+            {
+                <!-- Admin-specific content -->
+                <MudItem xs="12">
+                    <AnimatedBlock Index="0">
+                        <AdminDashboardZone Dashboard="_data!"
+                                            CurrentUser="CurrentUser"
+                                            Members="_members"
+                                            Notifications="Notifications"
+                                            DismissedNotifications="DismissedNotifications"
+                                            ActionsPermissions="ActionsPermissions"
+                                            UserName="@UserName"
+                                            DashboardRoleLabel="@DashboardRoleLabel"
+                                            DashboardSubtitle="@DashboardSubtitle"
+                                            CompanyName="@CompanyName"
+                                            OnOpenNotification="HandleOpenNotificationAsync"
+                                            OnNotificationsChanged="RefreshNotificationsAsync" />
+                    </AnimatedBlock>
+                </MudItem>
+                <!-- Project Manager-specific content -->
+            }
+            
 
-		</div>
-	}
+</MudGrid>
+    }
 </MudContainer>
 

@@ -1,11 +1,9 @@
-using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using WonderDevTracker.Client.Components.BaseComponents;
 using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Client.Models.ViewModels;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace WonderDevTracker.Client.Pages
@@ -18,11 +16,7 @@ namespace WonderDevTracker.Client.Pages
 
         #region STATE
         private DashboardDTO? _data;
-        private List<TicketDTO> _tickets = [];
-        private List<TicketDTO> _recentTickets = [];
-        private List<ProjectDTO> _projects = [];
         private List<AppUserDTO> _members = [];
-        private List<ProjectDTO> _recentProjects = [];
         private List<BreadcrumbItem> _breadcrumbs = [];
         private bool _loadingComplete = false;
         private bool _hasData = false;
@@ -74,21 +68,7 @@ namespace WonderDevTracker.Client.Pages
 
                 await NotificationState.RefreshUnreadCountAsync(UserInfo);
 
-                _projects = [.. (await ProjectService.GetAllProjectsAsync(UserInfo))];
-                _tickets = (await TicketService.GetOpenTicketsAsync(UserInfo)).ToList();
                 _members = (await CompanyService.GetUsersAsync(UserInfo)).ToList();
-
-                _recentProjects = _projects
-                    .Where(p => !p.Archived)
-                    .OrderBy(p => p.EndDate)
-                    .Take(6)
-                    .ToList();
-
-                _recentTickets = _tickets
-                    .Where(t => !t.Archived)
-                    .OrderByDescending(t => t.Created)
-                    .Take(6)
-                    .ToList();
 
                 _hasData = _data is not null;
 
