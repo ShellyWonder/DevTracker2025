@@ -16,7 +16,7 @@ public static class DashboardStatFactory
             Role.Admin => BuildCompanyStats(dashboard),
             Role.ProjectManager => BuildPMStats(dashboard.PMDashboard),
             Role.Developer => BuildDevStats(dashboard.DevDashboard),
-            Role.Submitter => BuildSubmitterStats(dashboard),
+            Role.Submitter => BuildSubmitterStats(dashboard.SubmitterDashboard),
             _ => BuildDefaultStats(dashboard)
         };
     }
@@ -30,6 +30,11 @@ public static class DashboardStatFactory
                                                         DeveloperDashboardDTO dashboard)
     {
         return BuildDevStats(dashboard);
+    }
+    public static IReadOnlyList<DashboardStatItemViewModel> BuildStats(
+                                                        SubmitterDashboardDTO dashboard)
+    {
+        return BuildSubmitterStats(dashboard);
     }
 
     private static IReadOnlyList<DashboardStatItemViewModel> BuildCompanyStats(DashboardDTO dashboard)
@@ -46,14 +51,7 @@ public static class DashboardStatFactory
             Color = Color.Primary,
             DetailsHref = "/projects"
         },
-        //new()
-        //{
-        //    Title = "Total Tickets",
-        //    Value = stats.TotalTicketCount,
-        //    Icon = Icons.Material.Filled.ConfirmationNumber,
-        //    Color = Color.Secondary,
-        //    DetailsHref = "/tickets"
-        //},
+        
         new()
         {
             Title = "Open Tickets",
@@ -154,7 +152,7 @@ public static class DashboardStatFactory
     ];
     }
 
-    private static IReadOnlyList<DashboardStatItemViewModel> BuildSubmitterStats(DashboardDTO dashboard)
+    private static IReadOnlyList<DashboardStatItemViewModel> BuildSubmitterStats(SubmitterDashboardDTO dashboard)
     {
         var stats = dashboard.SubmitterStats;
 
