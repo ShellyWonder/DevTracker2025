@@ -1,117 +1,113 @@
 ﻿@* AdminDashboardZone *@
 
+<MudGrid>
+    <!--Row 1 Quick  access nav  -->
+    <MudItem xs="12">
+        <DashboardQuickActions CanManageProjects="@ActionsPermissions.CanManageProjects"
+                               CanManageMembers="@ActionsPermissions.CanManageMembers"
+                               CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
+                               CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
+                               CanViewInvites="@ActionsPermissions.CanViewInvites" />
+    </MudItem>
+    <!--Row 2 Stats at a glance  -->
+    <MudItem xs="12">
+        <DashboardStatGrid Stats="Stats" />
+    </MudItem>
+    <!-- Row 3: User and Tables -->
+    <MudItem xs="12">
+        <MudGrid Spacing="3">
 
-    <MudGrid>
-        <!--Row 1 Quick  access nav  -->
-        <MudItem xs="12">
-            <DashboardQuickActions CanManageProjects="@ActionsPermissions.CanManageProjects"
-                                   CanManageMembers="@ActionsPermissions.CanManageMembers"
-                                   CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
-                                   CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
-                                   CanViewInvites="@ActionsPermissions.CanViewInvites" />
-        </MudItem>
-        <!--Row 2 Stats at a glance  -->
-        <MudItem xs="12">
-            <DashboardStatGrid Stats="Stats" />
-        </MudItem>
-        <!-- Row 3: User and Tables -->
-        <MudItem xs="12">
-            <MudGrid Spacing="3" AlignItems="Stretch">
+            <!-- Left column: Dashboard Header -->
+            <MudItem xs="12" md="4" Class="d-flex flex-column">
+                <MudPaper Elevation="2"
+                          Class="pa-4 dashboard-row-card flex-grow-1">
+                    <DashboardHeader User="@CurrentUser"
+                                     UserName="@UserName"
+                                     DashboardRole="@DashboardRoleLabel"
+                                     DashboardSubtitle="@DashboardSubtitle"
+                                     CompanyName="@CompanyName" />
+                </MudPaper>
+            </MudItem>
 
-                <!-- Left column: Dashboard Header -->
-                <MudItem xs="12" md="4" Class="d-flex flex-column">
-                    <MudPaper Elevation="2"
-                              Class="pa-4 dashboard-row-card flex-grow-1">
-                        <DashboardHeader User="@CurrentUser"
-                                         UserName="@UserName"
-                                         DashboardRole="@DashboardRoleLabel"
-                                         DashboardSubtitle="@DashboardSubtitle"
-                                         CompanyName="@CompanyName" />
-                    </MudPaper>
-                </MudItem>
-
-                <!-- Right column: Notifications + Recent Ticket Activity -->
-                <MudItem xs="12" md="8" Class="d-flex flex-column">
-                    <MudStack Spacing="3" Class="dashboard-row-card-stack flex-grow-1">
-                        <div id="notifications-table" class="dashboard-row-section">
-                            <DashboardExpandableSection Title="My Notifications"
-                                                        Icon="@Icons.Material.Filled.Notifications"
-                                                        StartsExpanded="false">
-                                <ChildContent Context="isExpanded">
-                                    <NotificationCard Notifications="Notifications"
-                                                      DismissedNotifications="@DismissedNotifications"
-                                                      IsExpanded="@isExpanded"
-                                                      OnOpen="@OnOpenNotification"
-                                                      PreviewCount="3"
-                                                      Index="1"
+            <!-- Right column: Notifications + Recent Ticket Activity -->
+            <MudItem xs="12" md="8" Class="d-flex flex-column">
+                <MudStack Spacing="3" Class="dashboard-row-card-stack flex-grow-1">
+                    <div id="notifications-table" class="dashboard-row-section">
+                        <DashboardExpandableSection Title="My Notifications"
+                                                    Icon="@Icons.Material.Filled.Notifications"
+                                                    StartsExpanded="false">
+                            <ChildContent Context="isExpanded">
+                                <NotificationCard Notifications="Notifications"
+                                                  DismissedNotifications="@DismissedNotifications"
+                                                  IsExpanded="@isExpanded"
+                                                  OnOpen="@OnOpenNotification"
+                                                  PreviewCount="3"
+                                                  Index="1"
                                                   OnNotificationsChanged="@OnNotificationsChanged" />
-                                </ChildContent>
-                            </DashboardExpandableSection>
-                        </div>
+                            </ChildContent>
+                        </DashboardExpandableSection>
+                    </div>
 
-                        <div class="dashboard-row-section flex-grow-1">
-                            <DashboardExpandableSection Title="Recent Ticket Activity"
-                                                        Icon="@Icons.Material.Filled.LocalActivity"
-                                                        StartsExpanded="false">
-                                <ChildContent Context="isExpanded">
-                                    <DashboardRecentTickets ActiveTickets="Dashboard?.RecentActiveTickets ?? []"
-                                                            ResolvedTickets="Dashboard?.RecentResolvedTickets ?? []"
-                                                            UnassignedTickets="Dashboard?.RecentUnassignedTickets ?? []"
-                                                            IsExpanded="@isExpanded" />
-                                </ChildContent>
-                            </DashboardExpandableSection>
-                        </div>
-                    </MudStack>
-                </MudItem>
-            </MudGrid>
-        </MudItem>
-        <!--Row 4 submitted and resolved tickets chart  -->
-        <MudItem xs="12">
-            <TicketsOverTimeChart TimeData="Dashboard?.ChartData.TicketsOverTimeChart"
-                                  Title="Company Tickets Over Time"
-                                  Subtitle="Submitted and resolved tickets across the company." />
-        </MudItem>
+                    <div class="dashboard-row-section flex-grow-1">
+                        <DashboardExpandableSection Title="Recent Ticket Activity"
+                                                    Icon="@Icons.Material.Filled.LocalActivity"
+                                                    StartsExpanded="false">
+                            <ChildContent Context="isExpanded">
+                                <DashboardRecentTickets ActiveTickets="Dashboard?.RecentActiveTickets ?? []"
+                                                        ResolvedTickets="Dashboard?.RecentResolvedTickets ?? []"
+                                                        UnassignedTickets="Dashboard?.RecentUnassignedTickets ?? []"
+                                                        IsExpanded="@isExpanded" />
+                            </ChildContent>
+                        </DashboardExpandableSection>
+                    </div>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+    <!--Row 4 submitted and resolved tickets chart  -->
+    <MudItem xs="12">
+        <TicketsOverTimeChart TimeData="Dashboard?.ChartData.TicketsOverTimeChart"
+                              Title="Company Tickets Over Time"
+                              Subtitle="Submitted and resolved tickets across the company." />
+    </MudItem>
 
-        <!-- Row 5: Charts + Team Panel -->
-        <MudItem xs="12">
-            <MudGrid Spacing="3" AlignItems="Stretch">
+    <!-- Row 5: Charts + Team Panel -->
+    <MudItem xs="12">
+        <MudGrid Spacing="3" AlignItems="Stretch">
 
-                <!-- Left column -->
-                <MudItem xs="12" lg="6" Class="d-flex flex-column">
-                    <AdminChartsGrid Dashboard="Dashboard!" />
-                </MudItem>
+            <!-- Left column -->
+            <MudItem xs="12" lg="6" Class="d-flex flex-column">
+                <AdminChartsGrid Dashboard="Dashboard!" />
+            </MudItem>
 
-                <!-- Right column -->
-                <MudItem xs="12" lg="6" Class="d-flex flex-column">
-                    <DashboardTeamPanel Members="Members"
-                                        Title="Company Members"
-                                        Class="h-100"
-                                        CanManageMembers="true" />
-                </MudItem>
-            </MudGrid>
-        </MudItem>
-        <MudItem xs="12">
-            <!-- My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
-            <DashboardExpandableSection Title="My Submitted Tickets"
-                                        Icon="@Icons.Material.Filled.Outbox"
-                                        StartsExpanded="false">
-                <ChildContent Context="isExpanded">
-                    <DashboardSubmittedTicketsTable Tickets="Dashboard?.MySubmittedTickets ?? []"
-                                                    AllowAssignment="@ActionsPermissions.CanManageMembers"
-                                                    IsExpanded="@isExpanded"
-                                                    PreviewCount="3" />
-                </ChildContent>
-            </DashboardExpandableSection>
-        </MudItem>
+            <!-- Right column -->
+            <MudItem xs="12" lg="6" Class="d-flex flex-column">
+                <DashboardTeamPanel Members="Members"
+                                    Title="Company Members"
+                                    Class="h-100"
+                                    CanManageMembers="true" />
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+    <MudItem xs="12">
+        <!-- My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
+        <DashboardExpandableSection Title="My Submitted Tickets"
+                                    Icon="@Icons.Material.Filled.Outbox"
+                                    StartsExpanded="false">
+            <ChildContent Context="isExpanded">
+                <DashboardSubmittedTicketsTable Tickets="Dashboard?.MySubmittedTickets ?? []"
+                                                AllowAssignment="@ActionsPermissions.CanManageMembers"
+                                                IsExpanded="@isExpanded"
+                                                PreviewCount="3" />
+            </ChildContent>
+        </DashboardExpandableSection>
+    </MudItem>
 
-        <MudItem xs="12">
-            <DashboardProjectActivity Projects="Dashboard?.RecentProjects"
-                                      CollapsedCount="3" />
-        </MudItem>
-    </MudGrid>
-
-
-
+    <MudItem xs="12">
+        <DashboardProjectActivity Projects="Dashboard?.RecentProjects"
+                                  CollapsedCount="3" />
+    </MudItem>
+</MudGrid>
 
 @code {
     [Parameter, EditorRequired]
@@ -141,13 +137,13 @@
     [Parameter, EditorRequired]
     public string DashboardSubtitle { get; set; } = string.Empty;
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public string? CompanyName { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public EventCallback<NotificationDTO> OnOpenNotification { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public EventCallback OnNotificationsChanged { get; set; }
 
     private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Admin);
