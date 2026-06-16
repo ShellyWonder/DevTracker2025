@@ -1,7 +1,8 @@
 ﻿@* ProjectManagerChartsGrid.razor *@
 
 <MudGrid Spacing="3">
-	<MudItem xs="12" md="6">
+	@* Chart A tickets by status *@
+	<MudItem xs="12">
 		<DashboardEnumCountChart TEnum="TicketStatus"
 								 Items="@Dashboard.PMChartData.TicketsByStatus"
 								 Title="Tickets by Status"
@@ -10,7 +11,7 @@
 								 SeriesName="Tickets" />
 	</MudItem>
 
-	<MudItem xs="12" md="6">
+	<MudItem xs="12">
 		<DashboardEnumCountChart TEnum="ProjectPriority"
 								 Items="@Dashboard.PMChartData.ProjectsByPriority"
 								 Title="Projects by Priority"

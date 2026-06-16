@@ -1,46 +1,149 @@
 ﻿@* ProjectManagerDashboardZone *@
 
-@if (Dashboard is null)
-{
-	<DashboardChartEmptyState Message="Dashboard data is not available." />
-}
-else
-{
-	<MudStack Spacing="4">
-		@* PM-scoped stats *@
-		<DashboardStatGrid Stats="Stats" />
+    <MudGrid>
+        <!--Row 1 Quick  access nav  -->
+        <MudItem xs="12">
+            <DashboardQuickActions CanManageProjects="@ActionsPermissions.CanManageProjects"
+                                   CanManageMembers="@ActionsPermissions.CanManageMembers"
+                                   CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
+                                   CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
+                                   CanViewInvites="@ActionsPermissions.CanViewInvites" />
+        </MudItem>
+        <!--Row 2 Stats at a glance  -->
+        <MudItem xs="12">
+            <DashboardStatGrid Stats="Stats" />
+        </MudItem>
+        <!-- Row 3: User and Tables -->
+        <MudItem xs="12" >
+            <MudGrid Spacing="3" >
 
-		@* PM-scoped charts *@
-		<ProjectManagerChartsGrid Dashboard="Dashboard" />
+                <!-- Left column: Dashboard Header -->
+                <MudItem xs="12" md="4" Class="d-flex flex-column">
+                    <MudPaper Elevation="2"
+                              Class="pa-4 dashboard-row-card flex-grow-1">
+                        <DashboardHeader User="@CurrentUser"
+                                         UserName="@UserName"
+                                         DashboardRole="@DashboardRoleLabel"
+                                         DashboardSubtitle="@DashboardSubtitle"
+                                         CompanyName="@CompanyName" />
+                    </MudPaper>
+                </MudItem>
+                <!-- Right column: Notifications + Recent Ticket Activity -->
+                <MudItem xs="12" md="8" Class="d-flex flex-column">
+                    <MudStack Spacing="3" Class="dashboard-row-card-stack flex-grow-1">
+                        <div id="notifications-table" class="dashboard-row-section">
+                            <DashboardExpandableSection Title="My Notifications"
+                                                        Icon="@Icons.Material.Filled.Notifications"
+                                                        StartsExpanded="false">
+                                <ChildContent Context="isExpanded">
+                                    <NotificationCard Notifications="Notifications"
+                                                      DismissedNotifications="@DismissedNotifications"
+                                                      IsExpanded="@isExpanded"
+                                                      OnOpen="@OnOpenNotification"
+                                                      PreviewCount="3"
+                                                      Index="1"
+                                                      OnNotificationsChanged="@OnNotificationsChanged" />
+                                </ChildContent>
+                            </DashboardExpandableSection>
+                        </div>
+                        <div class="dashboard-row-section flex-grow-1">
+                            @* Unassigned tickets for projects assigned to PM *@
+                            <DashboardExpandableSection Title="Unassigned Tickets"
+                                                        Icon="@Icons.Material.Filled.ConfirmationNumber"
+                                                        StartsExpanded="false">
+                                <ChildContent Context="isExpanded">
+                                    <DashboardRecentTickets Mode="DashboardRecentTicketsMode.SingleUnassigned"
+                                                            UnassignedTickets="@Dashboard.UnassignedTickets"
+                                                            IsExpanded="@isExpanded"
+                                                            PreviewCount="3"
+                                                            AllowAssignment="true" />
+                                </ChildContent>
+                            </DashboardExpandableSection>
+                        </div>
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+        <!-- Row 4: Charts + Team Panel -->
+        <MudItem xs="12">
+            <MudGrid Spacing="3" AlignItems="Stretch">
 
-		@* Assigned projects *@
-		<DashboardProjectActivity Projects="Dashboard.ManagedProjects" />
-		@* Project team activity *@
-		<DashboardTeamPanel Members="Dashboard.TeamMembers"
-							Title="My Project Teams"
-							CanManageMembers="true" />
-		@* Unassigned tickets for projects assigned to PM *@
-		<DashboardExpandableSection Title="Unassigned Tickets"
-									Icon="@Icons.Material.Filled.ConfirmationNumber"
-									StartsExpanded="false">
-			<ChildContent Context="isExpanded">
-				<DashboardRecentTickets Mode="DashboardRecentTicketsMode.SingleUnassigned"
-										UnassignedTickets="@Dashboard.UnassignedTickets"
-										IsExpanded="@isExpanded"
-										PreviewCount="3"
-										AllowAssignment="true" />
-			</ChildContent>
-		</DashboardExpandableSection>
+                <!-- Left column -->
+                <MudItem xs="12" lg="6" Class="d-flex flex-column">
+                    <ProjectManagerChartsGrid Dashboard="Dashboard" />
+                </MudItem>
 
-	</MudStack>
+                <!-- Right column -->
+                <MudItem xs="12" lg="6" Class="d-flex flex-column">
+                    @* Project team activity *@
+                    <DashboardTeamPanel Members="Dashboard.TeamMembers"
+                                        Title="My Project Teams"
+                                        Class="h-100"
+                                        CanManageMembers="true" />
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+        <MudItem xs="12">
+            <!-- My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
+            <DashboardExpandableSection Title="My Submitted Tickets"
+                                        Icon="@Icons.Material.Filled.Outbox"
+                                        StartsExpanded="false">
+                <ChildContent Context="isExpanded">
+                    <DashboardSubmittedTicketsTable Tickets="Dashboard?.MySubmittedTickets ?? []"
+                                                    AllowAssignment="@ActionsPermissions.CanManageMembers"
+                                                    IsExpanded="@isExpanded"
+                                                    PreviewCount="3" />
+                </ChildContent>
+            </DashboardExpandableSection>
+        </MudItem>
+        <MudItem xs="12">
+            @* Assigned projects *@
+            <DashboardProjectActivity Projects="Dashboard.ManagedProjects"
+                                      CollapsedCount="3" />
+        </MudItem>
+    </MudGrid>
 
 }
 
 @code {
 
-	[Parameter, EditorRequired]
-	public PMDashboardDTO Dashboard { get; set; } = default!;
+    [Parameter, EditorRequired]
+    public PMDashboardDTO Dashboard { get; set; } = default!;
 
-	private IReadOnlyList<DashboardStatItemViewModel> Stats =>
-		DashboardStatFactory.BuildStats(Dashboard);
+    [Parameter, EditorRequired]
+    public List<NotificationDTO> Notifications { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public AppUserDTO? CurrentUser { get; set; }
+
+    [Parameter, EditorRequired]
+    public IEnumerable<AppUserDTO> Members { get; set; } = [];
+
+    [Parameter, EditorRequired]
+    public List<NotificationDTO> DismissedNotifications { get; set; } = [];
+
+    [Parameter, EditorRequired]
+    public string UserName { get; set; } = "User";
+
+    [Parameter, EditorRequired]
+    public string DashboardRoleLabel { get; set; } = "Project Manager Dashboard";
+
+    [Parameter, EditorRequired]
+    public string DashboardSubtitle { get; set; } = "Here's an overview of your projects and team activity";
+
+    [Parameter, EditorRequired]
+    public string CompanyName { get; set; } = "Your Company";
+
+    [Parameter, EditorRequired]
+    public EventCallback<NotificationDTO> OnOpenNotification { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback OnNotificationsChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public DashboardActionPermissionsViewModel ActionsPermissions { get; set; } = new();
+
+
+    private IReadOnlyList<DashboardStatItemViewModel> Stats =>
+        DashboardStatFactory.BuildStats(Dashboard);
 }
