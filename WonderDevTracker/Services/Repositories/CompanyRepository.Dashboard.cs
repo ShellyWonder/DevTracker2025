@@ -329,13 +329,14 @@ namespace WonderDevTracker.Services.Repositories
                 DevStats = await GetDeveloperDashboardStatsAsync(devTickets),
                 DevProjects = await GetProjectSummariesAsync(GetDeveloperProjectsQuery(context, companyId, userId)),
                 AssignedTickets = await GetDeveloperAssignedTicketSummariesAsync(devTickets),
-                DevChartData = await GetDeveloperDashboardChartDataAsync(devTickets)
+                DevChartData = await GetDeveloperDashboardChartDataAsync(devTickets),
+                MySubmittedTickets = await GetMySubmittedTicketsAsync(context, companyId, userId)
             };
         }
 
         private static async Task<List<DashboardTicketSummaryDTO>> GetDeveloperAssignedTicketSummariesAsync(
-    IQueryable<Ticket> devTickets,
-    int take = 10)
+                                                                    IQueryable<Ticket> devTickets,
+                                                                    int take = 10)
         {
             return await devTickets
                 .OrderBy(t => t.Status == TicketStatus.Resolved)

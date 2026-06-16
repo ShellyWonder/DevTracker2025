@@ -2,8 +2,8 @@
 
 @if (IsSingleTab)
 {
-	<DashboardRecentTicketsTable Tickets="VisibleUnassignedTickets"
-								 UnassignedTickets="true"
+	<DashboardRecentTicketsTable Tickets="VisibleSingleModeTickets"
+								 UnassignedTickets="@IsUnassignedMode"
 								 AllowAssignment="@AllowAssignment" />
 }
 else
@@ -30,6 +30,7 @@ else
 
 }
 
+	
 @code {
 
 	[Parameter]
@@ -67,6 +68,18 @@ else
 		IsExpanded
 			? UnassignedTickets
 			: UnassignedTickets.Take(PreviewCount).ToList();
-	private bool IsSingleTab => Mode == DashboardRecentTicketsMode.SingleUnassigned;
+	
+	private bool IsUnassignedMode =>
+		Mode == DashboardRecentTicketsMode.SingleUnassigned;
+	private bool IsSingleTab =>
+	Mode is DashboardRecentTicketsMode.SingleUnassigned
+		 or DashboardRecentTicketsMode.SingleAssignedToMe;
+	private IReadOnlyList<DashboardTicketSummaryDTO> VisibleSingleModeTickets =>
+				   Mode switch
+				   {
+					   DashboardRecentTicketsMode.SingleUnassigned => VisibleUnassignedTickets,
+					   DashboardRecentTicketsMode.SingleAssignedToMe => VisibleActiveTickets,
+					   _ => VisibleActiveTickets
+				   };
 
 }

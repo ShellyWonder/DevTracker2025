@@ -1,37 +1,131 @@
 ﻿@* DeveloperDashboardZone *@
 
+    <MudGrid>
+        <!--Row 1 Quick  access nav  -->
+        <MudItem xs="12">
+            <DashboardQuickActions CanManageProjects="@ActionsPermissions.CanManageProjects"
+                                   CanManageMembers="@ActionsPermissions.CanManageMembers"
+                                   CanSubmitTickets="@ActionsPermissions.CanSubmitTickets"
+                                   CanViewArchivedTickets="@ActionsPermissions.CanViewArchivedTickets"
+                                   CanViewInvites="@ActionsPermissions.CanViewInvites" />
+        </MudItem>
+        <!--Row 2 Stats at a glance  -->
+        <MudItem xs="12">
+            <DashboardStatGrid Stats="Stats" />
+        </MudItem>
+        <!-- Row 3: User and Tables -->
+        <MudItem xs="12">
+            <MudGrid Spacing="3" AlignItems="Stretch">
+                <!-- Left column: Dashboard Header -->
+                <MudItem xs="12" md="4" Class="d-flex flex-column">
+                    <MudPaper Elevation="2"
+                              Class="pa-4 dashboard-row-card flex-grow-1">
+                        <DashboardHeader User="@CurrentUser"
+                                         UserName="@UserName"
+                                         DashboardRole="@DashboardRoleLabel"
+                                         DashboardSubtitle="@DashboardSubtitle"
+                                         CompanyName="@CompanyName" />
+                    </MudPaper>
+                </MudItem>
+                <!-- Right column: Notifications + Recent Ticket Activity -->
+                <MudItem xs="12" md="8" Class="d-flex flex-column">
+                    <MudStack Spacing="3" Class="dashboard-row-card-stack flex-grow-1">
+                        <div id="notifications-table" class="dashboard-row-section">
+                            <DashboardExpandableSection Title="My Notifications"
+                                                        Icon="@Icons.Material.Filled.Notifications"
+                                                        StartsExpanded="false">
+                                <ChildContent Context="isExpanded">
+                                    <NotificationCard Notifications="Notifications"
+                                                      DismissedNotifications="@DismissedNotifications"
+                                                      IsExpanded="@isExpanded"
+                                                      OnOpen="@OnOpenNotification"
+                                                      PreviewCount="3"
+                                                      Index="1"
+                                                      OnNotificationsChanged="@OnNotificationsChanged" />
+                                </ChildContent>
+                            </DashboardExpandableSection>
+                        </div>
+                        <div class="dashboard-row-section flex-grow-1">
+                            <DashboardExpandableSection Title="Recent Ticket Activity"
+                                                        Icon="@Icons.Material.Filled.LocalActivity"
+                                                        StartsExpanded="false">
+                                <ChildContent Context="isExpanded">
+                                <DashboardRecentTickets ActiveTickets="Dashboard?.AssignedTickets
+                                                        .Where(t => t.Status != TicketStatus.Resolved)
+                                                        .ToList() ?? []"
+                                                            Mode="DashboardRecentTicketsMode.SingleAssignedToMe"
+                                                            PreviewCount="3"
+                                                            IsExpanded="@isExpanded" />
+                                </ChildContent>
+                            </DashboardExpandableSection>
+                        </div>
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+        <MudItem xs="12">
+            <!-- My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
+            <DashboardExpandableSection Title="My Submitted Tickets"
+                                        Icon="@Icons.Material.Filled.Outbox"
+                                        StartsExpanded="false">
+                <ChildContent Context="isExpanded">
+                    <DashboardSubmittedTicketsTable Tickets="Dashboard?.MySubmittedTickets ?? []"
+                                                    AllowAssignment="@ActionsPermissions.CanManageMembers"
+                                                    IsExpanded="@isExpanded"
+                                                    PreviewCount="3" />
+                </ChildContent>
+            </DashboardExpandableSection>
+        </MudItem>
 
-@if (Dashboard is null)
-{
-
-	<DashboardChartEmptyState Message="Dashboard data is not available." />
-}
-else
-{
-	<MudStack Spacing="4">
-		<DashboardStatGrid Stats="Stats" />
-
-		@* Assigned tickets *@
-		@* Recent ticket updates *@
-		@* Projects they are assigned to *@
-
-		@* Developer charts summary *@
-		<DeveloperChartsGrid Dashboard="Dashboard" />
-	</MudStack>
-
-}
+        <MudItem xs="12">
+            <DashboardProjectActivity Projects="Dashboard?.DevProjects ?? []"
+                                      CollapsedCount="3" />
+        </MudItem>
+    </MudGrid>
 
 @code {
-	[Parameter, EditorRequired]
-	public DeveloperDashboardDTO Dashboard { get; set; } = default!;
+    [Parameter, EditorRequired]
+    public DeveloperDashboardDTO Dashboard { get; set; } = default!;
 
-	[Parameter]
-	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
+    [Parameter, EditorRequired]
+    public List<NotificationDTO> Notifications { get; set; } = new();
 
-	[Parameter]
-	public IEnumerable<ProjectDTO> Projects { get; set; } = [];
+    [Parameter, EditorRequired]
+    public List<NotificationDTO> DismissedNotifications { get; set; } = [];
 
-	private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard);
+    [Parameter, EditorRequired]
+    public AppUserDTO CurrentUser { get; set; }
+
+    [Parameter, EditorRequired]
+    public string UserName { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string CompanyName { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string DashboardSubtitle { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string DashboardRoleLabel { get; set; } = "Developer Dashboard";
+
+    [Parameter, EditorRequired]
+    public IEnumerable<TicketDTO> Tickets { get; set; } = [];
+
+    [Parameter, EditorRequired]
+    public IEnumerable<ProjectDTO> Projects { get; set; } = [];
+
+    [Parameter, EditorRequired]
+    public DashboardActionPermissionsViewModel ActionsPermissions { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public EventCallback OnNotificationsChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<NotificationDTO> OnOpenNotification { get; set; }
+
+    private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard);
+
+   
 
 	
 }
