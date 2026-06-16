@@ -1,0 +1,106 @@
+@* SubmitterDashboardZone.razor *@
+
+<MudGrid>
+    <!--Row 1: Dashboard Header  -->
+    <MudItem xs="12">
+        <MudPaper Elevation="2" Class="pa-4">
+            <DashboardHeader User="@CurrentUser"
+                             UserName="@UserName"
+                             DashboardRole="@DashboardRoleLabel"
+                             DashboardSubtitle="@DashboardSubtitle"
+                             CompanyName="@CompanyName" />
+        </MudPaper>
+    </MudItem>
+
+    <!--Row 2: Stats & Quick Actions -->
+    <MudItem xs="12">
+        <MudGrid Spacing="3">
+            <MudItem xs="12" sm="8" md="8" lg="8">
+                <DashboardStatGrid Stats="@Stats"
+                                   SmColumns="4"
+                                   MdColumns="4"
+                                   LgColumns="4" />
+            </MudItem>
+
+            <MudItem xs="12" sm="4" md="4" lg="4">
+                <DashboardQuickActions CanSubmitTickets="true" />
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+
+    <!--Row 3: Notifications -->
+    <MudItem xs="12">
+        <div id="notifications-table">
+            <DashboardExpandableSection Title="My Notifications"
+                                        Icon="@Icons.Material.Filled.Notifications"
+                                        StartsExpanded="false">
+                <ChildContent Context="isExpanded">
+                    <NotificationCard Notifications="Notifications"
+                                      DismissedNotifications="@DismissedNotifications"
+                                      IsExpanded="@isExpanded"
+                                      OnOpen="@OnOpenNotification"
+                                      PreviewCount="3"
+                                      Index="1"
+                                      OnNotificationsChanged="@OnNotificationsChanged" />
+                </ChildContent>
+            </DashboardExpandableSection>
+        </div>
+    </MudItem>
+
+    <!-- Row 4: My Submitted Tickets ~ list of tickets submitted by the user, with status and priority -->
+    <MudItem xs="12">
+        <DashboardExpandableSection Title="My Submitted Tickets"
+                                    Icon="@Icons.Material.Filled.Outbox"
+                                    StartsExpanded="false">
+            <ChildContent Context="isExpanded">
+                <DashboardSubmittedTicketsTable Tickets="Dashboard?.MySubmittedTickets ?? []"
+                                                AllowAssignment="@ActionsPermissions.CanManageMembers"
+                                                IsExpanded="@isExpanded"
+                                                PreviewCount="3" />
+            </ChildContent>
+        </DashboardExpandableSection>
+
+      
+    </MudItem>
+</MudGrid>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public SubmitterDashboardDTO Dashboard { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public List<NotificationDTO> Notifications { get; set; } = new List<NotificationDTO>();
+
+    [Parameter, EditorRequired]
+    public List<NotificationDTO> DismissedNotifications { get; set; } = new List<NotificationDTO>();
+
+    [Parameter, EditorRequired]
+    public AppUserDTO CurrentUser { get; set; }
+
+    [Parameter, EditorRequired]
+    public string UserName { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string CompanyName { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string DashboardSubtitle { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string DashboardRoleLabel { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public EventCallback OnNotificationsChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public DashboardActionPermissionsViewModel ActionsPermissions { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public EventCallback<NotificationDTO> OnOpenNotification { get; set; }
+
+    private IReadOnlyList<DashboardStatItemViewModel> Stats =>
+        Dashboard is null
+            ? []
+            : DashboardStatFactory.BuildStats(Dashboard);
+   }
