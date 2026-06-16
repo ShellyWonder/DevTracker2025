@@ -61,9 +61,46 @@
                 </MudItem>
                 <!-- Project Manager-specific content -->
             }
-            
-
-</MudGrid>
+            else if (IsProjectManager && _data?.PMDashboard is not null)
+            {
+                <MudItem xs="12">
+                    <AnimatedBlock Index="0">
+                        <ProjectManagerDashboardZone Dashboard="_data.PMDashboard"
+                                                     CurrentUser="CurrentUser"
+                                                     Members="_members"
+                                                     Notifications="Notifications"
+                                                     DismissedNotifications="DismissedNotifications"
+                                                     ActionsPermissions="ActionsPermissions"
+                                                     UserName="@UserName"
+                                                     DashboardRoleLabel="@DashboardRoleLabel"
+                                                     DashboardSubtitle="@DashboardSubtitle"
+                                                     CompanyName="@CompanyName"
+                                                     OnOpenNotification="HandleOpenNotificationAsync"
+                                                     OnNotificationsChanged="RefreshNotificationsAsync" />
+                    </AnimatedBlock>
+                </MudItem>
+            }
+            else if (UserIsInRole(Role.Developer))
+            {
+                <MudItem xs="12">
+                    <AnimatedBlock Index="0">
+                        <DeveloperDashboardZone Dashboard="_data?.DevDashboard"
+                                                Notifications="Notifications"
+                                                DismissedNotifications="DismissedNotifications"
+                                                CurrentUser="CurrentUser"
+                                                UserName="@UserName"
+                                                CompanyName="@CompanyName"
+                                                DashboardSubtitle="@DashboardSubtitle"
+                                                DashboardRoleLabel="@DashboardRoleLabel"
+                                                Tickets="@Tickets"
+                                                Projects="@Projects"
+                                                ActionsPermissions="ActionsPermissions"
+                                                OnOpenNotification="HandleOpenNotificationAsync"
+                                                OnNotificationsChanged="RefreshNotificationsAsync" />
+                    </AnimatedBlock>
+                </MudItem>
+            }
+        </MudGrid>
     }
 </MudContainer>
 

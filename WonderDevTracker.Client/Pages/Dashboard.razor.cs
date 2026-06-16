@@ -11,8 +11,9 @@ namespace WonderDevTracker.Client.Pages
     public partial class Dashboard : AuthenticatedComponentBase
     {
         private List<NotificationDTO> Notifications { get; set; } = new();
-
         private List<NotificationDTO> DismissedNotifications { get; set; } = [];
+        private IEnumerable<ProjectDTO> Projects { get; set; } = [];
+        private IEnumerable<TicketDTO> Tickets { get; set; } = [];
 
         #region STATE
         private DashboardDTO? _data;
