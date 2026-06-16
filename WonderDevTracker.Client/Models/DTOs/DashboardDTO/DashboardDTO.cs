@@ -22,10 +22,13 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
 
         [Description("Dashboard data for developers.")]
         public DeveloperDashboardDTO DevDashboard { get; set; } = new();
+
+
+        [Description("Dashboard data for submitters.")]
+        public SubmitterDashboardDTO SubmitterDashboard { get; set; } = new();
         #endregion
 
-        [Description("Stats for submitters on the dashboard.")]
-        public SubmitterDashboardStatsDTO SubmitterStats { get; set; } = new();
+        
         #endregion
 
         #region Dashboard Projects
@@ -43,8 +46,7 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         [Description("List of recent unassigned tickets on the dashboard.")]
         public List<DashboardTicketSummaryDTO> RecentUnassignedTickets { get; set; } = [];
 
-        [Description("List of tickets submitted by the current user.")]
-        public List<DashboardTicketSummaryDTO> MySubmittedTickets { get; set; } = [];
+        
         #endregion
 
         #region Chart data for dashboard charts
