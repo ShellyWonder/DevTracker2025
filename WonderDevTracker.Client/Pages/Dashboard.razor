@@ -42,7 +42,7 @@
             <!-- Role-specific dashboard zones -->
             @if (IsAdmin)
             {
-                <!-- Admin-specific content -->
+
                 <MudItem xs="12">
                     <AnimatedBlock Index="0">
                         <AdminDashboardZone Dashboard="_data!"
@@ -59,13 +59,13 @@
                                             OnNotificationsChanged="RefreshNotificationsAsync" />
                     </AnimatedBlock>
                 </MudItem>
-                <!-- Project Manager-specific content -->
             }
-            else if (IsProjectManager && _data?.PMDashboard is not null)
+
+            else if (UserIsInRole(Role.ProjectManager))
             {
                 <MudItem xs="12">
                     <AnimatedBlock Index="0">
-                        <ProjectManagerDashboardZone Dashboard="_data.PMDashboard"
+                        <ProjectManagerDashboardZone Dashboard="_data?.PMDashboard"
                                                      CurrentUser="CurrentUser"
                                                      Members="_members"
                                                      Notifications="Notifications"
@@ -97,6 +97,23 @@
                                                 ActionsPermissions="ActionsPermissions"
                                                 OnOpenNotification="HandleOpenNotificationAsync"
                                                 OnNotificationsChanged="RefreshNotificationsAsync" />
+                    </AnimatedBlock>
+                </MudItem>
+            }
+            else if (UserIsInRole(Role.Submitter))
+            {
+                <MudItem xs="12">
+                    <AnimatedBlock Index="0">
+                        <SubmitterDashboardZone Dashboard="_data?.SubmitterDashboard"
+                                                Notifications="Notifications"
+                                                DismissedNotifications="DismissedNotifications"
+                                                CurrentUser="CurrentUser"
+                                                UserName="@UserName"
+                                                CompanyName="@CompanyName"
+                                                DashboardSubtitle="@DashboardSubtitle"
+                                                DashboardRoleLabel="@DashboardRoleLabel" OnNotificationsChanged="RefreshNotificationsAsync"
+                                                ActionsPermissions="ActionsPermissions"
+                                                OnOpenNotification="HandleOpenNotificationAsync" />
                     </AnimatedBlock>
                 </MudItem>
             }

@@ -28,6 +28,7 @@ namespace WonderDevTracker.Client.Pages
         private string UserName => UserInfo?.FullName ?? "User";
         private string? CompanyName => _data?.CompanyInfo?.CompanyName;
         private bool IsEmpty => _data is null || UserInfo is null || CurrentUser is null;
+        
 
         private string DashboardRoleLabel =>
             IsAdmin
@@ -40,13 +41,13 @@ namespace WonderDevTracker.Client.Pages
 
         private string DashboardSubtitle =>
                     IsAdmin
-                        ? "Here's your company-wide project and ticket overview."
+                        ? "Here's your company-wide project and ticket overview along with your notifications."
                         : IsProjectManager
                             ? "Here's what's happening with your assigned projects and team activity."
                             : UserIsInRole(Role.Developer)
-                                ? "Here's what's happening with your assigned tickets."
+                                ? "Here's what's happening with your assigned tickets and notifications."
                                     : UserIsInRole(Role.Submitter)
-                                    ? "Here's an overview of your submitted tickets and updates."
+                                    ? "Here's an overview of your submitted tickets and notifications."
                                     : "Here's your dashboard overview.";
 
         private AppUserDTO? CurrentUser => _members.FirstOrDefault(m => m.Id == UserInfo?.UserId);
