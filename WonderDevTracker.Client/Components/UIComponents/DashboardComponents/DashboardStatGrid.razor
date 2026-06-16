@@ -1,12 +1,18 @@
 ﻿@* DashboardStatGrid *@
 
-@if (Stats.Any())
+@{
+    var stats = Stats?.ToList() ?? [];
+}
+
+@if (stats.Any())
 {
-    <MudGrid>
-        @foreach (var stat in Stats)
+    <MudGrid Spacing="3">
+        @for (var i = 0; i < stats.Count; i++)
         {
-            <MudItem xs="12" sm="6" md="@MdColumns" lg="@LgColumns">
-                <DashboardStatCard Index="@Stats.ToList().IndexOf(stat)"
+            var stat = stats[i];
+
+            <MudItem xs="12" sm="@SmColumns" md="@MdColumns" lg="@LgColumns">
+                <DashboardStatCard Index="@i"
                                    Title="@stat.Title"
                                    StatValue="@stat.Value"
                                    DetailsHref="@stat.DetailsHref"
@@ -18,8 +24,12 @@
 }
 
 @code {
+
     [Parameter, EditorRequired]
-    public IEnumerable<DashboardStatItemViewModel> Stats { get; set; } = []; // Defined in DashboardStatFactory
+    public IReadOnlyList<DashboardStatItemViewModel> Stats { get; set; } = [];
+
+    [Parameter]
+    public int SmColumns { get; set; } = 6;
 
     [Parameter]
     public int MdColumns { get; set; } = 6;

@@ -1,110 +1,102 @@
 ﻿@* DashboardQuickActions.razor *@
 
-<div class="dashboard-quick-actions-shell">
-	<MudPaper Class="dashboard-quick-actions mb-3"
-			  Elevation="0"
-			  rounded="true">
+<MudPaper Class="dashboard-quick-actions pa-4 mb-3"
+          Elevation="2">
 
-		<MudStack Row="true"
-				  AlignItems="AlignItems.Center"
-				  Justify="Justify.SpaceBetween"
-				  Class="dashboard-quick-actions-header">
+    <div class="dashboard-quick-actions-layout">
 
-			<MudStack Row="true"
-					  AlignItems="AlignItems.Center"
-					  Spacing="2">
+        <div class="dashboard-quick-actions-heading">
+            <MudIcon Icon="@Icons.Material.Filled.Bolt"
+                     Color="Color.Primary" />
 
-				<MudIcon Icon="@Icons.Material.Filled.Bolt"
-						 Color="Color.Primary" />
+            <MudText Typo="Typo.h6"
+                     Class="dashboard-quick-actions-title">
+                Quick Actions
+            </MudText>
+        </div>
 
-				<MudText Typo="Typo.h6"
-						 Class="dashboard-quick-actions-title">
-					Quick Actions
-				</MudText>
+        <div class="dashboard-quick-actions-list">
 
-			</MudStack>
+            @if (CanManageProjects)
+            {
+                <SafeNavButton Href="/projects/create"
+                               Color="Color.Primary"
+                               Variant="Variant.Filled"
+                               Class="px-2"
+                               Size="Size.Small">
+                    Create New Project
+                </SafeNavButton>
+            }
 
-			<MudStack Row="true"
-					  AlignItems="AlignItems.Center"
-					  Spacing="2"
-					  Class="dashboard-quick-actions-list flex-wrap">
+            @if (CanSubmitTickets)
+            {
+                <SafeNavButton Href="/tickets/create"
+                               Color="Color.Secondary"
+                               Variant="Variant.Filled"
+                               Class="px-2"
+                               Size="Size.Small">
+                    Submit Ticket
+                </SafeNavButton>
+            }
 
-				@if (CanManageProjects)
-				{
-					<SafeNavButton Href="/projects/create"
-								   Color="Color.Primary"
-								   Variant="Variant.Filled"
-								   Size="Size.Small">
-						Create New Project
-					</SafeNavButton>
-				}
+            @if (CanManageMembers)
+            {
+                <SafeNavButton Href="/company#company-members"
+                               Color="Color.Tertiary"
+                               Variant="Variant.Filled"
+                               Class="px-2"
+                               Size="Size.Small">
+                    Manage Team
+                </SafeNavButton>
+            }
 
-				@if (CanSubmitTickets)
-				{
-					<SafeNavButton Href="/tickets/create"
-								   Color="Color.Secondary"
-								   Variant="Variant.Filled"
-								   Size="Size.Small">
-						Submit Ticket
-					</SafeNavButton>
-				}
+            @if (CanViewInvites)
+            {
+                <SafeNavButton Href="/company#company-invites"
+                               Color="Color.Warning"
+                               Variant="Variant.Filled"
+                               Class="px-2"
+                               Size="Size.Small">
+                    View Invitations
+                </SafeNavButton>
+            }
 
-				@if (CanManageMembers)
-				{
-					<SafeNavButton Href="/company#company-members"
-								   Color="Color.Tertiary"
-								   Variant="Variant.Filled"
-								   Size="Size.Small">
-						Manage Team
-					</SafeNavButton>
-				}
-				@if (CanViewInvites)
-				{
-					<SafeNavButton Href="/company#company-invites"
-								   Color="Color.Warning"
-								   Variant="Variant.Filled"
-								   Size="Size.Small">
-						View Invitations
-					</SafeNavButton>
-				}
+            @if (CanViewArchivedTickets)
+            {
+                <SafeNavButton Href="/tickets/archived"
+                               Color="Color.Error"
+                               Variant="Variant.Filled"
+                               Class="px-2"
+                               Size="Size.Small">
+                    View Archived Tickets
+                </SafeNavButton>
+            }
 
-				
-				@if (CanViewArchivedTickets)
-				{
-					<SafeNavButton Href="/tickets/archived"
-								   Color="Color.Error"
-								   Variant="Variant.Filled"
-								   Size="Size.Small">
-						View Archived Tickets
-					</SafeNavButton>
-				}
+        </div>
 
-			</MudStack>
+    </div>
 
-		</MudStack>
-
-	</MudPaper>
-</div>
+</MudPaper>
 
 @code {
-	[Parameter]
-	public bool CanManageProjects { get; set; } = false;
+    [Parameter]
+    public bool CanManageProjects { get; set; }
 
-	[Parameter]
-	public bool CanManageMembers { get; set; } = false;
+    [Parameter]
+    public bool CanManageMembers { get; set; }
 
-	[Parameter]
-	public bool CanSubmitTickets { get; set; } = false;
+    [Parameter]
+    public bool CanSubmitTickets { get; set; }
 
-	[Parameter]
-	public bool CanViewInvites { get; set; } = false;
+    [Parameter]
+    public bool CanViewInvites { get; set; }
 
-	[Parameter]
-	public bool CanViewOpenTickets { get; set; } = false;
+    [Parameter]
+    public bool CanViewOpenTickets { get; set; }
 
-	[Parameter]
-	public bool CanViewArchivedTickets { get; set; } = false;
+    [Parameter]
+    public bool CanViewArchivedTickets { get; set; }
 
-	[Parameter]
-	public bool CanViewMyTickets { get; set; } = false;
+    [Parameter]
+    public bool CanViewMyTickets { get; set; }
 }

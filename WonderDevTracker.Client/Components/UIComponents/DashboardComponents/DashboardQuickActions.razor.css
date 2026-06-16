@@ -1,18 +1,67 @@
-﻿.dashboard-quick-actions-shell {
-    margin-bottom: 1rem;
+﻿.dashboard-quick-actions {
+    width: 100%;
+    background: #FFFFFF;
 }
 
-    .dashboard-quick-actions-shell ::deep .dashboard-quick-actions {
-        background: #FFFFFF;
-        
-    }
+.dashboard-quick-actions-layout {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+}
 
-    .dashboard-quick-actions-shell ::deep .dashboard-quick-actions-title {
-        color: #1E2A35;
+.dashboard-quick-actions-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.dashboard-quick-actions-title {
+    color: #1E2A35;
+    font-weight: 700;
+}
+
+.dashboard-quick-actions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10.75rem, 1fr));
+    gap: 0.75rem;
+    flex: 1 1 auto;
+    align-items: center;
+}
+
+    /* Reaches into SafeNavButton's rendered MudButton */
+    .dashboard-quick-actions-list ::deep .mud-button-root {
+        width: 100%;
+        min-height: 40px;
         font-weight: 700;
+        letter-spacing: 0.03rem;
     }
 
-    .dashboard-quick-actions-shell ::deep .dashboard-quick-actions-list {
-        gap: 0.5rem;
-       
+    .dashboard-quick-actions-list ::deep .mud-button-label {
+        white-space: nowrap;
     }
+
+/* Tablet/mobile */
+@media (max-width: 960px) {
+    .dashboard-quick-actions-layout {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dashboard-quick-actions-heading {
+        justify-content: flex-start;
+    }
+
+    .dashboard-quick-actions-list {
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    }
+}
+
+/* Small mobile */
+@media (max-width: 600px) {
+    .dashboard-quick-actions-list {
+        grid-template-columns: 1fr;
+    }
+}
