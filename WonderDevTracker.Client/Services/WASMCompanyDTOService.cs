@@ -64,9 +64,5 @@ namespace WonderDevTracker.Client.Services
             response.EnsureSuccessStatusCode();
         }
 
-        public Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

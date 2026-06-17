@@ -64,6 +64,8 @@ namespace WonderDevTracker.Controllers
         }
         #endregion
 
+        #region UPDATE COMPANY & ASSIGN USER ROLE
+
         /// <summary>
         /// Update Company
         /// </summary>
@@ -71,7 +73,7 @@ namespace WonderDevTracker.Controllers
         /// This action requires the caller to have the Admin role. The company to update is
         /// identified by the information provided in the <paramref name="company"/> parameter.</remarks>
         /// <param name="company">An object containing the updated company information. Must not be null.</param>
-         [HttpPut,Authorize(Roles = nameof(Role.Admin))]
+        [HttpPut,Authorize(Roles = nameof(Role.Admin))]
         public async Task<IActionResult> UpdateCompany([FromBody] CompanyDTO company)
         {
             await CompanyService.UpdateCompanyAsync(company, UserInfo);
@@ -98,6 +100,6 @@ namespace WonderDevTracker.Controllers
             await CompanyService.AssignUserRoleAsync(id, user.Role.Value, UserInfo);
             return NoContent();
         }
-
+        #endregion
     }
 }
