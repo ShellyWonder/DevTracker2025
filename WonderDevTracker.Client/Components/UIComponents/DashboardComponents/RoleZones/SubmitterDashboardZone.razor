@@ -8,22 +8,33 @@
                              UserName="@UserName"
                              DashboardRole="@DashboardRoleLabel"
                              DashboardSubtitle="@DashboardSubtitle"
-                             CompanyName="@CompanyName" />
+                             CompanyName="@CompanyName"
+                             CanSubmitTickets="@CanSubmitTickets">
+                <HeaderActions>
+                    @if (CanSubmitTickets)
+                    {
+                        <SafeNavButton Href="/tickets/create"
+                                       Color="Color.Secondary"
+                                       Variant="Variant.Filled"
+                                       Class="px-4"
+                                       Size="Size.Medium">
+                            Submit Ticket
+                        </SafeNavButton>
+                    }
+                </HeaderActions>
+
+            </DashboardHeader>
         </MudPaper>
     </MudItem>
 
     <!--Row 2: Stats & Quick Actions -->
     <MudItem xs="12">
         <MudGrid Spacing="3">
-            <MudItem xs="12" sm="8" md="8" lg="8">
+            <MudItem xs="12">
                 <DashboardStatGrid Stats="@Stats"
                                    SmColumns="4"
                                    MdColumns="4"
                                    LgColumns="4" />
-            </MudItem>
-
-            <MudItem xs="12" sm="4" md="4" lg="4">
-                <DashboardQuickActions CanSubmitTickets="true" />
             </MudItem>
         </MudGrid>
     </MudItem>
@@ -59,8 +70,6 @@
                                                 PreviewCount="3" />
             </ChildContent>
         </DashboardExpandableSection>
-
-      
     </MudItem>
 </MudGrid>
 
@@ -98,6 +107,8 @@
 
     [Parameter, EditorRequired]
     public EventCallback<NotificationDTO> OnOpenNotification { get; set; }
+
+    private bool CanSubmitTickets => ActionsPermissions.CanSubmitTickets;
 
     private IReadOnlyList<DashboardStatItemViewModel> Stats =>
         Dashboard is null

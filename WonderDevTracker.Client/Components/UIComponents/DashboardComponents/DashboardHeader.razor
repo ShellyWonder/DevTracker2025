@@ -17,48 +17,56 @@ and/or a "welcome back" message that changes based on the time of day
 }
 else
 {
-    
-            <div class="dashboard-header-shell">
-                
 
+    <div class="dashboard-header-shell">
+
+                
+        <MudStack Row="true"
+                  AlignItems="AlignItems.Center"
+                  Justify="Justify.SpaceBetween"
+                  Spacing="3"
+                  Class="dashboard-header-stack mb-6">
+
+            <MudStack Row="true"
+                      AlignItems="AlignItems.Center"
+                      Spacing="3">
+                <UserAvatarComponent ImageUrl="@User.ImageUrl"
+                                     Initials="@User.Initials"
+                                     AltText="@($"{User.FirstName} {User.LastName}")"
+                                     Featured="true" />
+
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.body2"
+                             Class="dashboard-header-role">
+                        @DashboardRole
+                    </MudText>
+                    <MudText Typo="Typo.h4"
+                             Class="dashboard-header-title">
+                        Welcome Back, @UserName!
+                    </MudText>
+                    <MudText Typo="Typo.subtitle1"
+                             Class="dashboard-header-company">
+                        @CompanyName
+                    </MudText>
+
+                    <MudText Typo="Typo.body1"
+                             Class="dashboard-header-subtitle">
+                        @DashboardSubtitle
+                    </MudText>
+                </MudStack>
+            </MudStack>
+            @if (HeaderActions is not null)
+            {
                 <MudStack Row="true"
                           AlignItems="AlignItems.Center"
-                          Justify="Justify.SpaceBetween"
-                          Spacing="3"
-                          Class="dashboard-header-stack mb-6">
-
-                    <MudStack Row="true"
-                              AlignItems="AlignItems.Center"
-                              Spacing="3">
-                        <UserAvatarComponent ImageUrl="@User.ImageUrl"
-                                             Initials="@User.Initials"
-                                             AltText="@($"{User.FirstName} {User.LastName}")"
-                                             Featured="true" />
-
-                        <MudStack Spacing="1">
-                            <MudText Typo="Typo.body2"
-                                     Class="dashboard-header-role">
-                                @DashboardRole
-                            </MudText>
-                            <MudText Typo="Typo.h4"
-                                     Class="dashboard-header-title">
-                                Welcome Back, @UserName!
-                            </MudText>
-                            <MudText Typo="Typo.subtitle1"
-                                     Class="dashboard-header-company">
-                                @CompanyName
-                            </MudText>
-
-                            <MudText Typo="Typo.body1"
-                                     Class="dashboard-header-subtitle">
-                                @DashboardSubtitle
-                            </MudText>
-
-                        </MudStack>
-                    </MudStack>
+                          Justify="Justify.FlexEnd"
+                          Class="dashboard-header-actions">
+                    @HeaderActions
                 </MudStack>
-            </div>
-       	
+            }
+        </MudStack>
+    </div>
+
 }
 
 @code {
@@ -78,19 +86,12 @@ else
     public string CompanyName { get; set; } = string.Empty;
 
     [Parameter]
-    public bool CanManageProjects { get; set; } = false;
-
-    [Parameter]
-    public bool CanManageMembers { get; set; } = false;
+    public RenderFragment? HeaderActions { get; set; }
 
     [Parameter]
     public bool CanSubmitTickets { get; set; } = false;
 
-    [Parameter]
-    public bool CanViewInvites { get; set; } = false;
-
-    [Parameter]
-    public bool CanViewArchivedTickets { get; set; } = false;
+    
 
 
 	

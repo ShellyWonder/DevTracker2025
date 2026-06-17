@@ -11,7 +11,8 @@
 }
 
 .dashboard-header-shell ::deep .dashboard-header-stack {
-    width: 100%;
+    flex-direction: column !important;
+    align-items: flex-start !important;
 }
 
 .dashboard-header-shell ::deep .dashboard-header-title {
@@ -38,11 +39,17 @@
     color: #0077B6;
     font-weight: 700;
 }
+
 .dashboard-header-shell ::deep .dashboard-header-subtitle {
     color: #6C7A89;
     font-weight: 400;
     line-height: 1.5;
     max-width: 760px;
+}
+
+.dashboard-header-shell ::deep .dashboard-header-actions {
+    margin-left: auto;
+    white-space: nowrap;
 }
 
 @media (max-width: 600px) {
@@ -55,8 +62,17 @@
     }
 
     .dashboard-header-shell ::deep .dashboard-header-stack {
-        align-items: flex-start;
+        flex-direction: column !important;
+        align-items: flex-start !important;
     }
 
-    
+    .dashboard-header-shell ::deep .dashboard-header-actions {
+        margin-left: 0;
+        width: 100%;
+    }
+
+        .dashboard-header-shell ::deep .dashboard-header-actions a,
+        .dashboard-header-shell ::deep .dashboard-header-actions button {
+            width: 100%;
+        }
 }
