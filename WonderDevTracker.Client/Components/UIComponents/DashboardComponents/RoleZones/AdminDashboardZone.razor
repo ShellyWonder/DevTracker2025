@@ -114,7 +114,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public DashboardDTO Dashboard { get; set; } = default!;
+    public AdminDashboardDTO Dashboard { get; set; } = default!;
 
     [Parameter, EditorRequired]
     public List<NotificationDTO> Notifications { get; set; } = new();
@@ -149,5 +149,5 @@
     [Parameter, EditorRequired]
     public EventCallback OnNotificationsChanged { get; set; }
 
-    private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard, Role.Admin);
+    private IReadOnlyList<DashboardStatItemViewModel> Stats => DashboardStatFactory.BuildStats(Dashboard);
 }

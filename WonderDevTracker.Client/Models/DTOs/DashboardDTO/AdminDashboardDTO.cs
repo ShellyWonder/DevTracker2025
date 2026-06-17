@@ -9,6 +9,7 @@ namespace WonderDevTracker.Client.Models.DTOs.DashboardDTO
         #region Stats for dashboard cards
         [Description("General stats for company dashboard, primarily for admin consumption.")]
         public CompanyDashboardStatsDTO CompanyStats { get; set; } = new();
+        #endregion
 
         #region Dashboard Ticket Lists for tables
         [Description("List of recent active tickets on the dashboard.")]
