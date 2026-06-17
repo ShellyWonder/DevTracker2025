@@ -26,6 +26,9 @@ namespace WonderDevTracker.Infrastructure
             services.AddScoped<IInviteRepository, InviteRepository>();
             services.AddScoped<IInviteDTOService, InviteDTOService>();
 
+            services.AddScoped<IDashboardRepository, DashboardRepository>();
+            services.AddScoped<IDashboardDTOService, DashboardDTOService>();
+
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<INotificationDTOService, NotificationDTOService>();
 

@@ -101,10 +101,5 @@ namespace WonderDevTracker.Services
             }
         }
 
-        public async Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo)
-        {
-            DashboardDTO data = await repository.GetDashboardDataAsync(userInfo);
-            return data;
-        }
     }
 }
