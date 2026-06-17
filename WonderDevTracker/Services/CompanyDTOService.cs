@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Models.DTOs;
-using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
-using WonderDevTracker.Client.Services;
 using WonderDevTracker.Client.Services.Interfaces;
 using WonderDevTracker.Helpers;
 using WonderDevTracker.Models;

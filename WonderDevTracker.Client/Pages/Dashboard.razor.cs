@@ -10,7 +10,7 @@ namespace WonderDevTracker.Client.Pages
 {
     public partial class Dashboard : AuthenticatedComponentBase
     {
-        private List<NotificationDTO> Notifications { get; set; } = new();
+        private List<NotificationDTO> Notifications { get; set; } = [];
         private List<NotificationDTO> DismissedNotifications { get; set; } = [];
         private IEnumerable<ProjectDTO> Projects { get; set; } = [];
         private IEnumerable<TicketDTO> Tickets { get; set; } = [];
@@ -64,13 +64,13 @@ namespace WonderDevTracker.Client.Pages
                     return;
                 }
 
-                _data = await CompanyService.GetDashboardDataAsync(UserInfo);
+                _data = await DashboardService.GetDashboardDataAsync(UserInfo);
                 Notifications = await NotificationService.GetForCurrentUserAsync(UserInfo.UserId);
                 DismissedNotifications = await NotificationService.GetArchivedForCurrentUserAsync(UserInfo.UserId);
 
                 await NotificationState.RefreshUnreadCountAsync(UserInfo);
 
-                _members = (await CompanyService.GetUsersAsync(UserInfo)).ToList();
+                _members = [.. (await CompanyService.GetUsersAsync(UserInfo))];
 
                 _hasData = _data is not null;
 
