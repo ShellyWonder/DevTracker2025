@@ -8,7 +8,7 @@ using WonderDevTracker.Services.Interfaces;
 
 namespace WonderDevTracker.Services.Repositories
 {
-    public partial class CompanyRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
+    public class CompanyRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
                                    IServiceScopeFactory scopeFactory,
                                     UserManager<ApplicationUser> userManager) : ICompanyRepository
     {
