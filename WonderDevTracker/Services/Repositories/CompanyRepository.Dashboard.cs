@@ -22,42 +22,18 @@ namespace WonderDevTracker.Services.Repositories
         {
             await using var context = contextFactory.CreateDbContext();
 
-
-            //For user - specific dashboards, filter by user assignments in the query to pull only relevant data.
-            //For PM, Dev and Submitter queries, we are filtering out archived projects and tickets to focus on active work.
-
-            IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, userInfo.CompanyId);
-            IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, userInfo.CompanyId);
-            IQueryable<Project> pmProjects = GetPMProjectsQuery(context, userInfo.CompanyId, userInfo.UserId);
-            IQueryable<Ticket> pmTickets = GetPMProjectTicketsQuery(context, userInfo.CompanyId, userInfo.UserId);
-            IQueryable<Project> devProjects = GetDeveloperProjectsQuery(context, userInfo.CompanyId, userInfo.UserId);
-            IQueryable<Ticket> devTickets = GetDeveloperTicketsQuery(context, userInfo.CompanyId, userInfo.UserId);
-            IQueryable<Ticket> submitterTickets = GetSubmitterTicketsQuery(context, userInfo.CompanyId, userInfo.UserId);
-            IQueryable<Ticket> adminCompanyTickets = GetAdminCompanyTicketsQuery(context, userInfo.CompanyId);
-
-
             DashboardDTO dashboard = new()
             {
                 CompanyInfo = await GetCompanyInfoAsync(context, userInfo.CompanyId),
-                CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
+                AdminDashboard = await GetAdminDashboardDataAsync(context, userInfo),
                 PMDashboard = await GetPMDashboardDataAsync(context, userInfo.CompanyId, userInfo.UserId, userManager),
                 DevDashboard = await GetDeveloperDashboardDataAsync(context, userInfo.CompanyId, userInfo.UserId),
                 SubmitterDashboard = await GetSubmitterDashboardDataAsync(context, userInfo.CompanyId, userInfo.UserId),
-                RecentActiveTickets = await GetRecentTicketSummariesAsync(
-                                       GetRecentActiveTicketsQuery(adminCompanyTickets)),
-                RecentResolvedTickets = await GetRecentTicketSummariesAsync(
-                                        GetRecentResolvedTicketsQuery(adminCompanyTickets)),
-                RecentUnassignedTickets = await GetRecentTicketSummariesAsync(
-                                        GetRecentUnassignedTicketsQuery(adminCompanyTickets)),
-                ChartData = await GetDashboardChartDataAsync(context, userInfo.CompanyId),
-                RecentProjects = await GetProjectSummariesAsync(GetActiveCompanyProjectsQuery(context, userInfo.CompanyId)),
-                MySubmittedTickets = await GetMySubmittedTicketsAsync(context, userInfo.CompanyId, userInfo.UserId)
-
+            
             };
 
             return dashboard;
         }
-
 
         #region Query Builders
         //For company-wide(ADMIN) stats
@@ -156,6 +132,32 @@ namespace WonderDevTracker.Services.Repositories
         #endregion
 
         #region Role-Specific Dashboard Aggregation Methods
+
+        #region Admin Dashboard
+        private static async Task<AdminDashboardDTO> GetAdminDashboardDataAsync(ApplicationDbContext context, UserInfo userInfo)
+        {
+            
+            IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, userInfo.CompanyId);
+            IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, userInfo.CompanyId);
+            IQueryable<Ticket> adminCompanyTickets = GetAdminCompanyTicketsQuery(context, userInfo.CompanyId);
+
+
+            return new AdminDashboardDTO
+            {
+                CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
+                RecentActiveTickets = await GetRecentTicketSummariesAsync(
+                                       GetRecentActiveTicketsQuery(adminCompanyTickets)),
+                RecentResolvedTickets = await GetRecentTicketSummariesAsync(
+                                        GetRecentResolvedTicketsQuery(adminCompanyTickets)),
+                RecentUnassignedTickets = await GetRecentTicketSummariesAsync(
+                                        GetRecentUnassignedTicketsQuery(adminCompanyTickets)),
+                ChartData = await GetDashboardChartDataAsync(context, userInfo.CompanyId),
+                RecentProjects = await GetProjectSummariesAsync(GetActiveCompanyProjectsQuery(context, userInfo.CompanyId)),
+                MySubmittedTickets = await GetMySubmittedTicketsAsync(context, userInfo.CompanyId, userInfo.UserId)
+
+            };
+        }
+        #endregion
 
         #region PM Dashboard
         private static async Task<PMDashboardDTO> GetPMDashboardDataAsync(ApplicationDbContext context,
