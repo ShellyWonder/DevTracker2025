@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using WonderDevTracker.Client;
-using WonderDevTracker.Client.Helpers;
-using WonderDevTracker.Client.Models.DTOs;
 using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Data;
 using WonderDevTracker.Models;
 using WonderDevTracker.Services.Interfaces;
+using WonderDevTracker.Services.RepoBuilders;
 
 namespace WonderDevTracker.Services.Repositories
 {
@@ -42,7 +40,6 @@ namespace WonderDevTracker.Services.Repositories
             IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, userInfo.CompanyId);
             IQueryable<Ticket> adminCompanyTickets = GetAdminCompanyTicketsQuery(context, userInfo.CompanyId);
 
-
             return new AdminDashboardDTO
             {
                 CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
@@ -52,7 +49,7 @@ namespace WonderDevTracker.Services.Repositories
                                         GetRecentResolvedTicketsQuery(adminCompanyTickets)),
                 RecentUnassignedTickets = await GetRecentTicketSummariesAsync(
                                         GetRecentUnassignedTicketsQuery(adminCompanyTickets)),
-                ChartData = await GetDashboardChartDataAsync(context, userInfo.CompanyId),
+                ChartData = await DashboardChartDataBuilder.GetDashboardChartDataAsync(context, userInfo.CompanyId),
                 RecentProjects = await GetProjectSummariesAsync(GetActiveCompanyProjectsQuery(context, userInfo.CompanyId)),
                 MySubmittedTickets = await GetMySubmittedTicketsAsync(context, userInfo.CompanyId, userInfo.UserId)
 
@@ -73,7 +70,7 @@ namespace WonderDevTracker.Services.Repositories
                 PMStats = await GetPMDashboardStatsAsync(pmProjects, pmTickets),
                 ManagedProjects = await GetProjectSummariesAsync(pmProjects),
                 UnassignedTickets = await GetPMUnassignedTicketsAsync(pmTickets),
-                PMChartData = await GetPMDashboardChartDataAsync(pmProjects, pmTickets),
+                PMChartData = await DashboardChartDataBuilder.GetPMDashboardChartDataAsync(pmProjects, pmTickets),
                 TeamMembers = await GetPMTeamMembersAsync(context, companyId, userId, userManager),
                 MySubmittedTickets = await GetMySubmittedTicketsAsync(context, companyId, userId)
             };
@@ -95,13 +92,12 @@ namespace WonderDevTracker.Services.Repositories
                 DevStats = await GetDeveloperDashboardStatsAsync(devTickets),
                 DevProjects = await GetProjectSummariesAsync(GetDeveloperProjectsQuery(context, companyId, userId)),
                 AssignedTickets = await GetDeveloperAssignedTicketSummariesAsync(devTickets),
-                DevChartData = await GetDeveloperDashboardChartDataAsync(devTickets),
+                DevChartData = await DashboardChartDataBuilder.GetDeveloperDashboardChartDataAsync(devTickets),
                 MySubmittedTickets = await GetMySubmittedTicketsAsync(context, companyId, userId)
             };
         }
 
-       
-        #endregion
+         #endregion
 
         #region Submitter Dashboard
         private static async Task<SubmitterDashboardDTO> GetSubmitterDashboardDataAsync(ApplicationDbContext context, int companyId, string userId)
