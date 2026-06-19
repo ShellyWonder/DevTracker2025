@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
-using WonderDevTracker.Data;
 using WonderDevTracker.Models;
-using WonderDevTracker.Services.Repositories;
 
 namespace WonderDevTracker.Services.RepoBuilders
 {
@@ -15,12 +13,10 @@ namespace WonderDevTracker.Services.RepoBuilders
         #region CHART AGGREGATOR METHODS 
 
         #region Company/Admin Dashboard Chart Data
-       
-        
         public static async Task<DashboardChartDataDTO> GetDashboardChartDataAsync(
-                                                            IQueryable<Project> companyProjects,
-                                                            IQueryable<Ticket> companyTickets,
-                                                            IQueryable<Ticket> activeCompanyTickets)
+                                                     IQueryable<Project> companyProjects,
+                                                     IQueryable<Ticket> companyTickets,
+                                                     IQueryable<Ticket> activeCompanyTickets)
         {
             return new DashboardChartDataDTO
             {
@@ -116,14 +112,10 @@ namespace WonderDevTracker.Services.RepoBuilders
         }
         #endregion
         #endregion
-
-
         private static async Task<DashboardTicketsOverTimeChartDTO> GetTicketsOverTimeDataAsync(IQueryable<Ticket> tickets)
         {
             List<DashboardMonthlyTicketsDTO> ticketsOverTime = [];
             List<DashboardMonthlyTicketsDTO> resolvedTicketsOverTime = [];
-
-
 
             //1.Calculate the date range for the past 12 months
             DateTimeOffset now = DateTimeOffset.UtcNow;

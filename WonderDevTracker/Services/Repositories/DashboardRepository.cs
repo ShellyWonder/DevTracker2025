@@ -43,7 +43,7 @@ namespace WonderDevTracker.Services.Repositories
 
             return new AdminDashboardDTO
             {
-                CompanyStats = await GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
+                CompanyStats = await DashboardStatsBuilder.GetCompanyDashboardStatsAsync(allCompanyProjects, allCompanyTickets),
                 RecentActiveTickets = await GetRecentTicketSummariesAsync(
                                        GetRecentActiveTicketsQuery(adminCompanyTickets)),
                 RecentResolvedTickets = await GetRecentTicketSummariesAsync(
@@ -69,7 +69,7 @@ namespace WonderDevTracker.Services.Repositories
 
             return new PMDashboardDTO
             {
-                PMStats = await GetPMDashboardStatsAsync(pmProjects, pmTickets),
+                PMStats = await DashboardStatsBuilder.GetPMDashboardStatsAsync(pmProjects, pmTickets),
                 ManagedProjects = await GetProjectSummariesAsync(pmProjects),
                 UnassignedTickets = await GetPMUnassignedTicketsAsync(pmTickets),
                 PMChartData = await DashboardChartDataBuilder.GetPMDashboardChartDataAsync(pmProjects, pmTickets),
@@ -91,7 +91,7 @@ namespace WonderDevTracker.Services.Repositories
 
             return new DeveloperDashboardDTO
             {
-                DevStats = await GetDeveloperDashboardStatsAsync(devTickets),
+                DevStats = await DashboardStatsBuilder.GetDeveloperDashboardStatsAsync(devTickets),
                 DevProjects = await GetProjectSummariesAsync(GetDeveloperProjectsQuery(context, companyId, userId)),
                 AssignedTickets = await GetDeveloperAssignedTicketSummariesAsync(devTickets),
                 DevChartData = await DashboardChartDataBuilder.GetDeveloperDashboardChartDataAsync(devTickets),
@@ -102,16 +102,18 @@ namespace WonderDevTracker.Services.Repositories
         #endregion
 
         #region Submitter Dashboard
-        private static async Task<SubmitterDashboardDTO> GetSubmitterDashboardDataAsync(ApplicationDbContext context, int companyId, string userId)
+        private static async Task<SubmitterDashboardDTO> GetSubmitterDashboardDataAsync(ApplicationDbContext context, 
+                                                                                                        int companyId,  
+                                                                                                        string userId)
         {
             return new SubmitterDashboardDTO
             {
-                SubmitterStats = await GetSubmitterDashboardStatsAsync(GetSubmitterTicketsQuery(context, companyId, userId)),
+                SubmitterStats = await DashboardStatsBuilder.GetSubmitterDashboardStatsAsync(GetSubmitterTicketsQuery
+                                                                                        (context, companyId, userId)),
                 MySubmittedTickets = await GetMySubmittedTicketsAsync(context, companyId, userId)
             };
         }
         #endregion
-
         #endregion
     }
 }

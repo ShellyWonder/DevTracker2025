@@ -1,15 +1,14 @@
-﻿//DashboardRepository.Stats.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WonderDevTracker.Client.Models.DTOs.DashboardDTO;
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Models;
 
-namespace WonderDevTracker.Services.Repositories
+namespace WonderDevTracker.Services.RepoBuilders
 {
-    public partial class DashboardRepository
+    public class DashboardStatsBuilder
     {
         #region Role-Specific Stats Calculators
-        private static async Task<CompanyDashboardStatsDTO> GetCompanyDashboardStatsAsync(
+        public static async Task<CompanyDashboardStatsDTO> GetCompanyDashboardStatsAsync(
                                                                 IQueryable<Project> companyProjects,
                                                                 IQueryable<Ticket> companyTickets)
         {
@@ -24,7 +23,7 @@ namespace WonderDevTracker.Services.Repositories
             };
         }
 
-        private static async Task<PMDashboardStatsDTO> GetPMDashboardStatsAsync(
+        public static async Task<PMDashboardStatsDTO> GetPMDashboardStatsAsync(
                                                                 IQueryable<Project> pmProjects,
                                                                 IQueryable<Ticket> pmTickets)
         {
@@ -38,7 +37,7 @@ namespace WonderDevTracker.Services.Repositories
                                         .CountAsync(t => t.Status == TicketStatus.Resolved)
             };
         }
-        private static async Task<DevDashboardStatsDTO> GetDeveloperDashboardStatsAsync(IQueryable<Ticket> devTickets)
+        public static async Task<DevDashboardStatsDTO> GetDeveloperDashboardStatsAsync(IQueryable<Ticket> devTickets)
         {
             return new DevDashboardStatsDTO
             {
@@ -53,7 +52,7 @@ namespace WonderDevTracker.Services.Repositories
                     .CountAsync(t => t.Status == TicketStatus.Resolved)
             };
         }
-        private static async Task<SubmitterDashboardStatsDTO> GetSubmitterDashboardStatsAsync(
+        public static async Task<SubmitterDashboardStatsDTO> GetSubmitterDashboardStatsAsync(
                                                                 IQueryable<Ticket> submitterTickets)
         {
             return new SubmitterDashboardStatsDTO

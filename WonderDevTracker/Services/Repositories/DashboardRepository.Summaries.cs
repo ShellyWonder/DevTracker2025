@@ -118,7 +118,6 @@ namespace WonderDevTracker.Services.Repositories
                 .ToListAsync();
         }
 
-
         private static Expression<Func<Ticket, DashboardTicketSummaryDTO>> TicketSummaryProjection =>
                 t => new DashboardTicketSummaryDTO
                 {
