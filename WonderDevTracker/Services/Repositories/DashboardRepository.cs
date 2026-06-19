@@ -12,7 +12,7 @@ namespace WonderDevTracker.Services.Repositories
     public partial class DashboardRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
                                              UserManager<ApplicationUser> userManager) : IDashboardRepository
     {
-        
+
         public async Task<DashboardDTO> GetDashboardDataAsync(UserInfo userInfo)
         {
             await using var context = contextFactory.CreateDbContext();
@@ -39,6 +39,7 @@ namespace WonderDevTracker.Services.Repositories
             IQueryable<Project> allCompanyProjects = GetCompanyProjectsQuery(context, userInfo.CompanyId);
             IQueryable<Ticket> allCompanyTickets = GetCompanyTicketsQuery(context, userInfo.CompanyId);
             IQueryable<Ticket> adminCompanyTickets = GetAdminCompanyTicketsQuery(context, userInfo.CompanyId);
+            IQueryable<Ticket> activeCompanyTickets = GetAdminCompanyTicketsQuery(context, userInfo.CompanyId);
 
             return new AdminDashboardDTO
             {
@@ -49,7 +50,8 @@ namespace WonderDevTracker.Services.Repositories
                                         GetRecentResolvedTicketsQuery(adminCompanyTickets)),
                 RecentUnassignedTickets = await GetRecentTicketSummariesAsync(
                                         GetRecentUnassignedTicketsQuery(adminCompanyTickets)),
-                ChartData = await DashboardChartDataBuilder.GetDashboardChartDataAsync(context, userInfo.CompanyId),
+                ChartData = await DashboardChartDataBuilder.GetDashboardChartDataAsync(allCompanyProjects, allCompanyTickets,
+                                                                                       activeCompanyTickets),
                 RecentProjects = await GetProjectSummariesAsync(GetActiveCompanyProjectsQuery(context, userInfo.CompanyId)),
                 MySubmittedTickets = await GetMySubmittedTicketsAsync(context, userInfo.CompanyId, userInfo.UserId)
 
@@ -97,7 +99,7 @@ namespace WonderDevTracker.Services.Repositories
             };
         }
 
-         #endregion
+        #endregion
 
         #region Submitter Dashboard
         private static async Task<SubmitterDashboardDTO> GetSubmitterDashboardDataAsync(ApplicationDbContext context, int companyId, string userId)
@@ -110,7 +112,6 @@ namespace WonderDevTracker.Services.Repositories
         }
         #endregion
 
-          #endregion
-
+        #endregion
     }
 }

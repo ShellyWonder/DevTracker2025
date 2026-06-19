@@ -7,24 +7,28 @@ using WonderDevTracker.Services.Repositories;
 
 namespace WonderDevTracker.Services.RepoBuilders
 {
+    /// <summary>
+    ///calls individual queries and packages into single DTO for dashboard charts'construction and presention based on user roles.
+    /// </summary>
     internal sealed class DashboardChartDataBuilder
     {
         #region CHART AGGREGATOR METHODS 
 
         #region Company/Admin Dashboard Chart Data
-        //calls individual queries and packages into single DTO for dashboard consumption
-        //
+       
+        
         public static async Task<DashboardChartDataDTO> GetDashboardChartDataAsync(
-                                                        ApplicationDbContext context,
-                                                        int companyId)
+                                                            IQueryable<Project> companyProjects,
+                                                            IQueryable<Ticket> companyTickets,
+                                                            IQueryable<Ticket> activeCompanyTickets)
         {
             return new DashboardChartDataDTO
             {
-                TicketsOverTimeChart = await GetTicketsOverTimeDataAsync(context, companyId),
-                TicketsByStatus = await GetTicketsByStatusDataAsync(context, companyId),
-                TicketsByPriority = await GetTicketsByPriorityDataAsync(context, companyId),
-                ProjectsByPriority = await GetProjectsByPriorityDataAsync(context, companyId),
-                TicketsByProject = await GetTicketsByProjectDataAsync(context, companyId)
+                TicketsOverTimeChart = await GetTicketsOverTimeDataAsync(companyTickets),
+                TicketsByStatus = await GetTicketsByStatusDataAsync(companyTickets),
+                TicketsByPriority = await GetTicketsByPriorityDataAsync(companyTickets),
+                ProjectsByPriority = await GetProjectsByPriorityDataAsync(companyProjects),
+                TicketsByProject = await GetTicketsByProjectDataAsync(activeCompanyTickets)
             };
 
         }
@@ -73,7 +77,8 @@ namespace WonderDevTracker.Services.RepoBuilders
                    {
                        ProjectId = g.Key.ProjectId,
                        ProjectName = g.Key.ProjectName ?? "Unknown Project",
-                       OpenTicketCount = g.Count(t => t.Status != TicketStatus.Resolved)
+                       OpenTicketCount = g.Count(t => t.Status != TicketStatus.Resolved),
+                       ResolvedTicketCount = g.Count(t => t.Status == TicketStatus.Resolved)
                    })
                    .OrderByDescending(x => x.OpenTicketCount)
                    .ThenBy(x => x.ProjectName)
@@ -113,12 +118,12 @@ namespace WonderDevTracker.Services.RepoBuilders
         #endregion
 
 
-        private static async Task<DashboardTicketsOverTimeChartDTO> GetTicketsOverTimeDataAsync(ApplicationDbContext context, int companyId)
+        private static async Task<DashboardTicketsOverTimeChartDTO> GetTicketsOverTimeDataAsync(IQueryable<Ticket> tickets)
         {
             List<DashboardMonthlyTicketsDTO> ticketsOverTime = [];
             List<DashboardMonthlyTicketsDTO> resolvedTicketsOverTime = [];
 
-            IQueryable<Ticket> allCompanyTickets = DashboardRepository.GetCompanyTicketsQuery(context, companyId);
+
 
             //1.Calculate the date range for the past 12 months
             DateTimeOffset now = DateTimeOffset.UtcNow;
@@ -156,10 +161,10 @@ namespace WonderDevTracker.Services.RepoBuilders
                     );
 
                 //query db for tickets created in that month
-                var createdCount = await allCompanyTickets.CountAsync(t => t.Created >= thisMonth && t.Created < nextMonth);
+                int createdCount = await tickets.CountAsync(t => t.Created >= thisMonth && t.Created < nextMonth);
 
                 //query db for tickets resolved and updatedin that month
-                var resolvedCount = await allCompanyTickets.Where(t => t.Status == TicketStatus.Resolved)
+                int resolvedCount = await tickets.Where(t => t.Status == TicketStatus.Resolved)
                                                                .CountAsync(t => t.Updated.HasValue
                                                                ? (t.Updated.Value >= thisMonth && t.Updated.Value < nextMonth)
                                                                : (t.Created >= thisMonth && t.Created < nextMonth)
@@ -185,66 +190,6 @@ namespace WonderDevTracker.Services.RepoBuilders
                 TicketsOverTime = ticketsOverTime,
                 ResolvedTicketsOverTime = resolvedTicketsOverTime
             };
-        }
-
-        private static async Task<List<DashboardEnumCountDTO<TicketStatus>>> GetTicketsByStatusDataAsync(
-                                ApplicationDbContext context,
-                                int companyId)
-        {
-            IQueryable<Ticket> allCompanyTickets = DashboardRepository.GetCompanyTicketsQuery(context, companyId);
-
-            List<DashboardEnumCountDTO<TicketStatus>> data = await GetCountByCategoryAsync<TicketStatus>(
-       allCompanyTickets.Select(t => (TicketStatus?)t.Status));
-
-            return [.. data.OrderBy(item => item.Value)];
-        }
-
-        private static async Task<List<DashboardEnumCountDTO<ProjectPriority>>> GetProjectsByPriorityDataAsync(
-                        ApplicationDbContext context,
-                        int companyId)
-        {
-            IQueryable<Project> allCompanyProjects = DashboardRepository.GetCompanyProjectsQuery(context, companyId);
-
-            List<DashboardEnumCountDTO<ProjectPriority>> data = await GetCountByCategoryAsync<ProjectPriority>(
-                allCompanyProjects.Select(p => (ProjectPriority?)p.Priority));
-
-            return [.. data.OrderBy(item => item.Value)];
-        }
-
-        private static async Task<List<DashboardEnumCountDTO<TicketPriority>>> GetTicketsByPriorityDataAsync(
-                                ApplicationDbContext context,
-                                int companyId)
-        {
-            IQueryable<Ticket> allCompanyTickets = DashboardRepository.GetCompanyTicketsQuery(context, companyId);
-
-            List<DashboardEnumCountDTO<TicketPriority>> data = await GetCountByCategoryAsync<TicketPriority>(
-        allCompanyTickets.Select(t => (TicketPriority?)t.Priority));
-
-            return [.. data.OrderBy(item => item.Value)];
-        }
-
-        private static async Task<List<DashboardTicketsByProjectDTO>> GetTicketsByProjectDataAsync(
-                                                                        ApplicationDbContext context,
-                                                                        int companyId)
-
-        {
-
-            return await DashboardRepository.GetAdminCompanyTicketsQuery(context, companyId)
-                .GroupBy(t => new
-                {
-                    t.ProjectId,
-                    ProjectName = t.Project!.Name
-                })
-                .Select(g => new DashboardTicketsByProjectDTO
-                {
-                    ProjectId = g.Key.ProjectId,
-                    ProjectName = g.Key.ProjectName ?? "Unnamed Project",
-                    TotalTicketCount = g.Count(),
-                    OpenTicketCount = g.Count(t => t.Status != TicketStatus.Resolved),
-                    ResolvedTicketCount = g.Count(t => t.Status == TicketStatus.Resolved)
-                })
-                .OrderByDescending(x => x.TotalTicketCount)
-                .ToListAsync();
         }
 
         #region Helper Methods
