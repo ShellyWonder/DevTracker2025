@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using WonderDevTracker.Client;
 using WonderDevTracker.Client.Helpers;
 using WonderDevTracker.Client.Models.DTOs;
@@ -234,10 +235,17 @@ namespace WonderDevTracker.Controllers
 
         [HttpPost("{ticketId:int}/attachments"), Tags("Ticket Attachments")]
         public async Task<IActionResult> AddTicketAttachment([FromRoute] int ticketId,
-                                                     IFormFile file,
+                                                       [FromForm] IFormFile file,
                                                      [FromForm] TicketAttachmentDTO attachment)//form encoded:from form-data not JSON body
         {
-            if (ticketId != attachment.TicketId || file.Length > BrowserFileHelper.MaxFileSize) return BadRequest("Ticket ID mismatch or file size exceeds limit.");
+            if (ticketId != attachment.TicketId)
+                return BadRequest("Ticket ID mismatch.");
+
+            if (file is null || file.Length == 0)
+                return BadRequest("No file was uploaded.");
+
+            if (file.Length > BrowserFileHelper.MaxFileSize)
+                return BadRequest("File size exceeds limit.");
             try
             {
                 attachment.UserId = UserInfo.UserId;

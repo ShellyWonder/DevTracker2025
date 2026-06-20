@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using WonderDevTracker.Components.Account;
 using WonderDevTracker.Models;
 
 namespace WonderDevTracker.Infrastructure

@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Components.Forms;
 using WonderDevTracker.Client.Helpers;
 using WonderDevTracker.Models;
 
@@ -8,12 +9,9 @@ namespace WonderDevTracker.Helpers
     {
         public static readonly string DefaultProfilePictureUrl = "/img/ProfilePlaceHolder.png";
 
-        public static async Task<FileUpload> GetFileUploadAsync(IFormFile file)
+        public static async Task<FileUpload> GetFileUploadAsync(IBrowserFile file)
         {
-            using var ms = new MemoryStream();
-            await file.CopyToAsync(ms);
-            byte[] data = ms.ToArray();
-            if (ms.Length > BrowserFileHelper.MaxFileSize) throw new IOException("The selected file is too large.");
+            byte[] data = await BrowserFileHelper.GetFileDataAsync(file);
 
             FileUpload upload = new()
             {
@@ -21,6 +19,7 @@ namespace WonderDevTracker.Helpers
                 Data = data,
                 Type = file.ContentType
             };
+
             return upload;
         }
 
@@ -33,7 +32,7 @@ namespace WonderDevTracker.Helpers
                 string contentType = matchGroups["type"].Value;
                 string base64Data = matchGroups["data"].Value;
                 byte[] data = Convert.FromBase64String(base64Data);
-                if (data.Length<= BrowserFileHelper.MaxFileSize)
+                if (data.Length <= BrowserFileHelper.MaxFileSize)
                 {
                     FileUpload upload = new()
                     {
@@ -41,7 +40,7 @@ namespace WonderDevTracker.Helpers
                         Data = data,
                         Type = contentType
                     };
-                    return upload; 
+                    return upload;
                 }
                 // data exists but is too large
                 throw new IOException("The provided data URL is too large.");
@@ -50,11 +49,29 @@ namespace WonderDevTracker.Helpers
             throw new IOException("The provided data URL is invalid.");
 
         }
-        
+
         //@"data:(?<type>. +?);base64,(?<data>.+) builds formCompany.ImageUrl = $"data:{file.ContentType};base64,{base64String}";"
         //(?<type>. +?) ==> matches the content type (e.g., image/png)
         // capture group = data in (?<data>.+) ==> matches the actual base64-encoded data
         [GeneratedRegex(@"data:(?<type>.+?);base64,(?<data>.+)")]
         private static partial Regex DataUrlRegex();
+
+        public static async Task<FileUpload> GetFileUploadAsync(IFormFile file)
+        {
+            if (file.Length > BrowserFileHelper.MaxFileSize)
+                throw new IOException("The selected file is too large.");
+
+            await using Stream stream = file.OpenReadStream();
+            using MemoryStream ms = new();
+
+            await stream.CopyToAsync(ms);
+
+            return new FileUpload
+            {
+                Id = Guid.NewGuid(),
+                Data = ms.ToArray(),
+                Type = file.ContentType
+            };
+        }
     }
 }
