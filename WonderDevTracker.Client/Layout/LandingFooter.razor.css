@@ -1,0 +1,25 @@
+﻿
+/*LandingFooter.razor.css*/
+
+.landing-footer {
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--dt-border);
+    background: rgba(255, 255, 255, 0.62);
+}
+
+.landing-footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--dt-muted);
+    font-size: 0.9rem;
+    font-weight: 650;
+}
+@media (max-width: 960px) {
+    .landing-footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
