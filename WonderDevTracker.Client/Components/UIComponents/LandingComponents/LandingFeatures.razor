@@ -1,0 +1,67 @@
+﻿@* LandingFeatures.razor *@
+<MudContainer MaxWidth="MaxWidth.Large">
+    <div class="section-heading eyebrow-left">
+        <p class="landing-eyebrow text-only">Core Features</p>
+        <h2>Built around the real workflow from project planning to ticket resolution.</h2>
+        <p>
+            DevTracker keeps projects, tickets, users, comments, attachments,
+            history, and notifications connected without overwhelming the user.
+        </p>
+    </div>
+
+    <MudGrid Spacing="3">
+        @foreach (FeatureCard feature in Features)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <article class="feature-card">
+                    <div class="feature-icon">
+                        <MudIcon Icon="@feature.Icon" />
+                    </div>
+                    <h3>@feature.Title</h3>
+                    <p>@feature.Description</p>
+                </article>
+            </MudItem>
+        }
+    </MudGrid>
+</MudContainer>
+
+@code {
+
+    private sealed record FeatureCard(
+        string Title,
+        string Description,
+        string Icon);
+
+    private readonly List<FeatureCard> Features =
+  [
+      new(
+            "Project Management",
+            "Create projects, manage members, assign project managers, track dates, and archive completed work.",
+            Icons.Material.Filled.FolderShared),
+
+        new(
+            "Ticket Tracking",
+            "Create, assign, update, resolve, archive, and review tickets with priority and status visibility.",
+            Icons.Material.Filled.BugReport),
+
+        new(
+            "Role Dashboards",
+            "Surface the right stats, tickets, projects, and activity for Admins, PMs, Developers, and Submitters.",
+            Icons.Material.Filled.Dashboard),
+
+        new(
+            "Notifications",
+            "Notify users about assignments, role changes, project updates, comments, and ticket activity.",
+            Icons.Material.Filled.NotificationsActive),
+
+        new(
+            "Comments & Attachments",
+            "Keep ticket discussion, supporting files, and activity history connected to the work item.",
+            Icons.Material.Filled.AttachFile),
+
+        new(
+            "Company Isolation",
+            "Keep company users, projects, tickets, and dashboard data scoped to the correct organization.",
+            Icons.Material.Filled.Lock)
+  ];
+}

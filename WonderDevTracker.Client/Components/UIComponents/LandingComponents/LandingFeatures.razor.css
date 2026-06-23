@@ -1,0 +1,11 @@
+﻿/**Landing Features.razor.css**/
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 1.1rem;
+    border-radius: 16px;
+    background: var(--dt-soft-blue);
+    color: var(--dt-primary);
+}
