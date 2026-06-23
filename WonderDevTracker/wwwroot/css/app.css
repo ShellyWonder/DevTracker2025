@@ -1,4 +1,21 @@
 :root {
+    --dt-primary: var(--mud-palette-primary);
+    --dt-primary-dark: var(--mud-palette-primary-darken);
+    --dt-accent: var(--mud-palette-secondary);
+    --dt-bg: var(--mud-palette-background);
+    --dt-surface: var(--mud-palette-surface);
+    --dt-text: var(--mud-palette-text-primary);
+    --dt-muted: var(--mud-palette-text-secondary);
+    --dt-border: var(--mud-palette-lines-default);
+    --dt-success: var(--mud-palette-success);
+    --dt-warning: var(--mud-palette-warning);
+    --dt-danger: var(--mud-palette-error);
+    --dt-soft-blue: rgba(0, 119, 182, 0.10);
+    --dt-soft-teal: rgba(0, 180, 216, 0.12);
+    --dt-shadow: 0 18px 45px rgba(30, 42, 53, 0.10);
+    --dt-radius-lg: 24px;
+    --dt-radius-md: 18px;
+    --dt-radius-sm: 12px;
     --font-heading: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
@@ -10,6 +27,63 @@
     --dt-avatar-featured-text: #FFFFFF;
 }
 
+/* #region Global CSS */
+html {
+    height: 100dvh;
+}
+
+body {
+    height: 100%;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    line-height: 1;
+    font-size: 1rem;
+}
+/* Default body text and headings */
+h1, h2, h3, h4, h5, h6, button, nav {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+/* Issue IDs, status labels, terminal-style content */
+.code-snippet,
+.issue-id,
+.tag-code {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+/* #region LoadingSpinner.razor  */
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px; /* Prevent collapse in small containers */
+    text-align: center;
+}
+
+.spinner-fade-in {
+    animation: spinnerFadeInUp 0.6s ease-out both;
+}
+
+@keyframes spinnerFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* #endregion LoadingSpinner.razor  */
+/* #endregion Global CSS*/
+
+/*#region Not Found Full Component */
 .tt-full-center {
     min-height: calc(100dvh - var(--shell-offset));
     display: flex;
@@ -17,6 +91,12 @@
     justify-content: center;
     align-items: center;
     text-align: center;
+}
+/*#endregion Not Found Full Component */
+
+.landing-appbar {
+    
+    border-bottom: 1px solid rgba(221, 230, 236, 0.8);
 }
 
 /* #region Fabbutton */
@@ -232,7 +312,7 @@
     }
 }
 
-/*endregion TicketHistoryTimeline.razor*/
+/*#endregion TicketHistoryTimeline.razor*/
 
 /* #region TicketAttachment.razor */
 .attachments-section {
@@ -359,61 +439,7 @@
 }
 /* #endregion form section animation */
 
-/* #region Global CSS */
-html {
-    height: 100dvh;
-}
 
-body {
-    height: 100%;
-    font-family: var(--font-sans);
-    font-weight: 400;
-    line-height: 1;
-    font-size: 1rem;
-}
-/* Default body text and headings */
-h1, h2, h3, h4, h5, h6, button, nav {
-    font-family: var(--font-heading);
-    font-weight: 500;
-    line-height: 1.5;
-    font-size: 1rem;
-}
-/* Issue IDs, status labels, terminal-style content */
-.code-snippet,
-.issue-id,
-.tag-code {
-    font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-/* #region LoadingSpinner.razor  */
-.loading-spinner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    min-height: 200px; /* Prevent collapse in small containers */
-    text-align: center;
-}
-
-.spinner-fade-in {
-    animation: spinnerFadeInUp 0.6s ease-out both;
-}
-
-@keyframes spinnerFadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-/* #endregion LoadingSpinner.razor  */
-/* #endregion Global CSS*/
 
 /* #region Tickets page/table container animations ==== */
 .tickets-page .tt-table {
@@ -448,7 +474,9 @@ h1, h2, h3, h4, h5, h6, button, nav {
         transform: none;
     }
 }
-/* ==== Row animations (DataGrid or Table) ==== */
+/* #endregion Tickets page/table container animations ==== */
+
+/* #region Row animations (DataGrid or Table) ==== */
 .tt-row {
     opacity: 0;
     transform: translateY(8px);
