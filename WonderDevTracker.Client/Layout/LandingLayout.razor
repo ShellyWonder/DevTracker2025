@@ -1,0 +1,35 @@
+﻿@* LandingPageLayout *@
+@using WonderDevTracker.Client.Layout.Menus
+@using WonderDevTracker.Client.Layout.Footers
+
+@inject ThemeManagerService themeService
+
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@themeService.CurrentTheme" />
+<MudPopoverProvider />
+<MudLayout Class="landing-page">
+    <MudAppBar Elevation="0"
+               Dense="false"
+               Class="landing-appbar">
+        <LandingNavMenu />
+    </MudAppBar>
+
+    <MudMainContent Class="h-100 d-flex flex-column">
+        <main class="flex-grow-1 pb-3">
+            @Body
+        </main>
+        <footer>
+            <LandingFooter />
+        </footer>
+
+        <div id="blazor-error-ui">
+            An unhandled error has occurred.
+            <a href="" class="reload">Reload</a>
+            <a class="dismiss">🗙</a>
+        </div>
+    </MudMainContent>
+</MudLayout>
+@code {
+
+}
