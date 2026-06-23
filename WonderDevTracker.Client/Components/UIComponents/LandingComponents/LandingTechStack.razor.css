@@ -1,0 +1,16 @@
+﻿.tech-stack-section {
+    background: var(--dt-page-bg);
+}
+
+.tech-stack-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.tech-stack-card {
+    border: 1px solid var(--dt-border);
+    border-radius: 1.25rem;
+    background: white;
+    padding: 1.5rem;
+}
