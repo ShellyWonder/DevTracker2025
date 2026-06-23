@@ -1,5 +1,6 @@
 ﻿@*Static layout for non-interactive pages*@
 
+@using WonderDevTracker.Client.Layout.Footers
 @inject NavigationManager NavigationManager
 @inject ThemeManagerService themeService
 @implements IDisposable
@@ -8,93 +9,92 @@
 <!-- v8: self-closing -->
 <MudThemeProvider Theme="@themeService.CurrentTheme" />
 <MudLayout>
-	<MudAppBar Elevation="1">
-		<div class="d-flex justify-content-between align-items-center w-100">
-			<a href="/">
-				<img src="img\dt_whitenotextlogo.png" height="40" />
-			</a>
-			@if (!isLoginPage)
-			{
-				<div>
-					<AuthorizeView>
-						<Authorized>
-							@*TODO: Link to Dashboard*@
-							<MudButton Variant="Variant.Text"
-									   Color="Color.Inherit"
-									   StartIcon="@Icons.Material.Filled.Dashboard"
-									   Href="/dashboard">
-								Dashboard
-							</MudButton>
-							<form action="Account/Logout" method="post" id="logoutForm" class="d-inline">
-								<AntiforgeryToken />
-								<input type="hidden" name="ReturnUrl" value="account/login" />
-								<MudButton Variant="Variant.Text"
-										   Color="Color.Inherit"
-										   StartIcon="@Icons.Material.Filled.Logout"
-										   ButtonType="ButtonType.Submit">
-									Logout
-								</MudButton>
-							</form>
-						</Authorized>
-						<NotAuthorized>
-							<MudButton Variant="Variant.Text"
-									   Color="Color.Inherit"
-									   StartIcon="@Icons.Material.Filled.Login"
-									   Href="Account/Login">
-								Login
-							</MudButton>
-							<MudButton Variant="Variant.Text"
-									   Color="Color.Inherit"
-									   StartIcon="@Icons.Material.Filled.PersonAdd"
-									   Href="Account/Register">
-								Register
-							</MudButton>
-						</NotAuthorized>
-					</AuthorizeView>
-				</div>
-			}
-		</div>
-	</MudAppBar>
+    <MudAppBar Elevation="1">
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <a href="/">
+                <img src="img\dt_whitenotextlogo.png" height="40" />
+            </a>
+            @if (!isLoginPage)
+            {
+                <div>
+                    <AuthorizeView>
+                        <Authorized>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Inherit"
+                                       StartIcon="@Icons.Material.Filled.Dashboard"
+                                       Href="/dashboard">
+                                Dashboard
+                            </MudButton>
+                            <form action="Account/Logout" method="post" id="logoutForm" class="d-inline">
+                                <AntiforgeryToken />
+                                <input type="hidden" name="ReturnUrl" value="account/login" />
+                                <MudButton Variant="Variant.Text"
+                                           Color="Color.Inherit"
+                                           StartIcon="@Icons.Material.Filled.Logout"
+                                           ButtonType="ButtonType.Submit">
+                                    Logout
+                                </MudButton>
+                            </form>
+                        </Authorized>
+                        <NotAuthorized>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Inherit"
+                                       StartIcon="@Icons.Material.Filled.Login"
+                                       Href="Account/Login">
+                                Login
+                            </MudButton>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Inherit"
+                                       StartIcon="@Icons.Material.Filled.PersonAdd"
+                                       Href="Account/Register">
+                                Register
+                            </MudButton>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            }
+        </div>
+    </MudAppBar>
 
-	<MudMainContent Class="h-100 d-flex flex-column">
-		<main class="flex-grow-1 pb-3">
-			@Body
-		</main>
-		<footer>
-			<Footer />
-		</footer>
+    <MudMainContent Class="h-100 d-flex flex-column">
+        <main class="flex-grow-1 pb-3">
+            @Body
+        </main>
+        <footer>
+            <MainFooter />
+        </footer>
 
-		<div id="blazor-error-ui">
-			An unhandled error has occurred.
-			<a href="" class="reload">Reload</a>
-			<a class="dismiss">🗙</a>
-		</div>
+        <div id="blazor-error-ui">
+            An unhandled error has occurred.
+            <a href="" class="reload">Reload</a>
+            <a class="dismiss">🗙</a>
+        </div>
 
-	</MudMainContent>
+    </MudMainContent>
 </MudLayout>
 
 
 @code {
 
-	private bool _initialized = false;
-	private bool isLoginPage => NavigationManager.Uri.Contains("/account/login", StringComparison.OrdinalIgnoreCase);
+    private bool _initialized = false;
+    private bool isLoginPage => NavigationManager.Uri.Contains("/account/login", StringComparison.OrdinalIgnoreCase);
 
-	public void Dispose()
-	{
-		// CRITICAL: unsubscribe to avoid StateHasChanged on a disposed layout
-		themeService.OnThemeChanged -= StateHasChanged;
-	}
+    public void Dispose()
+    {
+        // CRITICAL: unsubscribe to avoid StateHasChanged on a disposed layout
+        themeService.OnThemeChanged -= StateHasChanged;
+    }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender && !_initialized)
-		{
-			//checking local storage for theme preference
-			await themeService.InitializeAsync();
-			themeService.OnThemeChanged += StateHasChanged;
-			_initialized = true;
-			StateHasChanged(); // re-render with correct theme
-		}
-	}
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            //checking local storage for theme preference
+            await themeService.InitializeAsync();
+            themeService.OnThemeChanged += StateHasChanged;
+            _initialized = true;
+            StateHasChanged(); // re-render with correct theme
+        }
+    }
 
 }
