@@ -1,0 +1,134 @@
+﻿.landing-nav-container {
+    width: 100%;
+    padding-inline: clamp(3rem, 7vw, 7rem);
+}
+
+.landing-nav {
+    width: 100%;
+    min-height: 72px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 2rem;
+}
+
+.landing-nav-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: max-content;
+}
+
+.landing-nav-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.landing-nav-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    min-width: max-content;
+}
+
+.landing-nav-link {
+    color: #ffffff;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    letter-spacing: 0.02em !important;
+    min-width: unset !important;
+    padding-inline: 0.75rem !important;
+}
+
+    .landing-nav-link:hover,
+    .landing-nav-link:focus-visible {
+        color: #FFFFFF !important;
+    }
+
+.landing-login-button {
+    color: rgba(255, 255, 255, 0.92) !important;
+    font-weight: 800 !important;
+    text-transform: none !important;
+    letter-spacing: 0.02em !important;
+}
+
+    .landing-login-button:hover,
+    .landing-login-button:focus-visible {
+        color: #FFFFFF !important;
+    }
+
+.landing-primary-button {
+    border-radius: 6px !important;
+    font-weight: 800 !important;
+    text-transform: none !important;
+    letter-spacing: 0.02em !important;
+    color: #FFFFFF !important;
+    background-color: rgba(0, 95, 146, 0.85) !important;
+    box-shadow: 0 3px 8px rgba(30, 42, 53, 0.28) !important;
+}
+
+    .landing-primary-button:hover,
+    .landing-primary-button:focus-visible {
+        background-color: rgba(0, 84, 130, 0.95) !important;
+    }
+
+@media (max-width: 960px) {
+    .landing-nav-container {
+        padding-inline: 1.25rem;
+    }
+
+    .landing-nav {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "brand actions"
+            "links links";
+        gap: 0.75rem 1rem;
+        padding: 0.75rem 0;
+    }
+
+    .landing-nav-left {
+        grid-area: brand;
+    }
+
+    .landing-nav-center {
+        grid-area: links;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    .landing-nav-actions {
+        grid-area: actions;
+    }
+}
+
+@media (max-width: 640px) {
+    .landing-nav {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "brand"
+            "actions"
+            "links";
+        align-items: stretch;
+    }
+
+    .landing-nav-left {
+        justify-content: center;
+    }
+
+    .landing-nav-actions {
+        justify-content: center;
+    }
+
+        .landing-nav-actions .mud-button-root {
+            flex: 1;
+        }
+
+    .landing-nav-center {
+        justify-content: flex-start;
+    }
+}
