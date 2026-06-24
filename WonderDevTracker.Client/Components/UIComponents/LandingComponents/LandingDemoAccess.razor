@@ -1,0 +1,75 @@
+﻿@* LandingDemoAccess *@
+<MudGrid Spacing="4" AlignItems="Center">
+    <MudItem xs="12" md="5">
+        <div class="section-heading left-align">
+            <p class="landing-eyebrow text-only">Demo Access</p>
+            <h2>Preview DevTracker from different permission levels.</h2>
+            <p>
+                Use a demo role to see how dashboards, tickets, projects, and actions
+                change depending on the user’s responsibilities.
+            </p>
+        </div>
+    </MudItem>
+
+    <MudItem xs="12" md="7">
+        <MudGrid Spacing="3">
+            @foreach (DemoCard demo in DemoCards)
+            {
+                <MudItem xs="12" sm="6">
+                    <article class="demo-card">
+                        <div>
+                            <span class="demo-role">@demo.RoleName</span>
+                            <h3>@demo.Title</h3>
+                            <p>@demo.Description</p>
+                        </div>
+
+                        <MudButton Href="@demo.Href"
+                                   Variant="Variant.Outlined"
+                                   EndIcon="@Icons.Material.Filled.ArrowForward"
+                                   Class="demo-button">
+                            Launch Demo
+                        </MudButton>
+                    </article>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private sealed record DemoCard(
+       string RoleName,
+       string Title,
+       string Description,
+       string Href
+    );
+
+    private readonly List<DemoCard> DemoCards =
+[
+    new(
+            "Admin",
+            "Company-wide control",
+            "Preview full access to users, projects, tickets, dashboards, and administrative workflows.",
+            "/Account/Login?demoRole=Admin"),
+
+        new(
+            "Project Manager",
+            "Project oversight",
+            "Preview project-level management, team visibility, unassigned tickets, and PM dashboard insights.",
+            "/Account/Login?demoRole=ProjectManager"),
+
+        new(
+            "Developer",
+            "Assigned work queue",
+            "Preview a developer-focused dashboard with assigned tickets, project context, and status tracking.",
+            "/Account/Login?demoRole=Developer"),
+
+        new(
+            "Submitter",
+            "Ticket submission flow",
+            "Preview the experience for submitting tickets and tracking submitted work.",
+            "/Account/Login?demoRole=Submitter")
+];
+
+
+}

@@ -6,7 +6,7 @@
     --dt-surface: var(--mud-palette-surface);
     --dt-text: var(--mud-palette-text-primary);
     --dt-muted: var(--mud-palette-text-secondary);
-    --dt-border: var(--mud-palette-lines-default);
+    --dt-border: var(--mud-palette-lines-secondary);
     --dt-success: var(--mud-palette-success);
     --dt-warning: var(--mud-palette-warning);
     --dt-danger: var(--mud-palette-error);
@@ -95,6 +95,23 @@ h1, h2, h3, h4, h5, h6, button, nav {
 /*#endregion Not Found Full Component */
 
 /* #region Landing shared section styles */
+.landing-primary-button {
+    border-radius: 999px;
+    font-weight: 800;
+    text-transform: none;
+    box-shadow: 0 12px 24px rgba(0, 119, 182, 0.22);
+}
+
+.mud-button-root.landing-secondary-button {
+    border-radius: 999px;
+    border-color: var(--dt-primary-dark);
+    color: var(--dt-text);
+    font-weight: 800;
+    text-transform: none;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+    
 .landing-section {
     padding: 5rem 1.5rem;
 }
@@ -188,23 +205,51 @@ h1, h2, h3, h4, h5, h6, button, nav {
         box-shadow: 0 18px 36px rgba(30, 42, 53, 0.10);
     }
 
+    .feature-card h3,
+    .role-card h3,
+    .demo-card h3 {
+        margin: 0;
+        color: var(--dt-text);
+        font-size: 1.1rem;
+        font-weight: 900;
+    }
 
-.feature-card h3,
-.role-card h3,
-.demo-card h3 {
-    margin: 0;
-    color: var(--dt-text);
-    font-size: 1.1rem;
+    .feature-card p,
+    .role-card p,
+    .demo-card p {
+        margin: 0.65rem 0 0;
+        color: var(--dt-muted);
+        line-height: 1.65;
+    }
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 2rem;
+}
+
+    .hero-actions.center {
+        justify-content: center;
+    }
+
+.role-card-top .mud-icon-root {
+    color: var(--dt-primary);
+}
+
+.role-card-top span,
+.demo-role {
+    padding: 0.35rem 0.55rem;
+    border-radius: 999px;
+    background: var(--dt-soft-teal);
+    color: var(--dt-primary);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
     font-weight: 900;
+    text-transform: uppercase;
 }
 
-.feature-card p,
-.role-card p,
-.demo-card p {
-    margin: 0.65rem 0 0;
-    color: var(--dt-muted);
-    line-height: 1.65;
-}
+
 
 /* #endregion Landing shared section styles */
 /* #region Fabbutton */
