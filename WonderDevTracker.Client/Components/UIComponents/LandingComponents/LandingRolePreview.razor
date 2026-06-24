@@ -1,0 +1,61 @@
+﻿@* LandingRolePreview.razor *@
+<div class="section-heading eyebrow-left">
+    <p class="landing-eyebrow text-only">Role-Based Workflow</p>
+    <h2>Every role sees the work that matters to them.</h2>
+    <p>
+        Admins, project managers, developers, and submitters each get a focused path
+        through the same shared system.
+    </p>
+</div>
+
+<MudGrid Spacing="3">
+    @foreach (RoleCard role in Roles)
+    {
+        <MudItem xs="12" sm="6" md="3">
+            <article class="role-card">
+                <div class="role-card-top">
+                    <MudIcon Icon="@role.Icon" />
+                    <span>@role.Badge</span>
+                </div>
+                <h3>@role.Title</h3>
+                <p>@role.Description</p>
+            </article>
+        </MudItem>
+    }
+</MudGrid>
+@code {
+    private sealed record RoleCard(
+        string Title,
+        string Badge,
+        string Description,
+        string Icon
+    );
+
+    private readonly List<RoleCard> Roles =
+[
+    new(
+            "Administrator",
+            "Admin",
+            "Manage company users, roles, projects, tickets, dashboards, and company-wide activity.",
+            Icons.Material.Filled.AdminPanelSettings),
+
+        new(
+            "Project Manager",
+            "PM",
+            "Oversee assigned projects, manage project teams, review unassigned tickets, and track progress.",
+            Icons.Material.Filled.ManageAccounts),
+
+        new(
+            "Developer",
+            "Dev",
+            "View assigned projects and tickets, update status, resolve work, and track personal workload.",
+            Icons.Material.Filled.Code),
+
+        new(
+            "Submitter",
+            "Submit",
+            "Create tickets, monitor submitted issues, and follow progress through updates and notifications.",
+            Icons.Material.Filled.PersonAdd)
+];
+
+}
