@@ -1,0 +1,29 @@
+﻿/*Landing.razor.css*/
+
+.landing-hero {
+    padding: 6rem 0 4.5rem;
+}
+  
+.landing-section {
+    padding: 5rem 0;
+}
+
+.landing-section-soft {
+    background: rgba(255, 255, 255, 0.55);
+    border-top: 1px solid rgba(221, 230, 236, 0.75);
+    border-bottom: 1px solid rgba(221, 230, 236, 0.75);
+}
+
+.demo-section {
+    background: linear-gradient(135deg, rgba(0, 119, 182, 0.06), rgba(0, 180, 216, 0.08)), var(--dt-bg);
+}
+
+.landing-cta-section {
+    padding: 4.5rem 0 5rem;
+}
+
+.tech-section {
+    background: var(--dt-page-bg);
+}
+
+

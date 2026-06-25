@@ -1,0 +1,45 @@
+﻿@page "/"
+
+@layout WonderDevTracker.Client.Layout.LandingLayout
+
+<PageTitle>DevTracker | Project & Ticket Management</PageTitle>
+
+ <section class="landing-hero">
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <LandingHero />
+    </MudContainer>
+</section>
+
+<section id="features" class="landing-section">
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <LandingFeatures />
+    </MudContainer>
+</section>
+
+<section id="roles" class="landing-section landing-section-soft">
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <LandingRolePreview />
+    </MudContainer>
+</section>
+
+<section id="demo" class="landing-section demo-section">
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <LandingDemoAccess />
+    </MudContainer>
+</section>
+
+<section id="tech-stack" class="landing-section tech-section">
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <LandingTechStack />
+    </MudContainer>
+</section>
+
+<section class="landing-cta-section">
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <LandingCallToAction />
+    </MudContainer>
+</section>
+
+@code {
+ 
+}

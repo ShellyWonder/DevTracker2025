@@ -95,23 +95,7 @@ h1, h2, h3, h4, h5, h6, button, nav {
 /*#endregion Not Found Full Component */
 
 /* #region Landing shared section styles */
-.landing-primary-button {
-    border-radius: 999px;
-    font-weight: 800;
-    text-transform: none;
-    box-shadow: 0 12px 24px rgba(0, 119, 182, 0.22);
-}
-
-.mud-button-root.landing-secondary-button {
-    border-radius: 999px;
-    border-color: var(--dt-primary-dark);
-    color: var(--dt-text);
-    font-weight: 800;
-    text-transform: none;
-    background: rgba(255, 255, 255, 0.72);
-}
-
-    
+   
 .landing-section {
     padding: 5rem 1.5rem;
 }
@@ -119,6 +103,8 @@ h1, h2, h3, h4, h5, h6, button, nav {
     .landing-section.alt {
         background: var(--dt-soft-bg);
     }
+
+
 
 .section-heading {
     max-width: 760px;
@@ -233,6 +219,12 @@ h1, h2, h3, h4, h5, h6, button, nav {
         justify-content: center;
     }
 
+.role-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.15rem;
+}
 .role-card-top .mud-icon-root {
     color: var(--dt-primary);
 }
