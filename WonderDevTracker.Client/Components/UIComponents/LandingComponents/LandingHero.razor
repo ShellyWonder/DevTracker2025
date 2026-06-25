@@ -1,0 +1,119 @@
+﻿@* LandingHero *@
+<MudGrid Spacing="6" AlignItems="Center">
+    <MudItem xs="12" md="6">
+        <div class="hero-copy">
+            <div class="landing-eyebrow">
+                <MudIcon Icon="@Icons.Material.Filled.BugReport" Size="Size.Small" />
+                Project & ticket management for software teams
+            </div>
+
+            <h1>Track projects, tickets, teams, and priorities in one focused workspace.</h1>
+
+            <p class="hero-lede">
+                DevTracker helps companies manage projects, assign team members,
+                track tickets, review updates, and surface role-specific dashboard insights.
+            </p>
+
+            <div class="hero-actions">
+                <CtaBtn Href="#demo"
+                        StartIcon="@Icons.Material.Filled.PlayArrow"
+                        BtnText="Try the Demo">
+                </CtaBtn>
+
+                <CtaBtn Href="#features"
+                        StartIcon="@Icons.Material.Filled.Explore"
+                        Variant="Variant.Outlined"
+                        Color="Color.Secondary"
+                        BtnText="Explore Features">
+                </CtaBtn>
+            </div>
+
+            <div class="hero-trust-row" aria-label="Application highlights">
+                <span>Role-based access</span>
+                <span>Company isolation</span>
+                <span>Dashboard insights</span>
+            </div>
+        </div>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <section class="dashboard-preview" aria-label="DevTracker dashboard preview">
+            <div class="preview-topbar">
+                <div>
+                    <p class="preview-label">Company Dashboard</p>
+                    <h2>Wonder Software Co.</h2>
+                </div>
+                <span class="preview-status">Live Preview</span>
+            </div>
+
+            <div class="preview-stats-grid">
+                @foreach (PreviewStat stat in PreviewStats)
+                {
+                    <article class="preview-stat-card">
+                        <MudIcon Icon="@stat.Icon" Size="Size.Small" />
+                        <div>
+                            <strong>@stat.Value</strong>
+                            <span>@stat.Label</span>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            <div class="preview-panel">
+                <div class="preview-panel-header">
+                    <span>Recent Tickets</span>
+                    <span class="preview-chip">Active</span>
+                </div>
+
+                @foreach (PreviewTicket ticket in PreviewTickets)
+                {
+                    <div class="preview-ticket-row">
+                        <div>
+                            <p>@ticket.Title</p>
+                            <span>@ticket.Project</span>
+                        </div>
+                        <span class="@ticket.BadgeClass">@ticket.Status</span>
+                    </div>
+                }
+            </div>
+
+            <div class="preview-footer-row">
+                <div>
+                    <span class="preview-dot success"></span>
+                    Notifications ready
+                </div>
+                <div>
+                    <span class="preview-dot warning"></span>
+                    3 high-priority items
+                </div>
+            </div>
+        </section>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private sealed record PreviewStat(string Label, string Value, string Icon);
+
+    private sealed record PreviewTicket(
+        string Title,
+        string Project,
+        string Status,
+        string BadgeClass);
+
+    private readonly List<PreviewStat> PreviewStats =
+    [
+        new("Open Tickets", "42", Icons.Material.Filled.ConfirmationNumber),
+        new("Projects", "8", Icons.Material.Filled.Folder),
+        new("Resolved", "137", Icons.Material.Filled.CheckCircle),
+        new("Notifications", "12", Icons.Material.Filled.Notifications)
+    ];
+
+    private readonly List<PreviewTicket> PreviewTickets =
+    [
+        new("Fix profile image upload", "DevTracker MVP", "High", "preview-badge high"),
+        new("Review dashboard chart data", "Analytics", "Testing", "preview-badge testing"),
+        new("Assign project manager", "Onboarding", "New", "preview-badge new")
+    ];
+
+
+}
