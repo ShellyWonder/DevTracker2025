@@ -28,7 +28,7 @@ namespace WonderDevTracker.Client.Pages
         private string UserName => UserInfo?.FullName ?? "User";
         private string? CompanyName => _data?.CompanyInfo?.CompanyName;
         private bool IsEmpty => _data is null || UserInfo is null || CurrentUser is null;
-        
+
 
         private string DashboardRoleLabel =>
             IsAdmin
@@ -75,7 +75,6 @@ namespace WonderDevTracker.Client.Pages
                 _hasData = _data is not null;
 
                 _breadcrumbs = [
-                            new BreadcrumbItem("Home", href: "/"),
                         new BreadcrumbItem("Dashboard", href: null, disabled: true),
             ];
                 _breadcrumbs.Add(new BreadcrumbItem(UserInfo?.FullName ?? "User Not Found", href: null, disabled: true));

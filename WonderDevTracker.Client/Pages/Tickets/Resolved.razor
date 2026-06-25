@@ -10,63 +10,63 @@
 
 <PageTitle>Resolved Tickets | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
-	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
-	@if (!_loadingComplete)
-	{
-		<LoadingSpinner Message="Loading open tickets ..." Color="Color.Primary" Size="Size.Large" />
-	}
-	else if (tickets.Any())
-	{
-		<MudPaper Elevation="2" Class="p-3">
-			<TitleComponentPage Title="Resolved Tickets" />
-			<MudDivider Class="mb-3" />
-			<TicketsTable Tickets="tickets" 
-				          AllowAssignment="false"/>
-		</MudPaper>
-		
-	}
-	else
-	{
-		<NotFoundFull Message="No resolved tickets found."
-					  ReturnUrl="/"
-					  ReturnLabel="Home"
-					  ForwardUrl="/tickets/create"
-					  ForwardLabel="Create New Ticket" />
-	}
+    <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+    @if (!_loadingComplete)
+    {
+        <LoadingSpinner Message="Loading open tickets ..." Color="Color.Primary" Size="Size.Large" />
+    }
+    else if (tickets.Any())
+    {
+        <MudPaper Elevation="2" Class="p-3">
+            <TitleComponentPage Title="Resolved Tickets" />
+            <MudDivider Class="mb-3" />
+            <TicketsTable Tickets="tickets"
+                          AllowAssignment="false" />
+        </MudPaper>
+
+    }
+    else
+    {
+        <NotFoundFull Message="No resolved tickets found."
+                      ReturnUrl="/"
+                      ReturnLabel="Home"
+                      ForwardUrl="/tickets/create"
+                      ForwardLabel="Create New Ticket" />
+    }
 
 </MudContainer>
 
 
 @code {
-	private IEnumerable<TicketDTO> tickets = [];
+    private IEnumerable<TicketDTO> tickets = [];
 
-	private bool _loadingComplete = false;
+    private bool _loadingComplete = false;
 
-	protected override async Task OnInitializedWithAuthAsync()
-	{
-		try
-		{
-			tickets = await ticketService.GetResolvedTicketsAsync(UserInfo!);
+    protected override async Task OnInitializedWithAuthAsync()
+    {
+        try
+        {
+            tickets = await ticketService.GetResolvedTicketsAsync(UserInfo!);
 
-		}
-		catch (Exception ex)
-		{
+        }
+        catch (Exception ex)
+        {
 
-			Console.WriteLine($"Error loading tickets: {ex.Message}");
-			Snackbar.Add("Error loading tickets.", Severity.Error);
-		}
-		_loadingComplete = true;
+            Console.WriteLine($"Error loading tickets: {ex.Message}");
+            Snackbar.Add("Error loading tickets.", Severity.Error);
+        }
+        _loadingComplete = true;
 
-	}
+    }
 
 
-	private static readonly List<BreadcrumbItem> breadcrumbs = new()
-	{
-		new BreadcrumbItem("Home", href:"/" ),
-		new BreadcrumbItem("Tickets", href:"/tickets/open" ),
-		new BreadcrumbItem(" Resolved Tickets", href:null, disabled: true ),
+    private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    {
+        new BreadcrumbItem("Dashboard", href:"/dashboard"),
+        new BreadcrumbItem("Tickets", href:"/tickets/open" ),
+        new BreadcrumbItem(" Resolved Tickets", href:null, disabled: true ),
 
-	};
+    };
 
 
 }

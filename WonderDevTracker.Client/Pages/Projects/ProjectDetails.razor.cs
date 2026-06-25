@@ -57,7 +57,7 @@ namespace WonderDevTracker.Client.Pages.Projects
 
 
             breadcrumbs = [
-                new BreadcrumbItem("Home", href: "/"),
+                new BreadcrumbItem("Dashboard", href:"/dashboard"),
                 new BreadcrumbItem("Projects", href: "/projects"),
             ];
             if (_project?.Archived == true) breadcrumbs.Add(new BreadcrumbItem("Archived Projects", href: "/projects/archived"));

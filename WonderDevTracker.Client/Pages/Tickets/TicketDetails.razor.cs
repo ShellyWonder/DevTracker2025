@@ -95,7 +95,7 @@ namespace WonderDevTracker.Client.Pages.Tickets
                 _attachments = loadedTicket.Attachments?.ToList() ?? [];
 
                 
-                _breadcrumbs = [new BreadcrumbItem("Home", href: "/")];
+                _breadcrumbs = [new BreadcrumbItem("Dashboard", href: "/dashboard")];
                 if (project is null)
                 {
                     _breadcrumbs.Add(new BreadcrumbItem("Tickets", href: "/tickets/open"));

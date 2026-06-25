@@ -108,7 +108,7 @@
 	private InviteDTO invite = new() { JoinDate = DateTimeOffset.UtcNow };
 	private static readonly List<BreadcrumbItem> breadcrumbs = new()
 	{
-	   new BreadcrumbItem("Home", href:"/" ),
+	   new BreadcrumbItem("Dashboard", href:"/dashboard" ),
 	   new BreadcrumbItem("Company", href:"/company" ),
 	   new BreadcrumbItem("Invite a New Member", href:null, disabled: true ),
 
