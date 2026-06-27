@@ -16,19 +16,17 @@
             @foreach (DemoCard demo in DemoCards)
             {
                 <MudItem xs="12" sm="6">
-                    <article class="demo-card">
+                    <article class="demo-card" @key="demo.Role">
                         <div>
                             <span class="demo-role">@demo.RoleName</span>
-                            <h3>@demo.Title</h3>
+                            <h3 class="mt-2">@demo.Title</h3>
                             <p>@demo.Description</p>
                         </div>
 
-                        <MudButton Href="@demo.Href"
-                                   Variant="Variant.Outlined"
-                                   EndIcon="@Icons.Material.Filled.ArrowForward"
-                                   Class="demo-button">
-                            Launch Demo
-                        </MudButton>
+                        <LinksBtn Href="@GetDemoHref(demo.Role)"
+                                  Text="Launch Demo"
+                                  Color="Color.Primary" />
+
                     </article>
                 </MudItem>
             }
@@ -38,6 +36,7 @@
 
 @code {
     private sealed record DemoCard(
+       Role Role,
        string RoleName,
        string Title,
        string Description,
@@ -46,30 +45,34 @@
 
     private readonly List<DemoCard> DemoCards =
 [
-    new(
+    new( 
+            Role.Admin,
             "Admin",
             "Company-wide control",
             "Preview full access to users, projects, tickets, dashboards, and administrative workflows.",
             "/Account/Login?demoRole=Admin"),
 
         new(
+            Role.ProjectManager,
             "Project Manager",
             "Project oversight",
             "Preview project-level management, team visibility, unassigned tickets, and PM dashboard insights.",
             "/Account/Login?demoRole=ProjectManager"),
 
         new(
+            Role.Developer,
             "Developer",
             "Assigned work queue",
             "Preview a developer-focused dashboard with assigned tickets, project context, and status tracking.",
             "/Account/Login?demoRole=Developer"),
 
         new(
+            Role.Submitter,
             "Submitter",
             "Ticket submission flow",
             "Preview the experience for submitting tickets and tracking submitted work.",
             "/Account/Login?demoRole=Submitter")
 ];
 
-
+    private static string GetDemoHref(Role role) => $"/Account/Login?demoRole={role}";
 }

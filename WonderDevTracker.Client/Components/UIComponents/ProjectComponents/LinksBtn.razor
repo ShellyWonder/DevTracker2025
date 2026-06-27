@@ -3,7 +3,7 @@
 
 <MudButton Class="project-details-link ms-auto"
            Variant="Variant.Text"
-           Color="Color.Tertiary"
+           Color="@Color"
            Href="@(Disabled || string.IsNullOrWhiteSpace(Href) ? null : Href)"
            Disabled="Disabled"
            EndIcon="@Icons.Material.Filled.ArrowForward">
@@ -16,6 +16,9 @@
 
     [Parameter, EditorRequired]
     public string? Href { get; set; }
+
+    [Parameter]
+    public Color Color { get; set; } = Color.Tertiary;
 
     [Parameter]
     public bool Disabled { get; set; } = false;
