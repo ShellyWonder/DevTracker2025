@@ -12,7 +12,26 @@ namespace WonderDevTracker.Client
         public required string LastName { get; set; }
         public string FullName => $"{FirstName} {LastName}";
 
-        public required string ProfilePictureUrl { get; set; }
+        public string Initials
+        {
+            get
+            {
+                string firstInitial = string.IsNullOrWhiteSpace(FirstName)
+                    ? string.Empty
+                    : FirstName[..1];
+
+                string lastInitial = string.IsNullOrWhiteSpace(LastName)
+                    ? string.Empty
+                    : LastName[..1];
+
+                string initials = $"{firstInitial}{lastInitial}".ToUpperInvariant();
+
+                return string.IsNullOrWhiteSpace(initials)
+                    ? "?"
+                    : initials;
+            }
+        }
+        public string? ProfilePictureUrl { get; set; }
         public required int CompanyId { get; set; }
         public required string[] Roles { get; set; }
         
