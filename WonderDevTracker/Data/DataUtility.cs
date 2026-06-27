@@ -12,10 +12,10 @@ namespace WonderDevTracker.Data
     {
         private static int _company1Id;
         private static int _company2Id;
-        private static int _company3Id;
-        private static int _company4Id;
-        private static int _company5Id;
+        private static int _demoCompanyId;
 
+        //project Ids for Company1 and Company2 
+        //(Demo Projects are seeded in DemoSeedData.cs)
         private static int _portfolioId;
         private static int _blogId;
         private static int _bugtrackerId;
@@ -75,8 +75,12 @@ namespace WonderDevTracker.Data
             await SeedDefaultCompaniesAsync(dbContextSvc);
             await SeedDefaultUsersAsync(userManagerSvc, defaultPassword);
             await SeedDemoUsersAsync(userManagerSvc, defaultPassword);
+
             await SeedDefaultProjectsAsync(dbContextSvc);
+            await SeedDemoProjectsAsync(dbContextSvc);
+
             await SeedDefaultTicketsAsync(dbContextSvc, userManagerSvc);
+            await SeedDemoTicketsAsync(dbContextSvc, userManagerSvc);
 
             await dbContextSvc.DisposeAsync();
         }
@@ -98,13 +102,11 @@ namespace WonderDevTracker.Data
         {
             try
             {
-                IList<Company> defaultcompanies = new List<Company>() {
-        new Company() { Name = "Company1", Description="This is default Company 1" },
-        new Company() { Name = "Company2", Description="This is default Company 2" },
-        new Company() { Name = "Company3", Description="This is default Company 3" },
-        new Company() { Name = "Company4", Description="This is default Company 4" },
-        new Company() { Name = "Company5", Description="This is default Company 5" }
-    };
+                IList<Company> defaultcompanies = [
+                    new() { Name = "Company1", Description="This is default Company 1" },
+                    new() { Name = "Company2", Description="This is default Company 2" },
+                    new() { Name = "DemoCompany", Description="This is our Demo Company" }
+    ];
 
                 var dbCompanies = context.Companies.Select(c => c.Name).ToList();
                 await context.Companies.AddRangeAsync(defaultcompanies.Where(c => !dbCompanies.Contains(c.Name)));
@@ -113,9 +115,7 @@ namespace WonderDevTracker.Data
                 //Get company Ids
                 _company1Id = context.Companies.FirstOrDefault(p => p.Name == "Company1")!.Id;
                 _company2Id = context.Companies.FirstOrDefault(p => p.Name == "Company2")!.Id;
-                _company3Id = context.Companies.FirstOrDefault(p => p.Name == "Company3")!.Id;
-                _company4Id = context.Companies.FirstOrDefault(p => p.Name == "Company4")!.Id;
-                _company5Id = context.Companies.FirstOrDefault(p => p.Name == "Company5")!.Id;
+                _demoCompanyId = context.Companies.FirstOrDefault(p => p.Name == "DemoCompany")!.Id;
             }
             catch (Exception ex)
             {
@@ -133,8 +133,8 @@ namespace WonderDevTracker.Data
             //Seed Default Admin User
             var defaultUser = new ApplicationUser
             {
-                UserName = "btadmin1@bugtracker.com",
-                Email = "btadmin1@bugtracker.com",
+                UserName = "btadmin1@devtracker.com",
+                Email = "btadmin1@devtracker.com",
                 FirstName = faker.Name.FirstName(),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -161,8 +161,8 @@ namespace WonderDevTracker.Data
             //Seed Default Admin User
             defaultUser = new ApplicationUser
             {
-                UserName = "btadmin2@bugtracker.com",
-                Email = "btadmin2@bugtracker.com",
+                UserName = "btadmin2@devtracker.com",
+                Email = "btadmin2@devtracker.com",
                 FirstName = faker.Name.FirstName(),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -190,8 +190,8 @@ namespace WonderDevTracker.Data
             //Seed Default ProjectManager1 User
             defaultUser = new ApplicationUser
             {
-                UserName = "ProjectManager1@bugtracker.com",
-                Email = "ProjectManager1@bugtracker.com",
+                UserName = "ProjectManager1@devtracker.com",
+                Email = "ProjectManager1@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -219,8 +219,8 @@ namespace WonderDevTracker.Data
             //Seed Default ProjectManager2 User
             defaultUser = new ApplicationUser
             {
-                UserName = "ProjectManager2@bugtracker.com",
-                Email = "ProjectManager2@bugtracker.com",
+                UserName = "ProjectManager2@devtracker.com",
+                Email = "ProjectManager2@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -248,8 +248,8 @@ namespace WonderDevTracker.Data
             //Seed Default Developer1 User
             defaultUser = new ApplicationUser
             {
-                UserName = "Developer1@bugtracker.com",
-                Email = "Developer1@bugtracker.com",
+                UserName = "Developer1@devtracker.com",
+                Email = "Developer1@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -277,8 +277,8 @@ namespace WonderDevTracker.Data
             //Seed Default Developer2 User
             defaultUser = new ApplicationUser
             {
-                UserName = "Developer2@bugtracker.com",
-                Email = "Developer2@bugtracker.com",
+                UserName = "Developer2@devtracker.com",
+                Email = "Developer2@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -306,8 +306,8 @@ namespace WonderDevTracker.Data
             //Seed Default Developer3 User
             defaultUser = new ApplicationUser
             {
-                UserName = "Developer3@bugtracker.com",
-                Email = "Developer3@bugtracker.com",
+                UserName = "Developer3@devtracker.com",
+                Email = "Developer3@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -335,8 +335,8 @@ namespace WonderDevTracker.Data
             //Seed Default Developer4 User
             defaultUser = new ApplicationUser
             {
-                UserName = "Developer4@bugtracker.com",
-                Email = "Developer4@bugtracker.com",
+                UserName = "Developer4@devtracker.com",
+                Email = "Developer4@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -364,8 +364,8 @@ namespace WonderDevTracker.Data
             //Seed Default Developer5 User
             defaultUser = new ApplicationUser
             {
-                UserName = "Developer5@bugtracker.com",
-                Email = "Developer5@bugtracker.com",
+                UserName = "Developer5@devtracker.com",
+                Email = "Developer5@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -392,8 +392,8 @@ namespace WonderDevTracker.Data
             //Seed Default Developer6 User
             defaultUser = new ApplicationUser
             {
-                UserName = "Developer6@bugtracker.com",
-                Email = "Developer6@bugtracker.com",
+                UserName = "Developer6@devtracker.com",
+                Email = "Developer6@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -420,8 +420,8 @@ namespace WonderDevTracker.Data
             //Seed Default Submitter1 User
             defaultUser = new ApplicationUser
             {
-                UserName = "Submitter1@bugtracker.com",
-                Email = "Submitter1@bugtracker.com",
+                UserName = "Submitter1@devtracker.com",
+                Email = "Submitter1@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -449,8 +449,8 @@ namespace WonderDevTracker.Data
             //Seed Default Submitter2 User
             defaultUser = new ApplicationUser
             {
-                UserName = "Submitter2@bugtracker.com",
-                Email = "Submitter2@bugtracker.com",
+                UserName = "Submitter2@devtracker.com",
+                Email = "Submitter2@devtracker.com",
                 FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
                 LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
@@ -478,15 +478,15 @@ namespace WonderDevTracker.Data
 
         public static async Task SeedDemoUsersAsync(UserManager<ApplicationUser> userManager, string defaultPassword)
         {
-            //Seed Demo Admin User
+            #region Seed Demo Admin User
             var defaultUser = new ApplicationUser
             {
-                UserName = "demoadmin@bugtracker.com",
-                Email = "demoadmin@bugtracker.com",
-                FirstName = "Demo",
-                LastName = "Admin",
+                UserName = "demoadmin@devtracker.com",
+                Email = "demoadmin@devtracker.com",
+                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
+                LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
-                CompanyId = _company1Id
+                CompanyId = _demoCompanyId
             };
             try
             {
@@ -508,17 +508,17 @@ namespace WonderDevTracker.Data
                 Console.WriteLine("***********************************");
                 throw;
             }
+            #endregion
 
-
-            //Seed Demo ProjectManager User
+            #region Seed Demo ProjectManager User
             defaultUser = new ApplicationUser
             {
-                UserName = "demopm@bugtracker.com",
-                Email = "demopm@bugtracker.com",
-                FirstName = "Demo",
-                LastName = "ProjectManager",
+                UserName = "demopm@devtracker.com",
+                Email = "demopm@devtracker.com",
+                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
+                LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
-                CompanyId = _company2Id
+                CompanyId = _demoCompanyId
             };
             try
             {
@@ -538,17 +538,17 @@ namespace WonderDevTracker.Data
                 Console.WriteLine("***********************************");
                 throw;
             }
+            #endregion
 
-
-            //Seed Demo Developer User
+            #region Seed Demo Developer User
             defaultUser = new ApplicationUser
             {
-                UserName = "demodev@bugtracker.com",
-                Email = "demodev@bugtracker.com",
-                FirstName = "Demo",
-                LastName = "Developer",
+                UserName = "demodev@devtracker.com",
+                Email = "demodev@devtracker.com",
+                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
+                LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
-                CompanyId = _company2Id
+                CompanyId = _demoCompanyId
             };
             try
             {
@@ -568,17 +568,17 @@ namespace WonderDevTracker.Data
                 Console.WriteLine("***********************************");
                 throw;
             }
+            #endregion
 
-
-            //Seed Demo Submitter User
+            #region Seed Demo Submitter User
             defaultUser = new ApplicationUser
             {
-                UserName = "demosub@bugtracker.com",
-                Email = "demosub@bugtracker.com",
-                FirstName = "Demo",
-                LastName = "Submitter",
+                UserName = "demosub@devtracker.com",
+                Email = "demosub@devtracker.com",
+                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
+                LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
-                CompanyId = _company2Id
+                CompanyId = _demoCompanyId
             };
             try
             {
@@ -598,17 +598,17 @@ namespace WonderDevTracker.Data
                 Console.WriteLine("***********************************");
                 throw;
             }
+            #endregion
 
-
-            //Seed Demo New User
+            #region Seed Demo New User
             defaultUser = new ApplicationUser
             {
-                UserName = "demonew@bugtracker.com",
-                Email = "demonew@bugtracker.com",
-                FirstName = "Demo",
-                LastName = "NewUser",
+                UserName = "demonew@devtracker.com",
+                Email = "demonew@devtracker.com",
+                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
+                LastName = faker.Name.LastName(),
                 EmailConfirmed = true,
-                CompanyId = _company2Id
+                CompanyId = _demoCompanyId
             };
             try
             {
@@ -628,64 +628,65 @@ namespace WonderDevTracker.Data
                 Console.WriteLine("***********************************");
                 throw;
             }
+            #endregion
         }
 
         public static async Task SeedDefaultProjectsAsync(ApplicationDbContext context)
         {
             try
             {
-                IList<Project> projects = new List<Project>() {
-         new Project()
-         {
-             CompanyId = _company1Id,
-             Name = "Build a Personal Portfolio",
-             Description="Single page HTML, CSS & JavaScript page. Serves as a landing page for candidates and contains a bio and links to all applications and challenges.",
-             Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 10),
-             StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 9),
-             EndDate = DateTimeOffset.Now + TimeSpan.FromDays(7 * 8),
-             Priority = ProjectPriority.Low
-         },
-         new Project()
-         {
-             CompanyId = _company2Id,
-             Name = "Build Personal Blogging Platform",
-             Description= "A custom built web application using .NET with Blazor, a Postgres database, and deployed in a Railway container. The app is designed to create, update and maintain a live blog site.",
-             Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 5),
-             StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 3),
-             EndDate = DateTimeOffset.Now + TimeSpan.FromDays(7 * 2),
-             Priority = ProjectPriority.Medium
-         },
-         new Project()
-         {
-             CompanyId = _company1Id,
-             Name = "Build an Issue Tracking Web Application",
-             Description="A custom designed .NET application with Postgres database. The application is a multi-tenant application designed to track projects and their progress using a ticket system. Implemented with identity and user roles, tickets are maintained in projects which are maintained by users in the role of Project Manager. Each project has a team and team members.",
-             Created = DateTimeOffset.Now - TimeSpan.FromDays(7),
-             StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7),
-             EndDate = DateTimeOffset.Now + TimeSpan.FromDays(7 * 4),
-             Priority = ProjectPriority.High
-         },
-         new Project()
-         {
-             CompanyId = _company2Id,
-             Name = "Build an Address Book Web Application",
-             Description="A custom designed .NET application with Postgres database.  This is an application to serve as a rolodex of contacts for a given user and allows users to send emails to individual contacts or entire categories of contacts.",
-             Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 5),
-             StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 4),
-             EndDate = DateTimeOffset.Now + TimeSpan.FromDays(7),
-             Priority = ProjectPriority.Low
-         },
-        new Project()
-         {
-             CompanyId = _company1Id,
-             Name = "Build a Movie Information Web Application",
-             Description="A custom designed .NET application with Blazor. An API based application allows users to browse popular movies and retrieve detailed information.",
-             Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 6),
-             StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 5),
-             EndDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 4),
-             Priority = ProjectPriority.High
-         }
-    };
+                IList<Project> projects = [
+                 new()
+                 {
+                     CompanyId = _company1Id,
+                     Name = "Build a Personal Portfolio",
+                     Description="Single page HTML, CSS & JavaScript page. Serves as a landing page for candidates and contains a bio and links to all applications and challenges.",
+                     Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 10),
+                     StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 9),
+                     EndDate = DateTimeOffset.Now + TimeSpan.FromDays(7 * 8),
+                     Priority = ProjectPriority.Low
+                 },
+                 new()
+                 {
+                     CompanyId = _company2Id,
+                     Name = "Build Personal Blogging Platform",
+                     Description= "A custom built web application using .NET with Blazor, a Postgres database, and deployed in a Railway container. The app is designed to create, update and maintain a live blog site.",
+                     Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 5),
+                     StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 3),
+                     EndDate = DateTimeOffset.Now + TimeSpan.FromDays(7 * 2),
+                     Priority = ProjectPriority.Medium
+                 },
+                 new()
+                 {
+                     CompanyId = _company1Id,
+                     Name = "Build an Issue Tracking Web Application",
+                     Description="A custom designed .NET application with Postgres database. The application is a multi-tenant application designed to track projects and their progress using a ticket system. Implemented with identity and user roles, tickets are maintained in projects which are maintained by users in the role of Project Manager. Each project has a team and team members.",
+                     Created = DateTimeOffset.Now - TimeSpan.FromDays(7),
+                     StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7),
+                     EndDate = DateTimeOffset.Now + TimeSpan.FromDays(7 * 4),
+                     Priority = ProjectPriority.High
+                 },
+                 new()
+                 {
+                     CompanyId = _company2Id,
+                     Name = "Build an Address Book Web Application",
+                     Description="A custom designed .NET application with Postgres database.  This is an application to serve as a rolodex of contacts for a given user and allows users to send emails to individual contacts or entire categories of contacts.",
+                     Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 5),
+                     StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 4),
+                     EndDate = DateTimeOffset.Now + TimeSpan.FromDays(7),
+                     Priority = ProjectPriority.Low
+                 },
+                new()
+                 {
+                     CompanyId = _company1Id,
+                     Name = "Build a Movie Information Web Application",
+                     Description="A custom designed .NET application with Blazor. An API based application allows users to browse popular movies and retrieve detailed information.",
+                     Created = DateTimeOffset.Now - TimeSpan.FromDays(7 * 6),
+                     StartDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 5),
+                     EndDate = DateTimeOffset.Now - TimeSpan.FromDays(7 * 4),
+                     Priority = ProjectPriority.High
+                 }
+                 ];
 
                 var dbProjects = context.Projects.Select(c => c.Name).ToList();
                 await context.Projects.AddRangeAsync(projects.Where(c => !dbProjects.Contains(c.Name)));
@@ -711,11 +712,42 @@ namespace WonderDevTracker.Data
             }
         }
 
+        public static async Task SeedDemoProjectsAsync(ApplicationDbContext context)
+        {
+            try
+            {
+                bool demoProjectsAlreadySeeded = await context.Projects
+                                .AnyAsync(p => p.CompanyId == _demoCompanyId);
+
+                if (demoProjectsAlreadySeeded) return;
+
+                List<Project> demoProjects = DemoSeedData.CreateDemoProjects(_demoCompanyId);
+
+                    List<string?> existingDemoProjectNames = await context.Projects
+                        .Where(p => p.CompanyId == _demoCompanyId)
+                        .Select(p => p.Name)
+                        .ToListAsync();
+
+                    await context.Projects.AddRangeAsync(
+                        demoProjects.Where(p => !existingDemoProjectNames.Contains(p.Name)));
+
+                    await context.SaveChangesAsync();
+                }
+            catch (Exception ex)
+            {
+                Console.WriteLine("*************  ERROR  *************");
+                Console.WriteLine("Error Seeding Demo Projects.");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("***********************************");
+                throw;
+            }
+        }
+
         public static async Task SeedDefaultTicketsAsync(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             //Get admin Ids
-            string company1AdminId = (await userManager.FindByEmailAsync("btadmin1@bugtracker.com"))!.Id;
-            string company2AdminId = (await userManager.FindByEmailAsync("btadmin2@bugtracker.com"))!.Id;
+            string company1AdminId = (await userManager.FindByEmailAsync("btadmin1@devtracker.com"))!.Id;
+            string company2AdminId = (await userManager.FindByEmailAsync("btadmin2@devtracker.com"))!.Id;
 
             var portfolio = (await context.Projects.FindAsync(_portfolioId))!;
             var blog = (await context.Projects.FindAsync(_blogId))!;
@@ -777,6 +809,49 @@ namespace WonderDevTracker.Data
             }
         }
 
+        public static async Task SeedDemoTicketsAsync(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        {
+            try
+            {
+                ApplicationUser demoSubmitter = await userManager.FindByEmailAsync("demosub@devtracker.com")
+                    ?? throw new ApplicationException("Demo submitter user was not found.");
+
+                List<string?> demoProjectNames = DemoSeedData
+                    .CreateDemoProjects(_demoCompanyId)
+                    .Select(p => p.Name)
+                    .ToList();
+
+                List<Project> demoProjects = await context.Projects
+                    .Where(p =>
+                        p.CompanyId == _demoCompanyId &&
+                        demoProjectNames.Contains(p.Name))
+                    .ToListAsync();
+
+                foreach (Project project in demoProjects)
+                {
+                    bool projectAlreadyHasTickets = await context.Tickets
+                        .AnyAsync(t => t.ProjectId == project.Id);
+
+                    if (projectAlreadyHasTickets) continue;
+
+                    List<Ticket> tickets = DemoSeedData.CreateDemoTickets(
+                        [project],
+                        demoSubmitter.Id);
+
+                    context.Tickets.AddRange(tickets);
+                }
+
+                await context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("*************  ERROR  *************");
+                Console.WriteLine("Error Seeding Demo Tickets.");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("***********************************");
+                throw;
+            }
+        }
 
         private static readonly TextInfo _textInfo = new CultureInfo("en-US").TextInfo;
         private static string Titleize(this string input) => _textInfo.ToTitleCase(input);
