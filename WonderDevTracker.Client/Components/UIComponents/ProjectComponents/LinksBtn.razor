@@ -1,12 +1,15 @@
 ﻿@* LinksBtn *@
-@* Displays a text button with a right arrow. Accepts Text, Href, and Disabled. *@
 
 <MudButton Class="project-details-link ms-auto"
-           Variant="Variant.Text"
+           Variant="@Variant"
            Color="@Color"
+           Size="@Size"
            Href="@(Disabled || string.IsNullOrWhiteSpace(Href) ? null : Href)"
            Disabled="Disabled"
-           EndIcon="@Icons.Material.Filled.ArrowForward">
+           StartIcon="@StartIcon"
+           EndIcon="@EndIcon"
+           FullWidth="@FullWidth"
+           >
     @Text
 </MudButton>
 
@@ -21,5 +24,21 @@
     public Color Color { get; set; } = Color.Tertiary;
 
     [Parameter]
+    public Variant Variant { get; set; } = Variant.Text;
+
+    [Parameter]
+    public Size Size { get; set; }
+
+    [Parameter]
+    public string? StartIcon { get; set; } 
+
+    [Parameter]
+    public string? EndIcon { get; set; } 
+
+    [Parameter]
     public bool Disabled { get; set; } = false;
-}
+
+    [Parameter]
+    public bool FullWidth { get; set; } = false;
+
+    }
