@@ -1,0 +1,43 @@
+﻿.login-help-links {
+    font-size: 0.9rem;
+}
+
+    .login-help-links .mud-button-label {
+        letter-spacing: 0.04em;
+        font-weight: 600;
+    }
+
+
+.remember-me-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 2rem;
+    margin-top: 0.25rem;
+}
+
+.remember-me-checkbox {
+    margin: 0;
+    width: 1.05rem;
+    height: 1.05rem;
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+.remember-me-label {
+    margin: 0;
+    height: 1.05rem;
+    font-weight: 500;
+    color: var(--dt-text, #1E2A35);
+    cursor: pointer;
+}
+
+.login-demo-panel {
+    margin-top: .5rem;
+    padding: 1.75rem;
+    border-radius: 18px;
+    background: linear-gradient( 180deg, rgba(0, 180, 216, 0.045) 0%, rgba(0, 119, 182, 0.025) 55%, rgba(255, 255, 255, 0.65) 100% );
+    border: none;
+}
+
+

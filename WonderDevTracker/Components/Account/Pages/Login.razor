@@ -16,7 +16,7 @@
 @inject IdentityRedirectManager RedirectManager
 @inject IConfiguration Configuration
 
-<PageTitle>Log in | Dev Tracker</PageTitle>
+<PageTitle>Login | Dev Tracker</PageTitle>
 
 <div class="d-flex justify-content-center align-items-center min-vh-100">
     <MudContainer MaxWidth="MaxWidth.Medium">
@@ -60,9 +60,12 @@
                                 <ValidationMessage For="() => Input.Password" />
                             </div>
                         </AnimatedBlock>
-                        <div class="checkbox">
-                            <label class="form-label">
-                                <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
+                        <div class="form-check remember-me-row mb-3">
+                            <InputCheckbox id="remember-me"
+                                           @bind-Value="Input.RememberMe"
+                                           class="form-check-input darker-border-checkbox remember-me-checkbox" />
+
+                            <label class="form-check-label remember-me-label" for="remember-me">
                                 Remember me
                             </label>
                         </div>
@@ -75,67 +78,74 @@
                                        DisplayText="Login"
                                        FullWidth="true" />
                         </AnimatedBlock>
-
-                        <!------ Demo Login Options ------>
-                        <MudDivider Class="my-5" />
-                        <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-1">
-                            Explore the Demo
-                        </MudText>
-                        <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary" Class="mb-3">
-                            Choose a role to preview a role-specific dashboard.
-                        </MudText>
-
-                        <MudGrid Spacing="2">
-                            @foreach (DemoLoginOption option in DemoLoginOptions)
-                            {
-                                <MudItem xs="12" sm="6">
-                                    <SubmitBtn Href="@GetDemoLoginUrl(option.Role)"
-                                               Size="Size.Medium"
-                                               Color="@option.Color"
-                                               StartIcon="@option.Icon"
-                                               ButtonType="ButtonType.Button"
-                                               Variant="Variant.Outlined"
-                                               DisplayText="@option.Label"
-                                               FullWidth="true" />
-                                </MudItem>
-                            }
-                        </MudGrid>
                     </EditForm>
+
+                    
+                    <!------ Demo Login Options ------>
+                    <AnimatedBlock Index="IndexTracker.Next()">
+                        <div class="login-demo-panel">
+                            <TitleComponentPage SubtitleColor="Color.Secondary"
+                                                SubtitleAlign="Align.Center"
+                                                SubtitleTypo="Typo.h6"
+                                                Subtitle="Choose a role to explore DevTracker."
+                                                Title="Demo Company Login"
+                                                Typo="Typo.h4"
+                                                Align="Align.Center"
+                                                Color="Color.Dark" />
+
+                            <MudGrid Spacing="2" Class="pb-3">
+                                @foreach (DemoLoginOption option in DemoLoginOptions)
+                                {
+                                    <MudItem xs="12" sm="6">
+                                        <LinksBtn Href="@GetDemoLoginUrl(option.Role)"
+                                                  Color="@option.Color"
+                                                  StartIcon="@option.Icon"
+                                                  Variant="Variant.Outlined"
+                                                  Text="@option.Label"
+                                                  Size="Size.Medium"
+                                                  FullWidth="true" />
+                                    </MudItem>
+                                }
+                            </MudGrid>
+                        </div>
+                    </AnimatedBlock>
+                    <!------ Account Help Actions ------>
+                    <MudStack Row="true"
+                              Justify="Justify.SpaceBetween"
+                              Spacing="3"
+                              Class="login-inline-links flex-wrap">
+                        <AnimatedBlock Index="IndexTracker.Next()">
+                            <LinksBtn Href="Account/ForgotPassword"
+                                      Color="Color.Dark"
+                                      Variant="Variant.Text"
+                                      StartIcon="@Icons.Material.Filled.LockReset"
+                                      Text="Forgot Password?" />
+                        </AnimatedBlock>
+
+                        <AnimatedBlock Index="IndexTracker.Next()">
+                            <LinksBtn Href="Account/ResendEmailConfirmation"
+                                      Color="Color.Dark"
+                                      Variant="Variant.Text"
+                                      StartIcon="@Icons.Material.Filled.Mail"
+                                      Text="Resend Email?" />
+                        </AnimatedBlock>
+
+                        <AnimatedBlock Index="IndexTracker.Next()">
+                            <LinksBtn Href="@NewUserRegister"
+                                      Color="Color.Dark"
+                                      Variant="Variant.Text"
+                                      StartIcon="@Icons.Material.Filled.PersonAdd"
+                                      Text="Register" />
+                        </AnimatedBlock>
+                    </MudStack>
+
                 </div>
             </div>
         </AnimatedCard>
-        <!------ Account Help Actions ------>
-        <MudStack Spacing="2" class="Mt-3">
-            <AnimatedBlock Index="IndexTracker.Next()">
-                <LinksBtn Href="Account/ForgotPassword"
-                          Color="Color.Warning"
-                          Variant="Variant.Text"
-                          StartIcon="@Icons.Material.Filled.LockReset"
-                          Text="Forgot your Password?" />
-            </AnimatedBlock>
 
-            <AnimatedBlock Index="IndexTracker.Next()">
-                <SubmitBtn Href="Account/ResendEmailConfirmation"
-                           Size="Size.Medium"
-                           Color="Color.Secondary"
-                           Variant="Variant.Text"
-                           StartIcon="@Icons.Material.Filled.Mail"
-                           ButtonType="ButtonType.Button"
-                           DisplayText="Resend Email Confirmation" />
-            </AnimatedBlock>
-
-            <AnimatedBlock>
-                <SubmitBtn Href="@NewUserRegister"
-                           Size="Size.Medium"
-                           Color="Color.Success"
-                           Variant="Variant.Text"
-                           StartIcon="@Icons.Material.Filled.PersonAdd"
-                           ButtonType="ButtonType.Button"
-                           DisplayText="Register as a New User" />
-            </AnimatedBlock>
-        </MudStack>
     </MudContainer>
 </div>
+
 @code {
     private string? errorMessage;
 
@@ -167,10 +177,6 @@
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
         }
 
-        if (!string.IsNullOrWhiteSpace(DemoRole))
-        {
-            await LoginDemoUserAsync(DemoRole);
-        }
     }
 
     public async Task LoginUser()
@@ -186,6 +192,7 @@
                                         : ReturnUrl;
 
             RedirectManager.RedirectTo(redirectUrl);
+            return;
         }
 
 
@@ -211,23 +218,38 @@
         if (!Enum.TryParse<Role>(demoRole, ignoreCase: true, out Role role) ||
             !DemoEmails.TryGetValue(role, out string? email))
         {
+            Logger.LogWarning("Invalid demo role requested: {DemoRole}", demoRole);
+            return;
+        }
+
+        string password = Configuration["DemoUsers:DefaultPassword"] ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            Logger.LogError("Demo password is missing from configuration.");
             return;
         }
 
         Input.Email = email;
-        Input.Password = Configuration["DemoUsers:DefaultPassword"] ?? string.Empty;
+        Input.Password = password;
         Input.RememberMe = false;
+
+        Logger.LogInformation("Attempting demo login for {DemoRole} using {DemoEmail}.", role, email);
 
         var result = await SignInManager.PasswordSignInAsync(
             email,
-            Input.Password,
+            password,
             isPersistent: false,
             lockoutOnFailure: false);
 
-        if (result.Succeeded)
+        if (!result.Succeeded)
         {
-            RedirectManager.RedirectTo("/dashboard");
+            Logger.LogWarning("Demo login failed for {DemoRole} using {DemoEmail}.", role, email);
+            return;
         }
+
+        Logger.LogInformation("Demo login succeeded for {DemoRole}. Redirecting to dashboard.", role);
+        RedirectManager.RedirectTo("/dashboard");
     }
 
     private static readonly Dictionary<Role, string> DemoEmails = new()
@@ -241,42 +263,34 @@
     private static readonly IReadOnlyList<DemoLoginOption> DemoLoginOptions =
         [
             new(Role.Admin,
-                "Demo Administrator",
-                Icons.Material.Filled.AdminPanelSettings,
-                Color.Primary),
+            "Demo Administrator",
+            Icons.Material.Filled.AdminPanelSettings,
+            Color.Primary),
 
             new(Role.ProjectManager,
                 "Demo Project Manager",
                 Icons.Material.Filled.ManageAccounts,
-                Color.Info),
+                Color.Secondary),
 
             new(Role.Developer,
                 "Demo Developer",
                 Icons.Material.Filled.Code,
-                Color.Secondary),
+                Color.Tertiary),
 
             new(Role.Submitter,
                 "Demo Submitter",
                 Icons.Material.Filled.BugReport,
-                Color.Success)
+                Color.Info)
         ];
 
-    private string GetDemoLoginUrl(Role role)
-    {
-        return NavigationManager.GetUriWithQueryParameters(
-            "Account/Login",
-            new Dictionary<string, object?>
-            {
-                ["demoRole"] = role.ToString(),
-                ["ReturnUrl"] = ReturnUrl
-            });
-    }
+    private string GetDemoLoginUrl(Role role) => $"/Account/Login?demoRole={role}";
 
+  
     private sealed record DemoLoginOption(
-            Role Role,
-            string Label,
-            string Icon,
-            Color Color);
+        Role Role,
+        string Label,
+        string Icon,
+        Color Color);
 
     private sealed class InputModel
     {
