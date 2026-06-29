@@ -81,7 +81,6 @@ h1, h2, h3, h4, h5, h6, button, nav {
     }
 }
 /* #endregion LoadingSpinner.razor  */
-/* #endregion Global CSS*/
 
 /*#region Not Found Full Component */
 .tt-full-center {
@@ -94,8 +93,10 @@ h1, h2, h3, h4, h5, h6, button, nav {
 }
 /*#endregion Not Found Full Component */
 
+/* #endregion Global CSS*/
+
 /* #region Landing shared section styles */
-   
+
 .landing-section {
     padding: 5rem 1.5rem;
 }
@@ -225,25 +226,27 @@ h1, h2, h3, h4, h5, h6, button, nav {
     justify-content: space-between;
     margin-bottom: 1.15rem;
 }
-.role-card-top .mud-icon-root {
-    color: var(--dt-primary);
-}
 
-.role-card-top span,
-.demo-role {
-    padding: 0.35rem 0.55rem;
-    border-radius: 999px;
-    background: var(--dt-soft-teal);
-    color: var(--dt-primary);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 900;
-    text-transform: uppercase;
-}
+    .role-card-top .mud-icon-root {
+        color: var(--dt-primary);
+    }
+
+    .role-card-top span,
+    .demo-role {
+        padding: 0.35rem 0.55rem;
+        border-radius: 999px;
+        background: var(--dt-soft-teal);
+        color: var(--dt-primary);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
 
 
 
 /* #endregion Landing shared section styles */
+
 /* #region Fabbutton */
 .page-container {
     height: 100%;
