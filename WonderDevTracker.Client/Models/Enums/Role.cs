@@ -8,7 +8,8 @@ namespace WonderDevTracker.Client.Models.Enums
     {
         [Display(Name="Administrator")]
         Admin,
-        [Display(Name="Project Manager")]ProjectManager,
+        [Display(Name="Project Manager")]
+        ProjectManager,
         Developer,
         Submitter,
         [Display(Name = "Demo User")]

@@ -105,7 +105,7 @@ namespace WonderDevTracker.Data
                 IList<Company> defaultcompanies = [
                     new() { Name = "Company1", Description="This is default Company 1" },
                     new() { Name = "Company2", Description="This is default Company 2" },
-                    new() { Name = "DemoCompany", Description="This is our Demo Company" }
+                    new() { Name = "Demo SaaS, LLC", Description="This is our demo software company" }
     ];
 
                 var dbCompanies = context.Companies.Select(c => c.Name).ToList();
@@ -115,7 +115,7 @@ namespace WonderDevTracker.Data
                 //Get company Ids
                 _company1Id = context.Companies.FirstOrDefault(p => p.Name == "Company1")!.Id;
                 _company2Id = context.Companies.FirstOrDefault(p => p.Name == "Company2")!.Id;
-                _demoCompanyId = context.Companies.FirstOrDefault(p => p.Name == "DemoCompany")!.Id;
+                _demoCompanyId = context.Companies.FirstOrDefault(p => p.Name == "Demo SaaS, LLC")!.Id;
             }
             catch (Exception ex)
             {

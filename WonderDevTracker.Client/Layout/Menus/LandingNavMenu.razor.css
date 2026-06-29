@@ -1,4 +1,6 @@
-﻿.landing-nav-container {
+﻿
+
+.landing-nav-container {
     width: 100%;
     padding-inline: clamp(3rem, 7vw, 7rem);
 }
@@ -105,7 +107,30 @@
         grid-area: actions;
     }
 }
+/*#region Responsive  */
+/*#region @media (max-width: 960px)*/
+@media (max-width: 960px) {
+    .landing-nav {
+        flex-wrap: wrap;
+        padding: 1rem 0;
+    }
 
+    .landing-nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        overflow-x: auto;
+        padding-top: 0.4rem;
+    }
+
+    .landing-hero {
+        padding-top: 4rem;
+    }
+}
+
+/*#endregion @media (max-width: 960px)*/
+
+/*#region @media (max-width: 640px)*/
 @media (max-width: 640px) {
     .landing-nav {
         grid-template-columns: 1fr;
@@ -132,3 +157,5 @@
         justify-content: flex-start;
     }
 }
+/*#region @media (max-width: 640px)*/
+/*#endregion Responsive  */
