@@ -1,15 +1,6 @@
 ﻿@*Login*@
 @page "/Account/Login"
 
-@using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Authentication
-@using Microsoft.Extensions.Configuration
-@using WonderDevTracker.Client.Components.UIComponents.GeneralComponents
-@using WonderDevTracker.Client.Components.UIComponents.ProjectComponents
-@using WonderDevTracker.Client.Helpers.Animation
-@using Microsoft.AspNetCore.Identity
-@using WonderDevTracker.Client.Components.SharedComponents
-
 @inject SignInManager<ApplicationUser> SignInManager
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
@@ -80,7 +71,6 @@
                         </AnimatedBlock>
                     </EditForm>
 
-                    
                     <!------ Demo Login Options ------>
                     <AnimatedBlock Index="IndexTracker.Next()">
                         <div class="login-demo-panel">
@@ -93,20 +83,24 @@
                                                 Align="Align.Center"
                                                 Color="Color.Dark" />
 
-                            <MudGrid Spacing="2" Class="pb-3">
-                                @foreach (DemoLoginOption option in DemoLoginOptions)
-                                {
-                                    <MudItem xs="12" sm="6">
-                                        <LinksBtn Href="@GetDemoLoginUrl(option.Role)"
-                                                  Color="@option.Color"
-                                                  StartIcon="@option.Icon"
-                                                  Variant="Variant.Outlined"
-                                                  Text="@option.Label"
-                                                  Size="Size.Medium"
-                                                  FullWidth="true" />
-                                    </MudItem>
-                                }
-                            </MudGrid>
+                            <EditForm Model="@DemoInput"
+                                      method="post"
+                                      FormName="demo-login"
+                                      OnSubmit="LoginDemoUserFromFormAsync"
+                                      Enhance="false">
+                                <div class="demo-login-grid">
+                                    @foreach (DemoOptions option in DemoLoginOptions)
+                                    {
+                                        <button type="submit"
+                                                name="DemoInput.Role"
+                                                value="@option.Role"
+                                                class="demo-login-submit-button demo-login-submit-button-@option.Role.ToString().ToLowerInvariant()">
+                                            <MudIcon Icon="@option.Icon" Size="Size.Small" Class="me-2" />
+                                            <span>@option.Label</span>
+                                        </button>
+                                    }
+                                </div>
+                            </EditForm>
                         </div>
                     </AnimatedBlock>
                     <!------ Account Help Actions ------>
@@ -127,7 +121,7 @@
                                       Color="Color.Dark"
                                       Variant="Variant.Text"
                                       StartIcon="@Icons.Material.Filled.Mail"
-                                      Text="Resend Email?" />
+                                      Text="Resend Email" />
                         </AnimatedBlock>
 
                         <AnimatedBlock Index="IndexTracker.Next()">
@@ -138,11 +132,9 @@
                                       Text="Register" />
                         </AnimatedBlock>
                     </MudStack>
-
                 </div>
             </div>
         </AnimatedCard>
-
     </MudContainer>
 </div>
 
@@ -152,8 +144,11 @@
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
-    [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new();
+    [SupplyParameterFromForm(FormName = "login")]
+    private InputModel Input { get; set; } = null!;
+
+    [SupplyParameterFromForm(FormName = "demo-login")]
+    private DemoLoginInputModel DemoInput { get; set; } = new();
 
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
@@ -165,18 +160,31 @@
 
     private void ResetIndex() => IndexTracker.Reset();
 
+    private bool _demoLoginStarted;
+
     private string NewUserRegister => NavigationManager.GetUriWithQueryParameters("Account/Register",
                                       new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl });
 
     protected override async Task OnInitializedAsync()
     {
         ResetIndex();
+        Input ??= new();
+        DemoInput ??= new();
+
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
         }
+    }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_demoLoginStarted || string.IsNullOrWhiteSpace(DemoRole))
+            return;
+
+        _demoLoginStarted = true;
+        await LoginDemoUserFromQueryAsync(DemoRole);
     }
 
     public async Task LoginUser()
@@ -213,28 +221,10 @@
         }
     }
 
-    private async Task LoginDemoUserAsync(string demoRole)
+    private async Task LoginDemoUserAsync(Role role)
     {
-        if (!Enum.TryParse<Role>(demoRole, ignoreCase: true, out Role role) ||
-            !DemoEmails.TryGetValue(role, out string? email))
-        {
-            Logger.LogWarning("Invalid demo role requested: {DemoRole}", demoRole);
-            return;
-        }
-
+        string email = DemoEmails[role];
         string password = Configuration["DemoUsers:DefaultPassword"] ?? string.Empty;
-
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            Logger.LogError("Demo password is missing from configuration.");
-            return;
-        }
-
-        Input.Email = email;
-        Input.Password = password;
-        Input.RememberMe = false;
-
-        Logger.LogInformation("Attempting demo login for {DemoRole} using {DemoEmail}.", role, email);
 
         var result = await SignInManager.PasswordSignInAsync(
             email,
@@ -252,6 +242,18 @@
         RedirectManager.RedirectTo("/dashboard");
     }
 
+    private async Task LoginDemoUserFromQueryAsync(string demoRole)
+    {
+        if (!Enum.TryParse<Role>(demoRole, ignoreCase: true, out Role role) ||
+            !DemoEmails.ContainsKey(role))
+        {
+            Logger.LogWarning("Invalid demo role requested: {DemoRole}", demoRole);
+            return;
+        }
+
+        await LoginDemoUserAsync(role);
+    }
+
     private static readonly Dictionary<Role, string> DemoEmails = new()
     {
         [Role.Admin] = "demoadmin@devtracker.com",
@@ -260,38 +262,54 @@
         [Role.Submitter] = "demosubmitter@devtracker.com"
     };
 
-    private static readonly IReadOnlyList<DemoLoginOption> DemoLoginOptions =
-        [
-            new(Role.Admin,
-            "Demo Administrator",
-            Icons.Material.Filled.AdminPanelSettings,
-            Color.Primary),
+    private static readonly IReadOnlyList<DemoOptions> DemoLoginOptions =
+[
+    new()
+    {
+        Role = Role.Admin,
+        Label = "Demo Administrator",
+        Icon = Icons.Material.Filled.AdminPanelSettings,
+        Color = Color.Primary
+    },
 
-            new(Role.ProjectManager,
-                "Demo Project Manager",
-                Icons.Material.Filled.ManageAccounts,
-                Color.Secondary),
+    new()
+    {
+        Role = Role.ProjectManager,
+        Label = "Demo Project Manager",
+        Icon = Icons.Material.Filled.ManageAccounts,
+        Color = Color.Secondary
+    },
 
-            new(Role.Developer,
-                "Demo Developer",
-                Icons.Material.Filled.Code,
-                Color.Tertiary),
+    new()
+    {
+        Role = Role.Developer,
+        Label = "Demo Developer",
+        Icon = Icons.Material.Filled.Code,
+        Color = Color.Tertiary
+    },
 
-            new(Role.Submitter,
-                "Demo Submitter",
-                Icons.Material.Filled.BugReport,
-                Color.Info)
-        ];
+    new()
+    {
+        Role = Role.Submitter,
+        Label = "Demo Submitter",
+        Icon = Icons.Material.Filled.BugReport,
+        Color = Color.Info
+    }
+];
 
-    private string GetDemoLoginUrl(Role role) => $"/Account/Login?demoRole={role}";
+    private async Task LoginDemoUserFromFormAsync() => await LoginDemoUserAsync(DemoInput.Role);
 
-  
-    private sealed record DemoLoginOption(
-        Role Role,
-        string Label,
-        string Icon,
-        Color Color);
-
+    private sealed class DemoLoginInputModel
+    {
+        public Role Role { get; set; }
+    }
+    private sealed record DemoOptions
+    {
+        public Role Role { get; init; }
+        public string Label { get; init; } = string.Empty;
+        public string Icon { get; init; } = string.Empty;
+        public Color Color { get; init; }
+    }
     private sealed class InputModel
     {
         [Required]

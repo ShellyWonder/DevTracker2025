@@ -40,4 +40,48 @@
     border: none;
 }
 
+.demo-login-submit-button {
+    width: 100%;
+    min-height: 42px;
+    border-radius: 6px;
+    border: 1px solid currentColor;
+    background: rgba(255, 255, 255, 0.55);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
+    .demo-login-submit-button:hover {
+        background: rgba(255, 255, 255, 0.85);
+    }
+
+.demo-login-submit-button-admin {
+    color: var(--dt-primary, #0077B6);
+}
+
+.demo-login-submit-button-projectmanager {
+    color: var(--dt-secondary, #00B4D8);
+}
+
+.demo-login-submit-button-developer {
+    color: var(--dt-success, #90BE6D);
+}
+
+.demo-login-submit-button-submitter {
+    color: #5f8df6;
+}
+
+.demo-login-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+    .demo-login-grid {
+        grid-template-columns: 1fr;
+    }
+}
