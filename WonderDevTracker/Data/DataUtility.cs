@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Globalization;
+
 using WonderDevTracker.Client.Models.Enums;
 using WonderDevTracker.Models;
+using static WonderDevTracker.Data.DemoSeedData;
 
 namespace WonderDevTracker.Data
 {
@@ -78,13 +80,13 @@ namespace WonderDevTracker.Data
 
             await SeedDefaultProjectsAsync(dbContextSvc);
             await SeedDemoProjectsAsync(dbContextSvc);
+            await SeedDemoProjectMembersAsync(dbContextSvc);
 
             await SeedDefaultTicketsAsync(dbContextSvc, userManagerSvc);
             await SeedDemoTicketsAsync(dbContextSvc, userManagerSvc);
 
             await dbContextSvc.DisposeAsync();
         }
-
 
         public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
         {
@@ -105,17 +107,29 @@ namespace WonderDevTracker.Data
                 IList<Company> defaultcompanies = [
                     new() { Name = "Company1", Description="This is default Company 1" },
                     new() { Name = "Company2", Description="This is default Company 2" },
-                    new() { Name = "Demo SaaS, LLC", Description="This is our demo software company" }
-    ];
+                    new() { Name = DemoCompany.Name, Description=DemoCompany.Description}
+                ];
 
                 var dbCompanies = context.Companies.Select(c => c.Name).ToList();
                 await context.Companies.AddRangeAsync(defaultcompanies.Where(c => !dbCompanies.Contains(c.Name)));
                 await context.SaveChangesAsync();
 
                 //Get company Ids
-                _company1Id = context.Companies.FirstOrDefault(p => p.Name == "Company1")!.Id;
-                _company2Id = context.Companies.FirstOrDefault(p => p.Name == "Company2")!.Id;
-                _demoCompanyId = context.Companies.FirstOrDefault(p => p.Name == "Demo SaaS, LLC")!.Id;
+                _company1Id = await context.Companies
+                             .Where(c => c.Name == "Company1")
+                             .Select(c => c.Id)
+                             .FirstAsync();
+
+                _company2Id = await context.Companies
+                            .Where(c => c.Name == "Company2")
+                            .Select(c => c.Id)
+                            .FirstAsync();
+
+                _demoCompanyId = await context.Companies
+                                .Where(c => c.Name == DemoSeedData.DemoCompany.Name)
+                                .OrderBy(c => c.Id)
+                                .Select(c => c.Id)
+                                .FirstAsync();
             }
             catch (Exception ex)
             {
@@ -131,506 +145,252 @@ namespace WonderDevTracker.Data
         public static async Task SeedDefaultUsersAsync(UserManager<ApplicationUser> userManager, string defaultPassword)
         {
             //Seed Default Admin User
-            var defaultUser = new ApplicationUser
-            {
-                UserName = "btadmin1@devtracker.com",
-                Email = "btadmin1@devtracker.com",
-                FirstName = faker.Name.FirstName(),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company1Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Admin));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Admin User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
+            List<UserSeed> defaultUsers =
+               [
+                   new(
+                        Email: "btadmin1@devtracker.com",
+                        FirstName: faker.Name.FirstName(),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company1Id,
+                        Roles: [Role.Admin]),
 
-            //Seed Default Admin User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "btadmin2@devtracker.com",
-                Email = "btadmin2@devtracker.com",
-                FirstName = faker.Name.FirstName(),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company2Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Admin));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Admin User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
+                   new(
+                        Email:"btadmin2@devtracker.com",
+                        FirstName: faker.Name.FirstName(),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company2Id,
+                        Roles: [Role.Admin]),
 
+                   new(
+                        Email: "ProjectManager1@devtracker.com",
+                        FirstName: faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company1Id,
+                        Roles: [Role.ProjectManager]),
 
-            //Seed Default ProjectManager1 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "ProjectManager1@devtracker.com",
-                Email = "ProjectManager1@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company1Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.ProjectManager));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default ProjectManager1 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
+                 new(
+                        Email: "ProjectManager2@devtracker.com",
+                        FirstName:faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company2Id,
+                        Roles: [Role.ProjectManager]),
 
+                 new(
+                        Email: "Developer1@devtracker.com",
+                        FirstName: faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company1Id,
+                        Roles: [Role.Developer]),
 
-            //Seed Default ProjectManager2 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "ProjectManager2@devtracker.com",
-                Email = "ProjectManager2@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company2Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.ProjectManager));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default ProjectManager2 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
+                 new(
+                        Email: "Developer2@devtracker.com",
+                        FirstName: faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company2Id,
+                        Roles: [Role.Developer]),
 
+                 new(
+                        Email: "Developer3@devtracker.com",
+                        FirstName: faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company1Id,
+                        Roles: [Role.Developer]),
 
-            //Seed Default Developer1 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "Developer1@devtracker.com",
-                Email = "Developer1@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company1Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Developer));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Developer1 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
+                  new(
+                         Email: "Developer4@devtracker.com",
+                         FirstName: faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
+                         LastName: faker.Name.LastName(),
+                         CompanyId: _company2Id,
+                         Roles: [Role.Developer]),
 
+                  new(
+                        Email: "Developer5@devtracker.com",
+                        FirstName: faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company1Id,
+                        Roles: [Role.Developer]),
 
-            //Seed Default Developer2 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "Developer2@devtracker.com",
-                Email = "Developer2@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company2Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Developer));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Developer2 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
+                  new(
+                        Email: "Developer6@devtracker.com",
+                        FirstName: faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company2Id,
+                        Roles: [Role.Developer]),
 
+                   new(
+                        Email:"Submitter1@devtracker.com",
+                        FirstName:faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company1Id,
+                        Roles: [Role.Submitter]),
 
-            //Seed Default Developer3 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "Developer3@devtracker.com",
-                Email = "Developer3@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company1Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Developer));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Developer3 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
+                   new(
+                        Email:"Submitter2@devtracker.com",
+                        FirstName: faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
+                        LastName: faker.Name.LastName(),
+                        CompanyId: _company2Id,
+                        Roles: [Role.Submitter]),
 
+          ];
 
-            //Seed Default Developer4 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "Developer4@devtracker.com",
-                Email = "Developer4@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company2Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Developer));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Developer4 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-
-
-            //Seed Default Developer5 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "Developer5@devtracker.com",
-                Email = "Developer5@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company1Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Developer));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Developer5 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-
-            //Seed Default Developer6 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "Developer6@devtracker.com",
-                Email = "Developer6@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company2Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Developer));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Developer5 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-
-            //Seed Default Submitter1 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "Submitter1@devtracker.com",
-                Email = "Submitter1@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company1Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Submitter));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Submitter1 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-
-
-            //Seed Default Submitter2 User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "Submitter2@devtracker.com",
-                Email = "Submitter2@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _company2Id
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Submitter));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Default Submitter2 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-
+            await SeedUsersFromListAsync(
+                    userManager,
+                    defaultPassword,
+                    defaultUsers,
+                    seedGroupName: "default");
         }
 
         public static async Task SeedDemoUsersAsync(UserManager<ApplicationUser> userManager, string defaultPassword)
         {
-            #region Seed Demo Admin User
-            var defaultUser = new ApplicationUser
-            {
-                UserName = "demoadmin@devtracker.com",
-                Email = "demoadmin@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _demoCompanyId
-            };
-            try
-            {
-                //Test database to see if user already exists
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
+            IEnumerable<UserSeed> demoUsers = DemoSeedData.DemoUsers
+                                              .Select(demoUser => new UserSeed(
+                                                   Email: demoUser.Email,
+                                                   FirstName: demoUser.FirstName,
+                                                   LastName: demoUser.LastName,
+                                                   CompanyId: _demoCompanyId,
+                                                   Roles: [demoUser.Role, Role.DemoUser]));
 
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Admin));
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.DemoUser));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Demo Admin User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-            #endregion
-
-            #region Seed Demo ProjectManager User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "demopm@devtracker.com",
-                Email = "demopm@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _demoCompanyId
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.ProjectManager));
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.DemoUser));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Demo ProjectManager1 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-            #endregion
-
-            #region Seed Demo Developer User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "demodev@devtracker.com",
-                Email = "demodev@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _demoCompanyId
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Developer));
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.DemoUser));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Demo Developer1 User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-            #endregion
-
-            #region Seed Demo Submitter User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "demosub@devtracker.com",
-                Email = "demosub@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Male),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _demoCompanyId
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Submitter));
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.DemoUser));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Demo Submitter User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-            #endregion
-
-            #region Seed Demo New User
-            defaultUser = new ApplicationUser
-            {
-                UserName = "demonew@devtracker.com",
-                Email = "demonew@devtracker.com",
-                FirstName = faker.Name.FirstName(Bogus.DataSets.Name.Gender.Female),
-                LastName = faker.Name.LastName(),
-                EmailConfirmed = true,
-                CompanyId = _demoCompanyId
-            };
-            try
-            {
-                var user = await userManager.FindByEmailAsync(defaultUser.Email);
-                if (user == null)
-                {
-                    await userManager.CreateAsync(defaultUser, defaultPassword);
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.Submitter));
-                    await userManager.AddToRoleAsync(defaultUser, nameof(Role.DemoUser));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Demo New User.");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-            #endregion
+            await SeedUsersFromListAsync(
+                userManager,
+                defaultPassword,
+                demoUsers,
+                seedGroupName: "demo");
         }
 
+        public static async Task SeedDemoProjectMembersAsync(ApplicationDbContext context)
+        {
+            try
+            {
+                List<string> demoProjectNames = DemoSeedData.DemoProjectMemberships
+                    .Select(m => m.ProjectName)
+                    .ToList();
+
+                List<string> demoMemberEmails = DemoSeedData.DemoProjectMemberships
+                    .SelectMany(m => m.MemberEmails)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                List<Project> demoProjects = await context.Projects
+                    .Include(p => p.Members)
+                    .Where(p =>
+                        p.CompanyId == _demoCompanyId &&
+                        demoProjectNames.Contains(p.Name!))
+                    .ToListAsync();
+
+                List<ApplicationUser> demoUsers = await context.Users
+                    .Where(u =>
+                        u.CompanyId == _demoCompanyId &&
+                        u.Email != null &&
+                        demoMemberEmails.Contains(u.Email))
+                    .ToListAsync();
+
+                Dictionary<string, Project> projectsByName = demoProjects
+                    .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+                    .ToDictionary(p => p.Name!, StringComparer.OrdinalIgnoreCase);
+
+                Dictionary<string, ApplicationUser> usersByEmail = demoUsers
+                    .Where(u => !string.IsNullOrWhiteSpace(u.Email))
+                    .ToDictionary(u => u.Email!, StringComparer.OrdinalIgnoreCase);
+
+                foreach (DemoSeedData.DemoProjectMembershipSeed membershipSeed in DemoSeedData.DemoProjectMemberships)
+                {
+                    if (!projectsByName.TryGetValue(membershipSeed.ProjectName, out Project? project))
+                    {
+                        Console.WriteLine($"Demo project not found: {membershipSeed.ProjectName}");
+                        continue;
+                    }
+
+                    project.Members ??= [];
+
+                    foreach (string email in membershipSeed.MemberEmails)
+                    {
+                        if (!usersByEmail.TryGetValue(email, out ApplicationUser? member))
+                        {
+                            Console.WriteLine($"Demo member not found: {email}");
+                            continue;
+                        }
+
+                        bool alreadyMember = project.Members.Any(m => m.Id == member.Id);
+
+                        if (!alreadyMember)
+                        {
+                            project.Members.Add(member);
+                        }
+                    }
+                }
+
+                await context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("*************  ERROR  *************");
+                Console.WriteLine("Error Seeding Demo Project Members.");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("***********************************");
+                throw;
+            }
+        }
+
+        private static async Task SeedUsersFromListAsync(
+                    UserManager<ApplicationUser> userManager,
+                    string defaultPassword,
+                    IEnumerable<UserSeed> userSeeds,
+                    string seedGroupName)
+        {
+            foreach (UserSeed seed in userSeeds)
+            {
+                try
+                {
+                    ApplicationUser? user = await userManager.FindByEmailAsync(seed.Email);
+
+                    if (user is null)
+                    {
+                        user = new ApplicationUser
+                        {
+                            UserName = seed.Email,
+                            Email = seed.Email,
+                            FirstName = seed.FirstName,
+                            LastName = seed.LastName,
+                            EmailConfirmed = true,
+                            CompanyId = seed.CompanyId
+                        };
+
+                        IdentityResult createResult = await userManager.CreateAsync(user, defaultPassword);
+
+                        if (!createResult.Succeeded)
+                        {
+                            throw new ApplicationException(
+                                string.Join(", ", createResult.Errors.Select(e => e.Description)));
+                        }
+                    }
+
+                    foreach (Role role in seed.Roles.Distinct())
+                    {
+                        string roleName = role.ToString();
+
+                        if (!await userManager.IsInRoleAsync(user, roleName))
+                        {
+                            IdentityResult roleResult = await userManager.AddToRoleAsync(user, roleName);
+
+                            if (!roleResult.Succeeded)
+                            {
+                                throw new ApplicationException(
+                                    string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("*************  ERROR  *************");
+                    Console.WriteLine($"Error seeding {seedGroupName} user: {seed.Email}");
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("***********************************");
+                    throw;
+                }
+            }
+        }
+        
         public static async Task SeedDefaultProjectsAsync(ApplicationDbContext context)
         {
             try
@@ -723,16 +483,16 @@ namespace WonderDevTracker.Data
 
                 List<Project> demoProjects = DemoSeedData.CreateDemoProjects(_demoCompanyId);
 
-                    List<string?> existingDemoProjectNames = await context.Projects
-                        .Where(p => p.CompanyId == _demoCompanyId)
-                        .Select(p => p.Name)
-                        .ToListAsync();
+                List<string?> existingDemoProjectNames = await context.Projects
+                    .Where(p => p.CompanyId == _demoCompanyId)
+                    .Select(p => p.Name)
+                    .ToListAsync();
 
-                    await context.Projects.AddRangeAsync(
-                        demoProjects.Where(p => !existingDemoProjectNames.Contains(p.Name)));
+                await context.Projects.AddRangeAsync(
+                    demoProjects.Where(p => !existingDemoProjectNames.Contains(p.Name)));
 
-                    await context.SaveChangesAsync();
-                }
+                await context.SaveChangesAsync();
+            }
             catch (Exception ex)
             {
                 Console.WriteLine("*************  ERROR  *************");
@@ -755,8 +515,10 @@ namespace WonderDevTracker.Data
             var movie = (await context.Projects.FindAsync(_movieId))!;
             var addressBook = (await context.Projects.FindAsync(_addressbookId))!;
 
-            var company1Users = await context.Users.Where(u => u.CompanyId == _company1Id && !u.Email!.Contains("demo")).Select(u => u.Id).ToListAsync();
-            var company2Users = await context.Users.Where(u => u.CompanyId == _company2Id && !u.Email!.Contains("demo")).Select(u => u.Id).ToListAsync();
+            var company1Users = await context.Users.Where(u => u.CompanyId == _company1Id && !u.Email!.Contains("demo"))
+                                                              .Select(u => u.Id).ToListAsync();
+            var company2Users = await context.Users.Where(u => u.CompanyId == _company2Id && !u.Email!.Contains("demo"))
+                                                              .Select(u => u.Id).ToListAsync();
 
             try
             {
@@ -776,7 +538,7 @@ namespace WonderDevTracker.Data
                             return new Ticket
                             {
                                 SubmitterUserId = submitterId,
-                                Title = faker.Company.Bs().Titleize(),
+                                Title = faker.Company.Bs().TitleSize(),
                                 Description = faker.Lorem.Paragraph(),
                                 Created = created,
                                 ProjectId = project.Id,
@@ -853,7 +615,14 @@ namespace WonderDevTracker.Data
             }
         }
 
+        private sealed record UserSeed(
+                    string Email,
+                    string FirstName,
+                    string LastName,
+                    int CompanyId,
+                    IReadOnlyList<Role> Roles);
+
         private static readonly TextInfo _textInfo = new CultureInfo("en-US").TextInfo;
-        private static string Titleize(this string input) => _textInfo.ToTitleCase(input);
+        private static string TitleSize(this string input) => _textInfo.ToTitleCase(input);
     }
 }

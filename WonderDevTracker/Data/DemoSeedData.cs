@@ -5,6 +5,99 @@ namespace WonderDevTracker.Data
 {
     internal static class DemoSeedData
     {
+        internal sealed record DemoCompanySeed(
+                string Name,
+                string Description,
+                string LogoFileName);
+
+        internal sealed record DemoUserSeed(
+                string Key,
+                string Email,
+                string FirstName,
+                string LastName,
+                Role Role);
+
+        internal sealed record DemoProjectMembershipSeed(
+                string ProjectName,
+                string[] MemberEmails);
+
+        public static DemoCompanySeed DemoCompany => new(
+            Name: "Demo SaaS, LLC",
+            Description: "A small software consultancy building custom workflow tools for clients.",
+            LogoFileName: "Demo_SaaS_LLC_logo");
+
+        internal static IReadOnlyList<DemoUserSeed> DemoUsers =>
+            [
+                new("demo-admin", "demoadmin@devtracker.com", "Avery", "Brooks", Role.Admin),
+
+                new("demo-pm-ava", "demopm@devtracker.com", "Ava", "Mitchell", Role.ProjectManager),
+                new("demo-pm-marcus", "demopm2@devtracker.com", "Marcus", "Reed", Role.ProjectManager),
+
+                new("demo-dev-mia", "demodev@devtracker.com", "Mia", "Chen", Role.Developer),
+                new("demo-dev-noah", "demodev2@devtracker.com", "Noah", "Carter", Role.Developer),
+                new("demo-dev-elena", "demodev3@devtracker.com", "Elena", "Rivera", Role.Developer),
+                new("demo-dev-jordan", "demodev4@devtracker.com", "Jordan", "Price", Role.Developer),
+                new("demo-dev-sophia", "demodev5@devtracker.com", "Sophia", "Garcia", Role.Developer),
+                new("demo-dev-ethan", "demodev6@devtracker.com", "Ethan", "Robinson", Role.Developer),
+
+                new("demo-sub-olivia", "demosub@devtracker.com", "Olivia", "Hayes", Role.Submitter),
+                new("demo-sub-carter", "demosub2@devtracker.com", "Carter", "Bell", Role.Submitter),
+                new("demo-sub-lily", "demosub3@devtracker.com", "Lily", "Cooper", Role.Submitter)
+            ];
+
+        internal static IReadOnlyList<DemoProjectMembershipSeed> DemoProjectMemberships =>
+            [
+                new(
+                    ProjectName: "Sixth Grade American History Quiz Generator",
+                    MemberEmails:
+                    [
+                        "demopm@devtracker.com",
+                        "demodev@devtracker.com",
+                        "demodev2@devtracker.com",
+                        "demosub@devtracker.com"
+                    ]),
+
+                new(
+                    ProjectName: "Plumbing Invoice Generator",
+                    MemberEmails:
+                    [
+                        "demopm2@devtracker.com",
+                        "demodev2@devtracker.com",
+                        "demodev3@devtracker.com",
+                        "demosub2@devtracker.com"
+                    ]),
+
+                new(
+                    ProjectName: "Writer Content Scheduler",
+                    MemberEmails:
+                    [
+                        "demopm@devtracker.com",
+                        "demodev@devtracker.com",
+                        "demodev4@devtracker.com",
+                        "demosub@devtracker.com"
+                    ]),
+
+                new(
+                    ProjectName: "Homeschool Compliance Planner",
+                    MemberEmails:
+                    [
+                        "demopm@devtracker.com",
+                        "demodev3@devtracker.com",
+                        "demodev4@devtracker.com",
+                        "demosub@devtracker.com"
+                    ]),
+
+                new(
+                    ProjectName: "Realtor Client Match Database",
+                    MemberEmails:
+                    [
+                        "demopm2@devtracker.com",
+                        "demodev@devtracker.com",
+                        "demodev2@devtracker.com",
+                        "demosub2@devtracker.com"
+                    ])
+        ];
+
         public static List<Project> CreateDemoProjects(int demoCompanyId)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
