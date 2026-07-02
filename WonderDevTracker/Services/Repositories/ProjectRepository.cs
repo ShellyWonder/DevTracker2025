@@ -112,12 +112,12 @@ namespace WonderDevTracker.Services.Repositories
             }
 
             return null;
-          
+
         }
 
         public async Task<ApplicationUser?> GetProjectManagerAsync(int projectId, UserInfo user)
         {
-           IEnumerable<ApplicationUser> members = await GetProjectMembersAsync(projectId, user);
+            IEnumerable<ApplicationUser> members = await GetProjectMembersAsync(projectId, user);
             foreach (var member in members)
             {
                 if (await userManager.IsInRoleAsync(member, nameof(Role.ProjectManager)) == true)
@@ -126,11 +126,6 @@ namespace WonderDevTracker.Services.Repositories
                 }
             }
             return null;
-        }
-
-        public Task<IEnumerable<ApplicationUser>> GetProjectMembersByRoleAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, UserInfo user)
@@ -157,27 +152,6 @@ namespace WonderDevTracker.Services.Repositories
                      .ToListAsync();
             return projects;
         }
-
-        public Task<Project?> GetProjectsByPriorityAsync(Project priority, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<ApplicationUser>> GetProjectSubmittersAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Project>> GetUnassignedProjectsAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-      
-        public Task<IEnumerable<ApplicationUser>> GetUsersNotOnProjectAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
 
         #region UPDATE METHODS
@@ -185,7 +159,7 @@ namespace WonderDevTracker.Services.Repositories
 
         {
 
-            bool  isRoleAuthorized = await IsUserAuthorizedToEditProject(project.Id, user);
+            bool isRoleAuthorized = await IsUserAuthorizedToEditProject(project.Id, user);
             if (!isRoleAuthorized) throw new UnauthorizedAccessException($"User {user.Email} does not have permission to update project {project.Id}.");
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
 
@@ -247,7 +221,7 @@ namespace WonderDevTracker.Services.Repositories
 
         public async Task ArchiveProjectAsync(int projectId, UserInfo user)
         {
-            bool  isRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
+            bool isRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
             if (!isRoleAuthorized) throw new UnauthorizedAccessException("User is not authorized to archive this project.");
 
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
@@ -275,14 +249,14 @@ namespace WonderDevTracker.Services.Repositories
                     Created = DateTimeOffset.UtcNow,
                     Description = "Project archived"
                 });
-               
+
                 #endregion
             }
             await db.SaveChangesAsync();
         }
         public async Task RestoreProjectAsync(int projectId, UserInfo user)
         {
-            bool  isRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
+            bool isRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
             if (!isRoleAuthorized) throw new UnauthorizedAccessException("User is not authorized to restore this project.");
 
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
@@ -347,9 +321,9 @@ namespace WonderDevTracker.Services.Repositories
             }
             // validate new PM
             var newPm = await db.Users
-                .FirstOrDefaultAsync(u => u.Id == managerId && u.CompanyId == user.CompanyId) 
+                .FirstOrDefaultAsync(u => u.Id == managerId && u.CompanyId == user.CompanyId)
                 ?? throw new KeyNotFoundException("Project Manager not found.");
-            if (!await userManager.IsInRoleAsync(newPm, nameof(Role.ProjectManager))) 
+            if (!await userManager.IsInRoleAsync(newPm, nameof(Role.ProjectManager)))
                 throw new InvalidOperationException("Selected user is not a Project Manager.");
 
             if (!project.Members!.Any(m => m.Id == newPm.Id))
@@ -360,7 +334,7 @@ namespace WonderDevTracker.Services.Repositories
 
         public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
-            bool  isRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
+            bool isRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
             if (!isRoleAuthorized) throw new UnauthorizedAccessException("User is not authorized to edit this project.");
 
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
@@ -393,7 +367,7 @@ namespace WonderDevTracker.Services.Repositories
 
         public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
-            bool  isRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
+            bool isRoleAuthorized = await IsUserAuthorizedToEditProject(projectId, user);
             if (!isRoleAuthorized) throw new UnauthorizedAccessException("User is not authorized to edit this project.");
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
             //Look up project ~ already confirmed project is not null by IsUserAuthorizedToEditProject() 
@@ -404,7 +378,7 @@ namespace WonderDevTracker.Services.Repositories
             //is member assigned to project
             ApplicationUser? member = project.Members!.FirstOrDefault(m => m.Id == userId);
 
-            if (member == null || await userManager.IsInRoleAsync(member, nameof(Role.ProjectManager))) 
+            if (member == null || await userManager.IsInRoleAsync(member, nameof(Role.ProjectManager)))
                 throw new InvalidOperationException("Cannot remove Project Manager from the project.");
             //remove member from project and save to db
             project.Members!.Remove(member);
@@ -436,11 +410,11 @@ namespace WonderDevTracker.Services.Repositories
             bool isPM = user.Roles.Any(r => r == nameof(Role.ProjectManager));
             if (!isAdmin && !isPM) return false;
 
-            bool  isRoleAuthorized = await db.Projects
+            bool isRoleAuthorized = await db.Projects
                 // Check if the project exists and belongs to the user's company
                 .Where(p => p.Id == projectId && p.CompanyId == user.CompanyId)
                 .AnyAsync(p => isAdmin || p.Members!.Any(m => m.Id == user.UserId));
-            return  isRoleAuthorized;
+            return isRoleAuthorized;
         }
         #endregion
     }

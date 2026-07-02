@@ -22,10 +22,7 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user claims</param>
         /// <returns>Requested Project or Null</returns>
         public Task<Project?> GetProjectByIdAsync(int projectId, UserInfo user);
-
-        public Task<Project?> GetProjectsByPriorityAsync(Project priority, UserInfo user);
-        public Task<IEnumerable<Project>> GetUnassignedProjectsAsync(UserInfo user);
-
+        
         /// <summary>
         /// Get Project Manager(PM) 
         /// </summary>
@@ -59,33 +56,13 @@ namespace WonderDevTracker.Services.Interfaces
         public Task<IEnumerable<ApplicationUser>> GetProjectDevelopersAsync(int projectId, UserInfo user);
 
         /// <summary>
-        /// Asynchronously retrieves the collection of users who have submitted items to the specified project.
-        /// </summary>
-        /// <param name="projectId">The unique identifier of the project for which to retrieve submitters.</param>
-        /// <param name="user">The user context used to determine access permissions for the operation. Cannot be null.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of
-        /// users who have submitted items to the specified project. The collection is empty if there are no submitters.</returns>
-        public Task<IEnumerable<ApplicationUser>> GetProjectSubmittersAsync(int projectId, UserInfo user);
-
-        /// <summary>
-        /// Asynchronously retrieves the collection of project members assigned to roles that are accessible to the
-        /// specified user within the given project.
-        /// </summary>
-        /// <param name="projectId">The unique identifier of the project for which to retrieve members.</param>
-        /// <param name="user">The user context used to determine accessible roles and permissions. Cannot be null.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of
-        /// users who are members of the project and match the accessible roles. The collection is empty if no such
-        /// members are found.</returns>
-        public Task<IEnumerable<ApplicationUser>> GetProjectMembersByRoleAsync(int projectId, UserInfo user);
-
-        /// <summary>
         /// Get Project Members
         /// </summary>
         /// <param name="projectId">Project Id</param>
         /// <param name="user">Current user's claims</param>
         /// <remarks>Retrieves all project members assigned to project.</remarks>
         /// <returns>A collection of users</returns>
-         public Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, UserInfo user);
+        public Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, UserInfo user);
 
         /// <summary>
         /// Retrieves the project information required for sending notifications for the specified project and company.
@@ -104,16 +81,6 @@ namespace WonderDevTracker.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>A collection of user's assigned projects</returns>
         public Task<IEnumerable<Project>> GetAssignedProjectsAsync(UserInfo user);
-
-        /// <summary>
-        /// Asynchronously retrieves a collection of users who are not assigned to the same project as the specified
-        /// user.
-        /// </summary>
-        /// <param name="user">The user whose project membership is used to determine which users are not on the same project. Cannot be
-        /// null.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of
-        /// users not assigned to the specified user's project.</returns>
-        public Task<IEnumerable<ApplicationUser>> GetUsersNotOnProjectAsync(UserInfo user);
 
         /// <summary>
         /// Get All Archived Projects
