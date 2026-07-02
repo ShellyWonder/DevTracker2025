@@ -11,8 +11,6 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="user">The current users claims</param>
         /// <returns>An enumerable of projects</returns>
         public Task<IEnumerable<ProjectDTO>> GetAllProjectsAsync(UserInfo user);
-        public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user);
-        public Task<IEnumerable<ProjectDTO>> GetUnassignedProjectsAsync(UserInfo user);
 
         /// <summary>
         /// Get Project Manager(PM) 
@@ -22,9 +20,6 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="user">User's claims</param>
         /// <returns>Assigned PM or Null if one is not assigned</returns>
         public Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user);
-        public Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user);
-        public Task<IEnumerable<AppUserDTO>> GetProjectSubmittersAsync(int projectId, UserInfo user);
-        public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user);
 
         /// <summary>
         /// Retrieves all project members (except the Project Manager) assigned to project.
@@ -41,7 +36,12 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="user">Current user's claims</param>
         /// <returns>A collection of user's assigned projects</returns>
         public Task<IEnumerable<ProjectDTO>> GetAssignedProjectsAsync(UserInfo user);
-        public Task<IEnumerable<AppUserDTO>> GetUsersNotOnProjectAsync(UserInfo user);
+
+        /// <summary>
+        /// Retrieves a specific company project by its ID asynchronously from the database.
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="user"></param>
         public Task<ProjectDTO?> GetProjectByIdAsync(int projectId, UserInfo user);
         #endregion
 
@@ -118,7 +118,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="projectId">The unique identifier of the existing project.</param>
         /// <param name="userId">The unique identifier of the user to be assigned as the project manager.</param>
         /// <param name="user">The current user's claims</param>
-        
+
         Task AssignProjectManagerAsync(int projectId, string userId, UserInfo user);
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// </remarks>
         /// <param name="projectId">Specific company project's id</param>
         /// <param name="user">Current user claims</param>
-        
+
         public Task RestoreProjectByIdAsync(int projectId, UserInfo user);
         #endregion
     }

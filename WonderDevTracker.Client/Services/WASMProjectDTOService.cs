@@ -118,11 +118,6 @@ namespace WonderDevTracker.Client.Services
 
         #endregion
 
-        public Task<IEnumerable<AppUserDTO>> GetProjectDevelopersAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<AppUserDTO?> GetProjectManagerAsync(int projectId, UserInfo user)
         {
             var response = await http.GetFromJsonAsync<AppUserDTO?>($"api/Projects/{projectId}/pm");
@@ -143,11 +138,6 @@ namespace WonderDevTracker.Client.Services
             response.EnsureSuccessStatusCode();
         }
 
-        public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<IEnumerable<AppUserDTO>> GetProjectMembersAsync(int projectId, UserInfo user)
         {
             try
@@ -162,28 +152,6 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<AppUserDTO>> GetProjectSubmittersAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<ProjectDTO>> GetUnassignedProjectsAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-       
-
-        public Task<IEnumerable<AppUserDTO>> GetUsersNotOnProjectAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
             var response = await http.PutAsync($"api/Projects/{projectId}/members/{userId}", null);  //null because no body needed
@@ -196,19 +164,12 @@ namespace WonderDevTracker.Client.Services
             response.EnsureSuccessStatusCode();
         }
 
-        
-        public Task RemoveProjectMemberAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task SetProjectManagerAsync(int projectId, string? userId, UserInfo user)
         {
             var response = await http.PutAsJsonAsync($"api/Projects/{projectId}/pm", new { UserId = userId });
             response.EnsureSuccessStatusCode();
         }
 
-        
     }
-    
+
 }

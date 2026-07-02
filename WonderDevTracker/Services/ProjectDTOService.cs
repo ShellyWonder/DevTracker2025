@@ -106,21 +106,8 @@ namespace WonderDevTracker.Services
 
             return dtos;
         }
-        public Task<IEnumerable<AppUserDTO>> GetProjectMembersByRoleAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ProjectDTO?> GetProjectsByPriorityAsync(ProjectDTO priority, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<AppUserDTO>> GetProjectSubmittersAsync(int projectId, UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
+        
+        
         public async Task<IEnumerable<ProjectDTO>> GetAssignedProjectsAsync(UserInfo user)
         {
            IEnumerable<Project> projects = await projectRepository.GetAssignedProjectsAsync(user);
@@ -128,15 +115,7 @@ namespace WonderDevTracker.Services
             return dtos;
         }
 
-        public Task<IEnumerable<ProjectDTO>> GetUnassignedProjectsAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<AppUserDTO>> GetUsersNotOnProjectAsync(UserInfo user)
-        {
-            throw new NotImplementedException();
-        }
+        
         #endregion
 
         #region ARCHIVE METHODS
