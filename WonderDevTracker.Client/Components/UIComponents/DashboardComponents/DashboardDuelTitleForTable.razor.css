@@ -1,0 +1,15 @@
+﻿.tt-ticket-title-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    line-height: 1.2;
+}
+
+.tt-ticket-title-line {
+    font-weight: 700;
+}
+
+.tt-ticket-project-line {
+    font-size: 0.9rem;
+    color: var(--dt-text-muted);
+}

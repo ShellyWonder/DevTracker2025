@@ -1,0 +1,38 @@
+﻿@* DashboardDuelTitleForTable *@
+
+<div class="tt-ticket-title-stack">
+    <div class="tt-ticket-title-line">
+        <TicketTitleLink TicketId="TicketId"
+                         Title="@TicketTitle" />
+    </div>
+
+    @if (ProjectId > 0 && !string.IsNullOrWhiteSpace(ProjectName))
+    {
+        <div class="tt-ticket-project-line">
+            <ProjectTitleLink ProjectId="ProjectId"
+                              ProjectName="@ProjectName"
+                              Typo="ProjectTypo"
+                              Color="ProjectColor" />
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int TicketId { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? TicketTitle { get; set; }
+
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    [Parameter]
+    public string? ProjectName { get; set; }
+
+    [Parameter]
+    public Typo ProjectTypo { get; set; } = Typo.caption;
+
+    [Parameter]
+    public Color ProjectColor { get; set; } = Color.Secondary;
+}

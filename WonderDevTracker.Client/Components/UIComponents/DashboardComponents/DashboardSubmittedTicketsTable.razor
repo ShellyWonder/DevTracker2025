@@ -3,118 +3,114 @@
 @if (IsEmpty)
 {
 
-	<NotFoundDisplay Message="No submitted tickets to display." />
+    <NotFoundDisplay Message="No submitted tickets to display." />
 }
 else
 {
-	<MudDataGrid T="DashboardTicketSummaryDTO"
-				 Items="@VisibleTickets"
-				 Dense="true"
-				 Hover="true"
-				 ColumnResizeMode="ResizeMode.Container"
-				 DragDropColumnReordering
-				 Hideable
-				 ShowMenuIcon
-				 Breakpoint="Breakpoint.None"
-				 Bordered="false"
-				 Elevation="0"
-				 RowsPerPage="10">
-		<Columns>
-			<PropertyColumn Property="t => t.Title" Title="Ticket">
-				<CellTemplate Context="ticket">
-					<TicketTitleLink TicketId="ticket.Item.Id"
-									 Title="@ticket.Item.Title" />
-				</CellTemplate>
-			</PropertyColumn>
-			<PropertyColumn Property="t => t.ProjectName" Title="Project">
-				<CellTemplate Context="ticket">
-					<ProjectTitleLink ProjectId="ticket.Item.ProjectId"
-									  ProjectName="@ticket.Item.ProjectName" />
-				</CellTemplate>
-			</PropertyColumn>
+    <MudDataGrid T="DashboardTicketSummaryDTO"
+                 Items="@VisibleTickets"
+                 Dense="true"
+                 Hover="true"
+                 ColumnResizeMode="ResizeMode.Container"
+                 DragDropColumnReordering
+                 Hideable
+                 ShowMenuIcon
+                 Breakpoint="Breakpoint.None"
+                 Bordered="false"
+                 Elevation="0"
+                 RowsPerPage="10">
+        <Columns>
+            <PropertyColumn Property="t => t.Title" Title="Ticket">
+                <CellTemplate Context="ticket">
+                    <DashboardDuelTitleForTable TicketId="@ticket.Item.Id"
+                                                 TicketTitle="@ticket.Item.Title"
+                                                 ProjectId="@ticket.Item.ProjectId"
+                                                 ProjectName="@ticket.Item.ProjectName" />
+                                                 
+                </CellTemplate>
+            </PropertyColumn>
+            <TemplateColumn Title="Type" Sortable="true" SortBy="t => t.Type">
+                <CellTemplate Context="ticket">
+                    <TicketTypeChip Type="ticket.Item.Type" />
+                </CellTemplate>
+            </TemplateColumn>
 
-			<TemplateColumn Title="Type" Sortable="true" SortBy="t => t.Type">
-				<CellTemplate Context="ticket">
-					<TicketTypeChip Type="ticket.Item.Type" />
-				</CellTemplate>
-			</TemplateColumn>
+            <TemplateColumn Title="Status" Sortable="true" SortBy="t => t.Status">
+                <CellTemplate Context="ticket">
+                    <TicketStatusChip Status="ticket.Item.Status" />
+                </CellTemplate>
+            </TemplateColumn>
 
-			<TemplateColumn Title="Status" Sortable="true" SortBy="t => t.Status">
-				<CellTemplate Context="ticket">
-					<TicketStatusChip Status="ticket.Item.Status" />
-				</CellTemplate>
-			</TemplateColumn>
+            <TemplateColumn Title="Priority" Sortable="true" SortBy="t => t.Priority">
+                <CellTemplate Context="ticket">
+                    <TicketPriorityChip Priority="ticket.Item.Priority" />
+                </CellTemplate>
+            </TemplateColumn>
 
-			<TemplateColumn Title="Priority" Sortable="true" SortBy="t => t.Priority">
-				<CellTemplate Context="ticket">
-					<TicketPriorityChip Priority="ticket.Item.Priority" />
-				</CellTemplate>
-			</TemplateColumn>
+            <TemplateColumn Title="Developer"
+                            Sortable="true"
+                            SortBy="@(ticket => ticket.DeveloperName)">
+                <CellTemplate Context="ticket">
+                    @if (ticket.Item.DeveloperUser is null)
+                    {
+                        <NoLinkDevNotAssigned />
+                    }
+                    else
+                    {
+                        <UserAvatarMudChip User="@ticket.Item.DeveloperUser"
+                                           PlaceholderName="Developer" />
+                    }
+                </CellTemplate>
+            </TemplateColumn>
 
-			<TemplateColumn Title="Developer"
-							Sortable="true"
-							SortBy="@(ticket => ticket.DeveloperName)">
-				<CellTemplate Context="ticket">
-					@if (ticket.Item.DeveloperUser is null)
-					{
-						<NoLinkDevNotAssigned />
-					}
-					else
-					{
-						<UserAvatarMudChip User="@ticket.Item.DeveloperUser"
-										   PlaceholderName="Developer" />
-					}
-				</CellTemplate>
-			</TemplateColumn>
+            <TemplateColumn Title="Submitted"
+                            Sortable="true"
+                            SortBy="@(ticket => ticket.Created)">
+                <CellTemplate Context="ticket">
+                    <TimestampComponent PrimaryTimestamp="ticket.Item.Created" />
+                </CellTemplate>
+            </TemplateColumn>
 
-			<TemplateColumn Title="Submitted"
-							Sortable="true"
-							SortBy="@(ticket => ticket.Created)">
-				<CellTemplate Context="ticket">
-					<TimestampComponent PrimaryTimestamp="ticket.Item.Created" />
-				</CellTemplate>
-			</TemplateColumn>
+            <TemplateColumn Title="Last Activity"
+                            Sortable="true"
+                            SortBy="@(ticket => ticket.LastActivity)">
+                <CellTemplate Context="ticket">
+                    <TimestampComponent PrimaryTimestamp="ticket.Item.Updated"
+                                        FallbackTimestamp="ticket.Item.Created" />
+                </CellTemplate>
+            </TemplateColumn>
 
-			<TemplateColumn Title="Last Activity"
-							Sortable="true"
-							SortBy="@(ticket => ticket.LastActivity)">
-				<CellTemplate Context="ticket">
-					<TimestampComponent PrimaryTimestamp="ticket.Item.Updated"
-										FallbackTimestamp="ticket.Item.Created" />
-				</CellTemplate>
-			</TemplateColumn>
+            <TemplateColumn Title="Actions">
+                <CellTemplate Context="ticket">
+                    <DashboardTicketActions DeveloperUser="@ticket.Item.DeveloperUser"
+                                            TicketId="@ticket.Item.Id"
+                                            AllowAssignment="@AllowAssignment" />
+                </CellTemplate>
+            </TemplateColumn>
 
-			<TemplateColumn Title="Actions">
-				<CellTemplate Context="ticket">
-					<DashboardTicketActions DeveloperUser="@ticket.Item.DeveloperUser"
-											TicketId="@ticket.Item.Id"
-											AllowAssignment="@AllowAssignment" />
-				</CellTemplate>
-			</TemplateColumn>
-
-		</Columns>
-	</MudDataGrid>
+        </Columns>
+    </MudDataGrid>
 
 }
 
 
 @code {
-	[Parameter, EditorRequired]
-	public IReadOnlyList<DashboardTicketSummaryDTO> Tickets { get; set; } = [];
+    [Parameter, EditorRequired]
+    public IReadOnlyList<DashboardTicketSummaryDTO> Tickets { get; set; } = [];
 
-	[Parameter]
-	public int PreviewCount { get; set; } = 3;
+    [Parameter]
+    public int PreviewCount { get; set; } = 3;
 
-	[Parameter]
-	public bool IsExpanded { get; set; }
+    [Parameter]
+    public bool IsExpanded { get; set; }
 
-	[Parameter]
-	public bool AllowAssignment { get; set; } = true;
+    [Parameter]
+    public bool AllowAssignment { get; set; } = true;
 
-	private bool IsEmpty => Tickets is null || Tickets.Count == 0;
+    private bool IsEmpty => Tickets is null || Tickets.Count == 0;
 
-	private IReadOnlyList<DashboardTicketSummaryDTO> VisibleTickets =>
-		   IsExpanded
-			   ? Tickets
-			   : Tickets.Take(PreviewCount).ToList();
+    private IReadOnlyList<DashboardTicketSummaryDTO> VisibleTickets =>
+           IsExpanded
+               ? Tickets
+               : Tickets.Take(PreviewCount).ToList();
 }

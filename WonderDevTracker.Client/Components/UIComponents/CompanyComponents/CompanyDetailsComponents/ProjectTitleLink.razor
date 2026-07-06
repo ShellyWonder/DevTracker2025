@@ -12,7 +12,8 @@ else
 		<SafeNavLink Href="@ProjectUrl"
 					 Valid=" ValidProject"
 					 Class="project-details-link"
-					 Typo="Typo.inherit">
+					 Typo="@Typo"
+					Color="@Color"	>
 			@ProjectName
 		</SafeNavLink>
 	</MudTooltip>
@@ -24,6 +25,12 @@ else
 
 	[Parameter, EditorRequired]
 	public String? ProjectName { get; set; }
+
+	[Parameter]
+	public Typo Typo { get; set; } = Typo.inherit;
+
+	[Parameter]
+	public Color Color { get; set; } = Color.Primary;
 
 	private string ProjectUrl =>
 		ProjectId.HasValue ? $"/projects/{ProjectId.Value}" : "#";
