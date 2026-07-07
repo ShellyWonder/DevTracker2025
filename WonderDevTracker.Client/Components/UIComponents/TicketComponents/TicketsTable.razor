@@ -92,7 +92,7 @@
                     <CellTemplate>
                         <AssignedToTicket User="context.Item.Ticket.DeveloperUser"
                                           TicketId="context.Item.Ticket.Id"
-                                          AllowAssignment="@AllowAssignment" />
+                                          CanAssignDeveloper="@CanAssignDeveloper" />
                     </CellTemplate>
                 </TemplateColumn>
                 <TemplateColumn Title="Created"
@@ -138,7 +138,7 @@
     public IEnumerable<TicketDTO> Tickets { get; set; } = [];
 
     [Parameter]
-    public bool AllowAssignment { get; set; } = true;
+    public bool CanAssignDeveloper { get; set; }
 
     [Parameter]
     public bool IsArchivedView { get; set; }
