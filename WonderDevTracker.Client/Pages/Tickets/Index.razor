@@ -1,7 +1,7 @@
 ﻿@* TicketsIndex-open *@
 @page "/tickets/open"
 
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, ProjectManager")]
 
 @inject IndexTrackerHelper IndexTracker
 @inject ITicketDTOService ticketService
@@ -35,8 +35,8 @@
 	{
 		<PageTitle>Tickets Not Found | Dev Tracker</PageTitle>
 		<NotFoundFull Message="No open tickets found."
-					  ReturnUrl="/"
-					  ReturnLabel="Home"
+					  ReturnUrl="/dashboard"
+					  ReturnLabel="Back to Dashboard"
 					  ForwardUrl="/tickets/create"
 					  ForwardLabel="Create New Ticket" />
 	}
