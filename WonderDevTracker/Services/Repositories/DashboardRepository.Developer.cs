@@ -17,19 +17,7 @@ namespace WonderDevTracker.Services.Repositories
                 .ThenByDescending(t => t.Priority)
                 .ThenByDescending(t => t.Updated ?? t.Created)
                 .Take(take)
-                .Select(t => new DashboardTicketSummaryDTO
-                {
-                    Id = t.Id,
-                    Title = t.Title ?? "Untitled",
-                    ProjectId = t.ProjectId,
-                    ProjectName = t.Project != null ? t.Project.Name ?? "Unknown Project" : "Unknown Project",
-                    Type = t.Type,
-                    Priority = t.Priority,
-                    Status = t.Status,
-                    Created = t.Created,
-                    Updated = t.Updated,
-
-                })
+                .Select(TicketSummaryProjection)
                 .ToListAsync();
     }
 }
