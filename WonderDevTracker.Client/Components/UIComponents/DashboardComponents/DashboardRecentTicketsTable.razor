@@ -65,7 +65,7 @@ else
             </TemplateColumn>
 
             <TemplateColumn Title="Submitter"
-                            Sortable="true"
+                            Sortable="true"F
                             @bind-Hidden="_submitterColumnHidden"
                             Hideable="true"
                             SortBy="@(ticket => ticket.SubmitterName ?? string.Empty)">
@@ -86,7 +86,7 @@ else
                 <CellTemplate Context="ticket">
                     <DashboardTicketActions DeveloperUser="@ticket.Item.DeveloperUser"
                                             TicketId="@ticket.Item.Id"
-                                            AllowAssignment="@AllowAssignment" />
+                                            CanAssignDeveloper="@CanAssignDeveloper" />
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
@@ -101,7 +101,7 @@ else
     public bool UnassignedTickets { get; set; }
 
     [Parameter]
-    public bool AllowAssignment { get; set; } = true;
+    public bool CanAssignDeveloper { get; set; }
 
     private bool IsEmpty => Tickets is null || Tickets.Count == 0;
 

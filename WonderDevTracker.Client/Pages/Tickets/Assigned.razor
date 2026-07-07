@@ -9,66 +9,115 @@
 @inherits AuthenticatedComponentBase
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container" Style="height: 100%; position: relative">
-	<MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
-	@if (!_loadingComplete)
-	{
-		<LoadingSpinner Message="Loading your tickets ..." Color="Color.Primary" Size="Size.Large" />
-	}
-	else if (tickets.Any())
-	{
-		<PageTitle>My Tickets | Dev Tracker</PageTitle>
+    <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+    @if (!_loadingComplete)
+    {
+        <LoadingSpinner Message="Loading your tickets ..." Color="Color.Primary" Size="Size.Large" />
+    }
+    else if (tickets.Any())
+    {
+        <MudPaper Elevation="2" Class="p-3">
+            <TitleComponentPage Title="@PageState.Heading" />
 
-		<MudPaper Elevation="2" Class="p-3">
+            <MudDivider Class="mb-3" />
 
-		<TitleComponentPage Title="My Tickets" />
-			<MudDivider Class="mb-3" />
-		<TicketsTable Tickets="tickets" />
-
-		</MudPaper>
-	}
-	else
-	{
-		<PageTitle>Tickets Not Found | Dev Tracker</PageTitle>
-		<NotFoundFull Message="Your tickets not found."
-					  ReturnUrl="/"
-					  ReturnLabel="Home"
-					  ForwardUrl="/tickets/create"
-					  ForwardLabel="Create New Ticket" />
-	}
+            <TicketsTable Tickets="tickets"
+                          CanAssignDeveloper="@PageState.CanAssignDeveloper" />
+        </MudPaper>
+    }
+    else
+    {
+        <PageTitle>Tickets Not Found | Dev Tracker</PageTitle>
+        <NotFoundFull Message="Your tickets not found."
+                      ReturnUrl="/dashboard"
+                      ReturnLabel="Return to Dashboard"
+                      ForwardUrl="/tickets/create"
+                      ForwardLabel="Create New Ticket" />
+    }
 
 </MudContainer>
 
 
 @code {
-	private IEnumerable<TicketDTO> tickets = [];
+    private IEnumerable<TicketDTO> tickets = [];
 
-	private bool _loadingComplete = false;
+    private bool _loadingComplete = false;
 
-	protected override async Task OnInitializedWithAuthAsync()
-	{
-		try
-		{
-			tickets = await ticketService.GetTicketsAssignedToUserAsync(UserInfo!);
+    protected override async Task OnInitializedWithAuthAsync()
+    {
+        try
+        {
+            tickets = await ticketService.GetTicketsAssignedToUserAsync(UserInfo!);
 
-		}
-		catch (Exception ex)
-		{
+        }
+        catch (Exception ex)
+        {
 
-			Console.WriteLine($"Error loading tickets: {ex.Message}");
-			Snackbar.Add("Error loading tickets.", Severity.Error);
-		}
-		_loadingComplete = true;
+            Console.WriteLine($"Error loading tickets: {ex.Message}");
+            Snackbar.Add("Error loading tickets.", Severity.Error);
+        }
+        _loadingComplete = true;
 
-	}
+    }
 
+    private TicketPageState PageState => GetPageState();
 
-	private static readonly List<BreadcrumbItem> breadcrumbs = new()
-	{
-		new BreadcrumbItem("Dashboard", href:"/dashboard"),
-		new BreadcrumbItem("Tickets", href:"/tickets/open" ),
-		new BreadcrumbItem(" My Tickets", href:null, disabled: true ),
+    private TicketPageState GetPageState()
+    {
+        if (UserIsInRole(Role.Developer))
+        {
+            return new TicketPageState(
+                BrowserTitle: "My Assigned Tickets | Dev Tracker",
+                Heading: "My Assigned Tickets",
+                EmptyMessage: "You do not have any assigned tickets.",
+                CanAssignDeveloper: false);
+        }
 
-	};
+        if (IsProjectManager)
+        {
+            return new TicketPageState(
+                BrowserTitle: "My Managed Tickets | Dev Tracker",
+                Heading: "My Managed Tickets",
+                EmptyMessage: "You do not have any managed tickets.",
+                CanAssignDeveloper: true);
+        }
+        if (IsAdmin)
+        {
+            return new TicketPageState(
+                BrowserTitle: "My Submitted Tickets | Dev Tracker",
+                Heading: "My Submitted Tickets",
+                EmptyMessage: "You do not have any submitted tickets.",
+                CanAssignDeveloper: true);
+        }
 
+        if (UserIsInRole(Role.Submitter))
+        {
+            return new TicketPageState(
+                BrowserTitle: "My Submitted Tickets | Dev Tracker",
+                Heading: "My Submitted Tickets",
+                EmptyMessage: "You do not have any submitted tickets.",
+                CanAssignDeveloper: false);
+        }
 
+        return new TicketPageState(
+            BrowserTitle: "Tickets Not Found | Dev Tracker",
+            Heading: "Tickets",
+            EmptyMessage: "Your tickets were not found.",
+            CanAssignDeveloper: false);
+    }
+    private sealed record TicketPageState(
+       string BrowserTitle,
+       string Heading,
+       string EmptyMessage,
+       bool CanAssignDeveloper);
+
+    private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    {
+        new BreadcrumbItem("Dashboard", href:"/dashboard"),
+        new BreadcrumbItem("Tickets", href:"/tickets/open" ),
+        new BreadcrumbItem(" My Tickets", href:null, disabled: true ),
+
+    };
+
+    private bool CanAssignDeveloper => IsAdmin || IsProjectManager;
 }

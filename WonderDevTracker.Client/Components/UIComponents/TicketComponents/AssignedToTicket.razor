@@ -1,44 +1,54 @@
 ﻿@* AssignedToTicket *@
 
 <div class="@CssClass">
+    @switch (DisplayMode)
+    {
+        case AssignmentDisplayMode.LockedUnassigned:
+            <NoLinkDevNotAssigned />
+            break;
 
-	@if (User is null && !AllowAssignment)
-	{
-		<NoLinkDevNotAssigned />
-	}
-	else if(User is null)
-	{
-			<UnassignedDeveloperLink TicketId="@TicketId" />
-	}
-	else
-	{
-		<UserAvatarMudChip User="@User"  />
-	}
+        case AssignmentDisplayMode.AssignableUnassigned:
+            <UnassignedDeveloperLink TicketId="@TicketId" />
+            break;
+
+        case AssignmentDisplayMode.Assigned:
+            <UserAvatarMudChip User="@User" />
+            break;
+    }
 </div>
 
 @code {
-	[Parameter, EditorRequired]
-	public AppUserDTO? User { get; set; }
+    [Parameter]
+    public AppUserDTO? User { get; set; }
 
-	[Parameter, EditorRequired]		
-	public int TicketId { get; set; }
+    [Parameter, EditorRequired]
+    public int TicketId { get; set; }
 
-	[Parameter]
-	public bool AllowAssignment { get; set; } = true;
+    [Parameter]
+    public bool CanAssignDeveloper { get; set; }
 
-	[Parameter]
-	public string PlaceholderName { get; set; } = "Unassigned";
+    [Parameter]
+    public string? Class { get; set; }
 
-	[Parameter]
-	public string? Class { get; set; } 
+    [Parameter]
+    public string? Style { get; set; }
 
-	[Parameter]
-	public string? Style { get; set; }
+    private AssignmentDisplayMode DisplayMode => User switch
+    {
+        null when !CanAssignDeveloper => AssignmentDisplayMode.LockedUnassigned,
+        null => AssignmentDisplayMode.AssignableUnassigned,
+        _ => AssignmentDisplayMode.Assigned
+    };
 
-	private string CssClass =>
-	   string.IsNullOrWhiteSpace(Class)
-		   ? "d-flex align-items-center justify-content-center gap-2"
-		   : $"d-flex align-items-center gap-2 {Class}";
+    private string CssClass =>
+        string.IsNullOrWhiteSpace(Class)
+            ? "d-flex align-items-center justify-content-center gap-2"
+            : $"d-flex align-items-center gap-2 {Class}";
 
-
+    private enum AssignmentDisplayMode
+    {
+        LockedUnassigned,
+        AssignableUnassigned,
+        Assigned
+    }
 }

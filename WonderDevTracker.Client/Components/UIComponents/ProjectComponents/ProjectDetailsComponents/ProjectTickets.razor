@@ -21,16 +21,17 @@
                     else
                     {
                         <ProjectTicketTable Tickets="@OpenTickets" />
+                                             
 
                     }
                 </MudTabPanel>
                 <MudTabPanel Text="Resolved Tickets">
                     <ProjectTicketTable Tickets="@ResolvedTickets" 
-                                        AllowAssignment="false"/>
+                                        CanAssignDeveloper="false"/>
                 </MudTabPanel>
                 <MudTabPanel Text="Archived Tickets">
                     <ProjectTicketTable Tickets="@ArchivedTickets"
-                                        AllowAssignment="false"/>
+                                        CanAssignDeveloper="false"/>
 
                 </MudTabPanel>
             </MudTabs>
