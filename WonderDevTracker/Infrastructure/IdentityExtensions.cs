@@ -17,29 +17,34 @@ namespace WonderDevTracker.Infrastructure
             {
                 cookieBuilder.ApplicationCookie!.Configure(config =>
                 {
-                    config.Events.OnRedirectToLogin += (context) =>
+                    config.LoginPath = "/Account/Login";
+                    config.AccessDeniedPath = "/Account/AccessDenied";
+
+                    config.Events.OnRedirectToLogin = (context) =>
                     {
                         if (context.Request.Path.StartsWithSegments("/api") || context.Request.HasJsonContentType())
                         {
-                            context.Response.StatusCode = 401; // Unauthorized(user not authenticated)
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;// Unauthorized(user not authenticated)
+                            return Task.CompletedTask;
                         }
+                        context.Response.Redirect(context.RedirectUri);
                         return Task.CompletedTask;
                     };
 
-                    config.Events.OnRedirectToAccessDenied += (context) =>
+                    config.Events.OnRedirectToAccessDenied = (context) =>
                     {
                         if (context.Request.Path.StartsWithSegments("/api") || context.Request.HasJsonContentType())
                         {
-                            context.Response.StatusCode = 403; // Forbidden (credentials not authorized)
+                            context.Response.StatusCode = StatusCodes.Status403Forbidden; // Forbidden (credentials not authorized)
+                            return Task.CompletedTask;
                         }
+                        context.Response.Redirect(context.RedirectUri);
                         return Task.CompletedTask;
                     };
 
 
                 });
             });
-            
-           
 
             services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
