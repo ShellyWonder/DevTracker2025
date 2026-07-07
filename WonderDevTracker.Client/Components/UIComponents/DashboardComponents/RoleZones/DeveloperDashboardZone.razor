@@ -70,7 +70,7 @@
                                         StartsExpanded="false">
                 <ChildContent Context="isExpanded">
                     <DashboardSubmittedTicketsTable Tickets="Dashboard?.MySubmittedTickets ?? []"
-                                                    AllowAssignment="@ActionsPermissions.CanManageMembers"
+                                                    CanAssignDeveloper="@ActionsPermissions.CanManageMembers"
                                                     IsExpanded="@isExpanded"
                                                     PreviewCount="3" />
                 </ChildContent>

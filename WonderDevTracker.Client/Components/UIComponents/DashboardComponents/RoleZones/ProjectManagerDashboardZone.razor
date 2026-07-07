@@ -55,7 +55,7 @@
                                                             UnassignedTickets="@Dashboard.UnassignedTickets"
                                                             IsExpanded="@isExpanded"
                                                             PreviewCount="3"
-                                                            AllowAssignment="true" />
+                                                            CanAssignDeveloper="true" />
                                 </ChildContent>
                             </DashboardExpandableSection>
                         </div>
@@ -89,7 +89,7 @@
                                         StartsExpanded="false">
                 <ChildContent Context="isExpanded">
                     <DashboardSubmittedTicketsTable Tickets="Dashboard?.MySubmittedTickets ?? []"
-                                                    AllowAssignment="@ActionsPermissions.CanManageMembers"
+                                                    CanAssignDeveloper="@ActionsPermissions.CanManageMembers"
                                                     IsExpanded="@isExpanded"
                                                     PreviewCount="3" />
                 </ChildContent>
