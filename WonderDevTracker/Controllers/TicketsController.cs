@@ -32,7 +32,8 @@ namespace WonderDevTracker.Controllers
             var tickets = filter switch
             {
                 TicketsFilter.Archived => await ticketService.GetArchivedTicketsAsync(UserInfo),
-                TicketsFilter.Assigned => await ticketService.GetTicketsAssignedToUserAsync(UserInfo),
+                TicketsFilter.Assigned => await ticketService.GetOpenTicketsAssignedToDevAsync(UserInfo),
+                TicketsFilter.Managed => await ticketService.GetOpenManagedTicketsForPMAsync(UserInfo),
                 TicketsFilter.Resolved => await ticketService.GetResolvedTicketsAsync(UserInfo),
                 //default expression ~ no filter provided
                 _ => await ticketService.GetOpenTicketsAsync(UserInfo)

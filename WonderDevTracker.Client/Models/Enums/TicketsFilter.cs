@@ -8,6 +8,7 @@ namespace WonderDevTracker.Client.Models.Enums
         Open,
         Assigned,
         Resolved,
-        Archived
+        Archived,
+        Managed
     }
 }

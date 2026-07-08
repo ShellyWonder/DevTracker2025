@@ -136,7 +136,22 @@ namespace WonderDevTracker.Client.Services
             }
         }
 
-        public async Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
+        public async Task<IEnumerable<TicketDTO>> GetOpenManagedTicketsForPMAsync(UserInfo userInfo)
+        {
+            try
+            {
+                List<TicketDTO>? tickets = await http.GetFromJsonAsync<List<TicketDTO>>($"api/Tickets?filter={TicketsFilter.Managed}")
+                    ?? [];
+                return tickets;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex);
+                return [];
+            }
+        }
+        public async Task<IEnumerable<TicketDTO>> GetOpenTicketsAssignedToDevAsync(UserInfo userInfo)
         {
             try
             {
