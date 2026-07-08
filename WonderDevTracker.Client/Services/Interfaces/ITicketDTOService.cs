@@ -43,15 +43,20 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <param name="userInfo">The current user's claims</param>
         Task<IEnumerable<TicketDTO>> GetArchivedTicketsAsync(UserInfo userInfo);
 
+        
         /// <summary>
-        /// Get Tickets Assigned to User
+        /// Get Open Tickets Assigned to Developer
         /// </summary>
-        /// <param name="userInfo">The current user's claims</param>
-        /// <remarks>Get all the tickets currently assigned to current user in a specific company.
-        /// If the user is a Project Manager this query returns all tickets in assigned project(s).
-        /// Admins will see tickets they submitted.
-        /// </remarks>
-        Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo);
+        /// <param name="userInfo"></param>
+        /// <remarks>Get all the tickets currently assigned to current developer in a specific company.</remarks>
+        Task<IEnumerable<TicketDTO>> GetOpenTicketsAssignedToDevAsync(UserInfo userInfo);
+
+        /// <summary>
+        /// Get Open Tickets Managed by Project Manager
+        /// </summary>
+        /// <param name="userInfo"></param>
+        /// <remarks>This query returns all opentickets in managed project(s).</remarks>
+        Task<IEnumerable<TicketDTO>> GetOpenManagedTicketsForPMAsync(UserInfo userInfo);
 
         #endregion
 
@@ -153,7 +158,7 @@ namespace WonderDevTracker.Client.Services.Interfaces
         /// <remarks>Deletes a ticket attachment from the database and storage asynchronously.Must be attachment owner or company Admin to delete ticket attachment. </remarks>
         /// <param name="attachmentId">Attachment Id</param>
         /// <param name="user">Current User's claims</param>
-        Task DeleteTicketAttachmentAsync(int attachmentId,UserInfo user);
+        Task DeleteTicketAttachmentAsync(int attachmentId, UserInfo user);
 
         #endregion
     }

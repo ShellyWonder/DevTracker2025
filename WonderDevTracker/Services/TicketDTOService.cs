@@ -56,7 +56,7 @@ namespace WonderDevTracker.Services
             };
             dbComment = await ticketRepository.CreateCommentAsync(dbComment, userInfo)
                 ?? throw new InvalidOperationException("Comment creation failed.");
-            
+
             await notificationOrchestrator.TicketCommentAddedAsync(dbComment.TicketId, dbComment.Id, userInfo);
 
             return dbComment.ToDTO();
@@ -162,13 +162,18 @@ namespace WonderDevTracker.Services
             return dtos;
         }
 
-
-        public async Task<IEnumerable<TicketDTO>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
+        public async Task<IEnumerable<TicketDTO>> GetOpenTicketsAssignedToDevAsync(UserInfo userInfo)
         {
-            IEnumerable<Ticket> tickets = await ticketRepository.GetTicketsAssignedToUserAsync(userInfo);
-            IEnumerable<TicketDTO> dtos = tickets.Select(t => t.ToDTO());
-            return dtos;
+            IEnumerable<Ticket> tickets = await ticketRepository.GetOpenTicketsAssignedToDevAsync(userInfo);
+            return tickets.Select(t => t.ToDTO());
         }
+
+        public async Task<IEnumerable<TicketDTO>> GetOpenManagedTicketsForPMAsync(UserInfo userInfo)
+        {
+            IEnumerable<Ticket> tickets = await ticketRepository.GetOpenManagedTicketsForPMAsync(userInfo);
+            return tickets.Select(t => t.ToDTO());
+        }
+
         #endregion
 
         #region ARCHIVE/RESTORE METHODS
@@ -284,6 +289,7 @@ namespace WonderDevTracker.Services
         {
             await ticketRepository.DeleteTicketAttachmentAsync(attachmentId, user);
         }
+
         #endregion
     }
 }

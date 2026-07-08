@@ -156,49 +156,51 @@ namespace WonderDevTracker.Services.Repositories
             return tickets;
         }
 
-        public async Task<IEnumerable<Ticket>> GetTicketsAssignedToUserAsync(UserInfo userInfo)
+        public async Task<IEnumerable<Ticket>> GetOpenTicketsAssignedToDevAsync(UserInfo userInfo)
         {
+            if (!userInfo.IsInRole(Role.Developer)) return [];
+
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
-            List<Ticket> tickets = [];
+            return await db.Tickets
+                .AsNoTracking()
+                .Include(t => t.Project)
+                .Include(t => t.SubmitterUser)
+                .Include(t => t.DeveloperUser)
+                .Where(t => !t.Archived)
+                .Where(t => !t.ArchivedByProject)
+                .Where(t => t.Project != null)
+                .Where(t => !t.Project!.Archived)
+                .Where(t => t.Project!.CompanyId == userInfo.CompanyId)
+                .Where(t => t.DeveloperUserId == userInfo.UserId)
+                .Where(t => t.Status != TicketStatus.Resolved)
+                .OrderByDescending(t => t.Status == TicketStatus.New)
+                .ThenByDescending(t => t.Priority)
+                .ThenByDescending(t => t.Updated ?? t.Created)
+                .ToListAsync();
+        }
 
-            if (userInfo.IsInRole(Role.ProjectManager))
-            {
+        public async Task<IEnumerable<Ticket>> GetOpenManagedTicketsForPMAsync(UserInfo userInfo)
+        {
+            if (!userInfo.IsInRole(Role.ProjectManager)) return [];
+            await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
 
-                List<int> AssignedProjectIds = await db.Users
-                    //get the user
-                    .Where(u => u.Id == userInfo.UserId)
-                    //include their projects
-                    .SelectMany(u => u.Projects!)
-                    //get only the project ids
-                    .Select(p => p.Id)
-                    //make it a list for C# use
-                    .ToListAsync();
-
-                //get all tickets in those projects
-                tickets = await db.Tickets
-                    .Include(t => t.Project)
-                    .Include(t => t.SubmitterUser)
-                    .Include(t => t.DeveloperUser)
-                    .Where(t => !t.Archived)
-                    .Where(t => t.SubmitterUserId == userInfo.UserId  //ticket submitter
-                                   || t.DeveloperUserId == userInfo.UserId //developer assingned to ticket
-                                   || AssignedProjectIds.Contains(t.ProjectId)) //ticket is in a project assigned to the PM
-                                        .ToListAsync();
-            }
-
-            else
-            {
-                //get all tickets user submitted || all tickets assigned to user
-                tickets = await db.Tickets
-                    .Include(t => t.Project)
-                    .Include(t => t.SubmitterUser)
-                    .Include(t => t.DeveloperUser)
-                    .Where(t => !t.Archived)
-                    .Where(t => t.SubmitterUserId == userInfo.UserId
-                                   || t.DeveloperUserId == userInfo.UserId)
-                    .ToListAsync();
-            }
-            return tickets;
+            //get all tickets in those projects
+            return await db.Tickets
+               .AsNoTracking()
+               .Include(t => t.Project)
+               .Include(t => t.SubmitterUser)
+               .Include(t => t.DeveloperUser)
+               .Where(t => t.Project != null)
+               .Where(t => t.Project!.CompanyId == userInfo.CompanyId)
+               .Where(t => !t.Archived)
+               .Where(t => !t.ArchivedByProject)
+               .Where(t => !t.Project!.Archived)
+               .Where(t => t.Status != TicketStatus.Resolved)
+               .Where(t => t.Project!.Members!.Any(m => m.Id == userInfo.UserId))
+               .OrderByDescending(t => string.IsNullOrWhiteSpace(t.DeveloperUserId))
+               .ThenByDescending(t => t.Priority)
+               .ThenByDescending(t => t.Updated ?? t.Created)
+               .ToListAsync();
         }
 
         public async Task<TicketForNotification?> GetTicketForNotificationsAsync(int ticketId, int companyId)
@@ -215,7 +217,7 @@ namespace WonderDevTracker.Services.Repositories
             t.SubmitterUserId,
             t.DeveloperUserId))
         .FirstOrDefaultAsync();
-            
+
         }
 
         public async Task ArchiveTicketAsync(int ticketId, UserInfo user)
@@ -314,7 +316,6 @@ namespace WonderDevTracker.Services.Repositories
         public async Task DeleteCommentAsync(int id, UserInfo user)
         {
 
-
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
             TicketComment? comment = null;
             if (user.IsInRole(Role.Admin))
@@ -411,9 +412,13 @@ namespace WonderDevTracker.Services.Repositories
             {
                 // Project Managers can edit tickets in projects they manage
                 result = await db.Tickets
-                        .AnyAsync(t => t.Id == ticketId
-                        && t.Project!.Members!.Any(m => m.Id == user.UserId) // Ensure the PM is a member of the project
-                        || t.SubmitterUserId == user.UserId);
+                .AnyAsync(t =>
+                    t.Id == ticketId &&
+                    t.Project!.CompanyId == user.CompanyId &&
+                    (
+                        t.Project!.Members!.Any(m => m.Id == user.UserId) ||
+                        t.SubmitterUserId == user.UserId
+                    ));
 
             }
             else
@@ -442,8 +447,11 @@ namespace WonderDevTracker.Services.Repositories
                 // Project Managers can edit tickets in projects they manage
                 result = await db.Tickets
                         .AnyAsync(t => t.Id == ticketId
-                        && t.Project!.Members!.Any(m => m.Id == user.UserId) // Ensure the PM is a member of the project
-                        || t.SubmitterUserId == user.UserId);
+                        && t.Project!.CompanyId == user.CompanyId &&
+                        (
+                            t.Project!.Members!.Any(m => m.Id == user.UserId) ||
+                            t.SubmitterUserId == user.UserId
+                        ));
 
             }
 
@@ -523,6 +531,8 @@ namespace WonderDevTracker.Services.Repositories
             }
             return historyEntries;
         }
+
+
         #endregion
     }
 }

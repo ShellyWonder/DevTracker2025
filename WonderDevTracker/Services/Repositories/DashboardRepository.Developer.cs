@@ -13,7 +13,8 @@ namespace WonderDevTracker.Services.Repositories
         private static async Task<List<DashboardTicketSummaryDTO>> GetDeveloperAssignedTicketSummariesAsync(
                                                                    IQueryable<Ticket> devTickets,
                                                                    int take = 10) => await devTickets
-                .OrderBy(t => t.Status == TicketStatus.Resolved)
+                .Where(t => t.Status != TicketStatus.Resolved)
+                .OrderByDescending(t => t.Status == TicketStatus.New)
                 .ThenByDescending(t => t.Priority)
                 .ThenByDescending(t => t.Updated ?? t.Created)
                 .Take(take)
