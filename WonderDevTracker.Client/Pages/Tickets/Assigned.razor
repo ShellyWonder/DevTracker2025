@@ -1,7 +1,9 @@
 ﻿@* TicketsIndex *@
 @page "/tickets/assigned"
+@page "/tickets/managed"
 
-@attribute [Authorize]
+
+@attribute [Authorize(Roles = "Developer,ProjectManager")]
 
 @inject ITicketDTOService ticketService
 @inject ISnackbar Snackbar
@@ -16,6 +18,7 @@
     }
     else if (tickets.Any())
     {
+        <PageTitle>@PageState.BrowserTitle</PageTitle>
         <MudPaper Elevation="2" Class="p-3">
             <TitleComponentPage Title="@PageState.Heading" />
 
@@ -27,8 +30,8 @@
     }
     else
     {
-        <PageTitle>Tickets Not Found | Dev Tracker</PageTitle>
-        <NotFoundFull Message="Your tickets not found."
+        <PageTitle>@PageState.BrowserTitle</PageTitle>
+        <NotFoundFull Message="@PageState.EmptyMessage"
                       ReturnUrl="/dashboard"
                       ReturnLabel="Return to Dashboard"
                       ForwardUrl="/tickets/create"
@@ -47,7 +50,7 @@
     {
         try
         {
-            tickets = await ticketService.GetTicketsAssignedToUserAsync(UserInfo!);
+            await LoadTicketsAsync();
 
         }
         catch (Exception ex)
@@ -58,6 +61,23 @@
         }
         _loadingComplete = true;
 
+    }
+
+    private async Task LoadTicketsAsync()
+    {
+        if (UserIsInRole(Role.Developer))
+        {
+            tickets = await ticketService.GetOpenTicketsAssignedToDevAsync(UserInfo!);
+            return;
+        }
+
+        if (IsProjectManager)
+        {
+            tickets = await ticketService.GetOpenManagedTicketsForPMAsync(UserInfo!);
+            return;
+        }
+
+        tickets = [];
     }
 
     private TicketPageState PageState => GetPageState();
@@ -80,23 +100,6 @@
                 Heading: "My Managed Tickets",
                 EmptyMessage: "You do not have any managed tickets.",
                 CanAssignDeveloper: true);
-        }
-        if (IsAdmin)
-        {
-            return new TicketPageState(
-                BrowserTitle: "My Submitted Tickets | Dev Tracker",
-                Heading: "My Submitted Tickets",
-                EmptyMessage: "You do not have any submitted tickets.",
-                CanAssignDeveloper: true);
-        }
-
-        if (UserIsInRole(Role.Submitter))
-        {
-            return new TicketPageState(
-                BrowserTitle: "My Submitted Tickets | Dev Tracker",
-                Heading: "My Submitted Tickets",
-                EmptyMessage: "You do not have any submitted tickets.",
-                CanAssignDeveloper: false);
         }
 
         return new TicketPageState(
