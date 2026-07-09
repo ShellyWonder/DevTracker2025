@@ -9,6 +9,7 @@
 @inject ISnackbar Snackbar
 
 @inherits AuthenticatedComponentBase
+@attribute [Authorize]
 
 <PageTitle>Submit New Ticket | Dev Tracker</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large">
@@ -16,6 +17,19 @@
 	<MudPaper Class="p-3">
 		<AnimatedBlock Index="@Index.Next()">
 			<TitleComponentPage Title="Submit a New Ticket" />
+            @if (UserIsInRole(Role.Developer) || UserIsInRole(Role.Submitter))
+            {
+                <Instructions Title="Fill out the form to submit a new ticket on an active project." 
+							  StartIcon="@Icons.Material.Filled.StickyNote2" 
+							  Message="Tip: Once the ticket is submitted, a developer will be assigned by the project manager or administrator."/>
+            }
+			else
+			{
+				<Instructions Title="Fill out the form to submit a new ticket on an active project."
+							  StartIcon="@Icons.Material.Filled.StickyNote2"
+							  Message="Tip: You may assign a developer now by selecting from the dropdown list or later by visiting the ticket details page." />
+			}
+
 			<MudDivider Class="mb-3" />
 		</AnimatedBlock>
 		<EditForm Model="ticket"
@@ -114,8 +128,15 @@
 			<AnimatedBlock Index="@Index.Next()">
 
 				<div class="d-flex">
-					<BackToBtn Href="/tickets/open" Text="Back to Tickets" />
+					@if (IsAdmin || IsProjectManager)
+					{
 
+						<BackToBtn Href="/tickets/open" Text="Back to Tickets" />
+					}
+                    else
+                    {
+                        <BackToBtn Href="/dashboard" Text="Back to Dashboard" />
+                    }
 					<SubmitBtn DisplayText="Submit"
 							   ButtonType="ButtonType.Submit" />
 				</div>
