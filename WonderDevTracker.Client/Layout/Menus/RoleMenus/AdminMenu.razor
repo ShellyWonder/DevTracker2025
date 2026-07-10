@@ -1,0 +1,38 @@
+﻿@* AdminMenu *@
+<MudNavGroup Title="Company" Expanded>
+    <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">
+        Dashboard
+    </MudNavLink>
+    <MudNavLink Href="/company" Icon="@Icons.Material.Filled.Business">
+        Company Details
+    </MudNavLink>
+</MudNavGroup>
+<MudNavGroup Title="Projects" Expanded>
+    <MudNavLink Href="/projects" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FolderCopy">
+        All Company Projects
+    </MudNavLink>
+    <MudNavLink Href="/projects/archived" Icon="@Icons.Material.Filled.Archive">
+        Archived Projects
+    </MudNavLink>
+    <MudNavLink Href="/projects/create" Icon="@Icons.Material.Filled.CreateNewFolder">
+        Create Projects
+    </MudNavLink>
+</MudNavGroup>
+<MudNavGroup Title="Tickets" Expanded>
+    <MudNavLink Href="/tickets/open" Icon="@Icons.Material.Filled.Assessment">
+        Open Tickets
+    </MudNavLink>
+    <MudNavLink Href="/tickets/resolved" Icon="@Icons.Material.Filled.AssignmentTurnedIn">
+        Resolved Tickets
+    </MudNavLink>
+    <MudNavLink Href="/tickets/archived" Icon="@Icons.Material.Filled.Archive">
+        Archived Tickets
+    </MudNavLink>
+    <MudNavLink Href="/tickets/create" Icon="@Icons.Material.Filled.AssignmentLate">
+        Submit Ticket
+    </MudNavLink>
+</MudNavGroup>
+
+
+
+
