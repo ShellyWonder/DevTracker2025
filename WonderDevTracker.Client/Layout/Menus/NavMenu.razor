@@ -5,103 +5,71 @@
 @inherits AuthenticatedComponentBase
 
 <MudNavMenu>
-	<MudNavGroup Title="Account" Expanded>
-		<AuthorizeView>
-			<Authorized>
-				<MudNavLink Href="/account/manage" Icon="@Icons.Material.Filled.Person">
-					Hello, @UserInfoHelper.GetUserInfo(context)?.FullName!
-				</MudNavLink>
-				<MudNavLink ActiveClass=""
-							Icon="@Icons.Material.Filled.Logout"
-							UserAttributes="@(new() {["onclick"] = "logoutForm.submit()" })">
-					Logout
-				</MudNavLink>
-				<form action="Account/Logout" method="post" id="logoutForm" class="d-none">
-					<AntiforgeryToken />
-					<input type="hidden" name="ReturnUrl" value="account/login" />
-				</form>
-			</Authorized>
+    <MudNavGroup Title="Account" Expanded>
+        <AuthorizeView>
+            <Authorized>
+                <MudNavLink Href="/account/manage" Icon="@Icons.Material.Filled.Person">
+                    Hello, @UserInfoHelper.GetUserInfo(context)?.FullName!
+                </MudNavLink>
+                <MudNavLink ActiveClass=""
+                            Icon="@Icons.Material.Filled.Logout"
+                            UserAttributes="@(new() {["onclick"] = "logoutForm.submit()" })">
+                    Logout
+                </MudNavLink>
+                <form action="Account/Logout" method="post" id="logoutForm" class="d-none">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="ReturnUrl" value="account/login" />
+                </form>
+            </Authorized>
 
-			<NotAuthorized>
-				<MudNavLink Href="/account/login" Icon="@Icons.Material.Filled.Login">
-					Login
-				</MudNavLink>
-				<MudNavLink Href="/account/register" Icon="@Icons.Material.Filled.AppRegistration">
-					Register
-				</MudNavLink>
-			</NotAuthorized>
-		</AuthorizeView>
-	</MudNavGroup>
+            <NotAuthorized>
+                <MudNavLink Href="/account/login" Icon="@Icons.Material.Filled.Login">
+                    Login
+                </MudNavLink>
+                <MudNavLink Href="/account/register" Icon="@Icons.Material.Filled.AppRegistration">
+                    Register
+                </MudNavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudNavGroup>
 
-	<AuthorizeView>
-		<MudNavGroup Title="Company" Expanded>
-			<MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">
-				Dashboard
-			</MudNavLink>
-			<MudNavLink Href="/company" Icon="@Icons.Material.Filled.Business">
-				Company Details
-			</MudNavLink>
-		</MudNavGroup>
-		<MudNavGroup Title="Projects" Expanded>
-			<MudNavLink Href="/projects" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FolderCopy">
-				All Projects
-			</MudNavLink>
-			@* Optionally guard against pre-auth flicker *@
-			@if (AuthReady && !UserIsInRole(Role.Admin))
-			{
-				<MudNavLink Href="/projects/assigned" Icon="@Icons.Material.Filled.FolderShared">
-					My Projects
-				</MudNavLink>
-			}
+    <AuthorizeView>
 
-			<MudNavLink Href="/projects/archived" Icon="@Icons.Material.Filled.Archive">
-				Archived Projects
-			</MudNavLink>
-			@if (UserIsAnyRole(Role.Admin) || UserIsAnyRole(Role.ProjectManager)) 
-			{
-				<MudNavLink Href="/projects/create" Icon="@Icons.Material.Filled.CreateNewFolder">
-					Create Projects
-				</MudNavLink>
+    </AuthorizeView>
+    @if (IsAdmin)
+    {
+        <AdminMenu />
+    }
 
-			}
-		</MudNavGroup>
-		<MudNavGroup Title="Tickets" Expanded>
-			<MudNavLink Href="/tickets/open" Icon="@Icons.Material.Filled.Assessment">
-				Open Tickets
-			</MudNavLink>
-			<MudNavLink Href="/tickets/assigned" Icon="@Icons.Material.Filled.AssignmentInd">
-				My Tickets
-			</MudNavLink>
-			<MudNavLink Href="/tickets/resolved" Icon="@Icons.Material.Filled.AssignmentTurnedIn">
-				Resolved Tickets
-			</MudNavLink>
-			<MudNavLink Href="/tickets/archived" Icon="@Icons.Material.Filled.Archive">
-				Archived Tickets
-			</MudNavLink>
-			<MudNavLink Href="/tickets/create" Icon="@Icons.Material.Filled.AssignmentLate">
-				Submit Ticket
-			</MudNavLink>
-		</MudNavGroup>
-	</AuthorizeView>
+    else if (IsProjectManager)
+    {
+        <PMMenu />
+    }
 
+    else if (UserIsInRole(Role.Developer))
+    {
+        <DevMenu />
+    }
 
+    else if (UserIsInRole(Role.Submitter))
+    {
+        <SubmitterMenu />
+    }
 </MudNavMenu>
 
-
-
 @code {
-	private string? currentUrl;
+    private string? currentUrl;
 
-	protected override void OnInitialized()
-	{
-		currentUrl = navigationManager.ToBaseRelativePath(navigationManager.Uri);
-		navigationManager.LocationChanged += OnLocationChanged;
-	}
-	private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-	{
-		currentUrl = e.Location;
-		StateHasChanged();
-	}
-	public void Dispose() => navigationManager.LocationChanged -= OnLocationChanged;
+    protected override void OnInitialized()
+    {
+        currentUrl = navigationManager.ToBaseRelativePath(navigationManager.Uri);
+        navigationManager.LocationChanged += OnLocationChanged;
+    }
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = e.Location;
+        StateHasChanged();
+    }
+    public void Dispose() => navigationManager.LocationChanged -= OnLocationChanged;
 
 }
