@@ -156,15 +156,15 @@ namespace WonderDevTracker.Services.Repositories
 
         #region UPDATE METHODS
         public async Task UpdateProjectAsync(Project project, UserInfo user)
-
         {
-
             bool isRoleAuthorized = await IsUserAuthorizedToEditProject(project.Id, user);
             if (!isRoleAuthorized) throw new UnauthorizedAccessException($"User {user.Email} does not have permission to update project {project.Id}.");
             await using ApplicationDbContext db = await contextFactory.CreateDbContextAsync();
 
-            var current = await db.Projects.FirstAsync(p => p.Id == project.Id);
-
+            var current = await db.Projects.FirstAsync(p => p.Id == project.Id
+                                                                && p.CompanyId == user.CompanyId)
+                ?? throw new KeyNotFoundException("Project not found.");
+            EnsureProjectIsActive(current);
 
             if (!string.Equals(project.Name, current.Name, StringComparison.Ordinal))
             {
@@ -174,7 +174,6 @@ namespace WonderDevTracker.Services.Repositories
             }
 
             if (project.Description != current.Description)
-
             {
 
                 db.Entry(current).Property(p => p.Description).CurrentValue = project.Description;
@@ -304,6 +303,8 @@ namespace WonderDevTracker.Services.Repositories
                 .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId)
                 ?? throw new KeyNotFoundException("Project not found.");
 
+            EnsureProjectIsActive(project);
+
             // remove any current PMs
             var toRemove = new List<ApplicationUser>();
             foreach (var m in project.Members!)
@@ -345,6 +346,8 @@ namespace WonderDevTracker.Services.Repositories
                     .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId)
                     ?? throw new KeyNotFoundException("Project not found.");
 
+            EnsureProjectIsActive(project);
+
             //is member already assigned to project
             if (project.Members!.Any(m => m.Id == userId)) return;
 
@@ -375,6 +378,9 @@ namespace WonderDevTracker.Services.Repositories
                     .Include(p => p.Members)
                     .FirstOrDefaultAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId)
                     ?? throw new KeyNotFoundException("Project not found.");
+
+            EnsureProjectIsActive(project);
+
             //is member assigned to project
             ApplicationUser? member = project.Members!.FirstOrDefault(m => m.Id == userId);
 
@@ -415,6 +421,12 @@ namespace WonderDevTracker.Services.Repositories
                 .Where(p => p.Id == projectId && p.CompanyId == user.CompanyId)
                 .AnyAsync(p => isAdmin || p.Members!.Any(m => m.Id == user.UserId));
             return isRoleAuthorized;
+        }
+
+        private static void EnsureProjectIsActive(Project project)
+        {
+            if (project.Archived)
+                throw new InvalidOperationException("Archived projects cannot be modified. Restore the project before making changes.");
         }
         #endregion
     }
