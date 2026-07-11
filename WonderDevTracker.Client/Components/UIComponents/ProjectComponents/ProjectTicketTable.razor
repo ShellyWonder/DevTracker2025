@@ -57,7 +57,8 @@
 		<NotFoundDisplay Message="No tickets available" />
 	</NoRecordsContent>
 </MudDataGrid>
-
+@if(!IsProjectArchived)
+{
 <SafeNavButton Href="/tickets/create"
 			   Valid="true"
 			   Color="Color.Tertiary"
@@ -65,13 +66,19 @@
 			   Class="project-details-link ms-auto"
 			   StartIcon="@Icons.Material.Filled.List"
 			   TypeText="Add Tickets" />
-
+}
 @code {
 	[Parameter, EditorRequired]
 	public IEnumerable<TicketDTO> Tickets { get; set; } = [];
 
 	[Parameter]
 	public bool CanAssignDeveloper { get; set; }
+
+	[Parameter]
+	public bool IsProjectArchived { get; set; }
+
+
+	 
 
 
 
