@@ -26,7 +26,17 @@
         <AnimatedBlock Index="@Index.Next()"></AnimatedBlock>
 
         <MudBreadcrumbs Items="breadcrumbs" Class="breadcrumbs1" />
+        @if (project.Archived)
+        {
 
+            <Instructions StartIcon="@Icons.Material.Filled.Info"
+                          Title="THIS PROJECT IS READ ONLY. "
+                          Message="Please restore the project to make any updates."
+                          Color1="Color.Error"
+                          Typo1="Typo.h6" />
+
+               
+        }
 
         <MudPaper Class="p-3">
             <AnimatedBlock Index="@Index.Next()">
@@ -89,6 +99,7 @@
                     <div class="d-flex">
                         <BackToBtn Href="@($"projects/{ProjectId}")" Text="@($"Back to {project.Name}")" />
                         <SubmitBtn ButtonType="ButtonType.Submit"
+                                    Disabled="@project.Archived"
                                    DisplayText="Submit" />
                     </div>
                 </AnimatedBlock>
