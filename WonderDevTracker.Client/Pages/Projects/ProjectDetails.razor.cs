@@ -27,6 +27,7 @@ namespace WonderDevTracker.Client.Pages.Projects
 
         #region UI HELPERS & COMPUTED
         private void ResetIndex() => IndexTracker.Reset();
+        private bool IsProjectActive() => !_project!.Archived;
         #endregion
 
         #region TOKENS
@@ -85,7 +86,7 @@ namespace WonderDevTracker.Client.Pages.Projects
                 // //refresh project details to show archived status
                 _project = await ProjectService.GetProjectByIdAsync(ProjectId, UserInfo!);
 
-                if (_project != null) _project.Archived = true;
+                _project?.Archived = true;
 
 
                 await InvokeAsync(() => Snackbar.Add($"The Project, '{projectName}' has been archived", Severity.Success));
