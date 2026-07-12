@@ -32,7 +32,7 @@
 						}
 					</div>
 				}
-				@if (UserCanManageTeam)
+				@if (UserCanManageTeam && !Project.Archived)
 				{
 					<SafeNavButton Valid="true"
 								   Color="Color.Tertiary"
