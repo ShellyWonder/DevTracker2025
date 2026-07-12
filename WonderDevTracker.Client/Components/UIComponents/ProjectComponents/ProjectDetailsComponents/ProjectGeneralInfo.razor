@@ -1,29 +1,23 @@
 ﻿@* ProjectGeneralInfo *@
-
 @inject IDialogService DialogService
 @inject IAppAuthorizationService AuthService
 
 @inherits AuthenticatedComponentBase
 
-
 <AnimatedCard Index="Index">
     <MudCardHeader>
         <CardHeaderContent>
-            <div class="d-flex justify-content-between">
-                <ProjectName Project="Project" />
-                @if (Project.Archived)
+            <div class="project-general-header">
+                <div class="project-general-title">
+                    <ProjectName Project="Project" />
+                </div>
+
+                @if (ProjectActions is not null)
                 {
-                    <MudText Typo="Typo.caption">
-
-                        <MudChip T="string"
-                                 Color="Color.Error"
-                                 Size="Size.Medium"
-                                 aria-label="Archived Project">
-                            Archived
-                        </MudChip>
-                    </MudText>
+                    <div class="project-general-actions">
+                        @ProjectActions
+                    </div>
                 }
-
             </div>
             <ProjectDates StartDate="Project.StartDate" EndDate="Project.EndDate" />
 
@@ -105,6 +99,9 @@
 
     [Parameter, EditorRequired]
     public IReadOnlyList<AppUserDTO> ProjectManagers { get; set; } = Array.Empty<AppUserDTO>();
+
+    [Parameter]
+    public RenderFragment? ProjectActions { get; set; }
 
     [Parameter]
     public string? ProjectManagerId { get; set; }

@@ -27,12 +27,12 @@
         <div class="vstack gap-3">
             @if (!IsProjectActive())
             {
-                
-                    <Instructions StartIcon="@Icons.Material.Filled.Info"
-                                  Title="THIS PROJECT IS READ ONLY. "
-                                  Message="Please restore the project to make any updates."
-                                  Color1="Color.Error"
-                                  Typo1="Typo.h6" />
+
+                <Instructions StartIcon="@Icons.Material.Filled.Info"
+                              Title="THIS PROJECT IS READ ONLY. "
+                              Message="Please restore the project to make any updates."
+                              Color1="Color.Error"
+                              Typo1="Typo.h6" />
 
                
             }
@@ -41,7 +41,47 @@
                                 Index="@IndexTracker.Next()"
                                 ProjectManagers="projectManagers"
                                 @bind-ProjectManagerId="_project.ProjectManagerId"
-                                OnSaveProjectManagerRequested="HandleSavePMAsync" />
+                                OnSaveProjectManagerRequested="HandleSavePMAsync">
+                <ProjectActions>
+                    <div class="d-flex align-items-center gap-2">
+                        @if (_project.Archived)
+                        {
+                            <MudChip T="string"
+                                     Color="Color.Error"
+                                     Size="Size.Medium"
+                                     aria-label="Archived project">
+                                Archived
+                            </MudChip>
+
+                            @if (_userCanEditProject)
+                            {
+                                <ArchiveBar IsArchived="true"
+                                            UserCanArchiveAndRestore="true"
+                                            ItemLabel="Project"
+                                            Busy="@_processingRequest"
+                                            OnRestoreRequested="HandleRestoreAsync" />
+                            }
+                        }
+                        else if (_userCanEditProject)
+                        {
+                            <MudButton Variant="Variant.Text"
+                                       StartIcon="@Icons.Material.Filled.Edit"
+                                       Href="@($"projects/{ProjectId}/edit")"
+                                       Disabled="@(_project is null || !_userCanEditProject )"
+                                       Color="Color.Tertiary">
+                                Edit
+                            </MudButton>
+
+                            <ArchiveBar IsArchived="false"
+                                        UserCanArchiveAndRestore="true"
+                                        ItemLabel="Project"
+                                        Busy="@_processingRequest"
+                                        OnArchiveRequested="HandleArchiveAsync" />
+
+                        }
+                                         </div>
+                </ProjectActions>
+            </ProjectGeneralInfo>
 
             <DescriptionCard Title="Description"
                              Index="@IndexTracker.Next()"
@@ -59,30 +99,6 @@
 
         <div class="d-flex mt-2">
             <BackToBtn Href="/projects" Text="Back to Projects" Disabled="@(_project is null)" />
-            @if (_userCanEditProject)
-            {
-                <div class="ms-auto">
-                    @if (IsProjectActive())
-                    {
-                        <MudButton Variant="Variant.Text"
-                                   StartIcon="@Icons.Material.Filled.Edit"
-                                   Href="@($"projects/{ProjectId}/edit")"
-                                   Disabled="@(_project is null || !_userCanEditProject )"
-                                   Color="Color.Tertiary">
-                            Edit
-                        </MudButton>
-
-                    }
-
-                    <ArchiveBar IsArchived="_project!.Archived"
-                                UserCanArchiveAndRestore="_userCanEditProject"
-                                ItemLabel="Project"
-                                Busy="@_processingRequest"
-                                OnArchiveRequested="HandleArchiveAsync"
-                                OnRestoreRequested="HandleRestoreAsync" />
-                </div>
-
-            }
         </div>
     }
     else
@@ -94,9 +110,5 @@
                       ReturnLabel="Back to Projects"
                       ForwardUrl="/projects/create"
                       ForwardLabel="Create New Project" />
-
     }
 </MudContainer>
-
-
-

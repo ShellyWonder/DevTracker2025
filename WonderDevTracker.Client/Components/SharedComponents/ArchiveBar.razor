@@ -17,16 +17,16 @@
                 }
                 else
                 {
-                    <MudText>Archive</MudText>
+                    <MudText>ARCHIVE</MudText>
                 }
             </MudButton>
         }
         else
         {
             <MudButton Variant="Variant.Text"
-                       Color="Color.Success"
+                       Color="Color.Tertiary"
                        Disabled="@Busy"
-                       StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+                       StartIcon="@Icons.Material.Filled.Restore"
                        OnClick="OpenRestoreConfirmAsync"
                        aria-busy="@Busy">
                 @if (Busy)
@@ -36,7 +36,7 @@
                 }
                 else
                 {
-                    <MudText>Restore</MudText>
+                    <MudText>RESTORE</MudText>
                 }
             </MudButton>
         }
